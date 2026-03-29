@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Taslim Wealth Tracker | Cloud v2</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+:root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; --safe: #4ade80; --btc: #f7931a; }
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+body { background: var(--bg); color: var(--text); padding: 10px; }
+.container { max-width: 900px; margin: 0 auto; }
+.card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+
+.admin-only { display: none; }
+
+/* Crypto Cards */
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
+.coin-card { background: #0f172a; padding: 12px; border-radius: 12px; border-left: 4px solid var(--btc); text-align: center; }
+
+input, select { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 8px; color: white; width: 100%; margin-bottom: 10px; font-size: 16px; }
+.btn-save { background: var(--accent); color: #000; padding: 12px; border-radius: 8px; border:none; font-weight: bold; width:100%; cursor:pointer; }
+
+.platform-box { background: #0f172a; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid var(--accent); }
+.item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #1e293b; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+<h1 style="color:var(--accent); font-size:1.5rem;">Wealth Tracker 2026</h1>
+<button id="loginBtn" onclick="adminLogin()" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:5px 12px; border-radius:8px;">Admin Login</button>
+<button id="logoutBtn" onclick="adminLogout()" class="admin-only" style="background:#ef4444; color:white; padding:5px 12px; border-radius:8px; border:none;">Logout</button>
+</div>
+
+<div class="crypto-grid">
+<div class="coin-card" style="border-color: #f7931a;">
+<small>BTC/USDT</small>
+<div id="p-BTC" style="font-weight:bold; font-size:1.1rem;">$0.00</div>
+</div>
+<div class="coin-card" style="border-color: #627eea;">
+<small>ETH/USDT</small>
+<div id="p-ETH" style="font-weight:bold; font-size:1.1rem;">$0.00</div>
+</div>
+<div class="coin-card" style="border-color: #f3ba2f;">
+<small>BNB/USDT</small>
+<div id="p-BNB" style="font-weight:bold; font-size:1.1rem;">$0.00</div>
+</div>
+</div>
+
+<div class="card">
+<div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+<span>Investment Goal: <b>3,00,000 BDT</b></span>
+<span id="percText">0%</span>
+</div>
+<div style="background:#0b1120; height:12px; border-radius:6px; margin:10px 0; overflow:hidden;">
+<div id="percFill" style="background:var(--accent); height:100%; width:0%; transition:1s;"></div>
+</div>
+<small id="remText" style="color:#94a3b8">Remaining: 3,00,000 BDT</small>
+</div>
+
+<div class="card">
+<h3 style="margin-bottom:10px; font-size:1rem;">Growth Analysis</h3>
+<div style="height:220px"><canvas id="growthChart"></canvas></div>
+</div>
+
+<div class="card admin-only" id="adminForm">
+<h3>Add New Investment</h3>
+<select id="plat"><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Binance</option><option>Islami Bank (MSSA)</option></select>
+<input type="text" id="type" placeholder="Asset (e.g. BTC, Cow)">
+<input type="number" id="amt" placeholder="Amount (BDT/Qty)">
+<input type="number" id="prof" placeholder="Profit">
+<input type="date" id="date">
+<button class="btn-save" onclick="saveToCloud()">Save Investment</button>
+</div>
+
+<div class="card">
+<h3>Live Portfolio</h3>
+<div id="displayList" style="margin-top:10px;">Cloud থেকে ডাটা লোড হচ্ছে...</div>
+</div>
+</div>
+
+<script>
+// আপনার ফায়ারবেস কনফিগারেশন (স্ক্রিনশট অনুযায়ী)
+const firebaseConfig = {
+apiKey: "AIzaSyByRnVQvo4W1SM52mPohEZX...",
+authDomain: "taslim-wealth-tracker.firebaseapp.com",
+databaseURL: "https://taslim-wealth-tracker-default-rtdb.firebaseio.com",
+projectId: "taslim-wealth-tracker",
+storageBucket: "taslim-wealth-tracker.appspot.com",
+appId: "1:453009581729:web:968f948f932e6589360815"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+// ১. লাইভ ক্রিপ্টো আপডেট (Binance API)
+async function updateCrypto() {
+try {
+const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","BNBUSDT"]');
+const prices = await res.json();
+prices.forEach(p => {
+const coin = p.symbol.replace('USDT', '');
+document.getElementById(`p-${coin}`).innerText = `$${parseFloat(p.price).toLocaleString()}`;
+});
+} catch(e) { console.log("Crypto error"); }
+}
+setInterval(updateCrypto, 10000);
+updateCrypto();
+
+// ২. ক্লাউড থেকে ডাটা রিড
+database.ref('investments').on('value', (snap) => {
+const data = snap.val();
+const items = data ? Object.values(data) : [];
+renderUI(items);
+});
+
+// ৩. এডমিন কন্ট্রোল
+async function adminLogin() {
+const email = prompt("Admin Email:");
+const pass = prompt("Password:");
+try { await auth.signInWithEmailAndPassword(email, pass); } catch(e) { alert("ভুল পাসওয়ার্ড!"); }
+}
+function adminLogout() { auth.signOut(); }
+
+auth.onAuthStateChanged(user => {
+const adminElements = document.querySelectorAll('.admin-only');
+adminElements.forEach(el => el.style.display = user ? 'block' : 'none');
+document.getElementById('loginBtn').style.display = user ? 'none' : 'block';
+});
+
+// ৪. ক্লাউডে ডাটা সেভ
+function saveToCloud() {
+const id = Date.now();
+const record = {
+id,
+plat: document.getElementById('plat').value,
+type: document.getElementById('type').value,
+amt: parseFloat(document.getElementById('amt').value) || 0,
+prof: parseFloat(document.getElementById('prof').value) || 0,
+date: document.getElementById('date').value,
+status: 'running'
+};
+database.ref('investments/' + id).set(record).then(() => alert("Cloud-এ সেভ হয়েছে!"));
+}
+
+// ৫. গ্রাফ এবং ইউআই রেন্ডার
+let chart;
+function renderUI(items) {
+const totalInvest = items.reduce((s,i) => s + i.amt, 0);
+const p = Math.min((totalInvest / 300000) * 100, 100).toFixed(1);
+
+document.getElementById('percFill').style.width = p + "%";
+document.getElementById('percText').innerText = p + "%";
+document.getElementById('remText').innerText = `Remaining: ${(300000 - totalInvest).toLocaleString()} BDT`;
+
+let html = '';
+const groups = {};
+items.forEach(i => {
+if(!groups[i.plat]) groups[i.plat] = [];
+groups[i.plat].push(i);
+});
+
+for(let plat in groups) {
+let rows = '';
+groups[plat].forEach(i => {
+rows += `<div class="item-row">
+<div><b>${i.type}</b>: ${i.amt.toLocaleString()}</div>
+${auth.currentUser ? `<i class="fas fa-trash" style="color:#ef4444" onclick="deleteItem(${i.id})"></i>` : `<small>${i.status}</small>`}
+</div>`;
+});
+html += `<div class="platform-box"><strong>${plat}</strong>${rows}</div>`;
+}
+document.getElementById('displayList').innerHTML = html || "কোন ডাটা নেই।";
+
+updateChart(items);
+}
+
+function updateChart(items) {
+const ctx = document.getElementById('growthChart').getContext('2d');
+if(chart) chart.destroy();
+const sorted = items.sort((a,b) => new Date(a.date) - new Date(b.date));
+let sum = 0;
+chart = new Chart(ctx, {
+type: 'line',
+data: {
+labels: sorted.map(i => i.date),
+datasets: [{ label: 'Total Growth', data: sorted.map(i => { sum += i.amt; return sum; }), borderColor: '#facc15', fill: true, backgroundColor: 'rgba(250,204,21,0.1)', tension: 0.4 }]
+},
+options: { responsive:true, maintainAspectRatio:false }
+});
+}
+
+function deleteItem(id) { if(confirm("মুছে ফেলতে চান?")) database.ref('investments/' + id).remove(); }
+document.getElementById('date').value = new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
+
