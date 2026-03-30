@@ -2,199 +2,188 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wealth Tracker Cloud Pro</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-:root {
---bg-dark: #0b1120; --card-bg: #1e293b; --input-bg: #0f172a;
---accent: #facc15; --text-main: #e2e8f0; --text-sub: #94a3b8;
---profit-color: #4ade80; --btc-color: #f7931a; --eth-color: #627eea; --bnb-color: #f3ba2f;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
-.container { max-width: 1200px; margin: 0 auto; }
-.main-title { text-align: center; margin-bottom: 20px; color: var(--accent); cursor: pointer; user-select: none; }
-.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; }
-.stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; }
-.stat-value { font-size: 1.5rem; font-weight: 800; margin-top: 5px; }
-.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); }
-.card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-.form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
-.input-group { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 5px; }
-input, select { background: var(--input-bg); border: 1px solid #334155; padding: 10px; border-radius: 8px; color: white; }
-button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.btn-save { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 10px; }
-.btn-action { background: #334155; color: #fff; font-size: 0.7rem; }
-.btn-withdraw { background: #4ade80; color: #000; font-size: 0.7rem; }
-.platform-box { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-.status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
-.status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
-.status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+:root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; }
+body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 15px; }
+.container { max-width: 1000px; margin: auto; }
+.main-title { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; }
+.card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+input, select { background: #0f172a; border: 1px solid #334155; padding: 10px; color: white; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+button { background: var(--accent); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
+.platform-box { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); position: relative; }
 #adminPanel { display: none; }
+.profit-text { color: #4ade80; font-weight: bold; font-size: 0.9rem; }
+.end-date-text { color: #94a3b8; font-size: 0.8rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1 class="main-title" onclick="adminLogin()">Wealth Tracker Ultra Pro</h1>
+<h1 class="main-title" onclick="adminLogin()">Wealth Tracker (Cloud Pro)</h1>
 
-<div class="crypto-grid">
-<div class="crypto-card" style="border-color: var(--btc-color);">
-<div style="color:var(--btc-color); font-weight:bold;">BTC/USDT</div>
-<div id="p-BTC" class="stat-value">$0.00</div>
-</div>
-<div class="crypto-card" style="border-color: var(--eth-color);">
-<div style="color:var(--eth-color); font-weight:bold;">ETH/USDT</div>
-<div id="p-ETH" class="stat-value">$0.00</div>
-</div>
-<div class="crypto-card" style="border-color: var(--bnb-color);">
-<div style="color:var(--bnb-color); font-weight:bold;">BNB/USDT</div>
-<div id="p-BNB" class="stat-value">$0.00</div>
-</div>
-</div>
-
-<div class="dashboard-grid">
-<div class="stat-card"><div class="stat-label">Total Investment</div><div id="totalPrincipal" class="stat-value">0</div></div>
-<div class="stat-card"><div class="stat-label">Active Capital</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
-<div class="stat-card"><div class="stat-label">Goal (3Lakh)</div><div id="goalText" class="stat-value" style="color:var(--profit-color)">0%</div></div>
+<div class="grid">
+<div class="card">Total Invested: <h2 id="totalVal">0</h2></div>
+<div class="card">Total Profit: <h2 id="profitVal" style="color:#4ade80">0</h2></div>
 </div>
 
 <div id="adminPanel" class="card">
-<h3>Admin: Add Investment</h3>
-<div class="form-row">
-<div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
-<div class="input-group"><label>Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Gold</option><option>Business</option></select></div>
-<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any"></div>
-<div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
-<div class="input-group"><label>Date</label><input type="date" id="sDate"></div>
+<h3><i class="fas fa-edit"></i> Manage Investment</h3>
+<input type="hidden" id="docId">
+<div class="grid" style="grid-template-columns: 1fr 1fr;">
+<input type="text" id="plat" placeholder="Platform (e.g. Binance)">
+<input type="text" id="type" placeholder="Asset (e.g. BTC/Gold)">
+<input type="number" id="amt" placeholder="Investment Amount">
+<input type="number" id="profit" placeholder="Profit (Amount)">
+<div><label style="font-size: 11px; color:#94a3b8">Start Date</label><input type="date" id="sDate"></div>
+<div><label style="font-size: 11px; color:#94a3b8">End Date (Target)</label><input type="date" id="eDate"></div>
 </div>
-<button class="btn-save" onclick="addEntry()">Save Data</button>
-<button class="btn-action" style="margin-top:10px;" onclick="exportData()">Download Backup</button>
-</div>
-
-<div class="charts-grid">
-<div class="card"><h3>Growth Analysis</h3><div style="height:200px"><canvas id="growthChart"></canvas></div></div>
-<div class="card"><h3>Platform Split</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
+<button id="saveBtn" onclick="saveToCloud()">Upload to Cloud</button>
+<button id="updateBtn" style="display:none; background:#4ade80;" onclick="updateExisting()">Update Changes</button>
+<button id="cancelBtn" style="display:none; background:#f87171; color:white;" onclick="resetForm()">Cancel Edit</button>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-<div class="card"><h2>Portfolio</h2><div id="portfolioList"></div></div>
-<div class="card"><h2>Withdrawals</h2><div id="withdrawList" style="font-size:0.85rem;"></div></div>
+<div class="grid">
+<div class="card"><h3>Portfolio List</h3><div id="portfolioList">Loading Cloud Data...</div></div>
+<div class="card"><h3>Platform Split</h3><canvas id="pChart"></canvas></div>
 </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// আপনার দেওয়া কনফিগ এখানে সেট করা হয়েছে
+const firebaseConfig = {
+apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
+authDomain: "mywealthtracker-b7f62.firebaseapp.com",
+projectId: "mywealthtracker-b7f62",
+storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
+messagingSenderId: "575029483834",
+appId: "1:575029483834:web:4d9927d1c6ed653fff5803",
+measurementId: "G-F9QCL7WCCW"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const invCol = collection(db, "investments");
+
 let investments = [];
 let isAdmin = false;
-const STORAGE_KEY = "wealth_final_v2026";
-const TARGET_GOAL = 300000;
 
-function adminLogin() {
-const pass = prompt("Enter Admin Password:");
-if (pass === "1234") {
+window.adminLogin = function() {
+if(prompt("Admin Password:") === "1234") {
 isAdmin = true;
 document.getElementById('adminPanel').style.display = 'block';
-alert("Admin Active!");
 renderAll();
 }
 }
 
-window.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'a') adminLogin(); });
-
-async function updateCrypto() {
-try {
-const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
-const data = await res.json();
-['BTC','ETH','BNB'].forEach(coin => {
-const p = data.find(x => x.symbol === coin+'USDT');
-if(p) document.getElementById(`p-${coin}`).innerText = `$${parseFloat(p.price).toLocaleString()}`;
-});
-} catch (e) {}
+window.saveToCloud = async function() {
+const data = {
+platform: document.getElementById('plat').value,
+type: document.getElementById('type').value,
+amount: parseFloat(document.getElementById('amt').value) || 0,
+profit: parseFloat(document.getElementById('profit').value) || 0,
+startDate: document.getElementById('sDate').value,
+endDate: document.getElementById('eDate').value,
+timestamp: Date.now()
+};
+if(!data.platform || !data.amount) return alert("Fill essential fields!");
+await addDoc(invCol, data);
+resetForm();
 }
 
-function addEntry() {
-const inv = {
-id: Date.now(),
+window.editItem = function(id) {
+const item = investments.find(i => i.id === id);
+document.getElementById('docId').value = id;
+document.getElementById('plat').value = item.platform;
+document.getElementById('type').value = item.type;
+document.getElementById('amt').value = item.amount;
+document.getElementById('profit').value = item.profit;
+document.getElementById('sDate').value = item.startDate;
+document.getElementById('eDate').value = item.endDate;
+document.getElementById('saveBtn').style.display = 'none';
+document.getElementById('updateBtn').style.display = 'block';
+document.getElementById('cancelBtn').style.display = 'block';
+window.scrollTo(0,0);
+}
+
+window.updateExisting = async function() {
+const id = document.getElementById('docId').value;
+const updatedData = {
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
-status: document.getElementById('status').value,
-start: document.getElementById('sDate').value
+profit: parseFloat(document.getElementById('profit').value),
+startDate: document.getElementById('sDate').value,
+endDate: document.getElementById('eDate').value
 };
-if(!inv.amount || !inv.start) return;
-investments.push(inv);
-saveAndRender();
+await updateDoc(doc(db, "investments", id), updatedData);
+resetForm();
 }
 
-let gChart = null, pChart = null;
-function renderCharts() {
-const gCtx = document.getElementById('growthChart').getContext('2d');
-if(gChart) gChart.destroy();
-const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
-let sum = 0;
-gChart = new Chart(gCtx, {
-type: 'line',
-data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Total Value', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15', fill: true, backgroundColor: 'rgba(250, 204, 21, 0.1)' }] },
-options: { responsive: true, maintainAspectRatio: false }
+window.resetForm = function() {
+document.getElementById('docId').value = '';
+document.getElementById('plat').value = '';
+document.getElementById('type').value = '';
+document.getElementById('amt').value = '';
+document.getElementById('profit').value = '';
+document.getElementById('saveBtn').style.display = 'block';
+document.getElementById('updateBtn').style.display = 'none';
+document.getElementById('cancelBtn').style.display = 'none';
+}
+
+// রিয়েল-টাইম ডাটা লিসেনার
+onSnapshot(invCol, (snapshot) => {
+investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+renderAll();
 });
 
-const pCtx = document.getElementById('platformChart').getContext('2d');
-if(pChart) pChart.destroy();
+function renderAll() {
+const total = investments.reduce((s, i) => s + i.amount, 0);
+const profit = investments.reduce((s, i) => s + i.profit, 0);
+document.getElementById('totalVal').innerText = total.toLocaleString() + " BDT";
+document.getElementById('profitVal').innerText = profit.toLocaleString() + " BDT";
+
+const list = document.getElementById('portfolioList');
+list.innerHTML = investments.map(i => `
+<div class="platform-box">
+<b>${i.platform}</b> - ${i.type}<br>
+Invest: ${i.amount.toLocaleString()} BDT <br>
+<span class="profit-text">Profit: ${i.profit.toLocaleString()} BDT</span><br>
+<span class="end-date-text"><i class="far fa-calendar-check"></i> End: ${i.endDate || 'No Date'}</span>
+${isAdmin ? `
+<div style="margin-top:10px; display:flex; gap:5px;">
+<button style="background:#3b82f6; color:white; font-size:12px;" onclick="editItem('${i.id}')">EDIT</button>
+<button style="background:#ef4444; color:white; font-size:12px;" onclick="deleteItem('${i.id}')">DEL</button>
+</div>
+` : ''}
+</div>
+`).join('');
+renderChart();
+}
+
+window.deleteItem = async function(id) {
+if(confirm("Delete permanently from Cloud?")) await deleteDoc(doc(db, "investments", id));
+}
+
+let myChart = null;
+function renderChart() {
+const ctx = document.getElementById('pChart').getContext('2d');
+if(myChart) myChart.destroy();
 const platMap = {};
 investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
-pChart = new Chart(pCtx, {
+myChart = new Chart(ctx, {
 type: 'doughnut',
-data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#3b82f6'] }] },
+data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15', '#4ade80', '#627eea', '#f87171'] }] },
 options: { responsive: true, maintainAspectRatio: false }
 });
 }
-
-function renderStats() {
-const total = investments.reduce((s, i) => s + i.amount, 0);
-const active = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
-document.getElementById('totalPrincipal').innerText = total.toLocaleString() + " BDT";
-document.getElementById('activeInvestment').innerText = active.toLocaleString() + " BDT";
-document.getElementById('goalText').innerText = ((total / TARGET_GOAL) * 100).toFixed(1) + "%";
-}
-
-function renderPortfolio() {
-const container = document.getElementById('portfolioList');
-const map = {};
-investments.forEach(i => { if(!map[i.platform]) map[i.platform] = []; map[i.platform].push(i); });
-let html = '';
-for(let p in map) {
-let items = '';
-map[p].forEach(i => {
-const isComp = i.status === 'completed';
-items += `<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity:${isComp?0.5:1}">
-<div><b>${i.type}</b> <span class="status-badge ${isComp?'status-completed':'status-active'}">${i.status}</span><br><small>${i.amount.toLocaleString()} BDT</small></div>
-${isAdmin ? `<div><button class="btn-action" onclick="deleteInv(${i.id})"><i class="fas fa-trash"></i></button></div>` : ''}
-</div>`;
-});
-html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
-}
-container.innerHTML = html || "No Data.";
-}
-
-function deleteInv(id) { if(confirm("Delete?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); } }
-function exportData() {
-const blob = new Blob([JSON.stringify(investments)], {type: "application/json"});
-const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
-}
-function saveAndRender() { localStorage.setItem(STORAGE_KEY, JSON.stringify(investments)); renderAll(); }
-function renderAll() { renderStats(); renderPortfolio(); renderCharts(); updateCrypto(); }
-function load() {
-const d = localStorage.getItem(STORAGE_KEY); if(d) investments = JSON.parse(d);
-document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
-renderAll();
-}
-setInterval(updateCrypto, 30000);
-load();
 </script>
 </body>
 </html>
