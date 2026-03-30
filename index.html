@@ -23,7 +23,7 @@
 --btc-color: #f7931a;
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
---usd-color: #64748b;
+--usd-color: #10b981;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -119,8 +119,6 @@ color: var(--text-sub);
 opacity: 0.5;
 }
 
-h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 800; font-size: 1.5rem; }
-
 .admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
 .admin-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
@@ -140,14 +138,19 @@ h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight:
 .stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 8px; }
 .realtime-badge { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: #4ade8033; padding: 3px 8px; border-radius: 20px; }
 
-.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); transition: all 0.3s; }
 .btc-card { border-color: var(--btc-color); }
 .eth-card { border-color: var(--eth-color); }
 .bnb-card { border-color: var(--bnb-color); }
-.crypto-price-usd { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
-.crypto-price-bdt { font-size: 0.8rem; color: var(--accent); }
-.crypto-details { font-size: 0.75rem; margin-top: 8px; color: var(--text-sub); }
+.crypto-price-usd { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
+.crypto-price-bdt { font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+.crypto-details { font-size: 0.75rem; margin-top: 10px; color: var(--text-sub); border-top: 1px solid #334155; padding-top: 8px; }
+.crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.crypto-details .label { color: var(--text-sub); }
+.crypto-details .value-usd { color: var(--usd-color); font-weight: 500; }
+.crypto-details .value-bdt { color: var(--accent); font-weight: 500; }
+.purchase-info { background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; margin-top: 8px; font-size: 0.7rem; }
 
 .card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
@@ -173,7 +176,6 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .profit-diff-positive { color: var(--profit-color); }
 
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
-.cloud-badge { background: #4ade8033; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
 .toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
 .modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--accent); }
@@ -195,15 +197,13 @@ to { transform: translateX(0); opacity: 1; }
 50% { background-color: rgba(248, 113, 113, 0.2); }
 100% { background-color: rgba(248, 113, 113, 0); }
 }
-.bdt-symbol { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-.usd-symbol { font-size: 0.8rem; color: var(--usd-color); }
 .footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; color: var(--text-sub); font-size: 0.75rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<!-- Header with Owner Name - TASLIM RONY -->
+<!-- Header with Owner Name -->
 <div class="app-header">
 <div class="header-top">
 <div class="app-title">
@@ -248,23 +248,35 @@ to { transform: translateX(0); opacity: 1; }
 </div>
 
 <div class="crypto-grid">
-<div class="crypto-card btc-card">
+<div class="crypto-card btc-card" id="btc-card">
 <div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
 <div class="crypto-price-usd" id="p-BTC">$0.00</div>
-<div class="crypto-price-bdt" id="p-BTC-BDT">০.০০ ৳</div>
-<div class="crypto-details">Qty: <span id="q-BTC">0</span> | Value: <span id="v-BTC-BDT">0</span> ৳</div>
+<div class="crypto-price-bdt" id="p-BTC-BDT">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span class="label">📊 Quantity:</span><span id="q-BTC">0</span></div>
+<div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BTC-USD">$0.00</span> | <span class="value-bdt" id="v-BTC-BDT">0.00 BDT</span></div>
+<div id="btc-purchase-info" class="purchase-info"></div>
 </div>
-<div class="crypto-card eth-card">
+</div>
+<div class="crypto-card eth-card" id="eth-card">
 <div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
 <div class="crypto-price-usd" id="p-ETH">$0.00</div>
-<div class="crypto-price-bdt" id="p-ETH-BDT">০.০০ ৳</div>
-<div class="crypto-details">Qty: <span id="q-ETH">0</span> | Value: <span id="v-ETH-BDT">0</span> ৳</div>
+<div class="crypto-price-bdt" id="p-ETH-BDT">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span class="label">📊 Quantity:</span><span id="q-ETH">0</span></div>
+<div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-ETH-USD">$0.00</span> | <span class="value-bdt" id="v-ETH-BDT">0.00 BDT</span></div>
+<div id="eth-purchase-info" class="purchase-info"></div>
 </div>
-<div class="crypto-card bnb-card">
+</div>
+<div class="crypto-card bnb-card" id="bnb-card">
 <div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
 <div class="crypto-price-usd" id="p-BNB">$0.00</div>
-<div class="crypto-price-bdt" id="p-BNB-BDT">০.০০ ৳</div>
-<div class="crypto-details">Qty: <span id="q-BNB">0</span> | Value: <span id="v-BNB-BDT">0</span> ৳</div>
+<div class="crypto-price-bdt" id="p-BNB-BDT">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span class="label">📊 Quantity:</span><span id="q-BNB">0</span></div>
+<div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BNB-USD">$0.00</span> | <span class="value-bdt" id="v-BNB-BDT">0.00 BDT</span></div>
+<div id="bnb-purchase-info" class="purchase-info"></div>
+</div>
 </div>
 </div>
 
@@ -272,31 +284,31 @@ to { transform: translateX(0); opacity: 1; }
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div>
 <div class="stat-label">💰 Total Invested (Principal)</div>
-<div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> BDT</div>
 <div class="stat-value-usd">$ <span id="totalPrincipalUSD">0.00</span> USD</div>
 <div class="stat-sub">📌 This is what you PAID (never changes)</div>
 </div>
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
 <div class="stat-label">📈 Current Portfolio Value</div>
-<div class="stat-value-bdt"><span id="currentValueBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-bdt"><span id="currentValueBDT">0</span> BDT</div>
 <div class="stat-value-usd">$ <span id="currentValueUSD">0.00</span> USD</div>
 <div class="stat-sub" id="profitLossDisplay"></div>
 </div>
 <div class="stat-card">
 <div class="stat-label">🎯 Active Investment</div>
-<div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> BDT</div>
 <div class="stat-value-usd">$ <span id="activeInvestmentUSD">0.00</span> USD</div>
 </div>
 </div>
 
 <div class="goal-card">
 <div style="display:flex; justify-content:space-between; font-size: 0.9rem;">
-<span>🎯 Target Goal: <strong>৩,০০,০০০ ৳</strong></span>
+<span>🎯 Target Goal: <strong>300,000 BDT</strong></span>
 <span id="goalPercent">0%</span>
 </div>
 <div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div>
-<small id="goalRem" style="color:var(--text-sub)">Remaining: 0 ৳</small>
+<small id="goalRem" style="color:var(--text-sub)">Remaining: 0 BDT</small>
 </div>
 
 <div id="investmentFormCard" class="card" style="display:none;">
@@ -319,7 +331,7 @@ to { transform: translateX(0); opacity: 1; }
 <input type="number" id="amt" step="any" placeholder="0.00">
 <small id="currencyHint" style="font-size:0.7rem; color:var(--text-sub);"></small>
 </div>
-<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought"></div>
+<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought (e.g., 50000)"></div>
 <div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
 <div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (after sell)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
@@ -344,7 +356,7 @@ to { transform: translateX(0); opacity: 1; }
 
 <div class="footer">
 <p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud | Admin Password: <strong>Tt12345</strong></p>
-<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (BDT/USD) | Auto-sync to Cloud</p>
+<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (USD/BDT) | Shows Purchase Price & Current Value</p>
 </div>
 </div>
 <div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
@@ -398,9 +410,11 @@ let currentEditId = null;
 let USD_TO_BDT = 126;
 let currentCryptoPrices = { BTC: 0, ETH: 0, BNB: 0 };
 let lastPortfolioValue = 0;
+let cryptoPurchaseInfo = { BTC: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 }, ETH: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 }, BNB: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 } };
 
-function formatBDT(amount) {
-return amount.toLocaleString('bn-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function formatNumber(num) {
+if (isNaN(num)) return "0.00";
+return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function loadExchangeRate() {
@@ -438,7 +452,7 @@ const currencyHint = document.getElementById('currencyHint');
 
 if(cryptoTypes.includes(type)) {
 amountLabel.innerHTML = 'Quantity (Coins)';
-currencyHint.innerHTML = '📊 Example: 0.05 BTC';
+currencyHint.innerHTML = '📊 Example: 0.05 BTC | Enter how many coins you bought';
 if(document.getElementById('purchasePrice')) {
 document.getElementById('purchasePrice').parentElement.style.display = 'flex';
 }
@@ -449,6 +463,45 @@ if(document.getElementById('purchasePrice')) {
 document.getElementById('purchasePrice').parentElement.style.display = 'none';
 }
 }
+}
+
+function updateCryptoPurchaseInfo() {
+// Reset purchase info
+cryptoPurchaseInfo = { BTC: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 }, ETH: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 }, BNB: { totalQty: 0, totalCostUSD: 0, avgPrice: 0 } };
+
+investments.forEach(inv => {
+if(inv.isCrypto && inv.status === 'active' && inv.purchasePrice && inv.amount) {
+const coin = inv.type;
+if(cryptoPurchaseInfo[coin]) {
+cryptoPurchaseInfo[coin].totalQty += inv.amount;
+cryptoPurchaseInfo[coin].totalCostUSD += inv.amount * inv.purchasePrice;
+}
+}
+});
+
+// Calculate average price
+for(let coin in cryptoPurchaseInfo) {
+if(cryptoPurchaseInfo[coin].totalQty > 0) {
+cryptoPurchaseInfo[coin].avgPrice = cryptoPurchaseInfo[coin].totalCostUSD / cryptoPurchaseInfo[coin].totalQty;
+}
+}
+
+// Update display for each crypto
+const coins = ['BTC', 'ETH', 'BNB'];
+coins.forEach(coin => {
+const info = cryptoPurchaseInfo[coin];
+const purchaseDiv = document.getElementById(`${coin.toLowerCase()}-purchase-info`);
+if(purchaseDiv) {
+if(info.totalQty > 0) {
+purchaseDiv.innerHTML = `
+<div class="row"><span class="label">📈 Purchase Price:</span><span class="value-usd">$${formatNumber(info.avgPrice)}</span> <span class="value-bdt">(${formatNumber(usdToBdt(info.avgPrice))} BDT)</span></div>
+<div class="row"><span class="label">💵 Total Invested:</span><span class="value-usd">$${formatNumber(info.totalCostUSD)}</span> <span class="value-bdt">(${formatNumber(usdToBdt(info.totalCostUSD))} BDT)</span></div>
+`;
+} else {
+purchaseDiv.innerHTML = `<div class="row"><span class="label">📈 No active holdings</span></div>`;
+}
+}
+});
 }
 
 try {
@@ -478,7 +531,7 @@ const investment = investments.find(i => i.id === id);
 if(!investment) return;
 currentEditId = id;
 document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amountDisplay || investment.amount}`;
-document.getElementById('showExpectedProfit').innerText = investment.expectedProfit || 0;
+document.getElementById('showExpectedProfit').innerText = formatNumber(investment.expectedProfit || 0);
 document.getElementById('editActualProfit').value = investment.actualProfit || 0;
 document.getElementById('editProfitModal').style.display = 'flex';
 }
@@ -494,7 +547,7 @@ if(investment) {
 investment.actualProfit = newActualProfit;
 await syncInvestmentsToFirestore();
 renderAll();
-showToast(`Profit updated to ${newActualProfit} BDT`);
+showToast(`Profit updated to ${formatNumber(newActualProfit)} BDT`);
 }
 closeModal();
 }
@@ -581,11 +634,11 @@ let amountBDT, amountUSD, amountDisplay;
 if(isCrypto) {
 amountUSD = amountValue * (purchasePrice || 0);
 amountBDT = usdToBdt(amountUSD);
-amountDisplay = `${amountValue} ${type} coins @ $${purchasePrice || 0}`;
+amountDisplay = `${amountValue} ${type} coins @ $${formatNumber(purchasePrice || 0)}`;
 } else {
 amountBDT = amountValue;
 amountUSD = bdtToUsd(amountValue);
-amountDisplay = `${formatBDT(amountValue)} BDT`;
+amountDisplay = `${formatNumber(amountValue)} BDT`;
 }
 
 const inv = {
@@ -627,7 +680,8 @@ profit: finalProfit,
 date: new Date().toISOString().slice(0,10),
 platform: inv.platform,
 type: inv.type,
-isCrypto: inv.isCrypto
+isCrypto: inv.isCrypto,
+purchasePrice: inv.purchasePrice
 });
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(history));
 await syncInvestmentsToFirestore();
@@ -698,14 +752,14 @@ const current = calculateCurrentPortfolioValue();
 const profitLoss = current.bdt - principal.bdt;
 const profitLossPercent = principal.bdt > 0 ? (profitLoss / principal.bdt * 100) : 0;
 
-document.getElementById('totalPrincipalBDT').innerHTML = formatBDT(principal.bdt);
-document.getElementById('totalPrincipalUSD').innerHTML = principal.usd.toLocaleString(undefined, {minimumFractionDigits:2});
-document.getElementById('currentValueBDT').innerHTML = formatBDT(current.bdt);
-document.getElementById('currentValueUSD').innerHTML = current.usd.toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById('totalPrincipalBDT').innerHTML = formatNumber(principal.bdt);
+document.getElementById('totalPrincipalUSD').innerHTML = formatNumber(principal.usd);
+document.getElementById('currentValueBDT').innerHTML = formatNumber(current.bdt);
+document.getElementById('currentValueUSD').innerHTML = formatNumber(current.usd);
 
 const profitLossColor = profitLoss >= 0 ? 'var(--profit-color)' : 'var(--loss-color)';
 const profitLossSign = profitLoss >= 0 ? '+' : '';
-document.getElementById('profitLossDisplay').innerHTML = `<span style="color:${profitLossColor}">${profitLossSign}${formatBDT(Math.abs(profitLoss))} BDT (${profitLossSign}${profitLossPercent.toFixed(2)}%)</span>`;
+document.getElementById('profitLossDisplay').innerHTML = `<span style="color:${profitLossColor}">${profitLossSign}${formatNumber(Math.abs(profitLoss))} BDT (${profitLossSign}${profitLossPercent.toFixed(2)}%)</span>`;
 
 if(Math.abs(current.bdt - lastPortfolioValue) > 100) {
 const card = document.querySelector('.stat-card:has(#currentValueBDT)');
@@ -724,13 +778,13 @@ if(inv.isCrypto && inv.amountUSD) activeBDT += usdToBdt(inv.amountUSD);
 else if(inv.amountBDT) activeBDT += inv.amountBDT;
 else if(inv.amount) activeBDT += inv.amount;
 });
-document.getElementById('activeInvestmentBDT').innerHTML = formatBDT(activeBDT);
-document.getElementById('activeInvestmentUSD').innerHTML = bdtToUsd(activeBDT).toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById('activeInvestmentBDT').innerHTML = formatNumber(activeBDT);
+document.getElementById('activeInvestmentUSD').innerHTML = formatNumber(bdtToUsd(activeBDT));
 
 const progress = Math.min((principal.bdt / 300000) * 100, 100).toFixed(1);
 document.getElementById('goalFill').style.width = progress + "%";
 document.getElementById('goalPercent').innerText = progress + "%";
-document.getElementById('goalRem').innerHTML = `Remaining: ${formatBDT(Math.max(0, 300000 - principal.bdt))} BDT`;
+document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0, 300000 - principal.bdt))} BDT`;
 }
 
 function renderPortfolio() {
@@ -754,7 +808,10 @@ const currentUSD = i.amount * currentCryptoPrices[i.type];
 const currentBDT = usdToBdt(currentUSD);
 const profitLoss = currentBDT - i.amountBDT;
 const plClass = profitLoss >= 0 ? 'profit-actual' : 'profit-diff-negative';
-currentValue = `<small class="${plClass}">📊 Current: ${formatBDT(currentBDT)} BDT (${profitLoss >= 0 ? '+' : ''}${formatBDT(profitLoss)})</small><br>`;
+currentValue = `<small class="${plClass}">📊 Current: ${formatNumber(currentBDT)} BDT (${profitLoss >= 0 ? '+' : ''}${formatNumber(profitLoss)})</small><br>`;
+if(i.purchasePrice) {
+currentValue += `<small>💵 Purchase: $${formatNumber(i.purchasePrice)} (${formatNumber(usdToBdt(i.purchasePrice))} BDT)</small><br>`;
+}
 }
 
 items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
@@ -763,8 +820,8 @@ items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${isCompleted ? 'Completed' : 'Active'}</span><br>
 <small>💰 Invested: ${i.amountDisplay || i.amount}</small><br>
 ${currentValue}
-<small class="profit-expected">Expected: +${i.expectedProfit || 0} BDT</small><br>
-<small class="profit-actual">Actual: +${i.actualProfit || 0} BDT</small>
+<small class="profit-expected">Expected: +${formatNumber(i.expectedProfit || 0)} BDT</small><br>
+<small class="profit-actual">Actual: +${formatNumber(i.actualProfit || 0)} BDT</small>
 </div>
 <div style="display:flex; gap:5px;">
 ${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>` : ''}
@@ -791,8 +848,9 @@ let html = '';
 [...history].reverse().forEach(h => {
 html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <b>${h.platform} - ${h.type}</b><br>
-${h.isCrypto ? `${h.amount} coins` : `${formatBDT(h.amountBDT || h.amount)} BDT`}<br>
-<span class="profit-actual">Profit: +${h.profit} BDT</span><br>
+${h.isCrypto ? `${h.amount} coins` : `${formatNumber(h.amountBDT || h.amount)} BDT`}<br>
+${h.purchasePrice ? `<small>Purchase Price: $${formatNumber(h.purchasePrice)}</small><br>` : ''}
+<span class="profit-actual">Profit: +${formatNumber(h.profit)} BDT</span><br>
 <small>📅 ${h.date}</small>
 </div>`;
 });
@@ -858,13 +916,17 @@ currentCryptoPrices[coin] = price;
 const bdtPrice = usdToBdt(price);
 
 const qty = investments.filter(i => i.type === coin && i.status === 'active' && i.isCrypto).reduce((sum, i) => sum + i.amount, 0);
-const bdtValue = usdToBdt(qty * price);
+const currentUSD = qty * price;
+const currentBDT = usdToBdt(currentUSD);
 
-document.getElementById(`p-${coin}`).innerHTML = `$${price.toLocaleString()}`;
-document.getElementById(`p-${coin}-BDT`).innerHTML = `${formatBDT(bdtPrice)} BDT`;
+document.getElementById(`p-${coin}`).innerHTML = `$${formatNumber(price)}`;
+document.getElementById(`p-${coin}-BDT`).innerHTML = `${formatNumber(bdtPrice)} BDT`;
 document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}-BDT`).innerHTML = formatBDT(bdtValue);
+document.getElementById(`v-${coin}-USD`).innerHTML = `$${formatNumber(currentUSD)}`;
+document.getElementById(`v-${coin}-BDT`).innerHTML = `${formatNumber(currentBDT)} BDT`;
 });
+
+updateCryptoPurchaseInfo();
 renderStats();
 renderPortfolio();
 renderCharts();
@@ -872,6 +934,7 @@ renderCharts();
 }
 
 function renderAll() {
+updateCryptoPurchaseInfo();
 renderStats();
 renderPortfolio();
 renderCharts();
