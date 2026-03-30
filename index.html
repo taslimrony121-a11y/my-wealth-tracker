@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro | Crypto & Traditional Assets</title>
+<title>Wealth Tracker Ultra Pro | Real-time Portfolio Value</title>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -23,6 +23,7 @@
 --btc-color: #f7931a;
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
+--usd-color: #10b981;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -43,12 +44,16 @@ h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight:
 .progress-fill { background: var(--accent); height: 100%; transition: 0.5s; width: 0%; }
 
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; }
+.stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; position: relative; overflow: hidden; }
 .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
 .stat-value { font-size: 1.5rem; font-weight: 800; margin-top: 5px; }
+.stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 3px; }
+.realtime-badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; background: #4ade8033; padding: 2px 6px; border-radius: 20px; }
+.price-up { color: var(--profit-color); }
+.price-down { color: var(--loss-color); }
 
 .crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); }
+.crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); transition: all 0.3s; }
 .btc-card { border-color: var(--btc-color); }
 .eth-card { border-color: var(--eth-color); }
 .bnb-card { border-color: var(--bnb-color); }
@@ -75,6 +80,8 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .profit-expected { color: var(--text-sub); text-decoration: line-through; }
 .profit-diff-negative { color: var(--loss-color); }
 .profit-diff-positive { color: var(--profit-color); }
+.currency-usd { color: var(--usd-color); }
+.currency-bdt { color: var(--accent); }
 
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
 .cloud-badge { background: #4ade8033; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
@@ -82,16 +89,29 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
 .modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--accent); }
 .modal-content input { width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; }
+.exchange-rate-box { background: var(--input-bg); padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; }
 @keyframes slideIn {
 from { transform: translateX(100%); opacity: 0; }
 to { transform: translateX(0); opacity: 1; }
+}
+.flash-green { animation: flashProfit 0.5s ease; }
+.flash-red { animation: flashLoss 0.5s ease; }
+@keyframes flashProfit {
+0% { background-color: rgba(74, 222, 128, 0); }
+50% { background-color: rgba(74, 222, 128, 0.3); }
+100% { background-color: rgba(74, 222, 128, 0); }
+}
+@keyframes flashLoss {
+0% { background-color: rgba(248, 113, 113, 0); }
+50% { background-color: rgba(248, 113, 113, 0.3); }
+100% { background-color: rgba(248, 113, 113, 0); }
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Crypto & Assets</span></h1>
+<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-chart-line"></i><span class="cloud-badge"><i class="fas fa-sync-alt"></i> Real-time Portfolio Value</span></h1>
 
 <div id="adminBar" class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
@@ -106,28 +126,51 @@ to { transform: translateX(0); opacity: 1; }
 </div>
 </div>
 
+<!-- Exchange Rate Display -->
+<div class="exchange-rate-box">
+<i class="fas fa-exchange-alt"></i> Exchange Rate: 1 USD = <strong id="exchangeRate">125</strong> BDT
+<button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px; display:inline-flex;"><i class="fas fa-edit"></i> Edit</button>
+<span style="margin-left:15px;"><i class="fas fa-info-circle"></i> Crypto prices update every 5 seconds</span>
+</div>
+
 <div class="crypto-grid">
 <div class="crypto-card btc-card">
 <div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC/USDT</div>
 <div id="p-BTC" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BTC">0</span> | Value: $<span id="v-BTC">0</span></div>
+<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BTC">0</span> | Value: $<span id="v-BTC">0</span> <span style="color:var(--accent);">(<span id="v-BTC-BDT">0</span> BDT)</span></div>
 </div>
 <div class="crypto-card eth-card">
 <div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH/USDT</div>
 <div id="p-ETH" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-ETH">0</span> | Value: $<span id="v-ETH">0</span></div>
+<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-ETH">0</span> | Value: $<span id="v-ETH">0</span> <span style="color:var(--accent);">(<span id="v-ETH-BDT">0</span> BDT)</span></div>
 </div>
 <div class="crypto-card bnb-card">
 <div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB/USDT</div>
 <div id="p-BNB" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BNB">0</span> | Value: $<span id="v-BNB">0</span></div>
+<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BNB">0</span> | Value: $<span id="v-BNB">0</span> <span style="color:var(--accent);">(<span id="v-BNB-BDT">0</span> BDT)</span></div>
 </div>
 </div>
 
 <div class="dashboard-grid">
-<div class="stat-card"><div class="stat-label">Total Principal</div><div id="totalPrincipal" class="stat-value">0</div></div>
-<div class="stat-card"><div class="stat-label">Active Investment</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
-<div class="stat-card"><div class="stat-label">Total Actual Profit</div><div id="totalActualProfit" class="stat-value" style="color:var(--profit-color)">0</div></div>
+<div class="stat-card">
+<div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div>
+<div class="stat-label">💰 Total Invested (Principal)</div>
+<div id="totalPrincipalUSD" class="stat-value" style="color:var(--usd-color);">$0</div>
+<div class="stat-sub" id="totalPrincipalBDT">0 BDT</div>
+<div class="stat-sub" style="font-size:0.65rem;">💡 This is what you PAID (never changes)</div>
+</div>
+<div class="stat-card">
+<div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
+<div class="stat-label">📈 Current Portfolio Value</div>
+<div id="currentValueUSD" class="stat-value" style="color:var(--profit-color);">$0</div>
+<div class="stat-sub" id="currentValueBDT">0 BDT</div>
+<div class="stat-sub" id="profitLossDisplay" style="font-size:0.75rem;"></div>
+</div>
+<div class="stat-card">
+<div class="stat-label">🎯 Active Investment</div>
+<div id="activeInvestmentUSD" class="stat-value" style="color:var(--accent);">$0</div>
+<div class="stat-sub" id="activeInvestmentBDT">0 BDT</div>
+</div>
 </div>
 
 <div class="goal-card">
@@ -145,21 +188,23 @@ to { transform: translateX(0); opacity: 1; }
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
 <div class="input-group"><label>Asset Type</label>
 <select id="type" onchange="updateAmountLabel()">
-<option value="BTC">BTC (Cryptocurrency - Qty)</option>
-<option value="ETH">ETH (Cryptocurrency - Qty)</option>
-<option value="BNB">BNB (Cryptocurrency - Qty)</option>
-<option value="Agriculture">Agriculture (BDT Amount)</option>
-<option value="MSSA Installment">MSSA Installment (BDT Amount)</option>
-<option value="Shop/Business">Shop/Business (BDT Amount)</option>
-<option value="Gold">Gold (BDT Amount)</option>
+<option value="BTC">BTC (Crypto - Real-time Price)</option>
+<option value="ETH">ETH (Crypto - Real-time Price)</option>
+<option value="BNB">BNB (Crypto - Real-time Price)</option>
+<option value="Agriculture">Agriculture (Fixed BDT)</option>
+<option value="MSSA Installment">MSSA Installment (Fixed BDT)</option>
+<option value="Shop/Business">Shop/Business (Fixed BDT)</option>
+<option value="Gold">Gold (Fixed BDT)</option>
 </select>
 </div>
 <div class="input-group">
 <label id="amountLabel">Quantity / Amount</label>
 <input type="number" id="amt" step="any" placeholder="0.00">
+<small id="currencyHint" style="font-size:0.7rem; color:var(--text-sub);"></small>
 </div>
+<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought (for crypto)"></div>
 <div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
-<div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (can edit later)"></div>
+<div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (after sell)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
 </div>
 <div class="form-row">
@@ -170,9 +215,9 @@ to { transform: translateX(0); opacity: 1; }
 </div>
 
 <div class="charts-grid">
-<div class="card"><h3><i class="fas fa-chart-line"></i> Growth Analysis</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
-<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
-<div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-line"></i> Portfolio Growth vs Current Value</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit (Realized)</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
 </div>
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
@@ -185,14 +230,27 @@ to { transform: translateX(0); opacity: 1; }
 <!-- Edit Profit Modal -->
 <div id="editProfitModal" class="modal">
 <div class="modal-content">
-<h3><i class="fas fa-edit"></i> Edit Actual Profit</h3>
+<h3><i class="fas fa-edit"></i> Edit Actual Profit (BDT)</h3>
 <div id="editInvestmentInfo"></div>
 <label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label>
 <label>Actual Profit:</label>
-<input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit">
+<input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit in BDT">
 <div style="display: flex; gap: 10px; margin-top: 15px;">
 <button onclick="saveProfitEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
 <button onclick="closeModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- Edit Exchange Rate Modal -->
+<div id="editRateModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-dollar-sign"></i> Edit USD to BDT Exchange Rate</h3>
+<label>Current Rate: 1 USD = <span id="currentRateDisplay">125</span> BDT</label>
+<input type="number" id="newExchangeRate" step="0.01" placeholder="Enter new exchange rate">
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+<button onclick="saveExchangeRate()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
+<button onclick="closeRateModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
 </div>
 </div>
 </div>
@@ -215,16 +273,57 @@ const ADMIN_PASSWORD = "Tt12345";
 let investments = [];
 let firebaseInitialized = false;
 let currentEditId = null;
+let USD_TO_BDT = 125;
+let currentCryptoPrices = { BTC: 0, ETH: 0, BNB: 0 };
+let lastPortfolioValue = 0;
 
-// Update amount label based on asset type
+// Load exchange rate
+function loadExchangeRate() {
+const savedRate = localStorage.getItem("usd_to_bdt_rate");
+if(savedRate) USD_TO_BDT = parseFloat(savedRate);
+document.getElementById('exchangeRate').innerText = USD_TO_BDT;
+}
+
+function saveExchangeRate() {
+const newRate = parseFloat(document.getElementById('newExchangeRate').value);
+if(isNaN(newRate) || newRate <= 0) { showToast("Invalid rate!", true); return; }
+USD_TO_BDT = newRate;
+localStorage.setItem("usd_to_bdt_rate", USD_TO_BDT);
+document.getElementById('exchangeRate').innerText = USD_TO_BDT;
+showToast(`Rate updated: 1 USD = ${USD_TO_BDT} BDT`);
+closeRateModal();
+renderAll();
+}
+
+function editExchangeRate() {
+document.getElementById('newExchangeRate').value = USD_TO_BDT;
+document.getElementById('currentRateDisplay').innerText = USD_TO_BDT;
+document.getElementById('editRateModal').style.display = 'flex';
+}
+
+function closeRateModal() { document.getElementById('editRateModal').style.display = 'none'; }
+function usdToBdt(usd) { return usd * USD_TO_BDT; }
+function bdtToUsd(bdt) { return bdt / USD_TO_BDT; }
+
 function updateAmountLabel() {
 const type = document.getElementById('type').value;
 const cryptoTypes = ['BTC', 'ETH', 'BNB'];
 const amountLabel = document.getElementById('amountLabel');
+const currencyHint = document.getElementById('currencyHint');
+const purchasePriceGroup = document.querySelector('.input-group:has(#purchasePrice)');
+
 if(cryptoTypes.includes(type)) {
-amountLabel.innerHTML = 'Quantity (Coins) <span style="color:#facc15;">📊 Will show USD Value</span>';
+amountLabel.innerHTML = 'Quantity (Coins)';
+currencyHint.innerHTML = '📊 Example: 0.05 BTC';
+if(document.getElementById('purchasePrice')) {
+document.getElementById('purchasePrice').parentElement.style.display = 'flex';
+}
 } else {
-amountLabel.innerHTML = 'Amount (BDT) <span style="color:#4ade80;">💰 Investment Amount</span>';
+amountLabel.innerHTML = 'Amount (BDT)';
+currencyHint.innerHTML = '💰 Enter amount in Bangladeshi Taka';
+if(document.getElementById('purchasePrice')) {
+document.getElementById('purchasePrice').parentElement.style.display = 'none';
+}
 }
 }
 
@@ -234,11 +333,8 @@ if (!firebase.apps.length) {
 const app = firebase.initializeApp(firebaseConfig);
 db = firebase.firestore(app);
 firebaseInitialized = true;
-console.log("✅ Firebase connected!");
 }
-} catch(e) {
-console.error("Firebase init error:", e);
-}
+} catch(e) { console.error("Firebase init error:", e); }
 
 function showToast(message, isError = false) {
 const toast = document.createElement('div');
@@ -258,59 +354,38 @@ function openEditModal(id) {
 const investment = investments.find(i => i.id === id);
 if(!investment) return;
 currentEditId = id;
-document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amount} ${investment.isCrypto ? 'coins' : 'BDT'}`;
-document.getElementById('showExpectedProfit').innerText = investment.expectedProfit || investment.profit || 0;
-document.getElementById('editActualProfit').value = investment.actualProfit || investment.profit || 0;
+document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amountDisplay || investment.amount}`;
+document.getElementById('showExpectedProfit').innerText = investment.expectedProfit || 0;
+document.getElementById('editActualProfit').value = investment.actualProfit || 0;
 document.getElementById('editProfitModal').style.display = 'flex';
 }
 
-function closeModal() {
-document.getElementById('editProfitModal').style.display = 'none';
-currentEditId = null;
-}
+function closeModal() { document.getElementById('editProfitModal').style.display = 'none'; }
 
 async function saveProfitEdit() {
 if(!isAdmin) { alert("Admin required"); return; }
 const newActualProfit = parseFloat(document.getElementById('editActualProfit').value);
 if(isNaN(newActualProfit)) return;
-
 const investment = investments.find(i => i.id === currentEditId);
 if(investment) {
 investment.actualProfit = newActualProfit;
 await syncInvestmentsToFirestore();
 renderAll();
-const diff = newActualProfit - (investment.expectedProfit || investment.profit);
-if(diff < 0) {
-showToast(`Profit adjusted: ${diff} BDT (less than expected)`, true);
-} else if(diff > 0) {
-showToast(`Profit adjusted: +${diff} BDT (more than expected!)`);
-} else {
 showToast(`Profit updated to ${newActualProfit} BDT`);
-}
 }
 closeModal();
 }
 
 async function adminLogin(password) {
-if(password !== ADMIN_PASSWORD) {
-alert("Wrong password!");
-return false;
-}
+if(password !== ADMIN_PASSWORD) { alert("Wrong password!"); return false; }
 isAdmin = true;
 updateAdminUI();
-if(firebaseInitialized && db) {
-await loadAllFirestoreData();
-showToast("Admin mode active! You can edit actual profit now.");
-}
+if(firebaseInitialized && db) await loadAllFirestoreData();
+showToast("Admin mode active!");
 return true;
 }
 
-function adminLogout() {
-isAdmin = false;
-updateAdminUI();
-showToast("Logged out. Read-only mode");
-renderAll();
-}
+function adminLogout() { isAdmin = false; updateAdminUI(); showToast("Logged out"); renderAll(); }
 
 function updateAdminUI() {
 const formCard = document.getElementById('investmentFormCard');
@@ -321,7 +396,7 @@ if(isAdmin) {
 if(formCard) formCard.style.display = 'block';
 if(loginWidget) loginWidget.style.display = 'none';
 if(logoutWidget) logoutWidget.style.display = 'block';
-if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Can Edit Profit';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode';
 } else {
 if(formCard) formCard.style.display = 'none';
 if(loginWidget) loginWidget.style.display = 'block';
@@ -332,7 +407,7 @@ if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-lock"></i> Read-only M
 
 async function loadAllFirestoreData() {
 if(!firebaseInitialized || !db) {
-const localInv = localStorage.getItem("wealth_actual_profit");
+const localInv = localStorage.getItem("wealth_realtime");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
 return;
@@ -341,25 +416,19 @@ showLoading(true);
 try {
 const invSnap = await db.collection("investments").orderBy("start", "desc").get();
 investments = [];
-invSnap.forEach(doc => {
-investments.push({ id: doc.id, ...doc.data() });
-});
-
+invSnap.forEach(doc => investments.push({ id: doc.id, ...doc.data() }));
 const withdrawSnap = await db.collection("withdrawals").orderBy("date", "desc").get();
 const withdrawHistory = [];
 withdrawSnap.forEach(doc => withdrawHistory.push(doc.data()));
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(withdrawHistory));
-
 renderAll();
-} catch(e) {
-console.error("Firestore load error:", e);
-}
+} catch(e) { console.error("Firestore load error:", e); }
 showLoading(false);
 }
 
 async function syncInvestmentsToFirestore() {
 if(!isAdmin || !firebaseInitialized || !db) {
-localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
+localStorage.setItem("wealth_realtime", JSON.stringify(investments));
 return;
 }
 showLoading(true);
@@ -368,28 +437,10 @@ for(const inv of investments) {
 const docRef = db.collection("investments").doc(inv.id.toString());
 await docRef.set({ ...inv, id: inv.id.toString() });
 }
-localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
-} catch(e) {
-console.error("Sync error:", e);
-showToast("Sync failed: " + e.message, true);
-}
+localStorage.setItem("wealth_realtime", JSON.stringify(investments));
+} catch(e) { console.error("Sync error:", e); showToast("Sync failed", true); }
 showLoading(false);
 renderAll();
-}
-
-async function syncWithdrawHistoryToFirestore() {
-if(!isAdmin || !firebaseInitialized || !db) return;
-const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
-try {
-const batch = db.batch();
-const snapshot = await db.collection("withdrawals").get();
-snapshot.docs.forEach(doc => batch.delete(doc.ref));
-await batch.commit();
-for(const item of history) {
-const docRef = db.collection("withdrawals").doc();
-await docRef.set(item);
-}
-} catch(e) { console.error("Withdraw sync error:", e); }
 }
 
 async function addEntry() {
@@ -397,35 +448,47 @@ if(!isAdmin) { alert("Admin login required!"); return; }
 const type = document.getElementById('type').value;
 const cryptoTypes = ['BTC', 'ETH', 'BNB'];
 const isCrypto = cryptoTypes.includes(type);
+const amountValue = parseFloat(document.getElementById('amt').value);
+const purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+
+if(!amountValue || !document.getElementById('sDate').value) return alert("Please enter all fields!");
+
+let amountBDT, amountUSD, amountDisplay;
+
+if(isCrypto) {
+// For crypto: amount is quantity, calculate USD value based on purchase price
+amountUSD = amountValue * (purchasePrice || 0);
+amountBDT = usdToBdt(amountUSD);
+amountDisplay = `${amountValue} ${type} coins @ $${purchasePrice || 0}`;
+} else {
+amountBDT = amountValue;
+amountUSD = bdtToUsd(amountValue);
+amountDisplay = `${amountValue.toLocaleString()} BDT`;
+}
 
 const inv = {
 id: Date.now().toString(),
 platform: document.getElementById('plat').value,
 type: type,
-amount: parseFloat(document.getElementById('amt').value),
+amount: amountValue,
+amountBDT: amountBDT,
+amountUSD: amountUSD,
+amountDisplay: amountDisplay,
 isCrypto: isCrypto,
+purchasePrice: purchasePrice,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value || 0),
 actualProfit: parseFloat(document.getElementById('actualProfit').value || 0),
-profit: parseFloat(document.getElementById('actualProfit').value || 0),
 status: document.getElementById('status').value,
 start: document.getElementById('sDate').value,
 end: document.getElementById('eDate').value
 };
 
-if(!inv.amount || !inv.start) return alert("Please enter quantity/amount & start date!");
-
-// For crypto, validate that amount is reasonable
-if(isCrypto && inv.amount > 1000) {
-if(!confirm(`You entered ${inv.amount} ${type} coins. This is a large amount. Are you sure?`)) return;
-}
-
 investments.push(inv);
 await syncInvestmentsToFirestore();
 document.getElementById('amt').value = '';
-document.getElementById('expectedProfit').value = '';
-document.getElementById('actualProfit').value = '';
+document.getElementById('purchasePrice').value = '';
 renderAll();
-showToast(`${type} investment added! ${isCrypto ? 'Quantity: ' + inv.amount + ' coins' : 'Amount: ' + inv.amount + ' BDT'}`);
+showToast(`${type} investment added!`);
 }
 
 async function withdrawInv(id) {
@@ -433,12 +496,12 @@ if(!isAdmin) { alert("Login required"); return; }
 const inv = investments.find(i => i.id === id);
 if(!inv || !confirm("Confirm Withdraw?")) return;
 inv.status = "completed";
-const finalProfit = inv.actualProfit !== undefined ? inv.actualProfit : (inv.expectedProfit || inv.profit);
+const finalProfit = inv.actualProfit || 0;
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 history.push({
 amount: inv.amount,
+amountBDT: inv.amountBDT,
 profit: finalProfit,
-expectedProfit: inv.expectedProfit,
 date: new Date().toISOString().slice(0,10),
 platform: inv.platform,
 type: inv.type,
@@ -446,92 +509,155 @@ isCrypto: inv.isCrypto
 });
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(history));
 await syncInvestmentsToFirestore();
-await syncWithdrawHistoryToFirestore();
 renderAll();
-showToast(`Withdrawn! Actual profit: ${finalProfit} BDT`);
+showToast(`Withdrawn!`);
 }
 
 async function deleteInv(id) {
 if(!isAdmin) { alert("Admin required"); return; }
 const invToDelete = investments.find(i => i.id === id);
 if(!invToDelete) return;
-if(!confirm(`Delete "${invToDelete.type}" (${invToDelete.amount} ${invToDelete.isCrypto ? 'coins' : 'BDT'}) permanently?`)) return;
-
+if(!confirm(`Delete "${invToDelete.type}" permanently?`)) return;
 showLoading(true);
 try {
 investments = investments.filter(i => i.id !== id);
-if(firebaseInitialized && db) {
-await db.collection("investments").doc(id.toString()).delete();
-}
-localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
+if(firebaseInitialized && db) await db.collection("investments").doc(id.toString()).delete();
+localStorage.setItem("wealth_realtime", JSON.stringify(investments));
 renderAll();
-showToast("Deleted successfully!");
-} catch(e) {
-console.error("Delete error:", e);
-showToast("Delete failed", true);
-}
+showToast("Deleted!");
+} catch(e) { showToast("Delete failed", true); }
 showLoading(false);
 }
 
+// Calculate current portfolio value based on live crypto prices
+function calculateCurrentPortfolioValue() {
+let totalUSD = 0;
+let totalBDT = 0;
+
+investments.forEach(inv => {
+if(inv.status === 'active') {
+if(inv.isCrypto && currentCryptoPrices[inv.type]) {
+const currentValueUSD = inv.amount * currentCryptoPrices[inv.type];
+totalUSD += currentValueUSD;
+totalBDT += usdToBdt(currentValueUSD);
+} else if(!inv.isCrypto && inv.amountBDT) {
+totalBDT += inv.amountBDT;
+totalUSD += bdtToUsd(inv.amountBDT);
+} else if(!inv.isCrypto && inv.amount) {
+totalBDT += inv.amount;
+totalUSD += bdtToUsd(inv.amount);
+}
+}
+});
+
+return { usd: totalUSD, bdt: totalBDT };
+}
+
+// Calculate total invested (principal) - fixed amount
+function calculateTotalPrincipal() {
+let totalUSD = 0;
+let totalBDT = 0;
+
+investments.forEach(inv => {
+if(inv.isCrypto && inv.amountUSD) {
+totalUSD += inv.amountUSD;
+} else if(!inv.isCrypto && inv.amountBDT) {
+totalBDT += inv.amountBDT;
+} else if(!inv.isCrypto && inv.amount) {
+totalBDT += inv.amount;
+}
+});
+
+const totalBDTFromUSD = usdToBdt(totalUSD);
+return { usd: totalUSD + bdtToUsd(totalBDT), bdt: totalBDT + totalBDTFromUSD };
+}
+
 function renderStats() {
-const principal = investments.reduce((s, i) => s + i.amount, 0);
-const totalActualProfit = investments.reduce((s, i) => s + (i.actualProfit !== undefined ? i.actualProfit : (i.expectedProfit || i.profit)), 0);
-const activeInv = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
+const principal = calculateTotalPrincipal();
+const current = calculateCurrentPortfolioValue();
+const profitLoss = current.bdt - principal.bdt;
+const profitLossPercent = principal.bdt > 0 ? (profitLoss / principal.bdt * 100) : 0;
 
-document.getElementById('totalPrincipal').innerText = principal.toLocaleString();
-document.getElementById('totalActualProfit').innerHTML = `${totalActualProfit.toLocaleString()} <small style="font-size:0.7rem;">BDT</small>`;
-document.getElementById('activeInvestment').innerText = activeInv.toLocaleString();
+document.getElementById('totalPrincipalUSD').innerHTML = `$${principal.usd.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+document.getElementById('totalPrincipalBDT').innerHTML = `${principal.bdt.toLocaleString()} BDT`;
+document.getElementById('currentValueUSD').innerHTML = `$${current.usd.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+document.getElementById('currentValueBDT').innerHTML = `${current.bdt.toLocaleString()} BDT`;
 
-const progress = Math.min((principal / 300000) * 100, 100).toFixed(1);
+const profitLossColor = profitLoss >= 0 ? 'var(--profit-color)' : 'var(--loss-color)';
+const profitLossSign = profitLoss >= 0 ? '+' : '';
+document.getElementById('profitLossDisplay').innerHTML = `<span style="color:${profitLossColor}">${profitLossSign}${profitLoss.toLocaleString()} BDT (${profitLossSign}${profitLossPercent.toFixed(2)}%)</span>`;
+
+// Flash effect if portfolio value changed significantly
+if(Math.abs(current.bdt - lastPortfolioValue) > 100) {
+const card = document.querySelector('.stat-card:has(#currentValueUSD)');
+if(current.bdt > lastPortfolioValue) {
+card.classList.add('flash-green');
+} else if(current.bdt < lastPortfolioValue) {
+card.classList.add('flash-red');
+}
+setTimeout(() => card.classList.remove('flash-green', 'flash-red'), 500);
+}
+lastPortfolioValue = current.bdt;
+
+// Active investment
+let activeBDT = 0;
+investments.filter(i => i.status === 'active').forEach(inv => {
+if(inv.isCrypto && inv.amountUSD) activeBDT += usdToBdt(inv.amountUSD);
+else if(inv.amountBDT) activeBDT += inv.amountBDT;
+else if(inv.amount) activeBDT += inv.amount;
+});
+document.getElementById('activeInvestmentUSD').innerHTML = `$${bdtToUsd(activeBDT).toLocaleString(undefined, {minimumFractionDigits:2})}`;
+document.getElementById('activeInvestmentBDT').innerHTML = `${activeBDT.toLocaleString()} BDT`;
+
+const progress = Math.min((principal.bdt / 300000) * 100, 100).toFixed(1);
 document.getElementById('goalFill').style.width = progress + "%";
 document.getElementById('goalPercent').innerText = progress + "%";
-document.getElementById('goalRem').innerText = `Remaining: ${(300000 - principal).toLocaleString()} BDT`;
+document.getElementById('goalRem').innerText = `Remaining: ${(300000 - principal.bdt).toLocaleString()} BDT`;
 }
 
 function renderPortfolio() {
 const container = document.getElementById('portfolioList');
 if(investments.length === 0) {
-container.innerHTML = '<div style="text-align:center; padding:20px;">No investments yet. Login to add!</div>';
+container.innerHTML = '<div style="text-align:center; padding:20px;">No investments yet.</div>';
 return;
 }
 
 const map = {};
-investments.forEach(i => {
-if(!map[i.platform]) map[i.platform] = [];
-map[i.platform].push(i);
-});
+investments.forEach(i => { if(!map[i.platform]) map[i.platform] = []; map[i.platform].push(i); });
 
 let html = '';
 for(let p in map) {
 let items = '';
 map[p].forEach(i => {
 const isCompleted = i.status === 'completed';
-const expected = i.expectedProfit !== undefined ? i.expectedProfit : (i.profit || 0);
-const actual = i.actualProfit !== undefined ? i.actualProfit : expected;
-const diff = actual - expected;
-const diffClass = diff >= 0 ? 'profit-diff-positive' : 'profit-diff-negative';
-const diffSign = diff >= 0 ? '+' : '';
-const amountUnit = i.isCrypto ? `${i.amount} ${i.type} coins` : `${i.amount.toLocaleString()} BDT`;
+let currentValue = '';
+if(i.isCrypto && i.status === 'active' && currentCryptoPrices[i.type]) {
+const currentUSD = i.amount * currentCryptoPrices[i.type];
+const currentBDT = usdToBdt(currentUSD);
+const profitLoss = currentBDT - i.amountBDT;
+const plClass = profitLoss >= 0 ? 'profit-actual' : 'profit-diff-negative';
+currentValue = `<small class="${plClass}">📊 Current: ${currentBDT.toLocaleString()} BDT (${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()})</small><br>`;
+}
 
 items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
-<div style="display:flex; justify-content:space-between; align-items:center;">
+<div style="display:flex; justify-content:space-between;">
 <div>
-<b>${i.type}</b>
-<span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
-<small>💰 ${amountUnit}</small><br>
-<small class="profit-expected">Expected: +${expected} BDT</small><br>
-<small class="profit-actual">Actual: +${actual} BDT <span class="${diffClass}">(${diffSign}${diff})</span></small>
+<b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
+<small>💰 Invested: ${i.amountDisplay || i.amount}</small><br>
+${currentValue}
+<small class="profit-expected">Expected: +${i.expectedProfit || 0} BDT</small><br>
+<small class="profit-actual">Actual: +${i.actualProfit || 0} BDT</small>
 </div>
 <div style="display:flex; gap:5px;">
 ${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>` : ''}
-<button class="btn-edit" onclick="openEditModal('${i.id}')" title="Edit Actual Profit"><i class="fas fa-edit"></i></button>
+<button class="btn-edit" onclick="openEditModal('${i.id}')"><i class="fas fa-edit"></i></button>
 <button class="btn-delete" onclick="deleteInv('${i.id}')"><i class="fas fa-trash-alt"></i></button>
 </div>
 </div>
-<small style="font-size:0.7rem;">📅 ${i.start} ${i.end ? '→ ' + i.end : ''}</small>
+<small>📅 ${i.start} ${i.end ? '→ ' + i.end : ''}</small>
 </div>`;
 });
-html += `<div class="platform-box"><b><i class="fas fa-building"></i> ${p}</b>${items}</div>`;
+html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
 }
 container.innerHTML = html;
 }
@@ -540,17 +666,16 @@ function renderWithdrawHistory() {
 const container = document.getElementById('withdrawList');
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 if(history.length === 0) {
-container.innerHTML = '<div style="text-align:center; padding:20px;">No withdrawal history yet.</div>';
+container.innerHTML = '<div style="text-align:center; padding:20px;">No history.</div>';
 return;
 }
 let html = '';
 [...history].reverse().forEach(h => {
-const amountUnit = h.isCrypto ? `${h.amount} ${h.type} coins` : `${h.amount.toLocaleString()} BDT`;
 html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <b>${h.platform} - ${h.type}</b><br>
-${amountUnit}<br>
-<span class="profit-actual">Actual Profit: +${h.profit} BDT</span><br>
-<small><i class="fas fa-calendar"></i> ${h.date}</small>
+${h.isCrypto ? `${h.amount} coins` : `${h.amountBDT?.toLocaleString() || h.amount} BDT`}<br>
+<span class="profit-actual">Profit: +${h.profit} BDT</span><br>
+<small>📅 ${h.date}</small>
 </div>`;
 });
 container.innerHTML = html;
@@ -559,10 +684,7 @@ container.innerHTML = html;
 function getMonthlyData() {
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 const monthly = {};
-history.forEach(h => {
-const m = h.date.slice(0,7);
-monthly[m] = (monthly[m] || 0) + h.profit;
-});
+history.forEach(h => { const m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; });
 return monthly;
 }
 
@@ -571,34 +693,38 @@ function renderMonthlyChart() {
 const ctx = document.getElementById('monthlyChart').getContext('2d');
 if(mChart) mChart.destroy();
 const dataObj = getMonthlyData();
-const labels = Object.keys(dataObj);
-const values = Object.values(dataObj);
-mChart = new Chart(ctx, { type: 'bar', data: { labels: labels.length ? labels : ['No Data'], datasets: [{ label: 'Actual Profit (BDT)', data: values.length ? values : [0], backgroundColor: '#4ade80', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false } });
+mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(dataObj), datasets: [{ label: 'Profit (BDT)', data: Object.values(dataObj), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
 }
 
 function renderCharts() {
 const gCtx = document.getElementById('mainChart').getContext('2d');
 if(gChart) gChart.destroy();
 const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
-let sum = 0;
-gChart = new Chart(gCtx, { type: 'line', data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Portfolio Growth (BDT)', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15', fill: true }] }, options: { responsive: true, maintainAspectRatio: false } });
+let principalSum = 0, currentSum = 0;
+const principalData = [], currentData = [];
+sorted.forEach(i => {
+if(i.isCrypto && i.amountUSD) principalSum += i.amountUSD;
+else if(i.amountBDT) principalSum += bdtToUsd(i.amountBDT);
+else if(i.amount) principalSum += bdtToUsd(i.amount);
+principalData.push(principalSum);
+
+if(i.isCrypto && i.status === 'active' && currentCryptoPrices[i.type]) {
+currentSum += i.amount * currentCryptoPrices[i.type];
+} else if(!i.isCrypto && i.amountBDT) {
+currentSum += bdtToUsd(i.amountBDT);
+} else if(i.amount) {
+currentSum += bdtToUsd(i.amount);
+}
+currentData.push(currentSum);
+});
+
+gChart = new Chart(gCtx, { type: 'line', data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Invested (Principal)', data: principalData, borderColor: '#94a3b8', borderDash: [5,5] }, { label: 'Current Value (Real-time)', data: currentData, borderColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
 
 const pCtx = document.getElementById('platformChart').getContext('2d');
 if(pChart) pChart.destroy();
 const platMap = {};
-investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
-const platLabels = Object.keys(platMap);
-const platValues = Object.values(platMap);
-pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: platLabels.length ? platLabels : ['No Data'], datasets: [{ data: platValues.length ? platValues : [1], backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#a78bfa'] }] }, options: { responsive: true, maintainAspectRatio: false } });
-}
-
-function renderAll() {
-renderStats();
-renderPortfolio();
-renderCharts();
-renderMonthlyChart();
-renderWithdrawHistory();
-updateCryptoPrices();
+investments.forEach(i => { const val = i.isCrypto ? usdToBdt(i.amountUSD || 0) : (i.amountBDT || i.amount); platMap[i.platform] = (platMap[i.platform] || 0) + val; });
+pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#a78bfa'] }] }, options: { responsive: true, maintainAspectRatio: false } });
 }
 
 async function updateCryptoPrices() {
@@ -610,22 +736,31 @@ symbols.forEach(s => {
 const coin = s.replace('USDT', '');
 const priceData = allPrices.find(p => p.symbol === s);
 const price = parseFloat(priceData?.price || 0);
-// Get quantity from active crypto investments only
-const qty = investments
-.filter(i => i.type.toUpperCase() === coin && i.status === 'active' && i.isCrypto === true)
-.reduce((sum, i) => sum + i.amount, 0);
-document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+currentCryptoPrices[coin] = price;
+
+const qty = investments.filter(i => i.type === coin && i.status === 'active' && i.isCrypto).reduce((sum, i) => sum + i.amount, 0);
+const usdValue = qty * price;
+document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString()}`;
 document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById(`v-${coin}`).innerText = usdValue.toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById(`v-${coin}-BDT`).innerText = usdToBdt(usdValue).toLocaleString();
 });
+renderStats(); // Update portfolio value with new prices
+renderPortfolio(); // Update current values in portfolio list
+renderCharts(); // Update charts
 } catch(e) { console.error("Crypto fetch error"); }
 }
 
+function renderAll() {
+renderStats();
+renderPortfolio();
+renderCharts();
+renderMonthlyChart();
+renderWithdrawHistory();
+}
+
 // Event Listeners
-document.getElementById('loginBtn').addEventListener('click', () => {
-adminLogin(document.getElementById('adminPassInput').value);
-document.getElementById('adminPassInput').value = '';
-});
+document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPassInput').value));
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
 window.addEntry = addEntry;
 window.withdrawInv = withdrawInv;
@@ -634,18 +769,21 @@ window.openEditModal = openEditModal;
 window.saveProfitEdit = saveProfitEdit;
 window.closeModal = closeModal;
 window.updateAmountLabel = updateAmountLabel;
+window.editExchangeRate = editExchangeRate;
+window.saveExchangeRate = saveExchangeRate;
+window.closeRateModal = closeRateModal;
 
 // Initialize
+loadExchangeRate();
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
-updateAmountLabel(); // Set initial label
-const localInv = localStorage.getItem("wealth_actual_profit");
+updateAmountLabel();
+const localInv = localStorage.getItem("wealth_realtime");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
-setInterval(updateCryptoPrices, 15000);
+updateCryptoPrices();
+setInterval(updateCryptoPrices, 5000); // Update every 5 seconds
 
-if(firebaseInitialized) {
-setTimeout(() => loadAllFirestoreData(), 500);
-}
+if(firebaseInitialized) setTimeout(() => loadAllFirestoreData(), 500);
 </script>
 </body>
 </html>
