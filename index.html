@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -71,12 +71,14 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
 .status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
+.cloud-badge { background: #4ade8033; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
+.footer { text-align: center; margin-top: 30px; padding: 20px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #334155; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt" style="font-size:1.2rem;"></i></h1>
+<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Firebase Cloud</span></h1>
 
 <!-- Admin Control Bar -->
 <div id="adminBar" class="admin-bar">
@@ -84,7 +86,7 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 <div id="loginWidget">
 <div class="login-panel">
 <input type="password" id="adminPassInput" placeholder="Password" autocomplete="off">
-<button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Admin</button>
+<button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Admin Login</button>
 </div>
 </div>
 <div id="logoutWidget" style="display:none;">
@@ -127,6 +129,7 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 
 <!-- Investment Form (only visible when admin logged in) -->
 <div id="investmentFormCard" class="card" style="display:none;">
+<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
 <div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Qty)</option><option value="ETH">ETH (Qty)</option><option value="BNB">BNB (Qty)</option><option>Agriculture</option><option>MSSA Installment</option><option>Shop/Business</option><option>Gold</option></select></div>
@@ -137,126 +140,80 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 <div class="form-row">
 <div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div>
 <div class="input-group"><label>End Date</label><input type="date" id="eDate"></div>
-<button class="btn-save" onclick="addEntry()"><i class="fas fa-plus"></i> Save Investment (Cloud)</button>
+<button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment (Cloud Sync)</button>
 </div>
 </div>
 
 <div class="charts-grid">
-<div class="card"><h3>Growth Analysis</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
-<div class="card"><h3>Platforms</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
-<div class="card"><h3>Monthly Profit</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-line"></i> Growth Analysis</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
+<div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
 </div>
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
-<div class="card"><h2>Portfolio View</h2><div id="portfolioList"></div></div>
-<div class="card"><h2>Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div>
+<div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio View</h2><div id="portfolioList"></div></div>
+<div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div>
+</div>
+
+<div class="footer">
+<p><i class="fas fa-shield-alt"></i> Secured by Firebase | Admin Password: <strong>Tt12345</strong> | Data syncs automatically to cloud</p>
 </div>
 </div>
-<div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing with Firebase...</div>
+<div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing with Firebase Cloud...</div>
 
 <script>
-// ---------- FIREBASE CONFIGURATION (Replace with your own project details) ----------
-// For demo, I'm using a generic config BUT you must replace with your Firebase project credentials.
-// The user can replace these values in production. I will add placeholders that work after setup.
-// To make it fully functional, I will embed a structure that allows custom firebase config or demo mode.
-// But to fulfill requirement "Firebase Cloud System", I will use a valid demo config structure that user can replace.
-// IMPORTANT: In real deployment, replace with your own Firebase project settings.
+// ========== FIREBASE CONFIGURATION ==========
 const firebaseConfig = {
-apiKey: "AIzaSyB9p7K5T7zLx8Q4vR3nW2xYzU1i0oP9lKj", // Placeholder - replace with actual
-authDomain: "wealth-tracker-ultra.firebaseapp.com",
-projectId: "wealth-tracker-ultra",
-storageBucket: "wealth-tracker-ultra.firebasestorage.app",
-messagingSenderId: "123456789012",
-appId: "1:123456789012:web:abc123def456"
+apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
+authDomain: "mywealthtracker-b7f62.firebaseapp.com",
+projectId: "mywealthtracker-b7f62",
+storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
+messagingSenderId: "575029483834",
+appId: "1:575029483834:web:4d9927d1c6ed653fff5803",
+measurementId: "G-F9QCL7WCCW"
 };
-// To ensure it works, we allow user to edit via console? But the code will initialize Firebase.
-// If not configured, we show error but UI remains functional in local mode? No, requirement is Firebase Cloud sync.
-// I will provide full Firebase integration with Firestore.
 
-let app, db, auth;
+// Initialize Firebase
+let db = null;
+let auth = null;
 let isAdmin = false;
 const ADMIN_PASSWORD = "Tt12345";
-let investments = []; // local mirror
-let unsubscribeInvestments = null;
-let unsubscribeWithdraw = null;
+let investments = [];
+let firebaseInitialized = false;
 
-// Initialize Firebase (if already initialized avoid duplicate)
 try {
 if (!firebase.apps.length) {
-app = firebase.initializeApp(firebaseConfig);
-} else {
-app = firebase.app();
-}
+const app = firebase.initializeApp(firebaseConfig);
 db = firebase.firestore(app);
 auth = firebase.auth(app);
-console.log("Firebase initialized");
+firebaseInitialized = true;
+console.log("✅ Firebase connected successfully!");
+}
 } catch(e) {
-console.warn("Firebase init error, using demo local only", e);
-// fallback to dummy auth for UI consistency
-auth = { currentUser: null, signInWithEmailAndPassword: () => Promise.reject(), signOut: () => Promise.reject() };
+console.error("Firebase init error:", e);
 }
 
-// Helper: Show/Hide loading
 function showLoading(show) {
-document.getElementById('loadingToast').style.display = show ? 'block' : 'none';
+const toast = document.getElementById('loadingToast');
+if(toast) toast.style.display = show ? 'block' : 'none';
 }
 
-// Admin Auth with Firebase (Email/Password or custom? requirement just password Tt12345)
-// We'll use Firebase Email/Password with a fixed admin email for simplicity: admin@wealthtracker.com
 async function adminLogin(password) {
 if(password !== ADMIN_PASSWORD) {
 alert("Wrong password! Access denied.");
 return false;
 }
-try {
-showLoading(true);
-// sign in anonymously or using a fixed email? To persist we can sign in anonymously with custom claims?
-// better: signInWithEmailAndPassword using dummy admin account
-// But we need to pre-create? For demo, we sign in anonymously and set isAdmin flag.
-// However firestore security rules must allow read/write. But for simplicity and to meet the "admin" requirement,
-// we will store a flag in localStorage + Firestore rules allow all if admin flag? Actually we just use client-side admin status.
-// But to sync across devices we rely on Firebase Auth. Create a dedicated user: admin@wealth.local with password Tt12345.
-// We'll sign in with that credential.
-const email = "admin_wealth@tracker.local";
-try {
-// Attempt sign in
-await auth.signInWithEmailAndPassword(email, password);
-} catch(err) {
-if(err.code === 'auth/user-not-found') {
-// create user if not exists (but creation requires admin sdk normally, but we can do client-side with createUser? Not recommended.
-// Alternative: we keep local admin flag without requiring firebase auth user persistence.
-// Since requirement is Firebase cloud sync (firestore), authentication can be simulated via password but we keep Firestore write permission by enabling insecure rules.
-// For robust solution, we set isAdmin = true and Firestore reads/writes will work if we allow all reads/writes (demo). But I'll implement standard: use local admin state.
-// For simplicity and to avoid Firebase Auth blocking, I'll just rely on password check + maintain isAdmin in memory.
-// Firestore operations will work if security rules are open (or we use custom token).
-// So: just check password -> isAdmin = true. Then firestore reads/writes occur regardless.
-console.warn("Firebase auth not fully configured, using local admin mode but Firestore may need rules");
 isAdmin = true;
 updateAdminUI();
+if(firebaseInitialized && db) {
 await loadAllFirestoreData();
-showLoading(false);
+}
 return true;
-}
-throw err;
-}
-isAdmin = true;
-updateAdminUI();
-await loadAllFirestoreData();
-showLoading(false);
-return true;
-} catch(error) {
-console.error("Login error", error);
-alert("Login error: " + error.message);
-showLoading(false);
-return false;
-}
 }
 
 function adminLogout() {
-if(auth && auth.signOut) auth.signOut().catch(e=>console.warn);
 isAdmin = false;
 updateAdminUI();
-// clear local data? no, keep readonly
 renderAll();
 }
 
@@ -266,88 +223,87 @@ const loginWidget = document.getElementById('loginWidget');
 const logoutWidget = document.getElementById('logoutWidget');
 const authDisplay = document.getElementById('authDisplay');
 if(isAdmin) {
-formCard.style.display = 'block';
-loginWidget.style.display = 'none';
-logoutWidget.style.display = 'block';
-authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Cloud Sync Active';
+if(formCard) formCard.style.display = 'block';
+if(loginWidget) loginWidget.style.display = 'none';
+if(logoutWidget) logoutWidget.style.display = 'block';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • <i class="fas fa-cloud"></i> Cloud Sync Active';
 } else {
-formCard.style.display = 'none';
-loginWidget.style.display = 'block';
-logoutWidget.style.display = 'none';
-authDisplay.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode • Login to Edit';
+if(formCard) formCard.style.display = 'none';
+if(loginWidget) loginWidget.style.display = 'block';
+if(logoutWidget) logoutWidget.style.display = 'none';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode • Login to Edit';
 }
 }
-
-// Firestore Collection Names
-const INVESTMENTS_COLL = "investments";
-const WITHDRAW_COLL = "withdrawals";
 
 async function loadAllFirestoreData() {
-if(!db) return;
+if(!firebaseInitialized || !db) {
+const localInv = localStorage.getItem("wealth_final_v11_mssa");
+if(localInv) investments = JSON.parse(localInv);
+renderAll();
+return;
+}
 showLoading(true);
 try {
-// Load investments
-const invSnap = await db.collection(INVESTMENTS_COLL).orderBy("start", "desc").get();
+const invSnap = await db.collection("investments").orderBy("start", "desc").get();
 investments = [];
 invSnap.forEach(doc => {
 investments.push({ id: doc.id, ...doc.data() });
 });
-// Load withdrawals into localStorage mirror for consistency (we store withdraw history in firestore as well)
-const withdrawSnap = await db.collection(WITHDRAW_COLL).orderBy("date", "desc").get();
+
+const withdrawSnap = await db.collection("withdrawals").orderBy("date", "desc").get();
 const withdrawHistory = [];
 withdrawSnap.forEach(doc => withdrawHistory.push(doc.data()));
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(withdrawHistory));
-// sync local withdraw history display
+
 renderAll();
 } catch(e) {
-console.error("Firestore load error", e);
-// fallback to local storage if any
-const localInv = localStorage.getItem("wealth_final_v11_mssa");
-if(localInv) investments = JSON.parse(localInv);
+console.error("Firestore load error:", e);
 }
 showLoading(false);
 }
 
 async function syncInvestmentsToFirestore() {
-if(!isAdmin || !db) return;
+if(!isAdmin || !firebaseInitialized || !db) {
+localStorage.setItem("wealth_final_v11_mssa", JSON.stringify(investments));
+return;
+}
 showLoading(true);
 try {
-// Instead of full replace, we batch write all investments (simplistic: clear and set)
 const batch = db.batch();
-const snapshot = await db.collection(INVESTMENTS_COLL).get();
+const snapshot = await db.collection("investments").get();
 snapshot.docs.forEach(doc => batch.delete(doc.ref));
 await batch.commit();
 
 for(const inv of investments) {
-const docRef = db.collection(INVESTMENTS_COLL).doc(inv.id.toString());
+const docRef = db.collection("investments").doc(inv.id.toString());
 await docRef.set({ ...inv, id: inv.id.toString() });
 }
-// Also update local storage backup
 localStorage.setItem("wealth_final_v11_mssa", JSON.stringify(investments));
-} catch(e) { console.error("Sync error", e); alert("Cloud sync failed: " + e.message); }
+} catch(e) {
+console.error("Sync error:", e);
+alert("Cloud sync failed: " + e.message);
+}
 showLoading(false);
 renderAll();
 }
 
 async function syncWithdrawHistoryToFirestore() {
-if(!isAdmin || !db) return;
+if(!isAdmin || !firebaseInitialized || !db) return;
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 try {
 const batch = db.batch();
-const snapshot = await db.collection(WITHDRAW_COLL).get();
+const snapshot = await db.collection("withdrawals").get();
 snapshot.docs.forEach(doc => batch.delete(doc.ref));
 await batch.commit();
 for(const item of history) {
-const docRef = db.collection(WITHDRAW_COLL).doc();
+const docRef = db.collection("withdrawals").doc();
 await docRef.set(item);
 }
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-} catch(e) { console.error("Withdraw sync error", e); }
+} catch(e) { console.error("Withdraw sync error:", e); }
 }
 
-// ----- Core Functions (same as original but with cloud sync)-----
 async function addEntry() {
-if(!isAdmin) { alert("Admin login required to add investments!"); return; }
+if(!isAdmin) { alert("Admin login required!"); return; }
 const inv = {
 id: Date.now(),
 platform: document.getElementById('plat').value,
@@ -368,7 +324,7 @@ renderAll();
 async function withdrawInv(id) {
 if(!isAdmin) { alert("Login required"); return; }
 const inv = investments.find(i => i.id === id);
-if(!inv || !confirm("Confirm Withdraw? This will mark as completed.")) return;
+if(!inv || !confirm("Confirm Withdraw?")) return;
 inv.status = "completed";
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 history.push({ amount: inv.amount, profit: inv.profit, date: new Date().toISOString().slice(0,10), platform: inv.platform });
@@ -380,7 +336,7 @@ renderAll();
 
 async function deleteInv(id) {
 if(!isAdmin) { alert("Admin required"); return; }
-if(confirm("Delete this entry permanently?")) {
+if(confirm("Delete permanently?")) {
 investments = investments.filter(i => i.id !== id);
 await syncInvestmentsToFirestore();
 renderAll();
@@ -466,7 +422,6 @@ renderWithdrawHistory();
 updateCryptoPrices();
 }
 
-// live crypto
 async function updateCryptoPrices() {
 const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
 try {
@@ -484,7 +439,6 @@ document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString(un
 } catch(e) { console.error("Crypto fetch error"); }
 }
 
-// Event binding & initial load
 document.getElementById('loginBtn').addEventListener('click', () => {
 const pwd = document.getElementById('adminPassInput').value;
 adminLogin(pwd);
@@ -494,15 +448,15 @@ window.addEntry = addEntry;
 window.withdrawInv = withdrawInv;
 window.deleteInv = deleteInv;
 
-async function initializeApp() {
-await loadAllFirestoreData();
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
+const localInv = localStorage.getItem("wealth_final_v11_mssa");
+if(localInv) investments = JSON.parse(localInv);
 renderAll();
 setInterval(updateCryptoPrices, 15000);
-// auto sync every 2 mins if admin
-setInterval(() => { if(isAdmin && db) syncInvestmentsToFirestore(); }, 120000);
+
+if(firebaseInitialized) {
+setTimeout(() => loadAllFirestoreData(), 500);
 }
-initializeApp();
 </script>
 </body>
 </html>
