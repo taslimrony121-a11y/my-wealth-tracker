@@ -3,99 +3,107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wealth Tracker Cloud Pro Max</title>
+<title>Wealth Tracker Cloud Ultra Pro</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
 :root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; --green: #4ade80; }
-body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 15px; margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; padding: 15px; margin: 0; }
+.container { max-width: 1200px; margin: auto; }
+h1 { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; text-transform: uppercase; }
 
-.ticker-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.ticker-box { background: var(--card); padding: 10px; border-radius: 10px; border: 1px solid #334155; text-align: center; border-bottom: 3px solid var(--accent); }
-.ticker-box span { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
-.ticker-box b { font-size: 1.1rem; color: var(--accent); }
+/* Crypto Cards */
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.crypto-card { background: #0f172a; padding: 15px; border-radius: 15px; border-left: 4px solid var(--accent); border: 1px solid #334155; }
+.crypto-card b { display: block; color: var(--accent); margin-bottom: 5px; }
+.price { font-size: 1.4rem; font-weight: bold; }
 
-.container { max-width: 1100px; margin: auto; }
-.main-title { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-
-.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+/* Dashboard */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .stat-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; text-align: center; }
-.stat-card h2 { margin: 5px 0; font-size: 1.5rem; }
+.stat-card h2 { margin: 5px 0; font-size: 1.6rem; }
 
-#adminPanel { display: none; background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--accent); }
-.grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+/* Goal Bar */
+.goal-card { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+.progress-bg { background: #0f172a; height: 12px; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+.progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 0.5s; }
+
+/* Admin Form */
+#adminPanel { display: none; background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 2px solid var(--accent); }
+.grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
 input, select { background: #0f172a; border: 1px solid #334155; padding: 12px; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; }
-button { background: var(--accent); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; color: #0b1120; transition: 0.3s; }
+button { background: var(--accent); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; color: #0b1120; }
 
-.platform-box { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-.history-item { border-bottom: 1px solid #334155; padding: 10px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
-
-h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; color: var(--accent); font-size: 1rem; }
+.platform-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
+.history-item { border-bottom: 1px solid #334155; padding: 8px 0; display: flex; justify-content: space-between; font-size: 0.9rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1 class="main-title" onclick="adminLogin()">Wealth Tracker (Pro Max)</h1>
+<h1 onclick="adminLogin()">Wealth Tracker Ultra Pro</h1>
 
-<div class="ticker-container">
-<div class="ticker-box"><span>BTC/USDT</span><b id="btc-price">Loading...</b></div>
-<div class="ticker-box"><span>ETH/USDT</span><b id="eth-price">Loading...</b></div>
-<div class="ticker-box"><span>BNB/USDT</span><b id="bnb-price">Loading...</b></div>
+<div class="crypto-grid">
+<div class="crypto-card" style="border-left-color: #f7931a;"><b>BTC/USDT</b><div class="price" id="btc-p">$0.00</div></div>
+<div class="crypto-card" style="border-left-color: #627eea;"><b>ETH/USDT</b><div class="price" id="eth-p">$0.00</div></div>
+<div class="crypto-card" style="border-left-color: #f3ba2f;"><b>BNB/USDT</b><div class="price" id="bnb-p">$0.00</div></div>
 </div>
 
-<div class="summary-grid">
-<div class="stat-card">Active Investment<h2 id="totalVal">0</h2></div>
+<div class="stat-grid">
+<div class="stat-card">Total Invested<h2 id="totalVal">0</h2></div>
 <div class="stat-card">Total Profit<h2 id="profitVal" style="color:var(--green)">0</h2></div>
-<div class="stat-card">Growth Analysis<h2 id="growthVal">0%</h2></div>
+<div class="stat-card">Active Assets<h2 id="activeCount">0</h2></div>
+</div>
+
+<div class="goal-card">
+<div style="display:flex; justify-content:space-between; font-size:0.9rem;">
+<span>Goal: 3,00,000 BDT</span>
+<span id="goalPercent">0%</span>
+</div>
+<div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div>
+<small id="goalRem">Remaining: 0 BDT</small>
 </div>
 
 <div id="adminPanel">
-<h3><i class="fas fa-plus-circle"></i> Manage Investment</h3>
+<h3>Manage Investment</h3>
 <input type="hidden" id="docId">
 <div class="grid-form">
 <select id="plat">
-<option value="">Select Platform</option>
 <option value="Binance">Binance</option>
 <option value="Wegro">Wegro</option>
 <option value="Biniyog">Biniyog</option>
-<option value="Islami bank (MSSA)">Islami bank (MSSA)</option>
-<option value="Others">Others</option>
+<option value="iFarmer">iFarmer</option>
+<option value="Islami Bank (MSSA)">Islami Bank (MSSA)</option>
+<option value="Other">Other</option>
 </select>
 <select id="type">
-<option value="">Select Asset Type</option>
 <option value="BTC">BTC</option>
 <option value="ETH">ETH</option>
 <option value="BNB">BNB</option>
 <option value="Agriculture">Agriculture</option>
-<option value="MSSA installment">MSSA installment</option>
+<option value="MSSA Installment">MSSA Installment</option>
 <option value="Shop/Business">Shop/Business</option>
 <option value="Gold">Gold</option>
 </select>
-<input type="number" id="amt" placeholder="Investment Amount">
-<input type="number" id="profit" placeholder="Profit Amount">
-<input type="date" id="sDate" title="Start Date">
-<input type="date" id="eDate" title="End Date">
+<input type="number" id="amt" placeholder="Amount / Qty">
+<input type="number" id="prof" placeholder="Profit Amount">
+<input type="date" id="sDate">
+<input type="date" id="eDate">
 </div>
-<button id="saveBtn" onclick="saveToCloud()">Upload to Cloud</button>
+<button id="saveBtn" onclick="saveToCloud()" style="margin-top:15px;">Save to Cloud</button>
 <button id="updateBtn" style="display:none; background:var(--green);" onclick="updateExisting()">Update Changes</button>
-<button id="cancelBtn" style="display:none; background:#ef4444; color:white;" onclick="resetForm()">Cancel</button>
+<button id="cancelBtn" style="display:none; background:#ef4444; color:white; margin-top:5px;" onclick="resetForm()">Cancel</button>
 </div>
 
-<div class="summary-grid" style="grid-template-columns: 1fr 1fr;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
 <div class="stat-card" style="text-align: left;">
-<h3>Portfolio List</h3>
-<div id="portfolioList">Loading...</div>
+<h3>Portfolio View</h3>
+<div id="portfolioList">Connecting...</div>
 </div>
-<div class="stat-card">
-<h3>Monthly Profit & Distribution</h3>
-<canvas id="pChart" style="max-height: 250px;"></canvas>
-</div>
-</div>
-
 <div class="stat-card" style="text-align: left;">
 <h3>Withdraw History</h3>
-<div id="withdrawHistory">No history found.</div>
+<div id="withdrawList">No history.</div>
+</div>
 </div>
 </div>
 
@@ -119,23 +127,22 @@ const invCol = collection(db, "investments");
 let investments = [];
 let isAdmin = false;
 
-// --- Crypto Prices ---
+// Live Prices
 async function fetchPrices() {
 try {
 const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","BNBUSDT"]');
 const data = await res.json();
 data.forEach(c => {
-const p = parseFloat(c.price).toLocaleString(undefined, {minimumFractionDigits: 2});
-if(c.symbol === "BTCUSDT") document.getElementById('btc-price').innerText = "$" + p;
-if(c.symbol === "ETHUSDT") document.getElementById('eth-price').innerText = "$" + p;
-if(c.symbol === "BNBUSDT") document.getElementById('bnb-price').innerText = "$" + p;
+const p = parseFloat(c.price).toLocaleString();
+if(c.symbol === "BTCUSDT") document.getElementById('btc-p').innerText = "$" + p;
+if(c.symbol === "ETHUSDT") document.getElementById('eth-p').innerText = "$" + p;
+if(c.symbol === "BNBUSDT") document.getElementById('bnb-p').innerText = "$" + p;
 });
-} catch(e) { console.log("Price Error"); }
+} catch(e) {}
 }
 setInterval(fetchPrices, 10000);
 fetchPrices();
 
-// --- Auth ---
 window.adminLogin = () => {
 if(prompt("Password:") === "1234") {
 isAdmin = true;
@@ -144,18 +151,16 @@ render();
 }
 }
 
-// --- CRUD ---
 window.saveToCloud = async () => {
 const data = {
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value) || 0,
-profit: parseFloat(document.getElementById('profit').value) || 0,
+profit: parseFloat(document.getElementById('prof').value) || 0,
 startDate: document.getElementById('sDate').value,
 endDate: document.getElementById('eDate').value,
-timestamp: Date.now()
+status: 'active'
 };
-if(!data.platform || !data.amount) return alert("Fill mandatory fields!");
 await addDoc(invCol, data);
 resetForm();
 }
@@ -166,33 +171,33 @@ render();
 });
 
 function render() {
-const total = investments.reduce((s, i) => s + i.amount, 0);
-const profit = investments.reduce((s, i) => s + i.profit, 0);
-const growth = total > 0 ? ((profit / total) * 100).toFixed(2) : 0;
+const active = investments.filter(i => i.status === 'active');
+const total = active.reduce((s, i) => s + i.amount, 0);
+const profit = active.reduce((s, i) => s + i.profit, 0);
 
 document.getElementById('totalVal').innerText = total.toLocaleString() + " BDT";
 document.getElementById('profitVal').innerText = profit.toLocaleString() + " BDT";
-document.getElementById('growthVal').innerText = growth + "%";
+document.getElementById('activeCount').innerText = active.length;
 
-// Portfolio List
-document.getElementById('portfolioList').innerHTML = investments.map(i => `
+// Goal
+const prog = Math.min((total / 300000) * 100, 100).toFixed(1);
+document.getElementById('goalFill').style.width = prog + "%";
+document.getElementById('goalPercent').innerText = prog + "%";
+document.getElementById('goalRem').innerText = "Remaining: " + (300000 - total).toLocaleString() + " BDT";
+
+// Portfolio
+document.getElementById('portfolioList').innerHTML = active.map(i => `
 <div class="platform-box">
 <b>${i.platform}</b> (${i.type})<br>
-Inv: ${i.amount.toLocaleString()} | <span style="color:var(--green)">Profit: ${i.profit.toLocaleString()}</span><br>
-<small style="color:#94a3b8">Ends: ${i.endDate || 'N/A'}</small>
-${isAdmin ? `<div style="margin-top:10px;"><button onclick="editItem('${i.id}')" style="width:auto; padding:5px 10px; background:#3b82f6; color:white;">Edit</button> <button onclick="deleteItem('${i.id}')" style="width:auto; padding:5px 10px; background:#ef4444; color:white;">Del</button></div>` : ''}
+Amt: ${i.amount.toLocaleString()} | <span style="color:var(--green)">+${i.profit}</span>
+${isAdmin ? `<div style="margin-top:10px;"><button onclick="editItem('${i.id}')" style="width:auto; padding:4px 10px; font-size:12px;">Edit</button> <button onclick="deleteItem('${i.id}')" style="width:auto; padding:4px 10px; font-size:12px; background:#ef4444; color:white;">Del</button></div>` : ''}
 </div>
 `).join('');
 
-// Withdraw History (Simulated from items with profits)
-document.getElementById('withdrawHistory').innerHTML = investments.filter(i => i.profit > 0).map(i => `
-<div class="history-item">
-<span>${i.platform} (${i.type})</span>
-<span style="color:var(--green)">+ ${i.profit.toLocaleString()} BDT</span>
-</div>
-`).join('') || "No history found.";
-
-renderChart();
+// History (Simplified)
+document.getElementById('withdrawList').innerHTML = investments.filter(i => i.profit > 0).map(i => `
+<div class="history-item"><span>${i.platform}</span><span style="color:var(--green)">+${i.profit}</span></div>
+`).join('');
 }
 
 window.editItem = (id) => {
@@ -201,7 +206,7 @@ document.getElementById('docId').value = id;
 document.getElementById('plat').value = i.platform;
 document.getElementById('type').value = i.type;
 document.getElementById('amt').value = i.amount;
-document.getElementById('profit').value = i.profit;
+document.getElementById('prof').value = i.profit;
 document.getElementById('sDate').value = i.startDate;
 document.getElementById('eDate').value = i.endDate;
 document.getElementById('saveBtn').style.display = 'none';
@@ -216,7 +221,7 @@ await updateDoc(doc(db, "investments", id), {
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
-profit: parseFloat(document.getElementById('profit').value),
+profit: parseFloat(document.getElementById('prof').value),
 startDate: document.getElementById('sDate').value,
 endDate: document.getElementById('eDate').value
 });
@@ -227,26 +232,9 @@ window.deleteItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(d
 
 window.resetForm = () => {
 document.getElementById('docId').value = '';
-document.getElementById('plat').value = '';
-document.getElementById('type').value = '';
-document.getElementById('amt').value = '';
-document.getElementById('profit').value = '';
 document.getElementById('saveBtn').style.display = 'block';
 document.getElementById('updateBtn').style.display = 'none';
 document.getElementById('cancelBtn').style.display = 'none';
-}
-
-let myChart = null;
-function renderChart() {
-const ctx = document.getElementById('pChart').getContext('2d');
-if(myChart) myChart.destroy();
-const platMap = {};
-investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
-myChart = new Chart(ctx, {
-type: 'pie',
-data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15', '#4ade80', '#3b82f6', '#ef4444', '#a78bfa'] }] },
-options: { plugins: { legend: { labels: { color: 'white' } } } }
-});
 }
 </script>
 </body>
