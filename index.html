@@ -149,9 +149,10 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
 .toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
-.modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--accent); }
+.modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid var(--accent); }
 .modal-content input { width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; }
 .exchange-rate-box { background: var(--input-bg); padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; }
+.warning-box { background: #f8717122; border-left: 3px solid #f87171; padding: 8px; margin: 10px 0; border-radius: 6px; font-size: 0.7rem; }
 @keyframes slideIn {
 from { transform: translateX(100%); opacity: 0; }
 to { transform: translateX(0); opacity: 1; }
@@ -193,7 +194,7 @@ to { transform: translateX(0); opacity: 1; }
 <div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
 </div>
 <div class="version-tag">
-<i class="fas fa-code-branch"></i> v3.1 | Fixed Total Invested Calculation | Powered by Taslim Rony
+<i class="fas fa-code-branch"></i> v3.2 | Fixed Purchase Price | Edit Investment Feature
 </div>
 </div>
 
@@ -282,6 +283,9 @@ to { transform: translateX(0); opacity: 1; }
 
 <div id="investmentFormCard" class="card" style="display:none;">
 <h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
+<div class="warning-box">
+<i class="fas fa-info-circle"></i> <strong>Important:</strong> For Crypto (BTC/ETH/BNB), enter the actual purchase price per coin (e.g., if you bought BNB at $615, enter 615). Quantity × Price = Total Invested.
+</div>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
 <div class="input-group"><label>Asset Type</label>
@@ -300,7 +304,7 @@ to { transform: translateX(0); opacity: 1; }
 <input type="number" id="amt" step="any" placeholder="0.00">
 <small id="currencyHint" style="font-size:0.7rem; color:var(--text-sub);"></small>
 </div>
-<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought (e.g., 615.14)"></div>
+<div class="input-group"><label>Purchase Price (USD) <span style="color: #f87171;">*Required for Crypto</span></label><input type="number" id="purchasePrice" step="any" placeholder="e.g., 615.14"></div>
 <div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
 <div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (after sell)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
@@ -325,21 +329,39 @@ to { transform: translateX(0); opacity: 1; }
 
 <div class="footer">
 <p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud | Admin Password: <strong>Tt12345</strong></p>
-<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (USD/BDT) | Shows correct Total Invested = Quantity × Purchase Price</p>
+<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (USD/BDT) | Edit investment to fix purchase price</p>
 </div>
 </div>
 <div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
 
+<!-- Edit Investment Modal (Full Edit) -->
+<div id="editInvestmentModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-edit"></i> Edit Investment</h3>
+<div id="editInvInfo"></div>
+<label>Purchase Price (USD):</label>
+<input type="number" id="editPurchasePrice" step="any" placeholder="Purchase price per coin">
+<label>Quantity:</label>
+<input type="number" id="editQuantity" step="any" placeholder="Quantity">
+<label>Expected Profit (BDT):</label>
+<input type="number" id="editExpectedProfit" step="any" placeholder="Expected profit">
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+<button onclick="saveInvestmentEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save Changes</button>
+<button onclick="closeEditModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- Edit Profit Modal (Only Profit) -->
 <div id="editProfitModal" class="modal">
 <div class="modal-content">
 <h3><i class="fas fa-edit"></i> Edit Actual Profit (BDT)</h3>
-<div id="editInvestmentInfo"></div>
-<label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label>
+<div id="editProfitInfo"></div>
 <label>Actual Profit:</label>
 <input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit">
 <div style="display: flex; gap: 10px; margin-top: 15px;">
 <button onclick="saveProfitEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
-<button onclick="closeModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
+<button onclick="closeProfitModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
 </div>
 </div>
 </div>
@@ -414,6 +436,7 @@ const type = document.getElementById('type').value;
 const cryptoTypes = ['BTC', 'ETH', 'BNB'];
 const amountLabel = document.getElementById('amountLabel');
 const currencyHint = document.getElementById('currencyHint');
+const purchasePriceGroup = document.querySelector('.input-group:has(#purchasePrice)');
 
 if(cryptoTypes.includes(type)) {
 amountLabel.innerHTML = 'Quantity (Coins)';
@@ -483,17 +506,65 @@ const toast = document.getElementById('loadingToast');
 if(toast) toast.style.display = show ? 'block' : 'none';
 }
 
-function openEditModal(id) {
+// Open full edit modal for investment
+function openInvestmentEditModal(id) {
 const investment = investments.find(i => i.id === id);
 if(!investment) return;
 currentEditId = id;
-document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amountDisplay || investment.amount}`;
-document.getElementById('showExpectedProfit').innerText = formatNumber(investment.expectedProfit || 0);
+document.getElementById('editInvInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Current: ${investment.amount} coins @ $${formatNumber(investment.purchasePrice || 0)}`;
+document.getElementById('editPurchasePrice').value = investment.purchasePrice || 0;
+document.getElementById('editQuantity').value = investment.amount;
+document.getElementById('editExpectedProfit').value = investment.expectedProfit || 0;
+document.getElementById('editInvestmentModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+document.getElementById('editInvestmentModal').style.display = 'none';
+currentEditId = null;
+}
+
+async function saveInvestmentEdit() {
+if(!isAdmin) { alert("Admin required"); return; }
+const investment = investments.find(i => i.id === currentEditId);
+if(!investment) return;
+
+const newPrice = parseFloat(document.getElementById('editPurchasePrice').value);
+const newQty = parseFloat(document.getElementById('editQuantity').value);
+const newExpectedProfit = parseFloat(document.getElementById('editExpectedProfit').value);
+
+if(isNaN(newPrice) || newPrice <= 0) {
+showToast("Please enter valid purchase price!", true);
+return;
+}
+if(isNaN(newQty) || newQty <= 0) {
+showToast("Please enter valid quantity!", true);
+return;
+}
+
+// Update investment
+investment.purchasePrice = newPrice;
+investment.amount = newQty;
+investment.expectedProfit = newExpectedProfit;
+investment.amountUSD = newQty * newPrice;
+investment.amountBDT = usdToBdt(investment.amountUSD);
+investment.amountDisplay = `${newQty} ${investment.type} coins @ $${formatNumber(newPrice)}`;
+
+await syncInvestmentsToFirestore();
+renderAll();
+closeEditModal();
+showToast(`Investment updated! Total: $${formatNumber(investment.amountUSD)} (${formatNumber(investment.amountBDT)} BDT)`);
+}
+
+function openProfitEditModal(id) {
+const investment = investments.find(i => i.id === id);
+if(!investment) return;
+currentEditId = id;
+document.getElementById('editProfitInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})`;
 document.getElementById('editActualProfit').value = investment.actualProfit || 0;
 document.getElementById('editProfitModal').style.display = 'flex';
 }
 
-function closeModal() { document.getElementById('editProfitModal').style.display = 'none'; }
+function closeProfitModal() { document.getElementById('editProfitModal').style.display = 'none'; }
 
 async function saveProfitEdit() {
 if(!isAdmin) { alert("Admin required"); return; }
@@ -506,7 +577,7 @@ await syncInvestmentsToFirestore();
 renderAll();
 showToast(`Profit updated to ${formatNumber(newActualProfit)} BDT`);
 }
-closeModal();
+closeProfitModal();
 }
 
 async function adminLogin(password) {
@@ -514,7 +585,7 @@ if(password !== ADMIN_PASSWORD) { alert("Wrong password!"); return false; }
 isAdmin = true;
 updateAdminUI();
 if(firebaseInitialized && db) await loadAllFirestoreData();
-showToast("Admin mode active!");
+showToast("Admin mode active! You can now edit investments.");
 return true;
 }
 
@@ -587,7 +658,7 @@ const purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePri
 if(!amountValue || !document.getElementById('sDate').value) return alert("Please fill all fields!");
 
 if(isCrypto && (!purchasePrice || purchasePrice <= 0)) {
-return alert("Please enter the purchase price in USD!");
+return alert("Please enter the purchase price in USD! Example: If you bought BNB at $615, enter 615");
 }
 
 let amountBDT, amountUSD, amountDisplay;
@@ -626,7 +697,7 @@ document.getElementById('purchasePrice').value = '';
 document.getElementById('expectedProfit').value = '';
 document.getElementById('actualProfit').value = '';
 renderAll();
-showToast(`${type} investment added! ${amountDisplay} | Total: $${formatNumber(amountUSD)} (${formatNumber(amountBDT)} BDT)`);
+showToast(`${type} added! Total: $${formatNumber(amountUSD)} (${formatNumber(amountBDT)} BDT)`);
 }
 
 async function withdrawInv(id) {
@@ -796,7 +867,8 @@ ${currentValue}
 </div>
 <div style="display:flex; gap:5px;">
 ${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>` : ''}
-<button class="btn-edit" onclick="openEditModal('${i.id}')"><i class="fas fa-edit"></i></button>
+${i.isCrypto ? `<button class="btn-edit" onclick="openInvestmentEditModal('${i.id}')" title="Edit Purchase Price/Quantity"><i class="fas fa-pen"></i></button>` : ''}
+<button class="btn-edit" onclick="openProfitEditModal('${i.id}')" title="Edit Actual Profit"><i class="fas fa-chart-line"></i></button>
 <button class="btn-delete" onclick="deleteInv('${i.id}')"><i class="fas fa-trash-alt"></i></button>
 </div>
 </div>
@@ -919,14 +991,19 @@ renderMonthlyChart();
 renderWithdrawHistory();
 }
 
+// Make functions global for buttons
+window.openInvestmentEditModal = openInvestmentEditModal;
+window.openProfitEditModal = openProfitEditModal;
+window.saveInvestmentEdit = saveInvestmentEdit;
+window.saveProfitEdit = saveProfitEdit;
+window.closeEditModal = closeEditModal;
+window.closeProfitModal = closeProfitModal;
+
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPassInput').value));
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
 window.addEntry = addEntry;
 window.withdrawInv = withdrawInv;
 window.deleteInv = deleteInv;
-window.openEditModal = openEditModal;
-window.saveProfitEdit = saveProfitEdit;
-window.closeModal = closeModal;
 window.updateAmountLabel = updateAmountLabel;
 window.editExchangeRate = editExchangeRate;
 window.saveExchangeRate = saveExchangeRate;
