@@ -9,6 +9,13 @@
 <style>
 :root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; }
 body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 15px; }
+
+/* লাইভ প্রাইস এর জন্য নতুন স্টাইল */
+.ticker-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.ticker-box { background: var(--card); padding: 10px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
+.ticker-box span { display: block; font-size: 0.8rem; color: #94a3b8; }
+.ticker-box b { font-size: 1.1rem; color: var(--accent); }
+
 .container { max-width: 1000px; margin: auto; }
 .main-title { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; }
 .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; }
@@ -26,6 +33,12 @@ button { background: var(--accent); border: none; padding: 10px; border-radius: 
 <div class="container">
 <h1 class="main-title" onclick="adminLogin()">Wealth Tracker (Cloud Pro)</h1>
 
+<div class="ticker-container">
+<div class="ticker-box"><span>BTC/USDT</span><b id="btc-price">Loading...</b></div>
+<div class="ticker-box"><span>ETH/USDT</span><b id="eth-price">Loading...</b></div>
+<div class="ticker-box"><span>BNB/USDT</span><b id="bnb-price">Loading...</b></div>
+</div>
+
 <div class="grid">
 <div class="card">Total Invested: <h2 id="totalVal">0</h2></div>
 <div class="card">Total Profit: <h2 id="profitVal" style="color:#4ade80">0</h2></div>
@@ -33,14 +46,13 @@ button { background: var(--accent); border: none; padding: 10px; border-radius: 
 
 <div id="adminPanel" class="card">
 <h3><i class="fas fa-edit"></i> Manage Investment</h3>
-<input type="hidden" id="docId">
-<div class="grid" style="grid-template-columns: 1fr 1fr;">
-<input type="text" id="plat" placeholder="Platform (e.g. Binance)">
-<input type="text" id="type" placeholder="Asset (e.g. BTC/Gold)">
+<input type="hidden" id="docId"> <div class="grid" style="grid-template-columns: 1fr 1fr;">
+<input type="text" id="plat" placeholder="Platform">
+<input type="text" id="type" placeholder="Asset Type">
 <input type="number" id="amt" placeholder="Investment Amount">
-<input type="number" id="profit" placeholder="Profit (Amount)">
-<div><label style="font-size: 11px; color:#94a3b8">Start Date</label><input type="date" id="sDate"></div>
-<div><label style="font-size: 11px; color:#94a3b8">End Date (Target)</label><input type="date" id="eDate"></div>
+<input type="number" id="profit" placeholder="Profit (if any)">
+<div><label style="font-size: 12px;">Start Date</label><input type="date" id="sDate"></div>
+<div><label style="font-size: 12px;">End Date (Target)</label><input type="date" id="eDate"></div>
 </div>
 <button id="saveBtn" onclick="saveToCloud()">Upload to Cloud</button>
 <button id="updateBtn" style="display:none; background:#4ade80;" onclick="updateExisting()">Update Changes</button>
@@ -48,24 +60,23 @@ button { background: var(--accent); border: none; padding: 10px; border-radius: 
 </div>
 
 <div class="grid">
-<div class="card"><h3>Portfolio List</h3><div id="portfolioList">Loading Cloud Data...</div></div>
+<div class="card"><h3>Portfolio</h3><div id="portfolioList">Loading...</div></div>
 <div class="card"><h3>Platform Split</h3><canvas id="pChart"></canvas></div>
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// আপনার দেওয়া কনফিগ এখানে সেট করা হয়েছে
+// আপনার অরিজিনাল কনফিগ (ভুলবেন না এটা আপনারটা দিয়ে পাল্টাতে)
 const firebaseConfig = {
 apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
 authDomain: "mywealthtracker-b7f62.firebaseapp.com",
 projectId: "mywealthtracker-b7f62",
 storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
 messagingSenderId: "575029483834",
-appId: "1:575029483834:web:4d9927d1c6ed653fff5803",
-measurementId: "G-F9QCL7WCCW"
+appId: "1:575029483834:web:bf597767177d37fdff5803"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -75,8 +86,24 @@ const invCol = collection(db, "investments");
 let investments = [];
 let isAdmin = false;
 
+// লাইভ প্রাইস ফেচ করার ফাংশন
+async function updatePrices() {
+try {
+const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","BNBUSDT"]');
+const data = await res.json();
+data.forEach(coin => {
+const price = parseFloat(coin.price).toLocaleString(undefined, {minimumFractionDigits: 2});
+if(coin.symbol === "BTCUSDT") document.getElementById('btc-price').innerText = "$" + price;
+if(coin.symbol === "ETHUSDT") document.getElementById('eth-price').innerText = "$" + price;
+if(coin.symbol === "BNBUSDT") document.getElementById('bnb-price').innerText = "$" + price;
+});
+} catch(e) { console.log("Price Load Error"); }
+}
+setInterval(updatePrices, 5000); // ৫ সেকেন্ড পর পর আপডেট হবে
+updatePrices();
+
 window.adminLogin = function() {
-if(prompt("Admin Password:") === "1234") {
+if(prompt("Enter Admin Password:") === "1234") {
 isAdmin = true;
 document.getElementById('adminPanel').style.display = 'block';
 renderAll();
@@ -93,7 +120,6 @@ startDate: document.getElementById('sDate').value,
 endDate: document.getElementById('eDate').value,
 timestamp: Date.now()
 };
-if(!data.platform || !data.amount) return alert("Fill essential fields!");
 await addDoc(invCol, data);
 resetForm();
 }
@@ -138,7 +164,6 @@ document.getElementById('updateBtn').style.display = 'none';
 document.getElementById('cancelBtn').style.display = 'none';
 }
 
-// রিয়েল-টাইম ডাটা লিসেনার
 onSnapshot(invCol, (snapshot) => {
 investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 renderAll();
@@ -154,13 +179,13 @@ const list = document.getElementById('portfolioList');
 list.innerHTML = investments.map(i => `
 <div class="platform-box">
 <b>${i.platform}</b> - ${i.type}<br>
-Invest: ${i.amount.toLocaleString()} BDT <br>
+Investment: ${i.amount.toLocaleString()} BDT <br>
 <span class="profit-text">Profit: ${i.profit.toLocaleString()} BDT</span><br>
-<span class="end-date-text"><i class="far fa-calendar-check"></i> End: ${i.endDate || 'No Date'}</span>
+<span class="end-date-text"><i class="far fa-calendar-alt"></i> Ends: ${i.endDate || 'N/A'}</span>
 ${isAdmin ? `
-<div style="margin-top:10px; display:flex; gap:5px;">
-<button style="background:#3b82f6; color:white; font-size:12px;" onclick="editItem('${i.id}')">EDIT</button>
-<button style="background:#ef4444; color:white; font-size:12px;" onclick="deleteItem('${i.id}')">DEL</button>
+<div style="margin-top:10px;">
+<button style="width:45%; background:#3b82f6; color:white; border:none; padding:5px; border-radius:5px;" onclick="editItem('${i.id}')">Edit</button>
+<button style="width:45%; background:#ef4444; color:white; border:none; padding:5px; border-radius:5px;" onclick="deleteItem('${i.id}')">Delete</button>
 </div>
 ` : ''}
 </div>
@@ -169,7 +194,7 @@ renderChart();
 }
 
 window.deleteItem = async function(id) {
-if(confirm("Delete permanently from Cloud?")) await deleteDoc(doc(db, "investments", id));
+if(confirm("Delete permanently?")) await deleteDoc(doc(db, "investments", id));
 }
 
 let myChart = null;
@@ -181,7 +206,7 @@ investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.am
 myChart = new Chart(ctx, {
 type: 'doughnut',
 data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15', '#4ade80', '#627eea', '#f87171'] }] },
-options: { responsive: true, maintainAspectRatio: false }
+options: { plugins: { legend: { labels: { color: 'white' } } } }
 });
 }
 </script>
