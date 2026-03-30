@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro | Adjustable Profit</title>
+<title>Wealth Tracker Ultra Pro | Crypto & Traditional Assets</title>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -91,7 +91,7 @@ to { transform: translateX(0); opacity: 1; }
 <body>
 
 <div class="container">
-<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Adjustable Profit</span></h1>
+<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Crypto & Assets</span></h1>
 
 <div id="adminBar" class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
@@ -143,10 +143,23 @@ to { transform: translateX(0); opacity: 1; }
 <h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
-<div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Qty)</option><option value="ETH">ETH (Qty)</option><option value="BNB">BNB (Qty)</option><option>Agriculture</option><option>MSSA Installment</option><option>Shop/Business</option><option>Gold</option></select></div>
-<div class="input-group"><label>Amount / Qty</label><input type="number" id="amt" step="any" placeholder="0.00"></div>
-<div class="input-group"><label>Expected Profit</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
-<div class="input-group"><label>Actual Profit</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (can edit later)"></div>
+<div class="input-group"><label>Asset Type</label>
+<select id="type" onchange="updateAmountLabel()">
+<option value="BTC">BTC (Cryptocurrency - Qty)</option>
+<option value="ETH">ETH (Cryptocurrency - Qty)</option>
+<option value="BNB">BNB (Cryptocurrency - Qty)</option>
+<option value="Agriculture">Agriculture (BDT Amount)</option>
+<option value="MSSA Installment">MSSA Installment (BDT Amount)</option>
+<option value="Shop/Business">Shop/Business (BDT Amount)</option>
+<option value="Gold">Gold (BDT Amount)</option>
+</select>
+</div>
+<div class="input-group">
+<label id="amountLabel">Quantity / Amount</label>
+<input type="number" id="amt" step="any" placeholder="0.00">
+</div>
+<div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
+<div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (can edit later)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
 </div>
 <div class="form-row">
@@ -166,10 +179,6 @@ to { transform: translateX(0); opacity: 1; }
 <div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio View</h2><div id="portfolioList"></div></div>
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div>
 </div>
-
-<div class="footer" style="text-align: center; margin-top: 30px; padding: 20px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #334155;">
-<p><i class="fas fa-edit"></i> New Feature: You can edit actual profit anytime! | Admin Password: <strong>Tt12345</strong></p>
-</div>
 </div>
 <div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
 
@@ -178,7 +187,7 @@ to { transform: translateX(0); opacity: 1; }
 <div class="modal-content">
 <h3><i class="fas fa-edit"></i> Edit Actual Profit</h3>
 <div id="editInvestmentInfo"></div>
-<label>Expected Profit: <span id="showExpectedProfit"></span></label>
+<label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label>
 <label>Actual Profit:</label>
 <input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit">
 <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -206,6 +215,18 @@ const ADMIN_PASSWORD = "Tt12345";
 let investments = [];
 let firebaseInitialized = false;
 let currentEditId = null;
+
+// Update amount label based on asset type
+function updateAmountLabel() {
+const type = document.getElementById('type').value;
+const cryptoTypes = ['BTC', 'ETH', 'BNB'];
+const amountLabel = document.getElementById('amountLabel');
+if(cryptoTypes.includes(type)) {
+amountLabel.innerHTML = 'Quantity (Coins) <span style="color:#facc15;">📊 Will show USD Value</span>';
+} else {
+amountLabel.innerHTML = 'Amount (BDT) <span style="color:#4ade80;">💰 Investment Amount</span>';
+}
+}
 
 // Initialize Firebase
 try {
@@ -237,7 +258,7 @@ function openEditModal(id) {
 const investment = investments.find(i => i.id === id);
 if(!investment) return;
 currentEditId = id;
-document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amount}`;
+document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amount} ${investment.isCrypto ? 'coins' : 'BDT'}`;
 document.getElementById('showExpectedProfit').innerText = investment.expectedProfit || investment.profit || 0;
 document.getElementById('editActualProfit').value = investment.actualProfit || investment.profit || 0;
 document.getElementById('editProfitModal').style.display = 'flex';
@@ -260,11 +281,11 @@ await syncInvestmentsToFirestore();
 renderAll();
 const diff = newActualProfit - (investment.expectedProfit || investment.profit);
 if(diff < 0) {
-showToast(`Profit adjusted: ${diff} (less than expected)`, true);
+showToast(`Profit adjusted: ${diff} BDT (less than expected)`, true);
 } else if(diff > 0) {
-showToast(`Profit adjusted: +${diff} (more than expected!)`);
+showToast(`Profit adjusted: +${diff} BDT (more than expected!)`);
 } else {
-showToast(`Profit updated to ${newActualProfit}`);
+showToast(`Profit updated to ${newActualProfit} BDT`);
 }
 }
 closeModal();
@@ -373,11 +394,16 @@ await docRef.set(item);
 
 async function addEntry() {
 if(!isAdmin) { alert("Admin login required!"); return; }
+const type = document.getElementById('type').value;
+const cryptoTypes = ['BTC', 'ETH', 'BNB'];
+const isCrypto = cryptoTypes.includes(type);
+
 const inv = {
 id: Date.now().toString(),
 platform: document.getElementById('plat').value,
-type: document.getElementById('type').value,
+type: type,
 amount: parseFloat(document.getElementById('amt').value),
+isCrypto: isCrypto,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value || 0),
 actualProfit: parseFloat(document.getElementById('actualProfit').value || 0),
 profit: parseFloat(document.getElementById('actualProfit').value || 0),
@@ -385,14 +411,21 @@ status: document.getElementById('status').value,
 start: document.getElementById('sDate').value,
 end: document.getElementById('eDate').value
 };
-if(!inv.amount || !inv.start) return alert("Please enter amount & start date!");
+
+if(!inv.amount || !inv.start) return alert("Please enter quantity/amount & start date!");
+
+// For crypto, validate that amount is reasonable
+if(isCrypto && inv.amount > 1000) {
+if(!confirm(`You entered ${inv.amount} ${type} coins. This is a large amount. Are you sure?`)) return;
+}
+
 investments.push(inv);
 await syncInvestmentsToFirestore();
 document.getElementById('amt').value = '';
 document.getElementById('expectedProfit').value = '';
 document.getElementById('actualProfit').value = '';
 renderAll();
-showToast("Investment added!");
+showToast(`${type} investment added! ${isCrypto ? 'Quantity: ' + inv.amount + ' coins' : 'Amount: ' + inv.amount + ' BDT'}`);
 }
 
 async function withdrawInv(id) {
@@ -408,20 +441,21 @@ profit: finalProfit,
 expectedProfit: inv.expectedProfit,
 date: new Date().toISOString().slice(0,10),
 platform: inv.platform,
-type: inv.type
+type: inv.type,
+isCrypto: inv.isCrypto
 });
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(history));
 await syncInvestmentsToFirestore();
 await syncWithdrawHistoryToFirestore();
 renderAll();
-showToast(`Withdrawn! Actual profit: ${finalProfit}`);
+showToast(`Withdrawn! Actual profit: ${finalProfit} BDT`);
 }
 
 async function deleteInv(id) {
 if(!isAdmin) { alert("Admin required"); return; }
 const invToDelete = investments.find(i => i.id === id);
 if(!invToDelete) return;
-if(!confirm(`Delete "${invToDelete.type}" (${invToDelete.amount}) permanently?`)) return;
+if(!confirm(`Delete "${invToDelete.type}" (${invToDelete.amount} ${invToDelete.isCrypto ? 'coins' : 'BDT'}) permanently?`)) return;
 
 showLoading(true);
 try {
@@ -477,15 +511,16 @@ const actual = i.actualProfit !== undefined ? i.actualProfit : expected;
 const diff = actual - expected;
 const diffClass = diff >= 0 ? 'profit-diff-positive' : 'profit-diff-negative';
 const diffSign = diff >= 0 ? '+' : '';
+const amountUnit = i.isCrypto ? `${i.amount} ${i.type} coins` : `${i.amount.toLocaleString()} BDT`;
 
 items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
 <div>
 <b>${i.type}</b>
 <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
-<small>💰 ${i.amount.toLocaleString()}</small><br>
-<small class="profit-expected">Expected: +${expected}</small><br>
-<small class="profit-actual">Actual: +${actual} <span class="${diffClass}">(${diffSign}${diff})</span></small>
+<small>💰 ${amountUnit}</small><br>
+<small class="profit-expected">Expected: +${expected} BDT</small><br>
+<small class="profit-actual">Actual: +${actual} BDT <span class="${diffClass}">(${diffSign}${diff})</span></small>
 </div>
 <div style="display:flex; gap:5px;">
 ${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>` : ''}
@@ -510,10 +545,11 @@ return;
 }
 let html = '';
 [...history].reverse().forEach(h => {
+const amountUnit = h.isCrypto ? `${h.amount} ${h.type} coins` : `${h.amount.toLocaleString()} BDT`;
 html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <b>${h.platform} - ${h.type}</b><br>
-Amount: ${h.amount.toLocaleString()}<br>
-<span class="profit-actual">Actual Profit: +${h.profit}</span><br>
+${amountUnit}<br>
+<span class="profit-actual">Actual Profit: +${h.profit} BDT</span><br>
 <small><i class="fas fa-calendar"></i> ${h.date}</small>
 </div>`;
 });
@@ -574,14 +610,18 @@ symbols.forEach(s => {
 const coin = s.replace('USDT', '');
 const priceData = allPrices.find(p => p.symbol === s);
 const price = parseFloat(priceData?.price || 0);
-const qty = investments.filter(i => i.type.toUpperCase() === coin && i.status === 'active').reduce((sum, i) => sum + i.amount, 0);
-document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString()}`;
+// Get quantity from active crypto investments only
+const qty = investments
+.filter(i => i.type.toUpperCase() === coin && i.status === 'active' && i.isCrypto === true)
+.reduce((sum, i) => sum + i.amount, 0);
+document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString(undefined, {minimumFractionDigits:2})}`;
 document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString();
+document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString(undefined, {minimumFractionDigits:2});
 });
 } catch(e) { console.error("Crypto fetch error"); }
 }
 
+// Event Listeners
 document.getElementById('loginBtn').addEventListener('click', () => {
 adminLogin(document.getElementById('adminPassInput').value);
 document.getElementById('adminPassInput').value = '';
@@ -593,8 +633,11 @@ window.deleteInv = deleteInv;
 window.openEditModal = openEditModal;
 window.saveProfitEdit = saveProfitEdit;
 window.closeModal = closeModal;
+window.updateAmountLabel = updateAmountLabel;
 
+// Initialize
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
+updateAmountLabel(); // Set initial label
 const localInv = localStorage.getItem("wealth_actual_profit");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
