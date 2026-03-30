@@ -3,190 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro | Crypto Live & Status</title>
+<title>Wealth Tracker Pro | Admin Mode</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
 :root {
---bg-dark: #0b1120;
---card-bg: #1e293b;
---input-bg: #0f172a;
---accent: #facc15;
---text-main: #e2e8f0;
---text-sub: #94a3b8;
---profit-color: #4ade80;
---loss-color: #f87171;
---btc-color: #f7931a;
---eth-color: #627eea;
---bnb-color: #f3ba2f;
+--bg-dark: #0b1120; --card-bg: #1e293b; --input-bg: #0f172a;
+--accent: #facc15; --text-main: #e2e8f0; --text-sub: #94a3b8;
+--profit-color: #4ade80; --btc-color: #f7931a; --eth-color: #627eea; --bnb-color: #f3ba2f;
 }
-
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
-
-h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 800; }
-
-.goal-card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
-.progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
-.progress-fill { background: var(--accent); height: 100%; transition: 0.5s; width: 0%; }
-
+h1 { text-align: center; margin-bottom: 20px; color: var(--accent); }
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; }
-.stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
+.stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; }
 .stat-value { font-size: 1.5rem; font-weight: 800; margin-top: 5px; }
-
-/* Crypto Cards Style */
-.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); }
-.btc-card { border-color: var(--btc-color); }
-.eth-card { border-color: var(--eth-color); }
-.bnb-card { border-color: var(--bnb-color); }
-
 .card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
 .input-group { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 5px; }
 input, select { background: var(--input-bg); border: 1px solid #334155; padding: 10px; border-radius: 8px; color: white; }
-
-button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 .btn-save { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 10px; }
 .btn-action { background: #334155; color: #fff; font-size: 0.7rem; }
 .btn-withdraw { background: #4ade80; color: #000; font-size: 0.7rem; }
-
 .platform-box { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
-
 .status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
 .status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
+#adminPanel { display: none; } /* Admin form hidden by default */
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Wealth Tracker Ultra Pro</h1>
+<h1>Wealth Tracker Pro <small style="font-size: 0.5em; color: gray;">(Press 'A' for Admin)</small></h1>
 
 <div class="crypto-grid">
-<div class="crypto-card btc-card">
-<div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC/USDT</div>
+<div class="crypto-card" style="border-color: var(--btc-color);">
+<div style="color:var(--btc-color); font-weight:bold;">BTC/USDT</div>
 <div id="p-BTC" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BTC">0</span> | Value: $<span id="v-BTC">0</span></div>
 </div>
-<div class="crypto-card eth-card">
-<div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH/USDT</div>
+<div class="crypto-card" style="border-color: var(--eth-color);">
+<div style="color:var(--eth-color); font-weight:bold;">ETH/USDT</div>
 <div id="p-ETH" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-ETH">0</span> | Value: $<span id="v-ETH">0</span></div>
 </div>
-<div class="crypto-card bnb-card">
-<div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB/USDT</div>
+<div class="crypto-card" style="border-color: var(--bnb-color);">
+<div style="color:var(--bnb-color); font-weight:bold;">BNB/USDT</div>
 <div id="p-BNB" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BNB">0</span> | Value: $<span id="v-BNB">0</span></div>
 </div>
 </div>
 
 <div class="dashboard-grid">
-<div class="stat-card">
-<div class="stat-label">Total Principal</div>
-<div id="totalPrincipal" class="stat-value">0</div>
-</div>
-<div class="stat-card">
-<div class="stat-label">Active Investment</div>
-<div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div>
-</div>
-<div class="stat-card">
-<div class="stat-label">Portfolio Value</div>
-<div id="currentValue" class="stat-value" style="color:var(--profit-color)">0</div>
-</div>
+<div class="stat-card"><div class="stat-label">Total Principal</div><div id="totalPrincipal" class="stat-value">0</div></div>
+<div class="stat-card"><div class="stat-label">Active Investment</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
+<div class="stat-card"><div class="stat-label">Portfolio Value</div><div id="currentValue" class="stat-value" style="color:var(--profit-color)">0</div></div>
 </div>
 
-<div class="goal-card">
-<div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
-<span>Target Goal: <b>3,00,000 BDT</b></span>
-<span id="goalPercent">0%</span>
-</div>
-<div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div>
-<small id="goalRem" style="color:var(--text-sub)">Remaining: 0 BDT</small>
-</div>
-
-<div class="card">
+<div id="adminPanel" class="card">
+<h3>Add New Investment</h3>
 <div class="form-row">
-<div class="input-group">
-<label>Platform</label>
-<select id="plat">
-<option>Binance</option><option>Wegro</option><option>Biniyog</option>
-<option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option>
-</select>
-</div>
-<div class="input-group">
-<label>Asset Type</label>
-<select id="type">
-<option value="BTC">BTC (Qty)</option><option value="ETH">ETH (Qty)</option>
-<option value="BNB">BNB (Qty)</option><option>Agriculture</option>
-<option>MSSA Installment</option><option>Shop/Business</option><option>Gold</option>
-</select>
-</div>
-<div class="input-group"><label>Amount / Qty</label><input type="number" id="amt" step="any" placeholder="0.00"></div>
-<div class="input-group"><label>Expected Profit</label><input type="number" id="prof" value="0"></div>
-<div class="input-group">
-<label>Status</label>
-<select id="status">
-<option value="active">Active</option>
-<option value="completed">Completed</option>
-</select>
-</div>
+<div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
+<div class="input-group"><label>Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Business</option><option>Gold</option></select></div>
+<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any"></div>
+<div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
 </div>
 <div class="form-row">
 <div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div>
-<div class="input-group"><label>End Date</label><input type="date" id="eDate"></div>
-<button class="btn-save" onclick="addEntry()"><i class="fas fa-plus"></i> Save Investment</button>
+<button class="btn-save" onclick="addEntry()">Save Investment</button>
 </div>
 </div>
 
-<div class="charts-grid">
-<div class="card"><h3>Growth Analysis</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
-<div class="card"><h3>Platforms</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
-<div class="card"><h3>Monthly Profit</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
-</div>
-
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
-<div class="card">
-<h2>Portfolio View</h2>
-<div id="portfolioList"></div>
-</div>
-<div class="card">
-<h2>Withdraw History</h2>
-<div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div>
-</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px;">
+<div class="card"><h2>Portfolio</h2><div id="portfolioList"></div></div>
+<div class="card"><h2>Monthly Profit</h2><div style="height:250px"><canvas id="monthlyChart"></canvas></div></div>
 </div>
 </div>
 
 <script>
 let investments = [];
+let isAdmin = false;
 const STORAGE_KEY = "wealth_final_v11_mssa";
-const TARGET_GOAL = 300000;
 
-// LIVE CRYPTO UPDATE FUNCTION (Back again!)
+// Admin Lock System
+window.addEventListener('keydown', (e) => {
+if (e.key.toLowerCase() === 'a') {
+const pass = prompt("Enter Admin Password:");
+if (pass === "1234") { // Change your password here
+isAdmin = true;
+document.getElementById('adminPanel').style.display = 'block';
+alert("Admin Mode Active!");
+renderAll();
+}
+}
+});
+
 async function updateCrypto() {
-const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
 try {
 const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
-const allPrices = await res.json();
-
-symbols.forEach(s => {
-const coin = s.replace('USDT', '');
-const priceData = allPrices.find(p => p.symbol === s);
-const price = parseFloat(priceData.price);
-
-// Filter for only 'Active' crypto investments to show correct Qty
-const qty = investments
-.filter(i => i.type.toUpperCase() === coin && i.status === 'active')
-.reduce((sum, i) => sum + i.amount, 0);
-
-document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString()}`;
-document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString(undefined, {minimumFractionDigits:2});
+const data = await res.json();
+['BTC','ETH','BNB'].forEach(coin => {
+const p = data.find(x => x.symbol === coin+'USDT');
+if(p) document.getElementById(`p-${coin}`).innerText = `$${parseFloat(p.price).toLocaleString()}`;
 });
-} catch (e) { console.error("Crypto Price Fetch Error"); }
+} catch (e) {}
 }
 
 function addEntry() {
@@ -195,161 +118,83 @@ id: Date.now(),
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
-profit: parseFloat(document.getElementById('prof').value || 0),
+profit: 0,
 status: document.getElementById('status').value,
-start: document.getElementById('sDate').value,
-end: document.getElementById('eDate').value
+start: document.getElementById('sDate').value
 };
-if(!inv.amount || !inv.start) return alert("Please enter details!");
+if(!inv.amount) return;
 investments.push(inv);
 saveAndRender();
-document.getElementById('amt').value = '';
 }
 
 function renderStats() {
 const principal = investments.reduce((s, i) => s + i.amount, 0);
-const current = investments.reduce((s, i) => s + i.amount + i.profit, 0);
-const activeInv = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
-
+const active = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
 document.getElementById('totalPrincipal').innerText = principal.toLocaleString();
-document.getElementById('currentValue').innerText = current.toLocaleString();
-document.getElementById('activeInvestment').innerText = activeInv.toLocaleString();
-
-const progress = Math.min((principal / TARGET_GOAL) * 100, 100).toFixed(1);
-document.getElementById('goalFill').style.width = progress + "%";
-document.getElementById('goalPercent').innerText = progress + "%";
-document.getElementById('goalRem').innerText = `Remaining: ${(TARGET_GOAL - principal).toLocaleString()} BDT`;
+document.getElementById('activeInvestment').innerText = active.toLocaleString();
+document.getElementById('currentValue').innerText = (principal).toLocaleString();
 }
 
 function renderPortfolio() {
 const container = document.getElementById('portfolioList');
 const map = {};
-investments.forEach(i => {
-if(!map[i.platform]) map[i.platform] = [];
-map[i.platform].push(i);
-});
+investments.forEach(i => { if(!map[i.platform]) map[i.platform] = []; map[i.platform].push(i); });
 
 let html = '';
 for(let p in map) {
 let items = '';
 map[p].forEach(i => {
-const isCompleted = i.status === 'completed';
+const isComp = i.status === 'completed';
 items += `
-<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity: ${isCompleted ? '0.5' : '1'}">
-<div>
-<b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
-<small>${i.amount.toLocaleString()} | Profit: +${i.profit}</small>
-</div>
+<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity:${isComp?0.5:1}">
+<div><b>${i.type}</b> <span class="status-badge ${isComp?'status-completed':'status-active'}">${i.status}</span><br><small>${i.amount.toLocaleString()} BDT</small></div>
+${isAdmin ? `
 <div style="display:flex; gap:5px;">
-${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv(${i.id})"><i class="fas fa-money-bill-wave"></i></button>` : ''}
+${!isComp ? `<button class="btn-withdraw" onclick="withdrawInv(${i.id})"><i class="fas fa-check"></i></button>` : ''}
 <button class="btn-action" onclick="deleteInv(${i.id})"><i class="fas fa-trash"></i></button>
 </div>
+` : ''}
 </div>`;
 });
 html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
 }
-container.innerHTML = html || "No entries.";
+container.innerHTML = html || "No data.";
 }
 
 function withdrawInv(id) {
 const inv = investments.find(i => i.id === id);
-if(!inv || !confirm("Confirm Withdraw?")) return;
-inv.status = "completed";
+if(inv) {
+inv.status = 'completed';
 const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-history.push({ amount: inv.amount, profit: inv.profit, date: new Date().toISOString().slice(0,10), platform: inv.platform });
+history.push({...inv, date: new Date().toISOString().slice(0,10)});
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 saveAndRender();
 }
-
-function renderWithdrawHistory() {
-const container = document.getElementById('withdrawList');
-const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-let html = '';
-[...history].reverse().forEach(h => {
-html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
-<b>${h.platform}</b>: ${h.amount} <br>
-<small style="color:#4ade80">Profit: +${h.profit} | ${h.date}</small>
-</div>`;
-});
-container.innerHTML = html || "No history.";
 }
 
-// Monthly Income Logic
-function getMonthlyData() {
-const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-const monthly = {};
-history.forEach(h => {
-const m = h.date.slice(0,7);
-monthly[m] = (monthly[m] || 0) + h.profit;
-});
-return monthly;
+function deleteInv(id) {
+if(confirm("Delete?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); }
 }
 
 let mChart = null;
 function renderMonthlyChart() {
 const ctx = document.getElementById('monthlyChart').getContext('2d');
 if(mChart) mChart.destroy();
-const dataObj = getMonthlyData();
-mChart = new Chart(ctx, {
-type: 'bar',
-data: { labels: Object.keys(dataObj), datasets: [{ label: 'Profit', data: Object.values(dataObj), backgroundColor: '#4ade80' }] },
-options: { responsive: true, maintainAspectRatio: false }
-});
+const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+const monthly = {};
+history.forEach(h => { const m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.amount; });
+mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly), datasets: [{ label: 'Withdraws', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
 }
 
-// Other Charts
-let gChart = null, pChart = null;
-function renderCharts() {
-const gCtx = document.getElementById('mainChart').getContext('2d');
-if(gChart) gChart.destroy();
-const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
-let sum = 0;
-gChart = new Chart(gCtx, {
-type: 'line',
-data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Growth', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15' }] },
-options: { responsive: true, maintainAspectRatio: false }
-});
-
-const pCtx = document.getElementById('platformChart').getContext('2d');
-if(pChart) pChart.destroy();
-const platMap = {};
-investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
-pChart = new Chart(pCtx, {
-type: 'doughnut',
-data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171'] }] },
-options: { responsive: true, maintainAspectRatio: false }
-});
-}
-
-function saveAndRender() {
-localStorage.setItem(STORAGE_KEY, JSON.stringify(investments));
-renderAll();
-}
-
-function deleteInv(id) {
-if(confirm("Delete this entry?")) {
-investments = investments.filter(i => i.id !== id);
-saveAndRender();
-}
-}
-
-function renderAll() {
-renderStats();
-renderPortfolio();
-renderCharts();
-renderMonthlyChart();
-renderWithdrawHistory();
-updateCrypto();
-}
-
+function saveAndRender() { localStorage.setItem(STORAGE_KEY, JSON.stringify(investments)); renderAll(); }
+function renderAll() { renderStats(); renderPortfolio(); renderMonthlyChart(); updateCrypto(); }
 function load() {
 const d = localStorage.getItem(STORAGE_KEY);
 if(d) investments = JSON.parse(d);
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
 renderAll();
 }
-
-setInterval(updateCrypto, 15000);
+setInterval(updateCrypto, 30000);
 load();
 </script>
 </body>
