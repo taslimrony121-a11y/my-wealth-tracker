@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro | Real-time Portfolio Value</title>
+<title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -23,14 +23,103 @@
 --btc-color: #f7931a;
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
---usd-color: #10b981;
+--usd-color: #64748b;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
 
-h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 800; }
+/* Header with Owner Name */
+.app-header {
+background: linear-gradient(135deg, var(--card-bg) 0%, var(--input-bg) 100%);
+border-radius: 20px;
+padding: 20px;
+margin-bottom: 20px;
+border: 1px solid var(--accent);
+position: relative;
+overflow: hidden;
+}
+.app-header::before {
+content: '';
+position: absolute;
+top: -50%;
+right: -50%;
+width: 200%;
+height: 200%;
+background: radial-gradient(circle, rgba(250, 204, 21, 0.05) 0%, transparent 70%);
+pointer-events: none;
+}
+.header-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 15px;
+}
+.app-title {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.app-title h1 {
+font-size: 1.5rem;
+margin: 0;
+background: linear-gradient(135deg, var(--accent) 0%, #ffd966 100%);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.owner-badge {
+background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+padding: 8px 20px;
+border-radius: 40px;
+display: flex;
+align-items: center;
+gap: 10px;
+box-shadow: 0 4px 15px rgba(250, 204, 21, 0.2);
+}
+.owner-badge i {
+color: #000;
+font-size: 1rem;
+}
+.owner-badge span {
+color: #000;
+font-weight: bold;
+font-size: 1rem;
+}
+.owner-name {
+color: #000;
+font-weight: 800;
+font-size: 1.1rem;
+letter-spacing: 0.5px;
+}
+.header-stats {
+display: flex;
+gap: 15px;
+background: rgba(15, 23, 42, 0.5);
+padding: 8px 15px;
+border-radius: 40px;
+backdrop-filter: blur(10px);
+}
+.header-stats .stat {
+font-size: 0.7rem;
+color: var(--text-sub);
+}
+.header-stats .stat strong {
+color: var(--accent);
+font-size: 0.9rem;
+}
+.version-tag {
+position: absolute;
+bottom: 10px;
+right: 20px;
+font-size: 0.6rem;
+color: var(--text-sub);
+opacity: 0.5;
+}
+
+h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 800; font-size: 1.5rem; }
 
 .admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
@@ -43,20 +132,22 @@ h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight:
 .progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
 .progress-fill { background: var(--accent); height: 100%; transition: 0.5s; width: 0%; }
 
-.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; position: relative; overflow: hidden; }
-.stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
-.stat-value { font-size: 1.5rem; font-weight: 800; margin-top: 5px; }
-.stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 3px; }
-.realtime-badge { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; background: #4ade8033; padding: 2px 6px; border-radius: 20px; }
-.price-up { color: var(--profit-color); }
-.price-down { color: var(--loss-color); }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat-card { background: var(--card-bg); border-radius: 15px; padding: 20px; border: 1px solid #334155; position: relative; overflow: hidden; }
+.stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.stat-value-bdt { font-size: 2rem; font-weight: 800; margin-top: 5px; color: var(--accent); line-height: 1.2; }
+.stat-value-usd { font-size: 0.85rem; color: var(--usd-color); margin-top: 5px; }
+.stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 8px; }
+.realtime-badge { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: #4ade8033; padding: 3px 8px; border-radius: 20px; }
 
 .crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); transition: all 0.3s; }
 .btc-card { border-color: var(--btc-color); }
 .eth-card { border-color: var(--eth-color); }
 .bnb-card { border-color: var(--bnb-color); }
+.crypto-price-usd { font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+.crypto-price-bdt { font-size: 0.8rem; color: var(--accent); }
+.crypto-details { font-size: 0.75rem; margin-top: 8px; color: var(--text-sub); }
 
 .card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
@@ -80,8 +171,6 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .profit-expected { color: var(--text-sub); text-decoration: line-through; }
 .profit-diff-negative { color: var(--loss-color); }
 .profit-diff-positive { color: var(--profit-color); }
-.currency-usd { color: var(--usd-color); }
-.currency-bdt { color: var(--accent); }
 
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
 .cloud-badge { background: #4ade8033; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
@@ -98,20 +187,45 @@ to { transform: translateX(0); opacity: 1; }
 .flash-red { animation: flashLoss 0.5s ease; }
 @keyframes flashProfit {
 0% { background-color: rgba(74, 222, 128, 0); }
-50% { background-color: rgba(74, 222, 128, 0.3); }
+50% { background-color: rgba(74, 222, 128, 0.2); }
 100% { background-color: rgba(74, 222, 128, 0); }
 }
 @keyframes flashLoss {
 0% { background-color: rgba(248, 113, 113, 0); }
-50% { background-color: rgba(248, 113, 113, 0.3); }
+50% { background-color: rgba(248, 113, 113, 0.2); }
 100% { background-color: rgba(248, 113, 113, 0); }
 }
+.bdt-symbol { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+.usd-symbol { font-size: 0.8rem; color: var(--usd-color); }
+.footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; color: var(--text-sub); font-size: 0.75rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-chart-line"></i><span class="cloud-badge"><i class="fas fa-sync-alt"></i> Real-time Portfolio Value</span></h1>
+<!-- Header with Owner Name - TASLIM RONY -->
+<div class="app-header">
+<div class="header-top">
+<div class="app-title">
+<i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i>
+<h1>Wealth Tracker Ultra Pro</h1>
+</div>
+<div class="owner-badge">
+<i class="fas fa-crown"></i>
+<span>OWNER</span>
+<span class="owner-name">TASLIM RONY</span>
+<i class="fas fa-check-circle" style="color: #10b981;"></i>
+</div>
+</div>
+<div class="header-stats">
+<div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div>
+<div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
+<div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
+</div>
+<div class="version-tag">
+<i class="fas fa-code-branch"></i> v3.0 | Powered by Taslim Rony
+</div>
+</div>
 
 <div id="adminBar" class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
@@ -128,26 +242,29 @@ to { transform: translateX(0); opacity: 1; }
 
 <!-- Exchange Rate Display -->
 <div class="exchange-rate-box">
-<i class="fas fa-exchange-alt"></i> Exchange Rate: 1 USD = <strong id="exchangeRate">125</strong> BDT
+<i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">126</strong> BDT
 <button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px; display:inline-flex;"><i class="fas fa-edit"></i> Edit</button>
-<span style="margin-left:15px;"><i class="fas fa-info-circle"></i> Crypto prices update every 5 seconds</span>
+<span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto prices update every 5 seconds</span>
 </div>
 
 <div class="crypto-grid">
 <div class="crypto-card btc-card">
-<div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC/USDT</div>
-<div id="p-BTC" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BTC">0</span> | Value: $<span id="v-BTC">0</span> <span style="color:var(--accent);">(<span id="v-BTC-BDT">0</span> BDT)</span></div>
+<div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
+<div class="crypto-price-usd" id="p-BTC">$0.00</div>
+<div class="crypto-price-bdt" id="p-BTC-BDT">০.০০ ৳</div>
+<div class="crypto-details">Qty: <span id="q-BTC">0</span> | Value: <span id="v-BTC-BDT">0</span> ৳</div>
 </div>
 <div class="crypto-card eth-card">
-<div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH/USDT</div>
-<div id="p-ETH" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-ETH">0</span> | Value: $<span id="v-ETH">0</span> <span style="color:var(--accent);">(<span id="v-ETH-BDT">0</span> BDT)</span></div>
+<div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
+<div class="crypto-price-usd" id="p-ETH">$0.00</div>
+<div class="crypto-price-bdt" id="p-ETH-BDT">০.০০ ৳</div>
+<div class="crypto-details">Qty: <span id="q-ETH">0</span> | Value: <span id="v-ETH-BDT">0</span> ৳</div>
 </div>
 <div class="crypto-card bnb-card">
-<div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB/USDT</div>
-<div id="p-BNB" class="stat-value">$0.00</div>
-<div style="font-size:0.8rem; margin-top:5px;">Qty: <span id="q-BNB">0</span> | Value: $<span id="v-BNB">0</span> <span style="color:var(--accent);">(<span id="v-BNB-BDT">0</span> BDT)</span></div>
+<div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
+<div class="crypto-price-usd" id="p-BNB">$0.00</div>
+<div class="crypto-price-bdt" id="p-BNB-BDT">০.০০ ৳</div>
+<div class="crypto-details">Qty: <span id="q-BNB">0</span> | Value: <span id="v-BNB-BDT">0</span> ৳</div>
 </div>
 </div>
 
@@ -155,31 +272,31 @@ to { transform: translateX(0); opacity: 1; }
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div>
 <div class="stat-label">💰 Total Invested (Principal)</div>
-<div id="totalPrincipalUSD" class="stat-value" style="color:var(--usd-color);">$0</div>
-<div class="stat-sub" id="totalPrincipalBDT">0 BDT</div>
-<div class="stat-sub" style="font-size:0.65rem;">💡 This is what you PAID (never changes)</div>
+<div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-usd">$ <span id="totalPrincipalUSD">0.00</span> USD</div>
+<div class="stat-sub">📌 This is what you PAID (never changes)</div>
 </div>
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
 <div class="stat-label">📈 Current Portfolio Value</div>
-<div id="currentValueUSD" class="stat-value" style="color:var(--profit-color);">$0</div>
-<div class="stat-sub" id="currentValueBDT">0 BDT</div>
-<div class="stat-sub" id="profitLossDisplay" style="font-size:0.75rem;"></div>
+<div class="stat-value-bdt"><span id="currentValueBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-usd">$ <span id="currentValueUSD">0.00</span> USD</div>
+<div class="stat-sub" id="profitLossDisplay"></div>
 </div>
 <div class="stat-card">
 <div class="stat-label">🎯 Active Investment</div>
-<div id="activeInvestmentUSD" class="stat-value" style="color:var(--accent);">$0</div>
-<div class="stat-sub" id="activeInvestmentBDT">0 BDT</div>
+<div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> <span class="bdt-symbol" style="font-size:1.5rem;">৳</span></div>
+<div class="stat-value-usd">$ <span id="activeInvestmentUSD">0.00</span> USD</div>
 </div>
 </div>
 
 <div class="goal-card">
-<div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
-<span>Target Goal: <b>3,00,000 BDT</b></span>
+<div style="display:flex; justify-content:space-between; font-size: 0.9rem;">
+<span>🎯 Target Goal: <strong>৩,০০,০০০ ৳</strong></span>
 <span id="goalPercent">0%</span>
 </div>
 <div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div>
-<small id="goalRem" style="color:var(--text-sub)">Remaining: 0 BDT</small>
+<small id="goalRem" style="color:var(--text-sub)">Remaining: 0 ৳</small>
 </div>
 
 <div id="investmentFormCard" class="card" style="display:none;">
@@ -202,7 +319,7 @@ to { transform: translateX(0); opacity: 1; }
 <input type="number" id="amt" step="any" placeholder="0.00">
 <small id="currencyHint" style="font-size:0.7rem; color:var(--text-sub);"></small>
 </div>
-<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought (for crypto)"></div>
+<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="Price when bought"></div>
 <div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
 <div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (after sell)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
@@ -224,6 +341,11 @@ to { transform: translateX(0); opacity: 1; }
 <div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio View</h2><div id="portfolioList"></div></div>
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div>
 </div>
+
+<div class="footer">
+<p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud | Admin Password: <strong>Tt12345</strong></p>
+<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (BDT/USD) | Auto-sync to Cloud</p>
+</div>
 </div>
 <div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
 
@@ -234,7 +356,7 @@ to { transform: translateX(0); opacity: 1; }
 <div id="editInvestmentInfo"></div>
 <label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label>
 <label>Actual Profit:</label>
-<input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit in BDT">
+<input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit">
 <div style="display: flex; gap: 10px; margin-top: 15px;">
 <button onclick="saveProfitEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
 <button onclick="closeModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
@@ -245,9 +367,9 @@ to { transform: translateX(0); opacity: 1; }
 <!-- Edit Exchange Rate Modal -->
 <div id="editRateModal" class="modal">
 <div class="modal-content">
-<h3><i class="fas fa-dollar-sign"></i> Edit USD to BDT Exchange Rate</h3>
-<label>Current Rate: 1 USD = <span id="currentRateDisplay">125</span> BDT</label>
-<input type="number" id="newExchangeRate" step="0.01" placeholder="Enter new exchange rate">
+<h3><i class="fas fa-dollar-sign"></i> Edit USD to BDT Rate</h3>
+<label>Current Rate: 1 USD = <span id="currentRateDisplay">126</span> BDT</label>
+<input type="number" id="newExchangeRate" step="0.01" placeholder="Enter new rate">
 <div style="display: flex; gap: 10px; margin-top: 15px;">
 <button onclick="saveExchangeRate()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
 <button onclick="closeRateModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
@@ -273,11 +395,14 @@ const ADMIN_PASSWORD = "Tt12345";
 let investments = [];
 let firebaseInitialized = false;
 let currentEditId = null;
-let USD_TO_BDT = 125;
+let USD_TO_BDT = 126;
 let currentCryptoPrices = { BTC: 0, ETH: 0, BNB: 0 };
 let lastPortfolioValue = 0;
 
-// Load exchange rate
+function formatBDT(amount) {
+return amount.toLocaleString('bn-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function loadExchangeRate() {
 const savedRate = localStorage.getItem("usd_to_bdt_rate");
 if(savedRate) USD_TO_BDT = parseFloat(savedRate);
@@ -310,7 +435,6 @@ const type = document.getElementById('type').value;
 const cryptoTypes = ['BTC', 'ETH', 'BNB'];
 const amountLabel = document.getElementById('amountLabel');
 const currencyHint = document.getElementById('currencyHint');
-const purchasePriceGroup = document.querySelector('.input-group:has(#purchasePrice)');
 
 if(cryptoTypes.includes(type)) {
 amountLabel.innerHTML = 'Quantity (Coins)';
@@ -327,7 +451,6 @@ document.getElementById('purchasePrice').parentElement.style.display = 'none';
 }
 }
 
-// Initialize Firebase
 try {
 if (!firebase.apps.length) {
 const app = firebase.initializeApp(firebaseConfig);
@@ -396,7 +519,7 @@ if(isAdmin) {
 if(formCard) formCard.style.display = 'block';
 if(loginWidget) loginWidget.style.display = 'none';
 if(logoutWidget) logoutWidget.style.display = 'block';
-if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony';
 } else {
 if(formCard) formCard.style.display = 'none';
 if(loginWidget) loginWidget.style.display = 'block';
@@ -451,19 +574,18 @@ const isCrypto = cryptoTypes.includes(type);
 const amountValue = parseFloat(document.getElementById('amt').value);
 const purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
 
-if(!amountValue || !document.getElementById('sDate').value) return alert("Please enter all fields!");
+if(!amountValue || !document.getElementById('sDate').value) return alert("Please fill all fields!");
 
 let amountBDT, amountUSD, amountDisplay;
 
 if(isCrypto) {
-// For crypto: amount is quantity, calculate USD value based on purchase price
 amountUSD = amountValue * (purchasePrice || 0);
 amountBDT = usdToBdt(amountUSD);
 amountDisplay = `${amountValue} ${type} coins @ $${purchasePrice || 0}`;
 } else {
 amountBDT = amountValue;
 amountUSD = bdtToUsd(amountValue);
-amountDisplay = `${amountValue.toLocaleString()} BDT`;
+amountDisplay = `${formatBDT(amountValue)} BDT`;
 }
 
 const inv = {
@@ -529,7 +651,6 @@ showToast("Deleted!");
 showLoading(false);
 }
 
-// Calculate current portfolio value based on live crypto prices
 function calculateCurrentPortfolioValue() {
 let totalUSD = 0;
 let totalBDT = 0;
@@ -553,7 +674,6 @@ totalUSD += bdtToUsd(inv.amount);
 return { usd: totalUSD, bdt: totalBDT };
 }
 
-// Calculate total invested (principal) - fixed amount
 function calculateTotalPrincipal() {
 let totalUSD = 0;
 let totalBDT = 0;
@@ -578,18 +698,17 @@ const current = calculateCurrentPortfolioValue();
 const profitLoss = current.bdt - principal.bdt;
 const profitLossPercent = principal.bdt > 0 ? (profitLoss / principal.bdt * 100) : 0;
 
-document.getElementById('totalPrincipalUSD').innerHTML = `$${principal.usd.toLocaleString(undefined, {minimumFractionDigits:2})}`;
-document.getElementById('totalPrincipalBDT').innerHTML = `${principal.bdt.toLocaleString()} BDT`;
-document.getElementById('currentValueUSD').innerHTML = `$${current.usd.toLocaleString(undefined, {minimumFractionDigits:2})}`;
-document.getElementById('currentValueBDT').innerHTML = `${current.bdt.toLocaleString()} BDT`;
+document.getElementById('totalPrincipalBDT').innerHTML = formatBDT(principal.bdt);
+document.getElementById('totalPrincipalUSD').innerHTML = principal.usd.toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById('currentValueBDT').innerHTML = formatBDT(current.bdt);
+document.getElementById('currentValueUSD').innerHTML = current.usd.toLocaleString(undefined, {minimumFractionDigits:2});
 
 const profitLossColor = profitLoss >= 0 ? 'var(--profit-color)' : 'var(--loss-color)';
 const profitLossSign = profitLoss >= 0 ? '+' : '';
-document.getElementById('profitLossDisplay').innerHTML = `<span style="color:${profitLossColor}">${profitLossSign}${profitLoss.toLocaleString()} BDT (${profitLossSign}${profitLossPercent.toFixed(2)}%)</span>`;
+document.getElementById('profitLossDisplay').innerHTML = `<span style="color:${profitLossColor}">${profitLossSign}${formatBDT(Math.abs(profitLoss))} BDT (${profitLossSign}${profitLossPercent.toFixed(2)}%)</span>`;
 
-// Flash effect if portfolio value changed significantly
 if(Math.abs(current.bdt - lastPortfolioValue) > 100) {
-const card = document.querySelector('.stat-card:has(#currentValueUSD)');
+const card = document.querySelector('.stat-card:has(#currentValueBDT)');
 if(current.bdt > lastPortfolioValue) {
 card.classList.add('flash-green');
 } else if(current.bdt < lastPortfolioValue) {
@@ -599,20 +718,19 @@ setTimeout(() => card.classList.remove('flash-green', 'flash-red'), 500);
 }
 lastPortfolioValue = current.bdt;
 
-// Active investment
 let activeBDT = 0;
 investments.filter(i => i.status === 'active').forEach(inv => {
 if(inv.isCrypto && inv.amountUSD) activeBDT += usdToBdt(inv.amountUSD);
 else if(inv.amountBDT) activeBDT += inv.amountBDT;
 else if(inv.amount) activeBDT += inv.amount;
 });
-document.getElementById('activeInvestmentUSD').innerHTML = `$${bdtToUsd(activeBDT).toLocaleString(undefined, {minimumFractionDigits:2})}`;
-document.getElementById('activeInvestmentBDT').innerHTML = `${activeBDT.toLocaleString()} BDT`;
+document.getElementById('activeInvestmentBDT').innerHTML = formatBDT(activeBDT);
+document.getElementById('activeInvestmentUSD').innerHTML = bdtToUsd(activeBDT).toLocaleString(undefined, {minimumFractionDigits:2});
 
 const progress = Math.min((principal.bdt / 300000) * 100, 100).toFixed(1);
 document.getElementById('goalFill').style.width = progress + "%";
 document.getElementById('goalPercent').innerText = progress + "%";
-document.getElementById('goalRem').innerText = `Remaining: ${(300000 - principal.bdt).toLocaleString()} BDT`;
+document.getElementById('goalRem').innerHTML = `Remaining: ${formatBDT(Math.max(0, 300000 - principal.bdt))} BDT`;
 }
 
 function renderPortfolio() {
@@ -636,13 +754,13 @@ const currentUSD = i.amount * currentCryptoPrices[i.type];
 const currentBDT = usdToBdt(currentUSD);
 const profitLoss = currentBDT - i.amountBDT;
 const plClass = profitLoss >= 0 ? 'profit-actual' : 'profit-diff-negative';
-currentValue = `<small class="${plClass}">📊 Current: ${currentBDT.toLocaleString()} BDT (${profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()})</small><br>`;
+currentValue = `<small class="${plClass}">📊 Current: ${formatBDT(currentBDT)} BDT (${profitLoss >= 0 ? '+' : ''}${formatBDT(profitLoss)})</small><br>`;
 }
 
 items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <div style="display:flex; justify-content:space-between;">
 <div>
-<b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
+<b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${isCompleted ? 'Completed' : 'Active'}</span><br>
 <small>💰 Invested: ${i.amountDisplay || i.amount}</small><br>
 ${currentValue}
 <small class="profit-expected">Expected: +${i.expectedProfit || 0} BDT</small><br>
@@ -673,7 +791,7 @@ let html = '';
 [...history].reverse().forEach(h => {
 html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
 <b>${h.platform} - ${h.type}</b><br>
-${h.isCrypto ? `${h.amount} coins` : `${h.amountBDT?.toLocaleString() || h.amount} BDT`}<br>
+${h.isCrypto ? `${h.amount} coins` : `${formatBDT(h.amountBDT || h.amount)} BDT`}<br>
 <span class="profit-actual">Profit: +${h.profit} BDT</span><br>
 <small>📅 ${h.date}</small>
 </div>`;
@@ -737,17 +855,19 @@ const coin = s.replace('USDT', '');
 const priceData = allPrices.find(p => p.symbol === s);
 const price = parseFloat(priceData?.price || 0);
 currentCryptoPrices[coin] = price;
+const bdtPrice = usdToBdt(price);
 
 const qty = investments.filter(i => i.type === coin && i.status === 'active' && i.isCrypto).reduce((sum, i) => sum + i.amount, 0);
-const usdValue = qty * price;
-document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString()}`;
+const bdtValue = usdToBdt(qty * price);
+
+document.getElementById(`p-${coin}`).innerHTML = `$${price.toLocaleString()}`;
+document.getElementById(`p-${coin}-BDT`).innerHTML = `${formatBDT(bdtPrice)} BDT`;
 document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}`).innerText = usdValue.toLocaleString(undefined, {minimumFractionDigits:2});
-document.getElementById(`v-${coin}-BDT`).innerText = usdToBdt(usdValue).toLocaleString();
+document.getElementById(`v-${coin}-BDT`).innerHTML = formatBDT(bdtValue);
 });
-renderStats(); // Update portfolio value with new prices
-renderPortfolio(); // Update current values in portfolio list
-renderCharts(); // Update charts
+renderStats();
+renderPortfolio();
+renderCharts();
 } catch(e) { console.error("Crypto fetch error"); }
 }
 
@@ -759,7 +879,6 @@ renderMonthlyChart();
 renderWithdrawHistory();
 }
 
-// Event Listeners
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPassInput').value));
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
 window.addEntry = addEntry;
@@ -773,7 +892,6 @@ window.editExchangeRate = editExchangeRate;
 window.saveExchangeRate = saveExchangeRate;
 window.closeRateModal = closeRateModal;
 
-// Initialize
 loadExchangeRate();
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
 updateAmountLabel();
@@ -781,7 +899,7 @@ const localInv = localStorage.getItem("wealth_realtime");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
 updateCryptoPrices();
-setInterval(updateCryptoPrices, 5000); // Update every 5 seconds
+setInterval(updateCryptoPrices, 5000);
 
 if(firebaseInitialized) setTimeout(() => loadAllFirestoreData(), 500);
 </script>
