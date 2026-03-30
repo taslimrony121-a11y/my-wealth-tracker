@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Ultra Pro | Firebase Cloud Sync</title>
+<title>Wealth Tracker Ultra Pro | Adjustable Profit</title>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -31,7 +31,6 @@ body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 
 h1 { text-align: center; margin-bottom: 20px; color: var(--accent); font-weight: 800; }
 
-/* Admin Bar */
 .admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
 .admin-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
@@ -63,6 +62,8 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .btn-save { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 10px; }
 .btn-action { background: #334155; color: #fff; font-size: 0.7rem; }
 .btn-withdraw { background: #4ade80; color: #000; font-size: 0.7rem; }
+.btn-delete { background: #f87171; color: #000; font-size: 0.7rem; }
+.btn-edit { background: #facc15; color: #000; font-size: 0.7rem; }
 
 .platform-box { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
 .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
@@ -70,17 +71,28 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
 .status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
+.profit-actual { color: var(--profit-color); }
+.profit-expected { color: var(--text-sub); text-decoration: line-through; }
+.profit-diff-negative { color: var(--loss-color); }
+.profit-diff-positive { color: var(--profit-color); }
+
 .loading-overlay { position: fixed; top:0; left:0; width:100%; background:#0b1120dd; color:white; text-align:center; padding:10px; z-index:1000; font-size:0.8rem; display:none; }
 .cloud-badge { background: #4ade8033; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
-.footer { text-align: center; margin-top: 30px; padding: 20px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #334155; }
+.toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+.modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--accent); }
+.modal-content input { width: 100%; margin: 10px 0; padding: 12px; border-radius: 8px; }
+@keyframes slideIn {
+from { transform: translateX(100%); opacity: 0; }
+to { transform: translateX(0); opacity: 1; }
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Firebase Cloud</span></h1>
+<h1>💰 Wealth Tracker Ultra Pro <i class="fas fa-cloud-upload-alt"></i><span class="cloud-badge"><i class="fas fa-check-circle"></i> Adjustable Profit</span></h1>
 
-<!-- Admin Control Bar -->
 <div id="adminBar" class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
 <div id="loginWidget">
@@ -115,7 +127,7 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 <div class="dashboard-grid">
 <div class="stat-card"><div class="stat-label">Total Principal</div><div id="totalPrincipal" class="stat-value">0</div></div>
 <div class="stat-card"><div class="stat-label">Active Investment</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
-<div class="stat-card"><div class="stat-label">Portfolio Value</div><div id="currentValue" class="stat-value" style="color:var(--profit-color)">0</div></div>
+<div class="stat-card"><div class="stat-label">Total Actual Profit</div><div id="totalActualProfit" class="stat-value" style="color:var(--profit-color)">0</div></div>
 </div>
 
 <div class="goal-card">
@@ -127,20 +139,20 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 <small id="goalRem" style="color:var(--text-sub)">Remaining: 0 BDT</small>
 </div>
 
-<!-- Investment Form (only visible when admin logged in) -->
 <div id="investmentFormCard" class="card" style="display:none;">
 <h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
 <div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Qty)</option><option value="ETH">ETH (Qty)</option><option value="BNB">BNB (Qty)</option><option>Agriculture</option><option>MSSA Installment</option><option>Shop/Business</option><option>Gold</option></select></div>
 <div class="input-group"><label>Amount / Qty</label><input type="number" id="amt" step="any" placeholder="0.00"></div>
-<div class="input-group"><label>Expected Profit</label><input type="number" id="prof" value="0"></div>
+<div class="input-group"><label>Expected Profit</label><input type="number" id="expectedProfit" value="0" placeholder="Expected profit"></div>
+<div class="input-group"><label>Actual Profit</label><input type="number" id="actualProfit" value="0" placeholder="Actual profit (can edit later)"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
 </div>
 <div class="form-row">
 <div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div>
 <div class="input-group"><label>End Date</label><input type="date" id="eDate"></div>
-<button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment (Cloud Sync)</button>
+<button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment</button>
 </div>
 </div>
 
@@ -155,14 +167,29 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div>
 </div>
 
-<div class="footer">
-<p><i class="fas fa-shield-alt"></i> Secured by Firebase | Admin Password: <strong>Tt12345</strong> | Data syncs automatically to cloud</p>
+<div class="footer" style="text-align: center; margin-top: 30px; padding: 20px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid #334155;">
+<p><i class="fas fa-edit"></i> New Feature: You can edit actual profit anytime! | Admin Password: <strong>Tt12345</strong></p>
 </div>
 </div>
-<div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing with Firebase Cloud...</div>
+<div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
+
+<!-- Edit Profit Modal -->
+<div id="editProfitModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-edit"></i> Edit Actual Profit</h3>
+<div id="editInvestmentInfo"></div>
+<label>Expected Profit: <span id="showExpectedProfit"></span></label>
+<label>Actual Profit:</label>
+<input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit">
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+<button onclick="saveProfitEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button>
+<button onclick="closeModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button>
+</div>
+</div>
+</div>
 
 <script>
-// ========== FIREBASE CONFIGURATION ==========
+// Firebase Configuration
 const firebaseConfig = {
 apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
 authDomain: "mywealthtracker-b7f62.firebaseapp.com",
@@ -173,24 +200,32 @@ appId: "1:575029483834:web:4d9927d1c6ed653fff5803",
 measurementId: "G-F9QCL7WCCW"
 };
 
-// Initialize Firebase
 let db = null;
-let auth = null;
 let isAdmin = false;
 const ADMIN_PASSWORD = "Tt12345";
 let investments = [];
 let firebaseInitialized = false;
+let currentEditId = null;
 
+// Initialize Firebase
 try {
 if (!firebase.apps.length) {
 const app = firebase.initializeApp(firebaseConfig);
 db = firebase.firestore(app);
-auth = firebase.auth(app);
 firebaseInitialized = true;
-console.log("✅ Firebase connected successfully!");
+console.log("✅ Firebase connected!");
 }
 } catch(e) {
 console.error("Firebase init error:", e);
+}
+
+function showToast(message, isError = false) {
+const toast = document.createElement('div');
+toast.className = 'toast-message';
+toast.style.background = isError ? '#f87171' : '#4ade80';
+toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
+document.body.appendChild(toast);
+setTimeout(() => toast.remove(), 3000);
 }
 
 function showLoading(show) {
@@ -198,15 +233,53 @@ const toast = document.getElementById('loadingToast');
 if(toast) toast.style.display = show ? 'block' : 'none';
 }
 
+function openEditModal(id) {
+const investment = investments.find(i => i.id === id);
+if(!investment) return;
+currentEditId = id;
+document.getElementById('editInvestmentInfo').innerHTML = `<strong>${investment.type}</strong> (${investment.platform})<br>Amount: ${investment.amount}`;
+document.getElementById('showExpectedProfit').innerText = investment.expectedProfit || investment.profit || 0;
+document.getElementById('editActualProfit').value = investment.actualProfit || investment.profit || 0;
+document.getElementById('editProfitModal').style.display = 'flex';
+}
+
+function closeModal() {
+document.getElementById('editProfitModal').style.display = 'none';
+currentEditId = null;
+}
+
+async function saveProfitEdit() {
+if(!isAdmin) { alert("Admin required"); return; }
+const newActualProfit = parseFloat(document.getElementById('editActualProfit').value);
+if(isNaN(newActualProfit)) return;
+
+const investment = investments.find(i => i.id === currentEditId);
+if(investment) {
+investment.actualProfit = newActualProfit;
+await syncInvestmentsToFirestore();
+renderAll();
+const diff = newActualProfit - (investment.expectedProfit || investment.profit);
+if(diff < 0) {
+showToast(`Profit adjusted: ${diff} (less than expected)`, true);
+} else if(diff > 0) {
+showToast(`Profit adjusted: +${diff} (more than expected!)`);
+} else {
+showToast(`Profit updated to ${newActualProfit}`);
+}
+}
+closeModal();
+}
+
 async function adminLogin(password) {
 if(password !== ADMIN_PASSWORD) {
-alert("Wrong password! Access denied.");
+alert("Wrong password!");
 return false;
 }
 isAdmin = true;
 updateAdminUI();
 if(firebaseInitialized && db) {
 await loadAllFirestoreData();
+showToast("Admin mode active! You can edit actual profit now.");
 }
 return true;
 }
@@ -214,6 +287,7 @@ return true;
 function adminLogout() {
 isAdmin = false;
 updateAdminUI();
+showToast("Logged out. Read-only mode");
 renderAll();
 }
 
@@ -226,18 +300,18 @@ if(isAdmin) {
 if(formCard) formCard.style.display = 'block';
 if(loginWidget) loginWidget.style.display = 'none';
 if(logoutWidget) logoutWidget.style.display = 'block';
-if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • <i class="fas fa-cloud"></i> Cloud Sync Active';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Can Edit Profit';
 } else {
 if(formCard) formCard.style.display = 'none';
 if(loginWidget) loginWidget.style.display = 'block';
 if(logoutWidget) logoutWidget.style.display = 'none';
-if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode • Login to Edit';
+if(authDisplay) authDisplay.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode';
 }
 }
 
 async function loadAllFirestoreData() {
 if(!firebaseInitialized || !db) {
-const localInv = localStorage.getItem("wealth_final_v11_mssa");
+const localInv = localStorage.getItem("wealth_actual_profit");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
 return;
@@ -264,24 +338,19 @@ showLoading(false);
 
 async function syncInvestmentsToFirestore() {
 if(!isAdmin || !firebaseInitialized || !db) {
-localStorage.setItem("wealth_final_v11_mssa", JSON.stringify(investments));
+localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
 return;
 }
 showLoading(true);
 try {
-const batch = db.batch();
-const snapshot = await db.collection("investments").get();
-snapshot.docs.forEach(doc => batch.delete(doc.ref));
-await batch.commit();
-
 for(const inv of investments) {
 const docRef = db.collection("investments").doc(inv.id.toString());
 await docRef.set({ ...inv, id: inv.id.toString() });
 }
-localStorage.setItem("wealth_final_v11_mssa", JSON.stringify(investments));
+localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
 } catch(e) {
 console.error("Sync error:", e);
-alert("Cloud sync failed: " + e.message);
+showToast("Sync failed: " + e.message, true);
 }
 showLoading(false);
 renderAll();
@@ -305,11 +374,13 @@ await docRef.set(item);
 async function addEntry() {
 if(!isAdmin) { alert("Admin login required!"); return; }
 const inv = {
-id: Date.now(),
+id: Date.now().toString(),
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
-profit: parseFloat(document.getElementById('prof').value || 0),
+expectedProfit: parseFloat(document.getElementById('expectedProfit').value || 0),
+actualProfit: parseFloat(document.getElementById('actualProfit').value || 0),
+profit: parseFloat(document.getElementById('actualProfit').value || 0),
 status: document.getElementById('status').value,
 start: document.getElementById('sDate').value,
 end: document.getElementById('eDate').value
@@ -318,7 +389,10 @@ if(!inv.amount || !inv.start) return alert("Please enter amount & start date!");
 investments.push(inv);
 await syncInvestmentsToFirestore();
 document.getElementById('amt').value = '';
+document.getElementById('expectedProfit').value = '';
+document.getElementById('actualProfit').value = '';
 renderAll();
+showToast("Investment added!");
 }
 
 async function withdrawInv(id) {
@@ -326,30 +400,54 @@ if(!isAdmin) { alert("Login required"); return; }
 const inv = investments.find(i => i.id === id);
 if(!inv || !confirm("Confirm Withdraw?")) return;
 inv.status = "completed";
+const finalProfit = inv.actualProfit !== undefined ? inv.actualProfit : (inv.expectedProfit || inv.profit);
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
-history.push({ amount: inv.amount, profit: inv.profit, date: new Date().toISOString().slice(0,10), platform: inv.platform });
+history.push({
+amount: inv.amount,
+profit: finalProfit,
+expectedProfit: inv.expectedProfit,
+date: new Date().toISOString().slice(0,10),
+platform: inv.platform,
+type: inv.type
+});
 localStorage.setItem("withdraw_history_firebase", JSON.stringify(history));
 await syncInvestmentsToFirestore();
 await syncWithdrawHistoryToFirestore();
 renderAll();
+showToast(`Withdrawn! Actual profit: ${finalProfit}`);
 }
 
 async function deleteInv(id) {
 if(!isAdmin) { alert("Admin required"); return; }
-if(confirm("Delete permanently?")) {
+const invToDelete = investments.find(i => i.id === id);
+if(!invToDelete) return;
+if(!confirm(`Delete "${invToDelete.type}" (${invToDelete.amount}) permanently?`)) return;
+
+showLoading(true);
+try {
 investments = investments.filter(i => i.id !== id);
-await syncInvestmentsToFirestore();
-renderAll();
+if(firebaseInitialized && db) {
+await db.collection("investments").doc(id.toString()).delete();
 }
+localStorage.setItem("wealth_actual_profit", JSON.stringify(investments));
+renderAll();
+showToast("Deleted successfully!");
+} catch(e) {
+console.error("Delete error:", e);
+showToast("Delete failed", true);
+}
+showLoading(false);
 }
 
 function renderStats() {
 const principal = investments.reduce((s, i) => s + i.amount, 0);
-const current = investments.reduce((s, i) => s + i.amount + i.profit, 0);
+const totalActualProfit = investments.reduce((s, i) => s + (i.actualProfit !== undefined ? i.actualProfit : (i.expectedProfit || i.profit)), 0);
 const activeInv = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
+
 document.getElementById('totalPrincipal').innerText = principal.toLocaleString();
-document.getElementById('currentValue').innerText = current.toLocaleString();
+document.getElementById('totalActualProfit').innerHTML = `${totalActualProfit.toLocaleString()} <small style="font-size:0.7rem;">BDT</small>`;
 document.getElementById('activeInvestment').innerText = activeInv.toLocaleString();
+
 const progress = Math.min((principal / 300000) * 100, 100).toFixed(1);
 document.getElementById('goalFill').style.width = progress + "%";
 document.getElementById('goalPercent').innerText = progress + "%";
@@ -358,38 +456,77 @@ document.getElementById('goalRem').innerText = `Remaining: ${(300000 - principal
 
 function renderPortfolio() {
 const container = document.getElementById('portfolioList');
+if(investments.length === 0) {
+container.innerHTML = '<div style="text-align:center; padding:20px;">No investments yet. Login to add!</div>';
+return;
+}
+
 const map = {};
-investments.forEach(i => { if(!map[i.platform]) map[i.platform] = []; map[i.platform].push(i); });
+investments.forEach(i => {
+if(!map[i.platform]) map[i.platform] = [];
+map[i.platform].push(i);
+});
+
 let html = '';
 for(let p in map) {
 let items = '';
 map[p].forEach(i => {
 const isCompleted = i.status === 'completed';
-items += `<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity: ${isCompleted ? '0.5' : '1'}">
-<div><b>${i.type}</b> <span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
-<small>${i.amount.toLocaleString()} | Profit: +${i.profit}</small></div>
-<div style="display:flex; gap:5px;">${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv(${i.id})"><i class="fas fa-money-bill-wave"></i></button>` : ''}
-<button class="btn-action" onclick="deleteInv(${i.id})"><i class="fas fa-trash"></i></button></div></div>`;
+const expected = i.expectedProfit !== undefined ? i.expectedProfit : (i.profit || 0);
+const actual = i.actualProfit !== undefined ? i.actualProfit : expected;
+const diff = actual - expected;
+const diffClass = diff >= 0 ? 'profit-diff-positive' : 'profit-diff-negative';
+const diffSign = diff >= 0 ? '+' : '';
+
+items += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
+<div style="display:flex; justify-content:space-between; align-items:center;">
+<div>
+<b>${i.type}</b>
+<span class="status-badge ${isCompleted ? 'status-completed' : 'status-active'}">${i.status}</span><br>
+<small>💰 ${i.amount.toLocaleString()}</small><br>
+<small class="profit-expected">Expected: +${expected}</small><br>
+<small class="profit-actual">Actual: +${actual} <span class="${diffClass}">(${diffSign}${diff})</span></small>
+</div>
+<div style="display:flex; gap:5px;">
+${!isCompleted ? `<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>` : ''}
+<button class="btn-edit" onclick="openEditModal('${i.id}')" title="Edit Actual Profit"><i class="fas fa-edit"></i></button>
+<button class="btn-delete" onclick="deleteInv('${i.id}')"><i class="fas fa-trash-alt"></i></button>
+</div>
+</div>
+<small style="font-size:0.7rem;">📅 ${i.start} ${i.end ? '→ ' + i.end : ''}</small>
+</div>`;
 });
-html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
+html += `<div class="platform-box"><b><i class="fas fa-building"></i> ${p}</b>${items}</div>`;
 }
-container.innerHTML = html || "No entries.";
+container.innerHTML = html;
 }
 
 function renderWithdrawHistory() {
 const container = document.getElementById('withdrawList');
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
+if(history.length === 0) {
+container.innerHTML = '<div style="text-align:center; padding:20px;">No withdrawal history yet.</div>';
+return;
+}
 let html = '';
 [...history].reverse().forEach(h => {
-html += `<div style="border-bottom:1px solid #334155; padding:8px 0;"><b>${h.platform}</b>: ${h.amount} <br><small style="color:#4ade80">Profit: +${h.profit} | ${h.date}</small></div>`;
+html += `<div style="border-bottom:1px solid #334155; padding:8px 0;">
+<b>${h.platform} - ${h.type}</b><br>
+Amount: ${h.amount.toLocaleString()}<br>
+<span class="profit-actual">Actual Profit: +${h.profit}</span><br>
+<small><i class="fas fa-calendar"></i> ${h.date}</small>
+</div>`;
 });
-container.innerHTML = html || "No history.";
+container.innerHTML = html;
 }
 
 function getMonthlyData() {
 const history = JSON.parse(localStorage.getItem("withdraw_history_firebase") || "[]");
 const monthly = {};
-history.forEach(h => { const m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; });
+history.forEach(h => {
+const m = h.date.slice(0,7);
+monthly[m] = (monthly[m] || 0) + h.profit;
+});
 return monthly;
 }
 
@@ -398,19 +535,25 @@ function renderMonthlyChart() {
 const ctx = document.getElementById('monthlyChart').getContext('2d');
 if(mChart) mChart.destroy();
 const dataObj = getMonthlyData();
-mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(dataObj), datasets: [{ label: 'Profit', data: Object.values(dataObj), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
+const labels = Object.keys(dataObj);
+const values = Object.values(dataObj);
+mChart = new Chart(ctx, { type: 'bar', data: { labels: labels.length ? labels : ['No Data'], datasets: [{ label: 'Actual Profit (BDT)', data: values.length ? values : [0], backgroundColor: '#4ade80', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false } });
 }
+
 function renderCharts() {
 const gCtx = document.getElementById('mainChart').getContext('2d');
 if(gChart) gChart.destroy();
 const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
 let sum = 0;
-gChart = new Chart(gCtx, { type: 'line', data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Growth', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15' }] }, options: { responsive: true, maintainAspectRatio: false } });
+gChart = new Chart(gCtx, { type: 'line', data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Portfolio Growth (BDT)', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15', fill: true }] }, options: { responsive: true, maintainAspectRatio: false } });
+
 const pCtx = document.getElementById('platformChart').getContext('2d');
 if(pChart) pChart.destroy();
 const platMap = {};
 investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
-pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+const platLabels = Object.keys(platMap);
+const platValues = Object.values(platMap);
+pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: platLabels.length ? platLabels : ['No Data'], datasets: [{ data: platValues.length ? platValues : [1], backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#a78bfa'] }] }, options: { responsive: true, maintainAspectRatio: false } });
 }
 
 function renderAll() {
@@ -434,22 +577,25 @@ const price = parseFloat(priceData?.price || 0);
 const qty = investments.filter(i => i.type.toUpperCase() === coin && i.status === 'active').reduce((sum, i) => sum + i.amount, 0);
 document.getElementById(`p-${coin}`).innerText = `$${price.toLocaleString()}`;
 document.getElementById(`q-${coin}`).innerText = qty.toFixed(6);
-document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString(undefined, {minimumFractionDigits:2});
+document.getElementById(`v-${coin}`).innerText = (qty * price).toLocaleString();
 });
 } catch(e) { console.error("Crypto fetch error"); }
 }
 
 document.getElementById('loginBtn').addEventListener('click', () => {
-const pwd = document.getElementById('adminPassInput').value;
-adminLogin(pwd);
+adminLogin(document.getElementById('adminPassInput').value);
+document.getElementById('adminPassInput').value = '';
 });
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
 window.addEntry = addEntry;
 window.withdrawInv = withdrawInv;
 window.deleteInv = deleteInv;
+window.openEditModal = openEditModal;
+window.saveProfitEdit = saveProfitEdit;
+window.closeModal = closeModal;
 
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
-const localInv = localStorage.getItem("wealth_final_v11_mssa");
+const localInv = localStorage.getItem("wealth_actual_profit");
 if(localInv) investments = JSON.parse(localInv);
 renderAll();
 setInterval(updateCryptoPrices, 15000);
