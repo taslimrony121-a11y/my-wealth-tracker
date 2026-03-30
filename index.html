@@ -3,35 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wealth Tracker Cloud Pro</title>
+<title>Wealth Tracker Cloud Pro Max</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-:root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; }
-body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 15px; }
+:root { --bg: #0b1120; --card: #1e293b; --accent: #facc15; --text: #e2e8f0; --green: #4ade80; }
+body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 15px; margin: 0; }
 
-/* লাইভ প্রাইস এর জন্য নতুন স্টাইল */
 .ticker-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.ticker-box { background: var(--card); padding: 10px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
-.ticker-box span { display: block; font-size: 0.8rem; color: #94a3b8; }
+.ticker-box { background: var(--card); padding: 10px; border-radius: 10px; border: 1px solid #334155; text-align: center; border-bottom: 3px solid var(--accent); }
+.ticker-box span { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
 .ticker-box b { font-size: 1.1rem; color: var(--accent); }
 
-.container { max-width: 1000px; margin: auto; }
-.main-title { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; }
-.card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-input, select { background: #0f172a; border: 1px solid #334155; padding: 10px; color: white; border-radius: 8px; width: 100%; margin-bottom: 10px; }
-button { background: var(--accent); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
-.platform-box { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); position: relative; }
-#adminPanel { display: none; }
-.profit-text { color: #4ade80; font-weight: bold; font-size: 0.9rem; }
-.end-date-text { color: #94a3b8; font-size: 0.8rem; }
+.container { max-width: 1100px; margin: auto; }
+.main-title { text-align: center; color: var(--accent); cursor: pointer; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid #334155; text-align: center; }
+.stat-card h2 { margin: 5px 0; font-size: 1.5rem; }
+
+#adminPanel { display: none; background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--accent); }
+.grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+input, select { background: #0f172a; border: 1px solid #334155; padding: 12px; color: white; border-radius: 8px; width: 100%; box-sizing: border-box; }
+button { background: var(--accent); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; color: #0b1120; transition: 0.3s; }
+
+.platform-box { background: #0f172a; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
+.history-item { border-bottom: 1px solid #334155; padding: 10px 0; font-size: 0.9rem; display: flex; justify-content: space-between; }
+
+h3 { border-bottom: 1px solid #334155; padding-bottom: 10px; color: var(--accent); font-size: 1rem; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1 class="main-title" onclick="adminLogin()">Wealth Tracker (Cloud Pro)</h1>
+<h1 class="main-title" onclick="adminLogin()">Wealth Tracker (Pro Max)</h1>
 
 <div class="ticker-container">
 <div class="ticker-box"><span>BTC/USDT</span><b id="btc-price">Loading...</b></div>
@@ -39,37 +44,65 @@ button { background: var(--accent); border: none; padding: 10px; border-radius: 
 <div class="ticker-box"><span>BNB/USDT</span><b id="bnb-price">Loading...</b></div>
 </div>
 
-<div class="grid">
-<div class="card">Total Invested: <h2 id="totalVal">0</h2></div>
-<div class="card">Total Profit: <h2 id="profitVal" style="color:#4ade80">0</h2></div>
+<div class="summary-grid">
+<div class="stat-card">Active Investment<h2 id="totalVal">0</h2></div>
+<div class="stat-card">Total Profit<h2 id="profitVal" style="color:var(--green)">0</h2></div>
+<div class="stat-card">Growth Analysis<h2 id="growthVal">0%</h2></div>
 </div>
 
-<div id="adminPanel" class="card">
-<h3><i class="fas fa-edit"></i> Manage Investment</h3>
-<input type="hidden" id="docId"> <div class="grid" style="grid-template-columns: 1fr 1fr;">
-<input type="text" id="plat" placeholder="Platform">
-<input type="text" id="type" placeholder="Asset Type">
+<div id="adminPanel">
+<h3><i class="fas fa-plus-circle"></i> Manage Investment</h3>
+<input type="hidden" id="docId">
+<div class="grid-form">
+<select id="plat">
+<option value="">Select Platform</option>
+<option value="Binance">Binance</option>
+<option value="Wegro">Wegro</option>
+<option value="Biniyog">Biniyog</option>
+<option value="Islami bank (MSSA)">Islami bank (MSSA)</option>
+<option value="Others">Others</option>
+</select>
+<select id="type">
+<option value="">Select Asset Type</option>
+<option value="BTC">BTC</option>
+<option value="ETH">ETH</option>
+<option value="BNB">BNB</option>
+<option value="Agriculture">Agriculture</option>
+<option value="MSSA installment">MSSA installment</option>
+<option value="Shop/Business">Shop/Business</option>
+<option value="Gold">Gold</option>
+</select>
 <input type="number" id="amt" placeholder="Investment Amount">
-<input type="number" id="profit" placeholder="Profit (if any)">
-<div><label style="font-size: 12px;">Start Date</label><input type="date" id="sDate"></div>
-<div><label style="font-size: 12px;">End Date (Target)</label><input type="date" id="eDate"></div>
+<input type="number" id="profit" placeholder="Profit Amount">
+<input type="date" id="sDate" title="Start Date">
+<input type="date" id="eDate" title="End Date">
 </div>
 <button id="saveBtn" onclick="saveToCloud()">Upload to Cloud</button>
-<button id="updateBtn" style="display:none; background:#4ade80;" onclick="updateExisting()">Update Changes</button>
-<button id="cancelBtn" style="display:none; background:#f87171; color:white;" onclick="resetForm()">Cancel Edit</button>
+<button id="updateBtn" style="display:none; background:var(--green);" onclick="updateExisting()">Update Changes</button>
+<button id="cancelBtn" style="display:none; background:#ef4444; color:white;" onclick="resetForm()">Cancel</button>
 </div>
 
-<div class="grid">
-<div class="card"><h3>Portfolio</h3><div id="portfolioList">Loading...</div></div>
-<div class="card"><h3>Platform Split</h3><canvas id="pChart"></canvas></div>
+<div class="summary-grid" style="grid-template-columns: 1fr 1fr;">
+<div class="stat-card" style="text-align: left;">
+<h3>Portfolio List</h3>
+<div id="portfolioList">Loading...</div>
+</div>
+<div class="stat-card">
+<h3>Monthly Profit & Distribution</h3>
+<canvas id="pChart" style="max-height: 250px;"></canvas>
+</div>
+</div>
+
+<div class="stat-card" style="text-align: left;">
+<h3>Withdraw History</h3>
+<div id="withdrawHistory">No history found.</div>
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// আপনার অরিজিনাল কনফিগ (ভুলবেন না এটা আপনারটা দিয়ে পাল্টাতে)
 const firebaseConfig = {
 apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
 authDomain: "mywealthtracker-b7f62.firebaseapp.com",
@@ -86,31 +119,33 @@ const invCol = collection(db, "investments");
 let investments = [];
 let isAdmin = false;
 
-// লাইভ প্রাইস ফেচ করার ফাংশন
-async function updatePrices() {
+// --- Crypto Prices ---
+async function fetchPrices() {
 try {
 const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=["BTCUSDT","ETHUSDT","BNBUSDT"]');
 const data = await res.json();
-data.forEach(coin => {
-const price = parseFloat(coin.price).toLocaleString(undefined, {minimumFractionDigits: 2});
-if(coin.symbol === "BTCUSDT") document.getElementById('btc-price').innerText = "$" + price;
-if(coin.symbol === "ETHUSDT") document.getElementById('eth-price').innerText = "$" + price;
-if(coin.symbol === "BNBUSDT") document.getElementById('bnb-price').innerText = "$" + price;
+data.forEach(c => {
+const p = parseFloat(c.price).toLocaleString(undefined, {minimumFractionDigits: 2});
+if(c.symbol === "BTCUSDT") document.getElementById('btc-price').innerText = "$" + p;
+if(c.symbol === "ETHUSDT") document.getElementById('eth-price').innerText = "$" + p;
+if(c.symbol === "BNBUSDT") document.getElementById('bnb-price').innerText = "$" + p;
 });
-} catch(e) { console.log("Price Load Error"); }
+} catch(e) { console.log("Price Error"); }
 }
-setInterval(updatePrices, 5000); // ৫ সেকেন্ড পর পর আপডেট হবে
-updatePrices();
+setInterval(fetchPrices, 10000);
+fetchPrices();
 
-window.adminLogin = function() {
-if(prompt("Enter Admin Password:") === "1234") {
+// --- Auth ---
+window.adminLogin = () => {
+if(prompt("Password:") === "1234") {
 isAdmin = true;
 document.getElementById('adminPanel').style.display = 'block';
-renderAll();
+render();
 }
 }
 
-window.saveToCloud = async function() {
+// --- CRUD ---
+window.saveToCloud = async () => {
 const data = {
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
@@ -120,40 +155,77 @@ startDate: document.getElementById('sDate').value,
 endDate: document.getElementById('eDate').value,
 timestamp: Date.now()
 };
+if(!data.platform || !data.amount) return alert("Fill mandatory fields!");
 await addDoc(invCol, data);
 resetForm();
 }
 
-window.editItem = function(id) {
-const item = investments.find(i => i.id === id);
+onSnapshot(invCol, (snap) => {
+investments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+render();
+});
+
+function render() {
+const total = investments.reduce((s, i) => s + i.amount, 0);
+const profit = investments.reduce((s, i) => s + i.profit, 0);
+const growth = total > 0 ? ((profit / total) * 100).toFixed(2) : 0;
+
+document.getElementById('totalVal').innerText = total.toLocaleString() + " BDT";
+document.getElementById('profitVal').innerText = profit.toLocaleString() + " BDT";
+document.getElementById('growthVal').innerText = growth + "%";
+
+// Portfolio List
+document.getElementById('portfolioList').innerHTML = investments.map(i => `
+<div class="platform-box">
+<b>${i.platform}</b> (${i.type})<br>
+Inv: ${i.amount.toLocaleString()} | <span style="color:var(--green)">Profit: ${i.profit.toLocaleString()}</span><br>
+<small style="color:#94a3b8">Ends: ${i.endDate || 'N/A'}</small>
+${isAdmin ? `<div style="margin-top:10px;"><button onclick="editItem('${i.id}')" style="width:auto; padding:5px 10px; background:#3b82f6; color:white;">Edit</button> <button onclick="deleteItem('${i.id}')" style="width:auto; padding:5px 10px; background:#ef4444; color:white;">Del</button></div>` : ''}
+</div>
+`).join('');
+
+// Withdraw History (Simulated from items with profits)
+document.getElementById('withdrawHistory').innerHTML = investments.filter(i => i.profit > 0).map(i => `
+<div class="history-item">
+<span>${i.platform} (${i.type})</span>
+<span style="color:var(--green)">+ ${i.profit.toLocaleString()} BDT</span>
+</div>
+`).join('') || "No history found.";
+
+renderChart();
+}
+
+window.editItem = (id) => {
+const i = investments.find(item => item.id === id);
 document.getElementById('docId').value = id;
-document.getElementById('plat').value = item.platform;
-document.getElementById('type').value = item.type;
-document.getElementById('amt').value = item.amount;
-document.getElementById('profit').value = item.profit;
-document.getElementById('sDate').value = item.startDate;
-document.getElementById('eDate').value = item.endDate;
+document.getElementById('plat').value = i.platform;
+document.getElementById('type').value = i.type;
+document.getElementById('amt').value = i.amount;
+document.getElementById('profit').value = i.profit;
+document.getElementById('sDate').value = i.startDate;
+document.getElementById('eDate').value = i.endDate;
 document.getElementById('saveBtn').style.display = 'none';
 document.getElementById('updateBtn').style.display = 'block';
 document.getElementById('cancelBtn').style.display = 'block';
 window.scrollTo(0,0);
 }
 
-window.updateExisting = async function() {
+window.updateExisting = async () => {
 const id = document.getElementById('docId').value;
-const updatedData = {
+await updateDoc(doc(db, "investments", id), {
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
 profit: parseFloat(document.getElementById('profit').value),
 startDate: document.getElementById('sDate').value,
 endDate: document.getElementById('eDate').value
-};
-await updateDoc(doc(db, "investments", id), updatedData);
+});
 resetForm();
 }
 
-window.resetForm = function() {
+window.deleteItem = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "investments", id)); }
+
+window.resetForm = () => {
 document.getElementById('docId').value = '';
 document.getElementById('plat').value = '';
 document.getElementById('type').value = '';
@@ -164,39 +236,6 @@ document.getElementById('updateBtn').style.display = 'none';
 document.getElementById('cancelBtn').style.display = 'none';
 }
 
-onSnapshot(invCol, (snapshot) => {
-investments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-renderAll();
-});
-
-function renderAll() {
-const total = investments.reduce((s, i) => s + i.amount, 0);
-const profit = investments.reduce((s, i) => s + i.profit, 0);
-document.getElementById('totalVal').innerText = total.toLocaleString() + " BDT";
-document.getElementById('profitVal').innerText = profit.toLocaleString() + " BDT";
-
-const list = document.getElementById('portfolioList');
-list.innerHTML = investments.map(i => `
-<div class="platform-box">
-<b>${i.platform}</b> - ${i.type}<br>
-Investment: ${i.amount.toLocaleString()} BDT <br>
-<span class="profit-text">Profit: ${i.profit.toLocaleString()} BDT</span><br>
-<span class="end-date-text"><i class="far fa-calendar-alt"></i> Ends: ${i.endDate || 'N/A'}</span>
-${isAdmin ? `
-<div style="margin-top:10px;">
-<button style="width:45%; background:#3b82f6; color:white; border:none; padding:5px; border-radius:5px;" onclick="editItem('${i.id}')">Edit</button>
-<button style="width:45%; background:#ef4444; color:white; border:none; padding:5px; border-radius:5px;" onclick="deleteItem('${i.id}')">Delete</button>
-</div>
-` : ''}
-</div>
-`).join('');
-renderChart();
-}
-
-window.deleteItem = async function(id) {
-if(confirm("Delete permanently?")) await deleteDoc(doc(db, "investments", id));
-}
-
 let myChart = null;
 function renderChart() {
 const ctx = document.getElementById('pChart').getContext('2d');
@@ -204,8 +243,8 @@ if(myChart) myChart.destroy();
 const platMap = {};
 investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
 myChart = new Chart(ctx, {
-type: 'doughnut',
-data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15', '#4ade80', '#627eea', '#f87171'] }] },
+type: 'pie',
+data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15', '#4ade80', '#3b82f6', '#ef4444', '#a78bfa'] }] },
 options: { plugins: { legend: { labels: { color: 'white' } } } }
 });
 }
