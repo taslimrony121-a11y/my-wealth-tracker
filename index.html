@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Wealth Tracker Pro | Admin Mode</title>
+<title>Wealth Tracker Ultra Pro</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
@@ -15,10 +15,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
-
-/* টাইটেল স্টাইল - যা টাচ করলে পাসওয়ার্ড চাইবে */
 .main-title { text-align: center; margin-bottom: 20px; color: var(--accent); cursor: pointer; user-select: none; }
-
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; }
 .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; }
@@ -37,91 +34,78 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
 .status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
-
-/* ডিফল্টভাবে অ্যাডমিন প্যানেল লুকানো থাকবে */
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
 #adminPanel { display: none; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1 class="main-title" onclick="adminLogin()">Wealth Tracker Pro</h1>
+<h1 class="main-title" onclick="adminLogin()">Wealth Tracker Ultra Pro</h1>
 
 <div class="crypto-grid">
 <div class="crypto-card" style="border-color: var(--btc-color);">
-<div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC/USDT</div>
+<div style="color:var(--btc-color); font-weight:bold;">BTC/USDT</div>
 <div id="p-BTC" class="stat-value">$0.00</div>
 </div>
 <div class="crypto-card" style="border-color: var(--eth-color);">
-<div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH/USDT</div>
+<div style="color:var(--eth-color); font-weight:bold;">ETH/USDT</div>
 <div id="p-ETH" class="stat-value">$0.00</div>
 </div>
 <div class="crypto-card" style="border-color: var(--bnb-color);">
-<div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB/USDT</div>
+<div style="color:var(--bnb-color); font-weight:bold;">BNB/USDT</div>
 <div id="p-BNB" class="stat-value">$0.00</div>
 </div>
 </div>
 
 <div class="dashboard-grid">
-<div class="stat-card"><div class="stat-label">Total Invested</div><div id="totalPrincipal" class="stat-value">0</div></div>
+<div class="stat-card"><div class="stat-label">Total Investment</div><div id="totalPrincipal" class="stat-value">0</div></div>
 <div class="stat-card"><div class="stat-label">Active Capital</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
-<div class="stat-card"><div class="stat-label">Goal Progress</div><div id="goalText" class="stat-value" style="color:var(--profit-color)">0%</div></div>
+<div class="stat-card"><div class="stat-label">Goal (3Lakh)</div><div id="goalText" class="stat-value" style="color:var(--profit-color)">0%</div></div>
 </div>
 
 <div id="adminPanel" class="card">
-<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
+<h3>Admin: Add Investment</h3>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
-<div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Business</option><option>Gold</option></select></div>
-<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any" placeholder="0.00"></div>
+<div class="input-group"><label>Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Gold</option><option>Business</option></select></div>
+<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
+<div class="input-group"><label>Date</label><input type="date" id="sDate"></div>
 </div>
-<div class="form-row">
-<div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div>
-<button class="btn-save" onclick="addEntry()"><i class="fas fa-save"></i> Save Data</button>
-</div>
-<div style="margin-top:10px; display:flex; gap:10px;">
-<button class="btn-action" onclick="exportData()">Backup JSON</button>
-</div>
+<button class="btn-save" onclick="addEntry()">Save Data</button>
+<button class="btn-action" style="margin-top:10px;" onclick="exportData()">Download Backup</button>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 10px;">
-<div class="card">
-<h2>Portfolio Overview</h2>
-<div id="portfolioList"></div>
+<div class="charts-grid">
+<div class="card"><h3>Growth Analysis</h3><div style="height:200px"><canvas id="growthChart"></canvas></div></div>
+<div class="card"><h3>Platform Split</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
 </div>
-<div class="card">
-<h2>Withdrawal History</h2>
-<div id="withdrawList" style="font-size:0.85rem;"></div>
-</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+<div class="card"><h2>Portfolio</h2><div id="portfolioList"></div></div>
+<div class="card"><h2>Withdrawals</h2><div id="withdrawList" style="font-size:0.85rem;"></div></div>
 </div>
 </div>
 
 <script>
 let investments = [];
 let isAdmin = false;
-const STORAGE_KEY = "wealth_data_v2026";
+const STORAGE_KEY = "wealth_final_v2026";
 const TARGET_GOAL = 300000;
 
-// --- LOGIN SYSTEM ---
 function adminLogin() {
 const pass = prompt("Enter Admin Password:");
-if (pass === "1234") { // <--- আপনার পাসওয়ার্ড
+if (pass === "1234") {
 isAdmin = true;
 document.getElementById('adminPanel').style.display = 'block';
-alert("Welcome Admin! Editing mode active.");
+alert("Admin Active!");
 renderAll();
-} else {
-alert("Access Denied!");
 }
 }
 
-// ল্যাপটপের জন্য কীবোর্ড শর্টকাট 'a'
-window.addEventListener('keydown', (e) => {
-if (e.key.toLowerCase() === 'a') adminLogin();
-});
+window.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'a') adminLogin(); });
 
-// --- CRYPTO SYSTEM ---
 async function updateCrypto() {
 try {
 const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
@@ -130,10 +114,9 @@ const data = await res.json();
 const p = data.find(x => x.symbol === coin+'USDT');
 if(p) document.getElementById(`p-${coin}`).innerText = `$${parseFloat(p.price).toLocaleString()}`;
 });
-} catch (e) { console.log("Price fetch failed"); }
+} catch (e) {}
 }
 
-// --- DATA SYSTEM ---
 function addEntry() {
 const inv = {
 id: Date.now(),
@@ -143,16 +126,37 @@ amount: parseFloat(document.getElementById('amt').value),
 status: document.getElementById('status').value,
 start: document.getElementById('sDate').value
 };
-if(!inv.amount || !inv.start) return alert("Fill all fields!");
+if(!inv.amount || !inv.start) return;
 investments.push(inv);
 saveAndRender();
-document.getElementById('amt').value = '';
+}
+
+let gChart = null, pChart = null;
+function renderCharts() {
+const gCtx = document.getElementById('growthChart').getContext('2d');
+if(gChart) gChart.destroy();
+const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
+let sum = 0;
+gChart = new Chart(gCtx, {
+type: 'line',
+data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Total Value', data: sorted.map(i => { sum += i.amount; return sum; }), borderColor: '#facc15', fill: true, backgroundColor: 'rgba(250, 204, 21, 0.1)' }] },
+options: { responsive: true, maintainAspectRatio: false }
+});
+
+const pCtx = document.getElementById('platformChart').getContext('2d');
+if(pChart) pChart.destroy();
+const platMap = {};
+investments.forEach(i => platMap[i.platform] = (platMap[i.platform] || 0) + i.amount);
+pChart = new Chart(pCtx, {
+type: 'doughnut',
+data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#3b82f6'] }] },
+options: { responsive: true, maintainAspectRatio: false }
+});
 }
 
 function renderStats() {
 const total = investments.reduce((s, i) => s + i.amount, 0);
 const active = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
-
 document.getElementById('totalPrincipal').innerText = total.toLocaleString() + " BDT";
 document.getElementById('activeInvestment').innerText = active.toLocaleString() + " BDT";
 document.getElementById('goalText').innerText = ((total / TARGET_GOAL) * 100).toFixed(1) + "%";
@@ -162,79 +166,33 @@ function renderPortfolio() {
 const container = document.getElementById('portfolioList');
 const map = {};
 investments.forEach(i => { if(!map[i.platform]) map[i.platform] = []; map[i.platform].push(i); });
-
 let html = '';
 for(let p in map) {
 let items = '';
 map[p].forEach(i => {
 const isComp = i.status === 'completed';
-items += `
-<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity:${isComp?0.5:1}">
+items += `<div style="border-bottom:1px solid #334155; padding:8px 0; display:flex; justify-content:space-between; align-items:center; opacity:${isComp?0.5:1}">
 <div><b>${i.type}</b> <span class="status-badge ${isComp?'status-completed':'status-active'}">${i.status}</span><br><small>${i.amount.toLocaleString()} BDT</small></div>
-${isAdmin ? `
-<div style="display:flex; gap:5px;">
-${!isComp ? `<button class="btn-withdraw" onclick="withdrawInv(${i.id})"><i class="fas fa-check"></i></button>` : ''}
-<button class="btn-action" onclick="deleteInv(${i.id})"><i class="fas fa-trash"></i></button>
-</div>
-` : ''}
+${isAdmin ? `<div><button class="btn-action" onclick="deleteInv(${i.id})"><i class="fas fa-trash"></i></button></div>` : ''}
 </div>`;
 });
 html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
 }
-container.innerHTML = html || "No investments found.";
+container.innerHTML = html || "No Data.";
 }
 
-function withdrawInv(id) {
-const inv = investments.find(i => i.id === id);
-if(inv) {
-inv.status = 'completed';
-const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-history.push({...inv, date: new Date().toISOString().slice(0,10)});
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-saveAndRender();
-}
-}
-
-function deleteInv(id) {
-if(confirm("Are you sure?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); }
-}
-
-function renderWithdrawHistory() {
-const container = document.getElementById('withdrawList');
-const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-let html = '';
-[...history].reverse().slice(0, 5).forEach(h => {
-html += `<div style="padding:5px 0; border-bottom:1px solid #334155;"><b>${h.platform}</b>: ${h.amount} BDT <br><small>${h.date}</small></div>`;
-});
-container.innerHTML = html || "No history.";
-}
-
+function deleteInv(id) { if(confirm("Delete?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); } }
 function exportData() {
 const blob = new Blob([JSON.stringify(investments)], {type: "application/json"});
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url; a.download = "wealth_backup.json"; a.click();
+const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup.json"; a.click();
 }
-
-function saveAndRender() {
-localStorage.setItem(STORAGE_KEY, JSON.stringify(investments));
-renderAll();
-}
-
-function renderAll() {
-renderStats();
-renderPortfolio();
-renderWithdrawHistory();
-updateCrypto();
-}
-
+function saveAndRender() { localStorage.setItem(STORAGE_KEY, JSON.stringify(investments)); renderAll(); }
+function renderAll() { renderStats(); renderPortfolio(); renderCharts(); updateCrypto(); }
 function load() {
-const d = localStorage.getItem(STORAGE_KEY);
-if(d) investments = JSON.parse(d);
+const d = localStorage.getItem(STORAGE_KEY); if(d) investments = JSON.parse(d);
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
 renderAll();
 }
-
 setInterval(updateCrypto, 30000);
 load();
 </script>
