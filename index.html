@@ -15,7 +15,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
-h1 { text-align: center; margin-bottom: 20px; color: var(--accent); }
+
+/* টাইটেল স্টাইল - যা টাচ করলে পাসওয়ার্ড চাইবে */
+.main-title { text-align: center; margin-bottom: 20px; color: var(--accent); cursor: pointer; user-select: none; }
+
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .stat-card { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #334155; }
 .stat-label { font-size: 0.75rem; color: var(--text-sub); font-weight: bold; }
@@ -34,73 +37,91 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 .status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
 .status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
-#adminPanel { display: none; } /* Admin form hidden by default */
+
+/* ডিফল্টভাবে অ্যাডমিন প্যানেল লুকানো থাকবে */
+#adminPanel { display: none; }
 </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Wealth Tracker Pro <small style="font-size: 0.5em; color: gray;">(Press 'A' for Admin)</small></h1>
+<h1 class="main-title" onclick="adminLogin()">Wealth Tracker Pro</h1>
 
 <div class="crypto-grid">
 <div class="crypto-card" style="border-color: var(--btc-color);">
-<div style="color:var(--btc-color); font-weight:bold;">BTC/USDT</div>
+<div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC/USDT</div>
 <div id="p-BTC" class="stat-value">$0.00</div>
 </div>
 <div class="crypto-card" style="border-color: var(--eth-color);">
-<div style="color:var(--eth-color); font-weight:bold;">ETH/USDT</div>
+<div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH/USDT</div>
 <div id="p-ETH" class="stat-value">$0.00</div>
 </div>
 <div class="crypto-card" style="border-color: var(--bnb-color);">
-<div style="color:var(--bnb-color); font-weight:bold;">BNB/USDT</div>
+<div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB/USDT</div>
 <div id="p-BNB" class="stat-value">$0.00</div>
 </div>
 </div>
 
 <div class="dashboard-grid">
-<div class="stat-card"><div class="stat-label">Total Principal</div><div id="totalPrincipal" class="stat-value">0</div></div>
-<div class="stat-card"><div class="stat-label">Active Investment</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
-<div class="stat-card"><div class="stat-label">Portfolio Value</div><div id="currentValue" class="stat-value" style="color:var(--profit-color)">0</div></div>
+<div class="stat-card"><div class="stat-label">Total Invested</div><div id="totalPrincipal" class="stat-value">0</div></div>
+<div class="stat-card"><div class="stat-label">Active Capital</div><div id="activeInvestment" class="stat-value" style="color:var(--accent)">0</div></div>
+<div class="stat-card"><div class="stat-label">Goal Progress</div><div id="goalText" class="stat-value" style="color:var(--profit-color)">0%</div></div>
 </div>
 
 <div id="adminPanel" class="card">
-<h3>Add New Investment</h3>
+<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
 <div class="form-row">
 <div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div>
-<div class="input-group"><label>Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Business</option><option>Gold</option></select></div>
-<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any"></div>
+<div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option>Agriculture</option><option>Business</option><option>Gold</option></select></div>
+<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any" placeholder="0.00"></div>
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
 </div>
 <div class="form-row">
 <div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div>
-<button class="btn-save" onclick="addEntry()">Save Investment</button>
+<button class="btn-save" onclick="addEntry()"><i class="fas fa-save"></i> Save Data</button>
+</div>
+<div style="margin-top:10px; display:flex; gap:10px;">
+<button class="btn-action" onclick="exportData()">Backup JSON</button>
 </div>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px;">
-<div class="card"><h2>Portfolio</h2><div id="portfolioList"></div></div>
-<div class="card"><h2>Monthly Profit</h2><div style="height:250px"><canvas id="monthlyChart"></canvas></div></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 10px;">
+<div class="card">
+<h2>Portfolio Overview</h2>
+<div id="portfolioList"></div>
+</div>
+<div class="card">
+<h2>Withdrawal History</h2>
+<div id="withdrawList" style="font-size:0.85rem;"></div>
+</div>
 </div>
 </div>
 
 <script>
 let investments = [];
 let isAdmin = false;
-const STORAGE_KEY = "wealth_final_v11_mssa";
+const STORAGE_KEY = "wealth_data_v2026";
+const TARGET_GOAL = 300000;
 
-// Admin Lock System
-window.addEventListener('keydown', (e) => {
-if (e.key.toLowerCase() === 'a') {
+// --- LOGIN SYSTEM ---
+function adminLogin() {
 const pass = prompt("Enter Admin Password:");
-if (pass === "1234") { // Change your password here
+if (pass === "1234") { // <--- আপনার পাসওয়ার্ড
 isAdmin = true;
 document.getElementById('adminPanel').style.display = 'block';
-alert("Admin Mode Active!");
+alert("Welcome Admin! Editing mode active.");
 renderAll();
+} else {
+alert("Access Denied!");
 }
 }
+
+// ল্যাপটপের জন্য কীবোর্ড শর্টকাট 'a'
+window.addEventListener('keydown', (e) => {
+if (e.key.toLowerCase() === 'a') adminLogin();
 });
 
+// --- CRYPTO SYSTEM ---
 async function updateCrypto() {
 try {
 const res = await fetch(`https://api.binance.com/api/v3/ticker/price`);
@@ -109,30 +130,32 @@ const data = await res.json();
 const p = data.find(x => x.symbol === coin+'USDT');
 if(p) document.getElementById(`p-${coin}`).innerText = `$${parseFloat(p.price).toLocaleString()}`;
 });
-} catch (e) {}
+} catch (e) { console.log("Price fetch failed"); }
 }
 
+// --- DATA SYSTEM ---
 function addEntry() {
 const inv = {
 id: Date.now(),
 platform: document.getElementById('plat').value,
 type: document.getElementById('type').value,
 amount: parseFloat(document.getElementById('amt').value),
-profit: 0,
 status: document.getElementById('status').value,
 start: document.getElementById('sDate').value
 };
-if(!inv.amount) return;
+if(!inv.amount || !inv.start) return alert("Fill all fields!");
 investments.push(inv);
 saveAndRender();
+document.getElementById('amt').value = '';
 }
 
 function renderStats() {
-const principal = investments.reduce((s, i) => s + i.amount, 0);
+const total = investments.reduce((s, i) => s + i.amount, 0);
 const active = investments.filter(i => i.status === 'active').reduce((s, i) => s + i.amount, 0);
-document.getElementById('totalPrincipal').innerText = principal.toLocaleString();
-document.getElementById('activeInvestment').innerText = active.toLocaleString();
-document.getElementById('currentValue').innerText = (principal).toLocaleString();
+
+document.getElementById('totalPrincipal').innerText = total.toLocaleString() + " BDT";
+document.getElementById('activeInvestment').innerText = active.toLocaleString() + " BDT";
+document.getElementById('goalText').innerText = ((total / TARGET_GOAL) * 100).toFixed(1) + "%";
 }
 
 function renderPortfolio() {
@@ -158,7 +181,7 @@ ${!isComp ? `<button class="btn-withdraw" onclick="withdrawInv(${i.id})"><i clas
 });
 html += `<div class="platform-box"><b>${p}</b>${items}</div>`;
 }
-container.innerHTML = html || "No data.";
+container.innerHTML = html || "No investments found.";
 }
 
 function withdrawInv(id) {
@@ -173,27 +196,45 @@ saveAndRender();
 }
 
 function deleteInv(id) {
-if(confirm("Delete?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); }
+if(confirm("Are you sure?")) { investments = investments.filter(i => i.id !== id); saveAndRender(); }
 }
 
-let mChart = null;
-function renderMonthlyChart() {
-const ctx = document.getElementById('monthlyChart').getContext('2d');
-if(mChart) mChart.destroy();
+function renderWithdrawHistory() {
+const container = document.getElementById('withdrawList');
 const history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-const monthly = {};
-history.forEach(h => { const m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.amount; });
-mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly), datasets: [{ label: 'Withdraws', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
+let html = '';
+[...history].reverse().slice(0, 5).forEach(h => {
+html += `<div style="padding:5px 0; border-bottom:1px solid #334155;"><b>${h.platform}</b>: ${h.amount} BDT <br><small>${h.date}</small></div>`;
+});
+container.innerHTML = html || "No history.";
 }
 
-function saveAndRender() { localStorage.setItem(STORAGE_KEY, JSON.stringify(investments)); renderAll(); }
-function renderAll() { renderStats(); renderPortfolio(); renderMonthlyChart(); updateCrypto(); }
+function exportData() {
+const blob = new Blob([JSON.stringify(investments)], {type: "application/json"});
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a');
+a.href = url; a.download = "wealth_backup.json"; a.click();
+}
+
+function saveAndRender() {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(investments));
+renderAll();
+}
+
+function renderAll() {
+renderStats();
+renderPortfolio();
+renderWithdrawHistory();
+updateCrypto();
+}
+
 function load() {
 const d = localStorage.getItem(STORAGE_KEY);
 if(d) investments = JSON.parse(d);
 document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
 renderAll();
 }
+
 setInterval(updateCrypto, 30000);
 load();
 </script>
