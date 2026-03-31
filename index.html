@@ -5,15 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 
-<!-- ===== FIXED iOS HOME SCREEN ICON - USING CDN IMAGE (100% WORKING) ===== -->
+<!-- iOS Home Screen Icon -->
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="57x57" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="72x72" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="76x76" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="114x114" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="120x120" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="144x144" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-<link rel="apple-touch-icon" sizes="152x152" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 <link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 
 <!-- Firebase SDKs -->
@@ -37,6 +30,7 @@
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
 --usd-color: #10b981;
+--chart-grid: #334155;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -226,6 +220,77 @@ background: var(--input-bg);
 .badge-soon { background: #f59e0b; color: white; }
 .badge-completed { background: #10b981; color: white; }
 .no-projects { text-align: center; padding: 20px; color: var(--text-sub); font-size: 0.85rem; }
+.platform-legend {
+margin-top: 15px;
+font-size: 0.7rem;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+justify-content: center;
+}
+.legend-item {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+background: var(--input-bg);
+padding: 4px 10px;
+border-radius: 20px;
+}
+.legend-color {
+width: 12px;
+height: 12px;
+border-radius: 2px;
+}
+/* Modern Chart Time Range Selector */
+.chart-time-range {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-bottom: 15px;
+justify-content: center;
+}
+.time-btn {
+background: var(--input-bg);
+border: 1px solid #334155;
+color: var(--text-sub);
+padding: 6px 14px;
+border-radius: 20px;
+font-size: 0.7rem;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s;
+}
+.time-btn:hover {
+background: var(--accent);
+color: #000;
+border-color: var(--accent);
+}
+.time-btn.active {
+background: var(--accent);
+color: #000;
+border-color: var(--accent);
+}
+.chart-stats {
+display: flex;
+justify-content: space-between;
+margin-top: 10px;
+padding-top: 10px;
+border-top: 1px solid #334155;
+font-size: 0.7rem;
+}
+.chart-stat-item {
+text-align: center;
+flex: 1;
+}
+.chart-stat-label {
+color: var(--text-sub);
+font-size: 0.65rem;
+}
+.chart-stat-value {
+color: var(--accent);
+font-weight: 600;
+font-size: 0.8rem;
+}
 </style>
 </head>
 <body>
@@ -250,7 +315,7 @@ background: var(--input-bg);
 <div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
 </div>
 <div class="version-tag">
-<i class="fas fa-code-branch"></i> v3.3 | iOS Home Screen Icon Fixed | Powered by Taslim Rony
+<i class="fas fa-code-branch"></i> v3.5 | Modern Chart with Time Range | Powered by Taslim Rony
 </div>
 </div>
 
@@ -382,8 +447,25 @@ background: var(--input-bg);
 </div>
 
 <div class="charts-grid">
-<div class="card"><h3><i class="fas fa-chart-line"></i> Portfolio Growth vs Current Value</h3><div style="height:200px"><canvas id="mainChart"></canvas></div></div>
-<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div>
+<div class="card">
+<h3><i class="fas fa-chart-line"></i> Portfolio Growth vs Current Value</h3>
+<div class="chart-time-range" id="timeRangeSelector">
+<button class="time-btn" data-days="7">7D</button>
+<button class="time-btn" data-days="15">15D</button>
+<button class="time-btn" data-days="30">30D</button>
+<button class="time-btn" data-days="90">3M</button>
+<button class="time-btn" data-days="180">6M</button>
+<button class="time-btn" data-days="365">1Y</button>
+<button class="time-btn active" data-days="all">All</button>
+</div>
+<div style="height:220px"><canvas id="mainChart"></canvas></div>
+<div class="chart-stats" id="chartStats">
+<div class="chart-stat-item"><div class="chart-stat-label">Start Value</div><div class="chart-stat-value" id="startValue">$0</div></div>
+<div class="chart-stat-item"><div class="chart-stat-label">Current Value</div><div class="chart-stat-value" id="endValue">$0</div></div>
+<div class="chart-stat-item"><div class="chart-stat-label">Change</div><div class="chart-stat-value" id="changeValue">0%</div></div>
+</div>
+</div>
+<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><div style="height:200px"><canvas id="platformChart"></canvas></div><div id="platformLegend" class="platform-legend"></div></div>
 <div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit (Realized)</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div>
 </div>
 
@@ -394,7 +476,7 @@ background: var(--input-bg);
 
 <div class="footer">
 <p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud</p>
-<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Dual Currency (USD/BDT) | iOS Home Screen Icon Fixed - Crown Logo</p>
+<p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Modern Chart with Time Range (7D, 15D, 30D, 3M, 6M, 1Y, All)</p>
 </div>
 </div>
 
@@ -447,6 +529,9 @@ let USD_TO_BDT = 126;
 let currentCryptoPrices = { BTC: 0, ETH: 0, BNB: 0 };
 let lastPortfolioValue = 0;
 let notificationShownToday = false;
+let currentTimeRange = "all";
+let gChart = null;
+let allChartData = { labels: [], principal: [], current: [] };
 
 function formatNumber(num) {
 if (isNaN(num)) return "0.00";
@@ -922,25 +1007,24 @@ history.forEach(h => { const m = h.date.slice(0,7); monthly[m] = (monthly[m] || 
 return monthly;
 }
 
-let mChart, gChart, pChart;
+let mChart, pChart;
 function renderMonthlyChart() {
 const ctx = document.getElementById('monthlyChart').getContext('2d');
 if(mChart) mChart.destroy();
 const dataObj = getMonthlyData();
-mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(dataObj), datasets: [{ label: 'Profit (BDT)', data: Object.values(dataObj), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
+mChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(dataObj), datasets: [{ label: 'Profit (BDT)', data: Object.values(dataObj), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(context) { return `Profit: ${formatNumber(context.raw)} BDT`; } } } } } });
 }
 
-function renderCharts() {
-const gCtx = document.getElementById('mainChart').getContext('2d');
-if(gChart) gChart.destroy();
+function updateChartData() {
 const sorted = [...investments].sort((a,b) => new Date(a.start) - new Date(b.start));
 let principalSum = 0, currentSum = 0;
-const principalData = [], currentData = [];
+const allLabels = [], allPrincipal = [], allCurrent = [];
 sorted.forEach(i => {
 if(i.isCrypto && i.amountUSD) principalSum += i.amountUSD;
 else if(i.amountBDT) principalSum += bdtToUsd(i.amountBDT);
 else if(i.amount) principalSum += bdtToUsd(i.amount);
-principalData.push(principalSum);
+allPrincipal.push(principalSum);
+allLabels.push(i.start);
 if(i.isCrypto && i.status === 'active' && currentCryptoPrices[i.type]) {
 currentSum += i.amount * currentCryptoPrices[i.type];
 } else if(!i.isCrypto && i.amountBDT) {
@@ -948,14 +1032,73 @@ currentSum += bdtToUsd(i.amountBDT);
 } else if(i.amount) {
 currentSum += bdtToUsd(i.amount);
 }
-currentData.push(currentSum);
+allCurrent.push(currentSum);
 });
-gChart = new Chart(gCtx, { type: 'line', data: { labels: sorted.map(i => i.start), datasets: [{ label: 'Invested (Principal)', data: principalData, borderColor: '#94a3b8', borderDash: [5,5] }, { label: 'Current Value (Real-time)', data: currentData, borderColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: false } });
+allChartData = { labels: allLabels, principal: allPrincipal, current: allCurrent };
+filterChartByTimeRange();
+}
+
+function filterChartByTimeRange() {
+if(!allChartData.labels.length) return;
+let filteredLabels = [...allChartData.labels];
+let filteredPrincipal = [...allChartData.principal];
+let filteredCurrent = [...allChartData.current];
+const now = new Date();
+if(currentTimeRange !== "all") {
+const days = parseInt(currentTimeRange);
+const cutoffDate = new Date();
+cutoffDate.setDate(now.getDate() - days);
+let startIndex = 0;
+for(let i = 0; i < allChartData.labels.length; i++) {
+const itemDate = new Date(allChartData.labels[i]);
+if(itemDate >= cutoffDate) {
+startIndex = i;
+break;
+}
+}
+filteredLabels = allChartData.labels.slice(startIndex);
+filteredPrincipal = allChartData.principal.slice(startIndex);
+filteredCurrent = allChartData.current.slice(startIndex);
+}
+const startVal = filteredPrincipal.length > 0 ? filteredPrincipal[0] : 0;
+const endVal = filteredPrincipal.length > 0 ? filteredPrincipal[filteredPrincipal.length - 1] : 0;
+const currentEndVal = filteredCurrent.length > 0 ? filteredCurrent[filteredCurrent.length - 1] : 0;
+const changePercent = startVal > 0 ? ((currentEndVal - startVal) / startVal * 100) : 0;
+document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`;
+document.getElementById('endValue').innerHTML = `$${formatNumber(currentEndVal)}`;
+const changeColor = changePercent >= 0 ? '#4ade80' : '#f87171';
+document.getElementById('changeValue').innerHTML = `<span style="color:${changeColor}">${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%</span>`;
+if(gChart) gChart.destroy();
+const ctx = document.getElementById('mainChart').getContext('2d');
+gChart = new Chart(ctx, { type: 'line', data: { labels: filteredLabels, datasets: [{ label: 'Invested (Principal)', data: filteredPrincipal, borderColor: '#94a3b8', borderDash: [5,5], fill: false, pointRadius: 2, pointHoverRadius: 5, tension: 0.3 }, { label: 'Current Value (Real-time)', data: filteredCurrent, borderColor: '#4ade80', fill: false, pointRadius: 2, pointHoverRadius: 5, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(context) { return `${context.dataset.label}: $${formatNumber(context.raw)}`; } } }, legend: { position: 'top', labels: { color: '#94a3b8', font: { size: 10 } } } }, scales: { x: { ticks: { color: '#94a3b8', maxRotation: 45, minRotation: 45, font: { size: 8 } }, grid: { color: '#334155' } }, y: { ticks: { color: '#94a3b8', callback: function(val) { return '$' + val.toLocaleString(); } }, grid: { color: '#334155' } } } } });
+}
+
+function renderCharts() {
+updateChartData();
 const pCtx = document.getElementById('platformChart').getContext('2d');
 if(pChart) pChart.destroy();
 const platMap = {};
-investments.forEach(i => { const val = i.isCrypto ? usdToBdt(i.amountUSD || 0) : (i.amountBDT || i.amount); platMap[i.platform] = (platMap[i.platform] || 0) + val; });
-pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: Object.keys(platMap), datasets: [{ data: Object.values(platMap), backgroundColor: ['#facc15','#4ade80','#627eea','#f87171','#a78bfa'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+let totalBDT = 0;
+investments.forEach(i => {
+const val = i.isCrypto ? usdToBdt(i.amountUSD || 0) : (i.amountBDT || i.amount);
+platMap[i.platform] = (platMap[i.platform] || 0) + val;
+totalBDT += val;
+});
+const labels2 = Object.keys(platMap);
+const data2 = Object.values(platMap);
+const percentages = data2.map(val => ((val / totalBDT) * 100).toFixed(1));
+const colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981','#ec489a','#06b6d4','#8b5cf6'];
+pChart = new Chart(pCtx, { type: 'doughnut', data: { labels: labels2, datasets: [{ data: data2, backgroundColor: colors.slice(0, labels2.length) }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: function(context) { const idx = context.dataIndex; return `${labels2[idx]}: ${formatNumber(data2[idx])} BDT (${percentages[idx]}%)`; } } }, legend: { display: false } } } });
+const legendContainer = document.getElementById('platformLegend');
+if(legendContainer && labels2.length > 0) {
+let legendHtml = '';
+labels2.forEach((label, idx) => {
+legendHtml += `<span class="legend-item"><span class="legend-color" style="background: ${colors[idx % colors.length]};"></span><strong>${label}</strong>: ${formatNumber(data2[idx])} BDT <span style="color: var(--accent);">(${percentages[idx]}%)</span></span>`;
+});
+legendContainer.innerHTML = legendHtml;
+} else if(legendContainer) {
+legendContainer.innerHTML = '<span style="color: var(--text-sub);">No data available</span>';
+}
 }
 
 async function updateCryptoPrices() {
@@ -994,6 +1137,16 @@ renderMonthlyChart();
 renderWithdrawHistory();
 renderProjectGantt();
 }
+
+// Time range selector event handlers
+document.querySelectorAll('.time-btn').forEach(btn => {
+btn.addEventListener('click', function() {
+document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+this.classList.add('active');
+currentTimeRange = this.getAttribute('data-days');
+filterChartByTimeRange();
+});
+});
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPassInput').value));
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
