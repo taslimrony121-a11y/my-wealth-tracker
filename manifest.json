@@ -1,15 +1,16 @@
 {
 "name": "Taslim Rony Wealth Tracker",
 "short_name": "WTR Pro",
+"description": "Real-time wealth tracking with crypto prices",
 "icons": [
 {
-"src": "icon.png",
+"src": "new-icon.png",
 "sizes": "192x192",
 "type": "image/png",
 "purpose": "any maskable"
 },
 {
-"src": "icon.png",
+"src": "new-icon.png",
 "sizes": "512x512",
 "type": "image/png"
 }
@@ -17,5 +18,6 @@
 "start_url": "/my-wealth-tracker/",
 "display": "standalone",
 "theme_color": "#facc15",
-"background_color": "#0b1120"
+"background_color": "#0b1120",
+"orientation": "portrait"
 }
