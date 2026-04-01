@@ -5,23 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 
-<!-- ===== iOS HOME SCREEN ICON - NEW ICON FILE NAME ===== -->
-<link rel="apple-touch-icon" sizes="57x57" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="60x60" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="72x72" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="76x76" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="114x114" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="120x120" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="144x144" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="167x167" href="new-icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="new-icon.png">
+<!-- iOS Home Screen Icon -->
 <link rel="apple-touch-icon" href="new-icon.png">
-
-<!-- Web App Manifest -->
 <link rel="manifest" href="manifest.json">
-
-<!-- Theme Color -->
 <meta name="theme-color" content="#facc15">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +34,6 @@
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
 --usd-color: #10b981;
---chart-grid: #1e293b;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -123,11 +108,33 @@ font-size: 0.6rem;
 color: var(--text-sub);
 opacity: 0.5;
 }
-.admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; flex-wrap: wrap; }
+.action-buttons {
+display: flex;
+gap: 10px;
+margin-bottom: 15px;
+flex-wrap: wrap;
+}
+.action-btn {
+background: var(--input-bg);
+border: 1px solid var(--accent);
+color: var(--accent);
+padding: 8px 15px;
+border-radius: 30px;
+font-size: 0.75rem;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s;
+}
+.action-btn:hover {
+background: var(--accent);
+color: #000;
+}
+.admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
 .admin-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-.logout-btn { background: #f87171; color: #000; }
-.login-panel { background: var(--card-bg); padding: 10px 20px; border-radius: 40px; display: flex; gap: 10px; align-items: center; }
+.biometric-btn { background: #4ade8033; border: 1px solid #4ade80; color: #4ade80; }
+.biometric-btn:hover { background: #4ade80; color: #000; }
+.login-panel { background: var(--card-bg); padding: 10px 20px; border-radius: 40px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .login-panel input { background: var(--input-bg); border: 1px solid #475569; padding: 6px 12px; border-radius: 30px; color: white; width: 140px; }
 .goal-card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
 .progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
@@ -226,13 +233,28 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 </head>
 <body>
 <div class="container">
-<div class="app-header"><div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i><span>OWNER</span><span class="owner-name">TASLIM RONY</span><i class="fas fa-check-circle" style="color: #10b981;"></i></div></div><div class="header-stats"><div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div><div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div><div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div></div><div class="version-tag"><i class="fas fa-code-branch"></i> v4.0 | iOS Icon: WTR Logo | Powered by Taslim Rony</div></div>
+<div class="app-header"><div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i><span>OWNER</span><span class="owner-name">TASLIM RONY</span><i class="fas fa-check-circle" style="color: #10b981;"></i></div></div><div class="header-stats"><div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div><div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div><div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div></div><div class="version-tag"><i class="fas fa-code-branch"></i> v5.0 | Smart Alerts | CSV Export | Biometric Login</div></div>
 
 <div class="gantt-notification" id="ganttNotification"><div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3><i class="fas fa-bell" style="color: var(--accent);"></i></div><div id="timelineContainer" class="gantt-timeline"><div class="no-projects"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></div></div>
 
-<div id="adminBar" class="admin-bar"><div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div><div id="loginWidget"><div class="login-panel"><input type="password" id="adminPassInput" placeholder="Password" autocomplete="off"><button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Admin Login</button></div></div><div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></div></div>
+<div id="adminBar" class="admin-bar">
+<div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
+<div id="loginWidget">
+<div class="login-panel">
+<input type="password" id="adminPassInput" placeholder="Password" autocomplete="off">
+<button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+<button id="biometricLoginBtn" class="admin-btn biometric-btn" style="display:none;"><i class="fas fa-fingerprint"></i> Face ID</button>
+</div>
+</div>
+<div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+</div>
 
 <div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">126</strong> BDT<button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px; display:inline-flex;"><i class="fas fa-edit"></i> Edit</button><span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto prices update every 5 seconds</span></div>
+
+<div class="action-buttons">
+<button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
+<button id="enableNotificationsBtn" class="action-btn"><i class="fas fa-bell"></i> Enable Alerts</button>
+</div>
 
 <div class="crypto-grid"><div class="crypto-card btc-card" id="btc-card"><div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div><div class="crypto-price-usd" id="p-BTC">$0.00</div><div class="crypto-price-bdt" id="p-BTC-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BTC">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BTC-USD">$0.00</span> | <span class="value-bdt" id="v-BTC-BDT">0.00 BDT</span></div><div id="btc-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card eth-card" id="eth-card"><div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div><div class="crypto-price-usd" id="p-ETH">$0.00</div><div class="crypto-price-bdt" id="p-ETH-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-ETH">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-ETH-USD">$0.00</span> | <span class="value-bdt" id="v-ETH-BDT">0.00 BDT</span></div><div id="eth-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card bnb-card" id="bnb-card"><div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB</div><div class="crypto-price-usd" id="p-BNB">$0.00</div><div class="crypto-price-bdt" id="p-BNB-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BNB">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BNB-USD">$0.00</span> | <span class="value-bdt" id="v-BNB-BDT">0.00 BDT</span></div><div id="bnb-purchase-info" class="purchase-info"></div></div></div></div>
 
@@ -248,7 +270,7 @@ button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold
 
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;"><div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio View</h2><div id="portfolioList"></div></div><div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div></div>
 
-<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud</p><p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Real-time crypto prices | Modern Chart with Time Range | iOS Icon: WTR Logo (Fixed with new-icon.png)</p></div></div>
+<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud</p><p style="font-size: 0.7rem; margin-top: 8px;"><i class="fas fa-chart-line"></i> Smart Alerts | CSV Export | Face ID Login | Real-time Crypto</p></div></div>
 
 <div id="loadingToast" class="loading-overlay"><i class="fas fa-spinner fa-pulse"></i> Syncing...</div>
 <div id="editProfitModal" class="modal"><div class="modal-content"><h3><i class="fas fa-edit"></i> Edit Actual Profit (BDT)</h3><div id="editInvestmentInfo"></div><label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label><label>Actual Profit:</label><input type="number" id="editActualProfit" step="any" placeholder="Enter actual profit"><div style="display: flex; gap: 10px; margin-top: 15px;"><button onclick="saveProfitEdit()" class="btn-save" style="margin:0;"><i class="fas fa-save"></i> Save</button><button onclick="closeModal()" class="btn-action"><i class="fas fa-times"></i> Cancel</button></div></div></div>
@@ -278,7 +300,132 @@ let notificationShownToday = false;
 let gChart = null;
 let allChartData = { labels: [], principal: [], current: [] };
 let currentTimeRange = "all";
+let notificationPermission = false;
 
+// ========== BIOMETRIC LOGIN (Face ID) ==========
+async function checkBiometricSupport() {
+if (window.PublicKeyCredential && window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+if (available) {
+document.getElementById('biometricLoginBtn').style.display = 'inline-flex';
+return true;
+}
+}
+return false;
+}
+
+async function biometricLogin() {
+try {
+if (!window.PasswordCredential || !navigator.credentials) {
+showToast("Face ID not supported in this browser", true);
+return;
+}
+const credential = await navigator.credentials.get({
+password: true,
+mediation: 'optional'
+});
+if (credential && credential.password === ADMIN_PASSWORD) {
+await adminLogin(ADMIN_PASSWORD);
+} else {
+showToast("Face ID authentication failed", true);
+}
+} catch(e) {
+showToast("Face ID not set up or cancelled", true);
+}
+}
+
+// ========== NOTIFICATION SYSTEM ==========
+async function requestNotificationPermission() {
+if ('Notification' in window) {
+const permission = await Notification.requestPermission();
+if (permission === 'granted') {
+notificationPermission = true;
+showToast("Notifications enabled! You'll get project expiry alerts.");
+localStorage.setItem('notifications_enabled', 'true');
+} else {
+showToast("Notifications denied", true);
+}
+} else {
+showToast("Notifications not supported", true);
+}
+}
+
+function sendNotification(title, body) {
+if (notificationPermission && document.visibilityState === 'visible') {
+if (Notification.permission === 'granted') {
+new Notification(title, { body: body, icon: 'new-icon.png' });
+}
+}
+}
+
+// ========== CSV EXPORT ==========
+function exportToCSV() {
+if (investments.length === 0) {
+showToast("No data to export", true);
+return;
+}
+
+const headers = ['ID', 'Platform', 'Type', 'Amount', 'Amount BDT', 'Amount USD', 'Is Crypto', 'Purchase Price', 'Expected Profit', 'Actual Profit', 'Status', 'Start Date', 'End Date'];
+const rows = investments.map(inv => [
+inv.id,
+inv.platform,
+inv.type,
+inv.amount,
+inv.amountBDT || inv.amount,
+inv.amountUSD || '',
+inv.isCrypto ? 'Yes' : 'No',
+inv.purchasePrice || '',
+inv.expectedProfit || 0,
+inv.actualProfit || 0,
+inv.status,
+inv.start,
+inv.end || ''
+]);
+
+const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+const link = document.createElement('a');
+const url = URL.createObjectURL(blob);
+link.setAttribute('href', url);
+link.setAttribute('download', `wealth_tracker_${new Date().toISOString().slice(0,10)}.csv`);
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+URL.revokeObjectURL(url);
+showToast("Portfolio exported to CSV!");
+}
+
+// ========== EXPIRY CHECK WITH NOTIFICATIONS ==========
+function checkExpiryAndNotify() {
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const threeDaysLater = new Date();
+threeDaysLater.setDate(today.getDate() + 3);
+
+investments.forEach(proj => {
+if (proj.end && proj.status !== 'completed') {
+const endDate = new Date(proj.end);
+endDate.setHours(0, 0, 0, 0);
+const diffDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+const notifiedKey = `notified_${proj.id}_${proj.end}`;
+const alreadyNotified = localStorage.getItem(notifiedKey);
+
+if (diffDays === 3 && !alreadyNotified) {
+sendNotification(`⚠️ 3 Days Left!`, `${proj.type} (${proj.platform}) expires on ${proj.end}`);
+localStorage.setItem(notifiedKey, 'true');
+} else if (diffDays === 1 && !alreadyNotified) {
+sendNotification(`🔴 1 Day Left!`, `${proj.type} (${proj.platform}) expires TOMORROW!`);
+localStorage.setItem(notifiedKey, 'true');
+} else if (diffDays === 0 && !alreadyNotified) {
+sendNotification(`🚨 EXPIRES TODAY!`, `${proj.type} (${proj.platform}) ends today!`);
+localStorage.setItem(notifiedKey, 'true');
+}
+}
+});
+}
+
+// ========== MAIN FUNCTIONS ==========
 function formatNumber(num) { if (isNaN(num)) return "0.00"; return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function loadExchangeRate() { const savedRate = localStorage.getItem("usd_to_bdt_rate"); if(savedRate) USD_TO_BDT = parseFloat(savedRate); document.getElementById('exchangeRate').innerText = USD_TO_BDT; }
 function saveExchangeRate() { const newRate = parseFloat(document.getElementById('newExchangeRate').value); if(isNaN(newRate) || newRate <= 0) { showToast("Invalid rate!", true); return; } USD_TO_BDT = newRate; localStorage.setItem("usd_to_bdt_rate", USD_TO_BDT); document.getElementById('exchangeRate').innerText = USD_TO_BDT; showToast(`Rate updated: 1 USD = ${USD_TO_BDT} BDT`); closeRateModal(); renderAll(); }
@@ -390,12 +537,15 @@ function renderCharts() { updateChartData(); const pCtx = document.getElementByI
 
 async function updateCryptoPrices() { const symbols = ['BTCUSDT','ETHUSDT','BNBUSDT']; try { const res = await fetch(`https://api.binance.com/api/v3/ticker/price`); const allPrices = await res.json(); symbols.forEach(s => { const coin = s.replace('USDT',''); const priceData = allPrices.find(p => p.symbol === s); const price = parseFloat(priceData?.price || 0); currentCryptoPrices[coin] = price; const bdtPrice = usdToBdt(price); const qty = investments.filter(i => i.type === coin && i.status === 'active' && i.isCrypto).reduce((sum,i) => sum + i.amount, 0); const currentUSD = qty * price; const currentBDT = usdToBdt(currentUSD); document.getElementById(`p-${coin}`).innerHTML = `$${formatNumber(price)}`; document.getElementById(`p-${coin}-BDT`).innerHTML = `${formatNumber(bdtPrice)} BDT`; document.getElementById(`q-${coin}`).innerText = qty.toFixed(6); document.getElementById(`v-${coin}-USD`).innerHTML = `$${formatNumber(currentUSD)}`; document.getElementById(`v-${coin}-BDT`).innerHTML = `${formatNumber(currentBDT)} BDT`; }); updateCryptoPurchaseInfo(); renderStats(); renderPortfolio(); renderCharts(); } catch(e) { console.error("Crypto fetch error"); } }
 
-function renderAll() { updateCryptoPurchaseInfo(); renderStats(); renderPortfolio(); renderCharts(); renderMonthlyChart(); renderWithdrawHistory(); renderProjectGantt(); }
+function renderAll() { updateCryptoPurchaseInfo(); renderStats(); renderPortfolio(); renderCharts(); renderMonthlyChart(); renderWithdrawHistory(); renderProjectGantt(); checkExpiryAndNotify(); }
 
 function initTimeRangeSelector() { const buttons = document.querySelectorAll('.time-btn-modern'); buttons.forEach(btn => { btn.addEventListener('click', function() { buttons.forEach(b => b.classList.remove('active')); this.classList.add('active'); currentTimeRange = this.getAttribute('data-days'); filterChartByTimeRange(); }); }); }
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPassInput').value));
 document.getElementById('logoutBtn').addEventListener('click', () => adminLogout());
+document.getElementById('biometricLoginBtn').addEventListener('click', () => biometricLogin());
+document.getElementById('exportCSVBtn').addEventListener('click', () => exportToCSV());
+document.getElementById('enableNotificationsBtn').addEventListener('click', () => requestNotificationPermission());
 window.addEntry = addEntry;
 window.withdrawInv = withdrawInv;
 window.deleteInv = deleteInv;
@@ -415,9 +565,14 @@ if(localInv) investments = JSON.parse(localInv);
 renderAll();
 updateCryptoPrices();
 setInterval(updateCryptoPrices, 5000);
-setInterval(() => { renderProjectGantt(); }, 60000);
+setInterval(() => { renderProjectGantt(); checkExpiryAndNotify(); }, 60000);
 if(firebaseInitialized) setTimeout(() => loadAllFirestoreData(), 500);
 initTimeRangeSelector();
+checkBiometricSupport();
+
+if (localStorage.getItem('notifications_enabled') === 'true') {
+notificationPermission = true;
+}
 </script>
 </body>
 </html>
