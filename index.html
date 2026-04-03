@@ -36,11 +36,63 @@ padding: 20px;
 margin-bottom: 20px;
 border: 1px solid #facc15;
 }
-.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-.app-title { display: flex; align-items: center; gap: 12px; }
-.app-title h1 { font-size: 1.5rem; background: linear-gradient(135deg, #facc15, #ffd966); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.owner-badge { background: #facc15; padding: 8px 20px; border-radius: 40px; color: #000; font-weight: bold; }
-.version-tag { font-size: 0.7rem; color: #94a3b8; margin-top: 10px; text-align: right; }
+.header-top {
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 15px;
+}
+.app-title {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.app-title h1 {
+font-size: 1.5rem;
+background: linear-gradient(135deg, #facc15, #ffd966);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+.owner-badge {
+background: #facc15;
+padding: 8px 20px;
+border-radius: 40px;
+color: #000;
+font-weight: bold;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.header-stats {
+display: flex;
+gap: 20px;
+background: rgba(15,23,42,0.5);
+padding: 8px 20px;
+border-radius: 40px;
+backdrop-filter: blur(10px);
+margin-top: 15px;
+flex-wrap: wrap;
+}
+.header-stats .stat {
+font-size: 0.75rem;
+color: #94a3b8;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.header-stats .stat strong {
+color: #facc15;
+font-size: 0.85rem;
+}
+.version-tag {
+font-size: 0.65rem;
+color: #94a3b8;
+margin-top: 12px;
+text-align: right;
+border-top: 1px solid #334155;
+padding-top: 10px;
+}
 
 .admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
@@ -73,21 +125,21 @@ border: 1px solid #facc15;
 .crypto-price-bdt { font-size: 0.85rem; color: #facc15; font-weight: 500; margin-top: 3px; }
 .crypto-details { font-size: 0.7rem; margin-top: 10px; color: #94a3b8; border-top: 1px solid #334155; padding-top: 8px; }
 .crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.purchase-info { background: rgba(15,23,42,0.5); border-radius: 8px; padding: 6px; margin-top: 8px; font-size: 0.7rem; }
-.purchase-info .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.purchase-info { background: rgba(15,23,42,0.5); border-radius: 8px; padding: 6px; margin-top: 8px; }
 .value-usd { color: #10b981; font-weight: 500; }
 .value-bdt { color: #facc15; font-weight: 500; }
 
 .card { background: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
 .input-group { flex: 1; min-width: 140px; }
-.input-group label { font-size: 0.7rem; display: block; margin-bottom: 4px; }
-.input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 8px; color: white; }
+.input-group label { font-size: 0.7rem; display: block; margin-bottom: 4px; color: #94a3b8; }
+.input-group input, .input-group select, .input-group textarea { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 8px; color: white; }
+.input-group textarea { resize: vertical; min-height: 60px; }
 .btn-save { background: #facc15; color: #000; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
 .platform-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #facc15; }
 .platform-box.completed { border-left-color: #6b7280; opacity: 0.85; }
-.platform-header { font-weight: bold; font-size: 1rem; margin-bottom: 12px; color: #facc15; display: flex; justify-content: space-between; align-items: center; }
+.platform-header { font-weight: bold; font-size: 1rem; margin-bottom: 12px; color: #facc15; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .platform-percent { font-size: 0.75rem; color: #94a3b8; }
 .investment-item { border-bottom: 1px solid #334155; padding: 10px 0; }
 .investment-item:last-child { border-bottom: none; }
@@ -101,6 +153,7 @@ border: 1px solid #facc15;
 .btn-withdraw { background: #4ade80; color: #000; }
 .btn-edit { background: #facc15; color: #000; }
 .btn-delete { background: #f87171; color: #000; }
+.note-text { background: #1e293b; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; color: #a78bfa; margin-top: 4px; display: inline-block; }
 
 .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
 .gantt-notification { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid #facc15; }
@@ -125,7 +178,7 @@ border: 1px solid #facc15;
 .footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; font-size: 0.7rem; }
 .toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
-.modal-content { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid #facc15; }
+.modal-content { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid #facc15; }
 .platform-legend { margin-top: 15px; font-size: 0.7rem; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .legend-item { display: inline-flex; align-items: center; gap: 5px; background: #0f172a; padding: 4px 10px; border-radius: 20px; }
 .legend-color { width: 12px; height: 12px; border-radius: 2px; }
@@ -134,8 +187,16 @@ border: 1px solid #facc15;
 <body>
 <div class="container">
 <div class="app-header">
-<div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: #facc15;"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i> OWNER <strong>TASLIM RONY</strong></div></div>
-<div class="version-tag"><i class="fas fa-code-branch"></i> v7.5 | Smart Alerts | CSV Export | Real-time Crypto</div>
+<div class="header-top">
+<div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: #facc15;"></i><h1>Wealth Tracker Ultra Pro</h1></div>
+<div class="owner-badge"><i class="fas fa-crown"></i> OWNER <strong>TASLIM RONY</strong> <i class="fas fa-check-circle" style="color: #10b981;"></i></div>
+</div>
+<div class="header-stats">
+<div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div>
+<div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
+<div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
+</div>
+<div class="version-tag"><i class="fas fa-code-branch"></i> v8.0 | Investment Notes | Platform Sections | MMPDA Support</div>
 </div>
 
 <div class="gantt-notification"><div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3></div><div id="timelineContainer" class="gantt-timeline">Loading...</div></div>
@@ -153,7 +214,7 @@ border: 1px solid #facc15;
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Withdraw</button>
 </div>
 
-<!-- Crypto Cards with full details -->
+<!-- Crypto Cards -->
 <div class="crypto-grid">
 <div class="crypto-card btc-card">
 <div style="color:#f7931a; font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
@@ -212,7 +273,11 @@ border: 1px solid #facc15;
 <div class="input-group"><label>Start Date</label><input type="date" id="startDate"></div>
 <div class="input-group"><label>End Date</label><input type="date" id="endDate"></div>
 </div>
+<div class="form-row">
+<div class="input-group"><label>📝 Investment Note / Remarks</label><textarea id="investmentNote" rows="2" placeholder="Example: Chardike Limited [2], Reference ID, Project Name etc."></textarea></div>
+</div>
 <button class="btn-save" id="saveBtn">Save Investment</button>
+<small style="display:block; margin-top:8px; font-size:0.7rem; color:#94a3b8;"><i class="fas fa-info-circle"></i> Use Note field to add project name, reference ID, or any remark (e.g., "Chardike Limited [2]")</small>
 </div>
 
 <div class="modern-chart-container">
@@ -231,10 +296,10 @@ border: 1px solid #facc15;
 <div class="card"><h2><i class="fas fa-check-circle"></i> Completed Projects</h2><div id="completedPortfolio"></div></div>
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
-<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong>TASLIM RONY</strong> | Founder & CEO | With Ajwa Jannat Dua</p><p>Smart Alerts | CSV Export | Real-time Crypto | Powered by Firebase Cloud</p></div>
+<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong>TASLIM RONY</strong> | Founder & CEO | With Ajwa Jannat Dua</p><p>Smart Alerts | CSV Export | Real-time Crypto | Investment Notes | Powered by Firebase Cloud</p></div>
 </div>
 
-<div id="editModal" class="modal"><div class="modal-content"><h3>Edit Actual Profit</h3><div id="editInfo"></div><input type="number" id="editProfit" step="any"><button onclick="saveEdit()" class="btn-save">Save</button><button onclick="closeEditModal()">Cancel</button></div></div>
+<div id="editModal" class="modal"><div class="modal-content"><h3>Edit Investment</h3><div id="editInfo"></div><label>Actual Profit (BDT):</label><input type="number" id="editProfit" step="any"><label>Investment Note:</label><textarea id="editNote" rows="2" style="width:100%; background:#0f172a; border:1px solid #334155; padding:8px; border-radius:8px; color:white;"></textarea><button onclick="saveEdit()" class="btn-save" style="margin-top:10px;">Save Changes</button><button onclick="closeEditModal()" style="margin-top:5px;">Cancel</button></div></div>
 <div id="rateModal" class="modal"><div class="modal-content"><h3>Edit USD to BDT Rate</h3><input type="number" id="newRate" step="0.01"><button onclick="saveRate()" class="btn-save">Save</button></div></div>
 <div id="mmpdaModal" class="modal"><div class="modal-content"><h3>MMPDA Monthly Withdrawal</h3><select id="mmpdaSelect" style="width:100%;padding:8px;margin:10px 0;"></select><label>Current Annual Rate (%):</label><input type="number" id="mmpdaRate" step="0.1"><label>Monthly Profit (BDT):</label><input type="number" id="mmpdaProfit" readonly><button onclick="confirmMmpda()" class="btn-save">Withdraw Profit</button><button onclick="closeMmpdaModal()">Cancel</button></div></div>
 
@@ -252,15 +317,15 @@ let db = null, isAdmin = false, investments = [], usdToBdt = 122.5, cryptoPrices
 let growthChart = null, platformChart = null, monthlyChart = null, currentTimeRange = "all", editId = null;
 const ADMIN_PASSWORD = "Tt12345";
 
-// Demo data with Binance 13,097.85 BDT
+// Demo Data with Notes
 const demoInvestments = [
-{ id: "1", platform: "Binance", type: "BTC", amount: 0.001184, amountBDT: 9787.85, amountUSD: 79.88, isCrypto: true, purchasePrice: 67444.46, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-15", end: "2025-01-15" },
-{ id: "2", platform: "Binance", type: "BNB", amount: 0.85, amountBDT: 3310, amountUSD: 27.02, isCrypto: true, purchasePrice: 31.79, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-02-10", end: "" },
-{ id: "3", platform: "Wegro", type: "Agriculture", amount: 25000, amountBDT: 25000, amountUSD: 204.08, isCrypto: false, purchasePrice: null, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2024-12-31" },
-{ id: "4", platform: "Biniyog", type: "Shop/Business", amount: 15000, amountBDT: 15000, amountUSD: 122.45, isCrypto: false, purchasePrice: null, expectedProfit: 2500, actualProfit: 0, status: "active", start: "2024-03-01", end: "" },
-{ id: "5", platform: "iFarmer", type: "Agriculture", amount: 10000, amountBDT: 10000, amountUSD: 81.63, isCrypto: false, purchasePrice: null, expectedProfit: 1200, actualProfit: 0, status: "active", start: "2024-02-15", end: "2024-08-15" },
-{ id: "6", platform: "Islami Bank", type: "MMPDA", amount: 100000, amountBDT: 100000, amountUSD: 816.33, isCrypto: false, purchasePrice: null, expectedProfit: 8000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2025-01-01" },
-{ id: "7", platform: "Binance", type: "ETH", amount: 0.05, amountBDT: 21437.5, amountUSD: 175, isCrypto: true, purchasePrice: 3500, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-20", end: "" }
+{ id: "1", platform: "Binance", type: "BTC", amount: 0.001184, amountBDT: 9787.85, amountUSD: 79.88, isCrypto: true, purchasePrice: 67444.46, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-15", end: "2025-01-15", note: "" },
+{ id: "2", platform: "Binance", type: "ETH", amount: 0.05, amountBDT: 2143.75, amountUSD: 17.5, isCrypto: true, purchasePrice: 3500, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-20", end: "", note: "" },
+{ id: "3", platform: "Binance", type: "BNB", amount: 0.85, amountBDT: 1423.67, amountUSD: 11.62, isCrypto: true, purchasePrice: 31.79, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-02-10", end: "", note: "" },
+{ id: "4", platform: "Wegro", type: "Agriculture", amount: 40000, amountBDT: 40000, amountUSD: 326.53, isCrypto: false, purchasePrice: null, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2024-12-31", note: "Organic Farming Project" },
+{ id: "5", platform: "Biniyog", type: "Shop/Business", amount: 15050, amountBDT: 15050, amountUSD: 122.86, isCrypto: false, purchasePrice: null, expectedProfit: 2500, actualProfit: 0, status: "active", start: "2024-03-01", end: "", note: "Chardike Limited [2] - Retail Business" },
+{ id: "6", platform: "iFarmer", type: "Agriculture", amount: 25000, amountBDT: 25000, amountUSD: 204.08, isCrypto: false, purchasePrice: null, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-02-15", end: "2024-08-15", note: "Dairy Farm Project" },
+{ id: "7", platform: "Islami Bank", type: "MSSA", amount: 18000, amountBDT: 18000, amountUSD: 146.94, isCrypto: false, purchasePrice: null, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2025-01-01", note: "Monthly Savings Account" }
 ];
 
 function showToast(msg, err) { let t = document.createElement('div'); t.className = 'toast-message'; t.style.background = err ? '#f87171' : '#4ade80'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
@@ -293,16 +358,17 @@ id: Date.now().toString(), platform: document.getElementById('platform').value, 
 amountBDT: amountBDT, amountUSD: amountUSD, isCrypto: isCrypto, purchasePrice: purchasePrice,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value) || 0,
 actualProfit: parseFloat(document.getElementById('actualProfit').value) || 0,
-status: document.getElementById('status').value, start: document.getElementById('startDate').value, end: document.getElementById('endDate').value
+status: document.getElementById('status').value, start: document.getElementById('startDate').value,
+end: document.getElementById('endDate').value, note: document.getElementById('investmentNote').value || ""
 };
-investments.push(inv); await syncToFirebase(); renderAll(); showToast(`${type} added`);
+investments.push(inv); await syncToFirebase(); renderAll(); showToast(`${type} added`); document.getElementById('investmentNote').value = '';
 }
 
-function openEdit(id) { let inv = investments.find(i => i.id === id); if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `${inv.type} (${inv.platform})`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editModal').style.display = 'flex'; } }
+function openEdit(id) { let inv = investments.find(i => i.id === id); if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `<strong>${inv.type}</strong> (${inv.platform})<br>Amount: ${formatNumber(inv.amountBDT)} BDT`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editNote').value = inv.note || ''; document.getElementById('editModal').style.display = 'flex'; } }
 function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-async function saveEdit() { let np = parseFloat(document.getElementById('editProfit').value); let inv = investments.find(i => i.id === editId); if(inv) { inv.actualProfit = np; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Profit updated"); } }
+async function saveEdit() { let np = parseFloat(document.getElementById('editProfit').value); let newNote = document.getElementById('editNote').value; let inv = investments.find(i => i.id === editId); if(inv) { inv.actualProfit = np; inv.note = newNote; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Updated"); } }
 async function deleteInv(id) { if(!confirm("Delete?")) return; investments = investments.filter(i => i.id !== id); if(db) await db.collection("investments").doc(id.toString()).delete(); renderAll(); showToast("Deleted"); }
-async function markComplete(id) { if(!isAdmin) return; let inv = investments.find(i => i.id === id); if(inv && inv.status === 'active') { inv.status = 'completed'; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10) }); localStorage.setItem("withdraw_history", JSON.stringify(history)); await syncToFirebase(); renderAll(); showToast(`${inv.type} completed`); } }
+async function markComplete(id) { if(!isAdmin) return; let inv = investments.find(i => i.id === id); if(inv && inv.status === 'active') { inv.status = 'completed'; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); await syncToFirebase(); renderAll(); showToast(`${inv.type} completed`); } }
 
 function updateCryptoPurchaseInfo() {
 ['BTC','ETH','BNB'].forEach(coin => {
@@ -322,8 +388,10 @@ let activeMap = {}, completedMap = {};
 let totalActiveBDT = 0;
 investments.forEach(inv => { if(inv.status === 'active') totalActiveBDT += inv.amountBDT || 0; });
 investments.forEach(inv => { if(inv.status === 'active') { if(!activeMap[inv.platform]) activeMap[inv.platform] = []; activeMap[inv.platform].push(inv); } else { if(!completedMap[inv.platform]) completedMap[inv.platform] = []; completedMap[inv.platform].push(inv); } });
+
+let sortedPlatforms = Object.keys(activeMap).sort();
 let activeHtml = '';
-for(let plat of Object.keys(activeMap).sort()) {
+for(let plat of sortedPlatforms) {
 let platTotal = activeMap[plat].reduce((s,i)=>s+(i.amountBDT||0),0);
 let percent = totalActiveBDT > 0 ? (platTotal / totalActiveBDT * 100).toFixed(1) : 0;
 activeHtml += `<div class="platform-box"><div class="platform-header"><span><i class="fas fa-chart-line"></i> ${plat}</span><span class="platform-percent">${formatNumber(platTotal)} BDT (${percent}%)</span></div>`;
@@ -331,17 +399,21 @@ for(let inv of activeMap[plat]) {
 let displayAmount = inv.isCrypto ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}` : `${formatNumber(inv.amountBDT)} BDT`;
 let currentHtml = '';
 if(inv.isCrypto && cryptoPrices[inv.type]) { let currVal = inv.amount * cryptoPrices[inv.type] * usdToBdt; let pl = currVal - inv.amountBDT; currentHtml = `<div class="investment-details">📊 Current: <span class="value-usd">$${formatNumber(currVal / usdToBdt)}</span> | <span class="value-bdt">${formatNumber(currVal)} BDT</span> (${pl>=0?'+':''}${formatNumber(pl)} BDT)</div>`; }
-activeHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-active">Active</span></div><div class="investment-actions"><button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')">Complete</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Invested: ${displayAmount}</div>${currentHtml}<div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''} | Expected: ${formatNumber(inv.expectedProfit)} BDT | Actual: ${formatNumber(inv.actualProfit)} BDT</div></div>`;
+let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note"></i> ${inv.note}</div>` : '';
+activeHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-active">Active</span></div><div class="investment-actions"><button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')">Complete</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Invested: ${displayAmount}</div>${currentHtml}${noteHtml}<div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''} | Expected: ${formatNumber(inv.expectedProfit)} BDT | Actual: ${formatNumber(inv.actualProfit)} BDT</div></div>`;
 }
 activeHtml += `</div>`;
 }
 if(Object.keys(activeMap).length === 0) activeHtml = '<div style="text-align:center;padding:20px;">No active investments</div>';
+
 let completedHtml = '';
-for(let plat of Object.keys(completedMap).sort()) {
+let sortedCompleted = Object.keys(completedMap).sort();
+for(let plat of sortedCompleted) {
 completedHtml += `<div class="platform-box completed"><div class="platform-header completed-header"><i class="fas fa-archive"></i> ${plat}</div>`;
 for(let inv of completedMap[plat]) {
 let displayAmount = inv.isCrypto ? `${inv.amount} ${inv.type}` : `${formatNumber(inv.amountBDT)} BDT`;
-completedHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-completed">Completed</span></div><div class="investment-actions"><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Amount: ${displayAmount}</div><div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''}</div></div>`;
+let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note"></i> ${inv.note}</div>` : '';
+completedHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-completed">Completed</span></div><div class="investment-actions"><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Amount: ${displayAmount}</div>${noteHtml}<div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''}</div></div>`;
 }
 completedHtml += `</div>`;
 }
@@ -350,27 +422,27 @@ document.getElementById('activePortfolio').innerHTML = activeHtml;
 document.getElementById('completedPortfolio').innerHTML = completedHtml;
 }
 
-function renderHistory() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let html = ''; history.slice().reverse().forEach(h => { html += `<div style="border-bottom:1px solid #334155;padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT<br><small>${h.date}</small></div>`; }); document.getElementById('historyList').innerHTML = html || '<div>No history</div>'; }
+function renderHistory() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let html = ''; history.slice().reverse().forEach(h => { let noteHtml = h.note ? `<div class="note-text" style="font-size:0.65rem;"><i class="fas fa-sticky-note"></i> ${h.note}</div>` : ''; html += `<div style="border-bottom:1px solid #334155;padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT${noteHtml}<br><small>${h.date}</small></div>`; }); document.getElementById('historyList').innerHTML = html || '<div>No history</div>'; }
 
 function calcPrincipal() { let total = 0; investments.forEach(i => total += i.amountBDT || 0); return { bdt: total, usd: total/usdToBdt }; }
 function calcCurrent() { let total = 0; investments.forEach(i => { if(i.status === 'active') { if(i.isCrypto && cryptoPrices[i.type]) total += i.amount * cryptoPrices[i.type] * usdToBdt; else total += i.amountBDT || 0; } }); return { bdt: total, usd: total/usdToBdt }; }
 
 function renderStats() { let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt, per = p.bdt > 0 ? (pl/p.bdt*100) : 0; document.getElementById('totalPrincipal').innerHTML = formatNumber(p.bdt); document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(p.usd); document.getElementById('currentValue').innerHTML = formatNumber(c.bdt); document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd); document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${pl>=0?'+':''}${per.toFixed(2)}%)</span>`; let activeBDT = investments.filter(i=>i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0); document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT); document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`; let prog = Math.min((p.bdt/300000)*100,100); document.getElementById('goalFill').style.width = prog+"%"; document.getElementById('goalPercent').innerText = prog.toFixed(1)+"%"; document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0,300000-p.bdt))} BDT`; }
 
-function renderProjectGantt() { let container = document.getElementById('timelineContainer'); if(!container) return; let today = new Date(); today.setHours(0,0,0,0); let projects = investments.filter(i => i.end && i.end.trim() !== '' && i.status !== 'completed'); if(projects.length === 0) { container.innerHTML = '<div>No active projects with end date</div>'; return; } let sorted = [...projects].sort((a,b)=>new Date(a.end)-new Date(b.end)); let html = ''; sorted.forEach(proj => { let end = new Date(proj.end); end.setHours(0,0,0,0); let diff = Math.ceil((end - today)/(1000*60*60*24)); if(diff > 30) return; let cls = diff===0 ? 'expiring-today' : (diff<=7 ? 'expiring-soon' : ''); let badge = diff===0 ? 'Expires Today!' : (diff<=7 ? `${diff} days left` : ''); if(!cls) return; html += `<div class="timeline-item ${cls}"><div class="timeline-icon"><i class="fas ${diff===0?'fa-exclamation-circle':'fa-hourglass-half'}"></i></div><div class="timeline-content"><div class="timeline-title">${proj.type} - ${proj.platform}</div><div class="timeline-date">Ends: ${proj.end} | ${badge}</div></div></div>`; }); container.innerHTML = html || '<div>No upcoming expirations</div>'; }
+function renderProjectGantt() { let container = document.getElementById('timelineContainer'); if(!container) return; let today = new Date(); today.setHours(0,0,0,0); let projects = investments.filter(i => i.end && i.end.trim() !== '' && i.status !== 'completed'); if(projects.length === 0) { container.innerHTML = '<div>No active projects with end date</div>'; return; } let sorted = [...projects].sort((a,b)=>new Date(a.end)-new Date(b.end)); let html = ''; sorted.forEach(proj => { let end = new Date(proj.end); end.setHours(0,0,0,0); let diff = Math.ceil((end - today)/(1000*60*60*24)); if(diff > 30) return; let cls = diff===0 ? 'expiring-today' : (diff<=7 ? 'expiring-soon' : ''); let badge = diff===0 ? 'Expires Today!' : (diff<=7 ? `${diff} days left` : ''); if(!cls) return; let noteShow = proj.note ? `<br><small><i class="fas fa-sticky-note"></i> ${proj.note}</small>` : ''; html += `<div class="timeline-item ${cls}"><div class="timeline-icon"><i class="fas ${diff===0?'fa-exclamation-circle':'fa-hourglass-half'}"></i></div><div class="timeline-content"><div class="timeline-title">${proj.type} - ${proj.platform}</div><div class="timeline-date">Ends: ${proj.end} | ${badge}${noteShow}</div></div></div>`; }); container.innerHTML = html || '<div>No upcoming expirations</div>'; }
 
-function renderPlatformChart() { let map = {}; investments.forEach(i => { let val = i.amountBDT || 0; map[i.platform] = (map[i.platform] || 0) + val; }); let ctx = document.getElementById('platformChart').getContext('2d'); if(platformChart) platformChart.destroy(); let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981']; platformChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(map), datasets: [{ data: Object.values(map), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatNumber(ctx.raw)} BDT` } } } } }); let total = calcPrincipal().bdt; let legendHtml = ''; Object.keys(map).forEach((k,i) => { let percent = total > 0 ? ((map[k]/total)*100).toFixed(1) : 0; legendHtml += `<span class="legend-item"><span class="legend-color" style="background:${colors[i%colors.length]}"></span>${k}: ${formatNumber(map[k])} BDT (${percent}%)</span>`; }); document.getElementById('platformLegend').innerHTML = legendHtml || 'No data'; }
+function renderPlatformChart() { let map = {}; investments.forEach(i => { let val = i.amountBDT || 0; map[i.platform] = (map[i.platform] || 0) + val; }); let ctx = document.getElementById('platformChart').getContext('2d'); if(platformChart) platformChart.destroy(); let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981']; let sortedLabels = Object.keys(map).sort(); let sortedData = sortedLabels.map(l => map[l]); platformChart = new Chart(ctx, { type: 'doughnut', data: { labels: sortedLabels, datasets: [{ data: sortedData, backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: true } }); let total = calcPrincipal().bdt; let legendHtml = ''; sortedLabels.forEach((k,i) => { let percent = total > 0 ? ((map[k]/total)*100).toFixed(1) : 0; legendHtml += `<span class="legend-item"><span class="legend-color" style="background:${colors[i%colors.length]}"></span>${k}: ${formatNumber(map[k])} BDT (${percent}%)</span>`; }); document.getElementById('platformLegend').innerHTML = legendHtml || 'No data'; }
 
-function renderMonthlyChart() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let monthly = {}; history.forEach(h => { let m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; }); let ctx = document.getElementById('monthlyChart').getContext('2d'); if(monthlyChart) monthlyChart.destroy(); monthlyChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly), datasets: [{ label: 'Profit (BDT)', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: true } }); }
+function renderMonthlyChart() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let monthly = {}; history.forEach(h => { let m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; }); let ctx = document.getElementById('monthlyChart').getContext('2d'); if(monthlyChart) monthlyChart.destroy(); monthlyChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly).sort(), datasets: [{ label: 'Profit (BDT)', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: true } }); }
 
 async function updateCryptoPrices() { try { let res = await fetch('https://api.binance.com/api/v3/ticker/price'); let data = await res.json(); for(let coin of ['BTC','ETH','BNB']) { let found = data.find(p => p.symbol === coin+'USDT'); if(found) cryptoPrices[coin] = parseFloat(found.price); } for(let coin of ['BTC','ETH','BNB']) { let qty = investments.filter(i => i.type===coin && i.status==='active').reduce((s,i)=>s+i.amount,0); let currentUSD = qty * cryptoPrices[coin]; let currentBDT = currentUSD * usdToBdt; document.getElementById(coin.toLowerCase()+'Usd').innerHTML = `$${formatNumber(cryptoPrices[coin])}`; document.getElementById(coin.toLowerCase()+'Bdt').innerHTML = `${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`; document.getElementById(coin.toLowerCase()+'Qty').innerHTML = qty.toFixed(6); document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML = `$${formatNumber(currentUSD)}`; document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML = `${formatNumber(currentBDT)} BDT`; } updateCryptoPurchaseInfo(); renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); } catch(e) { console.error(e); } }
 
 function updateGrowthChart() { let sorted = [...investments.filter(i=>i.status==='active')].sort((a,b)=>new Date(a.start)-new Date(b.start)); let pSum=0, cSum=0, labels=[], principal=[], current=[]; sorted.forEach(i => { if(i.isCrypto && i.amountUSD) pSum += i.amountUSD; else if(i.amountBDT) pSum += i.amountBDT/usdToBdt; principal.push(pSum); labels.push(i.start); if(i.isCrypto && cryptoPrices[i.type]) cSum += i.amount * cryptoPrices[i.type]; else if(i.amountBDT) cSum += i.amountBDT/usdToBdt; current.push(cSum); }); if(currentTimeRange !== "all") { let days = parseInt(currentTimeRange), cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days); let idx = 0; for(let i=0;i<labels.length;i++) { if(new Date(labels[i]) >= cutoff) { idx=i; break; } } labels = labels.slice(idx); principal = principal.slice(idx); current = current.slice(idx); } let startVal = principal[0]||0, endVal = current[current.length-1]||0; let change = startVal>0 ? ((endVal-startVal)/startVal*100) : 0; document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`; document.getElementById('endValue').innerHTML = `$${formatNumber(endVal)}`; document.getElementById('changeValue').innerHTML = `${change>=0?'+':''}${change.toFixed(2)}%`; document.getElementById('periodDays').innerHTML = currentTimeRange==='all'?'All Time':`Last ${currentTimeRange} Days`; let ctx = document.getElementById('growthChart').getContext('2d'); if(growthChart) growthChart.destroy(); growthChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Invested (Principal)', data: principal, borderColor: '#94a3b8', borderDash: [8,4], fill: false, pointRadius: 2 }, { label: 'Current Value', data: current, borderColor: '#4ade80', fill: false, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${formatNumber(ctx.raw)}` } } } } }); }
 
 function openMmpdaModal() { let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active'); if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; } let select = document.getElementById('mmpdaSelect'); select.innerHTML = ''; mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); }); document.getElementById('mmpdaRate').value = ''; document.getElementById('mmpdaProfit').value = ''; select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); }; document.getElementById('mmpdaModal').style.display = 'flex'; }
-function confirmMmpda() { let id = document.getElementById('mmpdaSelect').value; let inv = investments.find(i => i.id === id); let profit = parseFloat(document.getElementById('mmpdaProfit').value); if(!inv || isNaN(profit)) return; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10) }); localStorage.setItem("withdraw_history", JSON.stringify(history)); inv.actualProfit = (inv.actualProfit || 0) + profit; syncToFirebase(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT`); closeMmpdaModal(); }
+function confirmMmpda() { let id = document.getElementById('mmpdaSelect').value; let inv = investments.find(i => i.id === id); let profit = parseFloat(document.getElementById('mmpdaProfit').value); if(!inv || isNaN(profit)) return; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); inv.actualProfit = (inv.actualProfit || 0) + profit; syncToFirebase(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT`); closeMmpdaModal(); }
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display = 'none'; }
-function exportCSV() { let headers = ['ID','Platform','Type','Amount BDT','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date']; let rows = investments.map(i => [i.id, i.platform, i.type, i.amountBDT, i.isCrypto, i.purchasePrice, i.expectedProfit, i.actualProfit, i.status, i.start, i.end]); let csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n'); let blob = new Blob(["\uFEFF"+csv], {type:'text/csv'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wealth_${new Date().toISOString().slice(0,10)}.csv`; a.click(); showToast("Exported"); }
+function exportCSV() { let headers = ['ID','Platform','Type','Amount BDT','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date','Note']; let rows = investments.map(i => [i.id, i.platform, i.type, i.amountBDT, i.isCrypto, i.purchasePrice, i.expectedProfit, i.actualProfit, i.status, i.start, i.end, i.note || '']); let csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n'); let blob = new Blob(["\uFEFF"+csv], {type:'text/csv'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wealth_${new Date().toISOString().slice(0,10)}.csv`; a.click(); showToast("Exported"); }
 
 function initTimeRange() { document.querySelectorAll('.time-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentTimeRange = this.getAttribute('data-days'); updateGrowthChart(); }); }); }
 function renderAll() { renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
