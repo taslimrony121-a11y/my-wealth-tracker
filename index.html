@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
 <title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 
 <!-- iOS Home Screen Icon -->
-<link rel="apple-touch-icon" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/icon.png">
+<link rel="apple-touch-icon" href="new-icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#facc15">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +18,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
@@ -36,152 +34,12 @@
 --eth-color: #627eea;
 --bnb-color: #f3ba2f;
 --usd-color: #10b981;
-}
-
-/* Light Mode */
-body.light-mode {
---bg-dark: #f1f5f9;
---card-bg: #ffffff;
---input-bg: #f8fafc;
---text-main: #0f172a;
---text-sub: #475569;
+--islamic-gold: #c084fc;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-body { background: var(--bg-dark); color: var(--text-main); padding: 15px; transition: all 0.3s ease; }
+body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
-
-/* Theme Toggle Button */
-.theme-toggle {
-position: fixed;
-bottom: 20px;
-left: 20px;
-background: var(--accent);
-color: #000;
-width: 50px;
-height: 50px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-z-index: 1000;
-box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-transition: all 0.3s;
-}
-.theme-toggle:hover {
-transform: scale(1.1);
-}
-
-/* Floating Action Buttons */
-.fab-container {
-position: fixed;
-bottom: 20px;
-right: 20px;
-z-index: 1000;
-}
-.fab-main {
-background: var(--accent);
-color: #000;
-width: 55px;
-height: 55px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-transition: all 0.3s;
-}
-.fab-main:hover {
-transform: scale(1.1);
-}
-.fab-menu {
-position: absolute;
-bottom: 70px;
-right: 0;
-display: none;
-flex-direction: column;
-gap: 10px;
-}
-.fab-menu.show {
-display: flex;
-}
-.fab-item {
-background: var(--card-bg);
-color: var(--text-main);
-width: 180px;
-padding: 10px 15px;
-border-radius: 25px;
-display: flex;
-align-items: center;
-gap: 10px;
-cursor: pointer;
-box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-transition: all 0.2s;
-border: 1px solid var(--accent);
-}
-.fab-item:hover {
-background: var(--accent);
-color: #000;
-transform: translateX(-5px);
-}
-
-/* Pin Lock Modal */
-.pin-modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0,0,0,0.9);
-z-index: 10000;
-display: none;
-justify-content: center;
-align-items: center;
-}
-.pin-container {
-background: var(--card-bg);
-padding: 30px;
-border-radius: 20px;
-text-align: center;
-max-width: 350px;
-width: 90%;
-}
-.pin-dots {
-display: flex;
-justify-content: center;
-gap: 15px;
-margin: 20px 0;
-}
-.pin-dot {
-width: 20px;
-height: 20px;
-border-radius: 50%;
-background: var(--text-sub);
-}
-.pin-dot.filled {
-background: var(--accent);
-}
-.pin-keypad {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 10px;
-margin-top: 20px;
-}
-.pin-key {
-background: var(--input-bg);
-border: 1px solid var(--accent);
-padding: 15px;
-border-radius: 10px;
-font-size: 1.2rem;
-cursor: pointer;
-color: var(--text-main);
-}
-.pin-key:hover {
-background: var(--accent);
-color: #000;
-}
 
 .app-header {
 background: linear-gradient(135deg, var(--card-bg) 0%, var(--input-bg) 100%);
@@ -191,6 +49,16 @@ margin-bottom: 20px;
 border: 1px solid var(--accent);
 position: relative;
 overflow: hidden;
+}
+.app-header::before {
+content: '';
+position: absolute;
+top: -50%;
+right: -50%;
+width: 200%;
+height: 200%;
+background: radial-gradient(circle, rgba(250,204,21,0.05) 0%, transparent 70%);
+pointer-events: none;
 }
 .header-top {
 display: flex;
@@ -214,18 +82,15 @@ background-clip: text;
 }
 .owner-badge {
 background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
-padding: 12px 25px;
+padding: 8px 20px;
 border-radius: 40px;
 display: flex;
-flex-direction: column;
 align-items: center;
-gap: 5px;
+gap: 10px;
 box-shadow: 0 4px 15px rgba(250,204,21,0.2);
 }
 .owner-badge i, .owner-badge span { color: #000; font-weight: bold; }
-.owner-name { font-weight: 800; font-size: 1.2rem; letter-spacing: 0.5px; }
-.owner-title { font-size: 0.7rem; opacity: 0.9; }
-.owner-dua { font-size: 0.65rem; margin-top: 3px; }
+.owner-name { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
 .header-stats {
 display: flex;
 gap: 15px;
@@ -234,6 +99,8 @@ padding: 8px 15px;
 border-radius: 40px;
 backdrop-filter: blur(10px);
 }
+.header-stats .stat { font-size: 0.7rem; color: var(--text-sub); }
+.header-stats .stat strong { color: var(--accent); font-size: 0.9rem; }
 .version-tag {
 position: absolute;
 bottom: 10px;
@@ -263,836 +130,187 @@ transition: all 0.2s;
 background: var(--accent);
 color: #000;
 }
-.admin-panel {
-background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-border-radius: 15px;
-padding: 15px 20px;
-margin-bottom: 20px;
-border: 1px solid var(--accent);
-display: flex;
-justify-content: space-between;
-align-items: center;
-flex-wrap: wrap;
-gap: 15px;
-}
-.login-form {
-display: flex;
-gap: 10px;
-align-items: center;
-flex-wrap: wrap;
-}
-.login-form input {
-background: var(--input-bg);
-border: 1px solid #475569;
-padding: 8px 12px;
-border-radius: 30px;
-color: white;
-width: 200px;
-}
-.admin-btn {
-background: var(--accent);
-color: #000;
-border: none;
-padding: 8px 16px;
-border-radius: 30px;
-font-weight: bold;
-cursor: pointer;
-}
-.logout-btn {
-background: #ef4444;
-color: white;
-}
-.card {
-background: var(--card-bg);
-border-radius: 15px;
-padding: 20px;
-margin-bottom: 20px;
-border: 1px solid #334155;
-}
-.dashboard-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-gap: 15px;
-margin-bottom: 20px;
-}
-.stat-card {
-background: var(--card-bg);
-border-radius: 15px;
-padding: 20px;
-border: 1px solid #334155;
-position: relative;
-}
-.stat-value-bdt {
-font-size: 2rem;
-font-weight: 800;
-color: var(--accent);
-}
-.crypto-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-gap: 15px;
-margin-bottom: 20px;
-}
-.crypto-card {
-background: var(--input-bg);
-border-radius: 15px;
-padding: 15px;
-border-left: 4px solid var(--accent);
-}
-.tab-btn {
-background: transparent;
-border: none;
-padding: 10px 20px;
-font-size: 0.9rem;
-font-weight: 600;
-color: var(--text-sub);
-cursor: pointer;
-border-radius: 8px 8px 0 0;
-}
-.tab-btn.active {
-color: var(--accent);
-border-bottom: 2px solid var(--accent);
-}
-.footer {
-text-align: center;
-margin-top: 30px;
-padding: 20px;
-border-top: 1px solid #334155;
-}
-.toast-message {
-position: fixed;
-bottom: 20px;
-right: 20px;
-background: #4ade80;
-color: #000;
-padding: 12px 20px;
-border-radius: 8px;
-z-index: 2000;
-animation: slideIn 0.3s ease;
-}
-@keyframes slideIn {
-from { transform: translateX(100%); opacity: 0; }
-to { transform: translateX(0); opacity: 1; }
-}
-@media (max-width: 640px) {
-.stat-value-bdt { font-size: 1.2rem; }
-.crypto-card { padding: 10px; }
-}
+.admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+.admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
+.admin-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+.login-panel { background: var(--card-bg); padding: 5px 15px; border-radius: 40px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.login-panel input { background: var(--input-bg); border: 1px solid #475569; padding: 6px 12px; border-radius: 30px; color: white; width: 160px; }
+.email-hint { font-size: 0.7rem; color: var(--accent); margin-left: 5px; }
+.goal-card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+.progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
+.progress-fill { background: var(--accent); height: 100%; transition: 0.5s; width: 0%; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat-card { background: var(--card-bg); border-radius: 15px; padding: 20px; border: 1px solid #334155; position: relative; overflow: hidden; }
+.stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.stat-value-bdt { font-size: 2rem; font-weight: 800; margin-top: 5px; color: var(--accent); line-height: 1.2; }
+.stat-value-usd { font-size: 0.85rem; color: var(--usd-color); margin-top: 5px; }
+.stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 8px; }
+.realtime-badge { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: #4ade8033; padding: 3px 8px; border-radius: 20px; }
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); transition: all 0.3s; }
+.btc-card { border-color: var(--btc-color); }
+.eth-card { border-color: var(--eth-color); }
+.bnb-card { border-color: var(--bnb-color); }
+.crypto-price-usd { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
+.crypto-price-bdt { font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+.crypto-details { font-size: 0.75rem; margin-top: 10px; color: var(--text-sub); border-top: 1px solid #334155; padding-top: 8px; }
+.crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.purchase-info { background: rgba(15,23,42,0.5); border-radius: 8px; padding: 6px; margin-top: 8px; font-size: 0.7rem; }
+.card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.input-group { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 5px; }
+input, select { background: var(--input-bg); border: 1px solid #334155; padding: 10px; border-radius: 8px; color: white; }
+button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+.btn-save { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 10px; }
+.btn-action { background: #334155; color: #fff; font-size: 0.7rem; }
+.btn-withdraw { background: #4ade80; color: #000; font-size: 0.7rem; }
+.btn-delete { background: #f87171; color: #000; font-size: 0.7rem; }
+.btn-edit { background: #facc15; color: #000; font-size: 0.7rem; }
+.platform-box { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
+.section-title { font-size: 1.2rem; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 10px; border-left: 4px solid var(--accent); padding-left: 12px; }
+.completed-section { background: rgba(15,23,42,0.4); border-radius: 20px; padding: 15px; margin-top: 10px; border: 1px dashed #475569; }
+.status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
+.status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
+.status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
+.profit-actual { color: var(--profit-color); }
+.profit-expected { color: var(--text-sub); text-decoration: line-through; }
+.modern-chart-container { background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%); border-radius: 16px; padding: 16px; margin-bottom: 20px; border: 1px solid #334155; }
+.chart-wrapper { position: relative; height: 260px; width: 100%; }
+.islamic-badge { background: #c084fc20; border: 1px solid #c084fc; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; margin-left: 8px; }
+.mmpda-note { background: #1e293b; border-radius: 12px; padding: 12px; margin: 10px 0; border-left: 3px solid #c084fc; font-size: 0.8rem; }
+.btn-monthly-profit { background: #c084fc; color: #000; font-size: 0.7rem; }
+.toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+.modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--accent); }
+.footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; color: var(--text-sub); font-size: 0.75rem; }
+.founder-signature { margin-top: 12px; font-size: 0.85rem; letter-spacing: 0.5px; color: var(--accent); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@media (max-width: 640px) { .chart-wrapper { height: 220px; } }
 </style>
 </head>
 <body>
-
-<!-- Theme Toggle Button -->
-<div class="theme-toggle" onclick="toggleTheme()">
-<i class="fas fa-moon"></i>
-</div>
-
-<!-- Floating Action Buttons -->
-<div class="fab-container">
-<div class="fab-main" onclick="toggleFabMenu()">
-<i class="fas fa-plus"></i>
-</div>
-<div class="fab-menu" id="fabMenu">
-<div class="fab-item" onclick="exportToGoogleSheets()">
-<i class="fab fa-google"></i> গুগল শীটে এক্সপোর্ট
-</div>
-<div class="fab-item" onclick="downloadPDFReport()">
-<i class="fas fa-file-pdf"></i> পিডিএফ রিপোর্ট
-</div>
-<div class="fab-item" onclick="backupData()">
-<i class="fas fa-download"></i> ব্যাকআপ নিন
-</div>
-<div class="fab-item" onclick="restoreData()">
-<i class="fas fa-upload"></i> রিস্টোর করুন
-</div>
-<div class="fab-item" onclick="showCompoundCalculator()">
-<i class="fas fa-calculator"></i> কম্পাউন্ড ক্যালকুলেটর
-</div>
-<div class="fab-item" onclick="showTaxCalculator()">
-<i class="fas fa-file-invoice-dollar"></i> ট্যাক্স ক্যালকুলেটর
-</div>
-<div class="fab-item" onclick="showCurrencyConverter()">
-<i class="fas fa-exchange-alt"></i> কারেন্সি কনভার্টার
-</div>
-<div class="fab-item" onclick="setupEmailReport()">
-<i class="fas fa-envelope"></i> ইমেইল রিপোর্ট সেটআপ
-</div>
-</div>
-</div>
-
-<!-- Pin Lock Modal -->
-<div class="pin-modal" id="pinModal">
-<div class="pin-container">
-<i class="fas fa-lock" style="font-size: 2rem; color: var(--accent);"></i>
-<h3>পিন লক</h3>
-<p>অ্যাপ খুলতে আপনার পিন দিন</p>
-<div class="pin-dots" id="pinDots">
-<div class="pin-dot"></div>
-<div class="pin-dot"></div>
-<div class="pin-dot"></div>
-<div class="pin-dot"></div>
-</div>
-<div class="pin-keypad" id="pinKeypad">
-<div class="pin-key" data-num="1">1</div>
-<div class="pin-key" data-num="2">2</div>
-<div class="pin-key" data-num="3">3</div>
-<div class="pin-key" data-num="4">4</div>
-<div class="pin-key" data-num="5">5</div>
-<div class="pin-key" data-num="6">6</div>
-<div class="pin-key" data-num="7">7</div>
-<div class="pin-key" data-num="8">8</div>
-<div class="pin-key" data-num="9">9</div>
-<div class="pin-key" data-num="clear">C</div>
-<div class="pin-key" data-num="0">0</div>
-<div class="pin-key" data-num="ok">OK</div>
-</div>
-</div>
-</div>
-
-<!-- Modals -->
-<div id="compoundModal" class="pin-modal" style="display: none;">
-<div class="pin-container" style="max-width: 400px;">
-<h3><i class="fas fa-calculator"></i> কম্পাউন্ড ইন্টারেস্ট ক্যালকুলেটর</h3>
-<div class="form-row">
-<div class="input-group">
-<label>মূল টাকা</label>
-<input type="number" id="compoundPrincipal" placeholder="যেমন: 500000">
-</div>
-<div class="input-group">
-<label>বার্ষিক রেট (%)</label>
-<input type="number" id="compoundRate" placeholder="যেমন: 9.5">
-</div>
-<div class="input-group">
-<label>সময় (বছর)</label>
-<input type="number" id="compoundYears" placeholder="যেমন: 5">
-</div>
-</div>
-<button onclick="calculateCompound()" class="admin-btn" style="width: 100%; margin-top: 10px;">গণনা করুন</button>
-<div id="compoundResult" style="margin-top: 15px; text-align: center;"></div>
-<button onclick="closeModal('compoundModal')" class="admin-btn logout-btn" style="margin-top: 10px;">বন্ধ করুন</button>
-</div>
-</div>
-
-<div id="taxModal" class="pin-modal" style="display: none;">
-<div class="pin-container" style="max-width: 400px;">
-<h3><i class="fas fa-file-invoice-dollar"></i> ট্যাক্স ক্যালকুলেটর</h3>
-<div class="form-row">
-<div class="input-group">
-<label>মোট লাভ (BDT)</label>
-<input type="number" id="taxProfit" placeholder="মোট লাভ">
-</div>
-<div class="input-group">
-<label>ট্যাক্স রেট (%)</label>
-<input type="number" id="taxRate" placeholder="যেমন: 10" value="10">
-</div>
-</div>
-<button onclick="calculateTax()" class="admin-btn" style="width: 100%; margin-top: 10px;">গণনা করুন</button>
-<div id="taxResult" style="margin-top: 15px; text-align: center;"></div>
-<button onclick="closeModal('taxModal')" class="admin-btn logout-btn" style="margin-top: 10px;">বন্ধ করুন</button>
-</div>
-</div>
-
-<div id="currencyModal" class="pin-modal" style="display: none;">
-<div class="pin-container" style="max-width: 400px;">
-<h3><i class="fas fa-exchange-alt"></i> কারেন্সি কনভার্টার</h3>
-<div class="form-row">
-<div class="input-group">
-<label>পরিমাণ</label>
-<input type="number" id="currencyAmount" placeholder="পরিমাণ">
-</div>
-<div class="input-group">
-<label>থেকে</label>
-<select id="currencyFrom">
-<option value="USD">USD</option>
-<option value="BDT" selected>BDT</option>
-<option value="EUR">EUR</option>
-<option value="GBP">GBP</option>
-<option value="AED">AED</option>
-</select>
-</div>
-<div class="input-group">
-<label>থেকে</label>
-<select id="currencyTo">
-<option value="USD" selected>USD</option>
-<option value="BDT">BDT</option>
-<option value="EUR">EUR</option>
-<option value="GBP">GBP</option>
-<option value="AED">AED</option>
-</select>
-</div>
-</div>
-<button onclick="convertCurrency()" class="admin-btn" style="width: 100%; margin-top: 10px;">কনভার্ট করুন</button>
-<div id="currencyResult" style="margin-top: 15px; text-align: center;"></div>
-<button onclick="closeModal('currencyModal')" class="admin-btn logout-btn" style="margin-top: 10px;">বন্ধ করুন</button>
-</div>
-</div>
-
-<div id="emailModal" class="pin-modal" style="display: none;">
-<div class="pin-container" style="max-width: 400px;">
-<h3><i class="fas fa-envelope"></i> ইমেইল রিপোর্ট সেটআপ</h3>
-<div class="form-row">
-<div class="input-group">
-<label>ইমেইল ঠিকানা</label>
-<input type="email" id="reportEmail" placeholder="your@email.com">
-</div>
-<div class="input-group">
-<label>রিপোর্ট ফ্রিকোয়েন্সি</label>
-<select id="reportFrequency">
-<option value="weekly">সাপ্তাহিক</option>
-<option value="monthly">মাসিক</option>
-</select>
-</div>
-</div>
-<button onclick="saveEmailReport()" class="admin-btn" style="width: 100%; margin-top: 10px;">সেভ করুন</button>
-<div id="emailResult" style="margin-top: 15px; text-align: center;"></div>
-<button onclick="closeModal('emailModal')" class="admin-btn logout-btn" style="margin-top: 10px;">বন্ধ করুন</button>
-</div>
-</div>
-
 <div class="container">
-<div class="app-header">
-<div class="header-top">
-<div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i><h1>Wealth Tracker Ultra Pro</h1></div>
-<div class="owner-badge">
-<i class="fas fa-crown" style="font-size: 1.5rem;"></i>
-<span class="owner-name">TASLIM RONY</span>
-<div class="owner-title">Founder & CEO</div>
-<div class="owner-dua"><i class="fas fa-star-of-life"></i> With Ajwa Jannat Dua <i class="fas fa-star-of-life"></i></div>
-</div>
-</div>
-<div class="header-stats"><div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div><div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div><div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div></div>
-<div class="version-tag"><i class="fas fa-code-branch"></i> v6.0 | Smart Alerts | Multi-Currency | PDF Export</div>
-</div>
+<div class="app-header"><div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i><span>OWNER</span><span class="owner-name">TASLIM RONY</span><i class="fas fa-check-circle" style="color: #10b981;"></i></div></div><div class="header-stats"><div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div><div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div><div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div></div><div class="version-tag"><i class="fas fa-code-branch"></i> v5.0 | Smart Alerts | CSV Export</div></div>
 
-<div class="admin-panel" id="adminPanel">
-<div class="admin-info">
-<div class="admin-badge"><i class="fas fa-user-shield"></i> Admin Access</div>
-<div id="authDisplay" class="status-badge status-active"><i class="fas fa-lock"></i> Not logged in</div>
-</div>
+<!-- Admin Bar with Email Login -->
+<div id="adminBar" class="admin-bar">
+<div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
 <div id="loginWidget">
-<div class="login-form">
-<input type="email" id="adminEmailInput" placeholder="admin@example.com" value="ronygp123@gmail.com" autocomplete="off">
-<input type="password" id="adminPassInput" placeholder="Password" autocomplete="off">
+<div class="login-panel">
+<i class="fas fa-envelope" style="color:var(--accent);"></i>
+<input type="email" id="adminEmailInput" placeholder="ronygp123@gmail.com" value="ronygp123@gmail.com" style="width:180px;">
+<input type="password" id="adminPassInput" placeholder="Password">
 <button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
-<button id="setupPinBtn" class="admin-btn" style="background: #10b981;" onclick="setupPin()"><i class="fas fa-fingerprint"></i> পিন সেট করুন</button>
 </div>
 </div>
-<div id="logoutWidget" style="display:none;">
-<button id="logoutBtn" class="admin-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-</div>
+<div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
 </div>
 
-<div class="exchange-rate-box" style="background: var(--input-bg); padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
-<i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">126</strong> BDT |
-1 EUR = <strong id="eurRate">135</strong> BDT |
-1 GBP = <strong id="gbpRate">158</strong> BDT |
-1 AED = <strong id="aedRate">34</strong> BDT
-<button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px;"><i class="fas fa-edit"></i> Edit</button>
-</div>
+<div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">126</strong> BDT<button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px; display:inline-flex;"><i class="fas fa-edit"></i> Edit</button><span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto live</span></div>
 
 <div class="action-buttons">
 <button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
 <button id="enableNotificationsBtn" class="action-btn"><i class="fas fa-bell"></i> Enable Alerts</button>
-<button onclick="lockApp()" class="action-btn"><i class="fas fa-lock"></i> লক স্ক্রিন</button>
 </div>
 
-<!-- Rest of the existing content (crypto cards, dashboard, portfolio, etc.) remains same -->
-<!-- To keep the response within limits, I'll continue with the essential JavaScript -->
-
-<div class="gantt-notification" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid var(--accent);">
-<div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3></div>
-<div id="timelineContainer" class="gantt-timeline"><div class="no-projects"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></div>
+<!-- Islamic MMPDA Section -->
+<div class="mmpda-note">
+<i class="fas fa-landmark" style="color: #c084fc;"></i> <strong>Islami Bank MMPDA (5,00,000 BDT)</strong> - Monthly profit varies (not fixed). Each month's received profit can be recorded as a withdrawal.
+<button id="addMonthlyProfitBtn" class="btn-monthly-profit" style="margin-left: 10px;"><i class="fas fa-plus-circle"></i> Add Monthly Profit</button>
+<span class="islamic-badge"><i class="fas fa-hand-holding-heart"></i> Shariah Compliant</span>
 </div>
 
-<!-- Quick Summary Stats -->
-<div class="dashboard-grid">
-<div class="stat-card"><div class="stat-label">💰 Total Invested</div><div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> BDT</div></div>
-<div class="stat-card"><div class="stat-label">📈 Current Value</div><div class="stat-value-bdt"><span id="currentValueBDT">0</span> BDT</div><div class="stat-sub" id="profitLossDisplay"></div></div>
-<div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> BDT</div></div>
-</div>
+<div class="crypto-grid"><div class="crypto-card btc-card" id="btc-card"><div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div><div class="crypto-price-usd" id="p-BTC">$0.00</div><div class="crypto-price-bdt" id="p-BTC-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BTC">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BTC-USD">$0.00</span> | <span class="value-bdt" id="v-BTC-BDT">0.00 BDT</span></div><div id="btc-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card eth-card" id="eth-card"><div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div><div class="crypto-price-usd" id="p-ETH">$0.00</div><div class="crypto-price-bdt" id="p-ETH-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-ETH">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-ETH-USD">$0.00</span> | <span class="value-bdt" id="v-ETH-BDT">0.00 BDT</span></div><div id="eth-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card bnb-card" id="bnb-card"><div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB</div><div class="crypto-price-usd" id="p-BNB">$0.00</div><div class="crypto-price-bdt" id="p-BNB-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BNB">0</span></div><div class="row"><span class="label">💰 Current Value:</span><span class="value-usd" id="v-BNB-USD">$0.00</span> | <span class="value-bdt" id="v-BNB-BDT">0.00 BDT</span></div><div id="bnb-purchase-info" class="purchase-info"></div></div></div></div>
 
-<div class="goal-card" style="background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-<div style="display:flex; justify-content:space-between;"><span>🎯 Target Goal: <strong>300,000 BDT</strong></span><span id="goalPercent">0%</span></div>
-<div class="progress-bg" style="background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0;"><div id="goalFill" class="progress-fill" style="background: var(--accent); height: 100%; width: 0%;"></div></div>
-</div>
+<div class="dashboard-grid"><div class="stat-card"><div class="stat-label">💰 Total Invested (Principal)</div><div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> BDT</div><div class="stat-value-usd">$ <span id="totalPrincipalUSD">0.00</span> USD</div></div><div class="stat-card"><div class="stat-label">📈 Current Portfolio Value</div><div class="stat-value-bdt"><span id="currentValueBDT">0</span> BDT</div><div class="stat-value-usd">$ <span id="currentValueUSD">0.00</span> USD</div><div class="stat-sub" id="profitLossDisplay"></div></div><div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> BDT</div></div></div>
 
-<div id="investmentFormCard" class="card" style="display:none;">
-<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
-<div class="form-row"><div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MSSA)</option></select></div>
-<div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="Agriculture">Agriculture</option><option value="MSSA Installment">MSSA Installment</option></select></div>
-<div class="input-group"><label>Amount</label><input type="number" id="amt" step="any"></div>
-<div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div></div>
-<button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment</button>
-</div>
+<div class="goal-card"><div style="display:flex; justify-content:space-between;"><span>🎯 Target Goal: <strong>300,000 BDT</strong></span><span id="goalPercent">0%</span></div><div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div></div>
 
-<div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio</h2><div id="portfolioList"></div></div>
+<div id="investmentFormCard" class="card" style="display:none;"><h3><i class="fas fa-plus-circle"></i> Add New Investment</h3><div class="form-row"><div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank MMPDA</option><option>Other</option></select></div><div class="input-group"><label>Asset Type</label><select id="type" onchange="updateAmountLabel()"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="MMPDA">MMPDA (Islamic Bank Variable Profit)</option><option value="Agriculture">Agriculture (Fixed BDT)</option><option value="Shop/Business">Shop/Business (Fixed BDT)</option></select></div><div class="input-group"><label id="amountLabel">Amount (BDT)</label><input type="number" id="amt" step="any" placeholder="0.00"></div><div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="For crypto only"></div><div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0"></div><div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div></div><div class="form-row"><div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div><div class="input-group"><label>End Date</label><input type="date" id="eDate"></div><button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment</button></div></div>
+
+<div class="modern-chart-container"><div class="chart-wrapper"><canvas id="mainChart"></canvas></div></div>
+
+<!-- Portfolio: Active & Completed Sections -->
+<div class="section-title"><i class="fas fa-play-circle" style="color:#4ade80;"></i> Active Investments</div>
+<div id="portfolioList"></div>
+
+<div class="section-title completed-section"><i class="fas fa-check-circle" style="color:#94a3b8;"></i> Completed / Withdrawn Projects</div>
+<div id="completedPortfolioList" class="completed-section" style="margin-top:0;"></div>
+
+<div class="card"><h3><i class="fas fa-history"></i> MMPDA Monthly Profit History</h3><div id="withdrawList" style="max-height:300px; overflow-y:auto;"></div></div>
 
 <div class="footer">
-<p><i class="fas fa-crown"></i> <strong>TASLIM RONY</strong> | Founder & CEO | <i class="fas fa-star-of-life"></i> With Ajwa Jannat Dua</p>
-<p style="font-size: 0.7rem;">Smart Alerts | CSV Export | PDF Report | Multi-Currency | Pin Lock</p>
+<p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Powered by Firebase Cloud</p>
+<p class="founder-signature"><i class="fas fa-star-of-life"></i> Taslim Rony - Founder & CEO | With Ajwa Jannat Dua <i class="fas fa-star-of-life"></i></p>
 </div>
 </div>
 
-<div id="loadingToast" class="loading-overlay" style="display:none;"><i class="fas fa-spinner fa-pulse"></i> Processing...</div>
+<div id="editProfitModal" class="modal"><div class="modal-content"><h3>Edit Actual Profit (BDT)</h3><input type="number" id="editActualProfit" placeholder="Actual profit"><button onclick="saveProfitEdit()" class="btn-save">Save</button><button onclick="closeModal()">Cancel</button></div></div>
+<div id="editRateModal" class="modal"><div class="modal-content"><h3>Edit USD to BDT Rate</h3><input type="number" id="newExchangeRate"><button onclick="saveExchangeRate()">Save</button></div></div>
+<div id="monthlyProfitModal" class="modal"><div class="modal-content"><h3><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Profit</h3><label>Profit Amount (BDT):</label><input type="number" id="monthlyProfitAmount" placeholder="e.g., 1250"><label>Month (optional):</label><input type="month" id="profitMonth"><button onclick="saveMonthlyProfit()" class="btn-save">Add Profit & Withdraw</button><button onclick="closeMonthlyModal()">Cancel</button></div></div>
 
 <script>
-// ========== NEW FEATURES IMPLEMENTATION ==========
+const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
+let db = null, isAdmin = false, investments = [], USD_TO_BDT = 126, currentCryptoPrices = { BTC:0, ETH:0, BNB:0 };
+let currentEditId = null, gChart = null, allChartData = { labels:[], principal:[], current:[] }, currentTimeRange="all";
+let notificationPermission = false;
 
-// Theme Toggle
-function toggleTheme() {
-document.body.classList.toggle('light-mode');
-const theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-localStorage.setItem('theme', theme);
-const icon = document.querySelector('.theme-toggle i');
-if (theme === 'light') {
-icon.classList.remove('fa-moon');
-icon.classList.add('fa-sun');
-} else {
-icon.classList.remove('fa-sun');
-icon.classList.add('fa-moon');
-}
-}
+try { if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); } } catch(e) { console.log("Firebase init", e); }
 
-// Load saved theme
-if (localStorage.getItem('theme') === 'light') {
-document.body.classList.add('light-mode');
-document.querySelector('.theme-toggle i').classList.remove('fa-moon');
-document.querySelector('.theme-toggle i').classList.add('fa-sun');
-}
+function showToast(msg, err=false) { let t=document.createElement('div'); t.className='toast-message'; t.style.background=err?'#f87171':'#4ade80'; t.innerHTML=`<i class="fas ${err?'fa-exclamation':'fa-bell'}"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
+function formatNumber(n) { if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function loadExchangeRate() { let r=localStorage.getItem("usd_to_bdt_rate"); if(r) USD_TO_BDT=parseFloat(r); document.getElementById('exchangeRate').innerText=USD_TO_BDT; }
+function usdToBdt(u){ return u*USD_TO_BDT; } function bdtToUsd(b){ return b/USD_TO_BDT; }
 
-// FAB Menu
-function toggleFabMenu() {
-document.getElementById('fabMenu').classList.toggle('show');
-}
+async function adminLogin() { let email=document.getElementById('adminEmailInput').value; let pwd=document.getElementById('adminPassInput').value; if(email==='ronygp123@gmail.com' && pwd==='Tt12345'){ isAdmin=true; updateAdminUI(); await loadAllFirestoreData(); showToast("Admin logged in!"); } else alert("Wrong email or password!"); }
+function adminLogout(){ isAdmin=false; updateAdminUI(); showToast("Logged out"); renderAll(); }
+function updateAdminUI(){ let form=document.getElementById('investmentFormCard'); let loginDiv=document.getElementById('loginWidget'); let logoutDiv=document.getElementById('logoutWidget'); let authDisp=document.getElementById('authDisplay'); if(isAdmin){ if(form)form.style.display='block'; loginDiv.style.display='none'; logoutDiv.style.display='block'; authDisp.innerHTML='<i class="fas fa-user-shield"></i> Admin: Taslim Rony'; } else { if(form)form.style.display='none'; loginDiv.style.display='block'; logoutDiv.style.display='none'; authDisp.innerHTML='<i class="fas fa-lock"></i> Read-only Mode'; } }
 
-// Close FAB when clicking outside
-document.addEventListener('click', function(e) {
-if (!e.target.closest('.fab-container')) {
-document.getElementById('fabMenu').classList.remove('show');
-}
-});
+async function loadAllFirestoreData(){ if(!db) return; try{ let snap=await db.collection("investments").orderBy("start","desc").get(); investments=[]; snap.forEach(d=>investments.push({id:d.id,...d.data()})); let wSnap=await db.collection("withdrawals").orderBy("date","desc").get(); let wList=[]; wSnap.forEach(d=>wList.push(d.data())); localStorage.setItem("withdraw_history_firebase",JSON.stringify(wList)); renderAll(); }catch(e){ console.log(e);} }
+async function syncInvestments(){ if(!isAdmin||!db) return; for(let inv of investments){ await db.collection("investments").doc(inv.id.toString()).set({...inv,id:inv.id.toString()}); } renderAll(); }
 
-// ========== PDF REPORT ==========
-function downloadPDFReport() {
-const element = document.createElement('div');
-element.innerHTML = `
-<div style="padding: 20px; font-family: Arial;">
-<h1 style="color: #facc15;">Wealth Tracker Report</h1>
-<h2>TASLIM RONY - Founder & CEO</h2>
-<hr>
-<p>Date: ${new Date().toLocaleString()}</p>
-<h3>Portfolio Summary</h3>
-<p>Total Invested: ${document.getElementById('totalPrincipalBDT').innerText}</p>
-<p>Current Value: ${document.getElementById('currentValueBDT').innerText}</p>
-<p>Active Investments: ${document.getElementById('activeInvestmentBDT').innerText}</p>
-<hr>
-<h3>Investments Details</h3>
-<div id="pdfInvestments"></div>
-</div>
-`;
-const investmentsHtml = document.getElementById('portfolioList').innerHTML;
-element.querySelector('#pdfInvestments').innerHTML = investmentsHtml;
+function calculateTotalPrincipal(){ let totBDT=0; investments.forEach(i=>{ if(i.isCrypto && i.amountUSD) totBDT+=usdToBdt(i.amountUSD); else if(i.amountBDT) totBDT+=i.amountBDT; else if(i.amount && !i.isCrypto) totBDT+=i.amount; else if(i.type==='MMPDA' && i.amount) totBDT+=i.amount; }); return {bdt:totBDT, usd:bdtToUsd(totBDT)}; }
+function calculateCurrentPortfolio(){ let bdt=0; investments.forEach(i=>{ if(i.status==='active'){ if(i.isCrypto && currentCryptoPrices[i.type]) bdt+=usdToBdt(i.amount * currentCryptoPrices[i.type]); else if(i.amountBDT) bdt+=i.amountBDT; else if(i.amount && !i.isCrypto) bdt+=i.amount; } }); return {bdt, usd:bdtToUsd(bdt)}; }
 
-html2pdf().from(element).set({
-margin: 1,
-filename: `wealth_report_${new Date().toISOString().slice(0,10)}.pdf`,
-html2canvas: { scale: 2 },
-jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-}).save();
+function renderStats(){ let p=calculateTotalPrincipal(); let c=calculateCurrentPortfolio(); let pl=c.bdt-p.bdt; let percent=p.bdt>0?(pl/p.bdt*100):0; document.getElementById('totalPrincipalBDT').innerHTML=formatNumber(p.bdt); document.getElementById('totalPrincipalUSD').innerHTML=formatNumber(p.usd); document.getElementById('currentValueBDT').innerHTML=formatNumber(c.bdt); document.getElementById('currentValueUSD').innerHTML=formatNumber(c.usd); document.getElementById('profitLossDisplay').innerHTML=`<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${percent.toFixed(2)}%)</span>`; let activeBDT=0; investments.filter(i=>i.status==='active').forEach(i=>{ if(i.isCrypto&&i.amountUSD) activeBDT+=usdToBdt(i.amountUSD); else if(i.amountBDT) activeBDT+=i.amountBDT; else if(i.amount) activeBDT+=i.amount; }); document.getElementById('activeInvestmentBDT').innerHTML=formatNumber(activeBDT); let progress=Math.min((p.bdt/300000)*100,100).toFixed(1); document.getElementById('goalFill').style.width=progress+'%'; document.getElementById('goalPercent').innerText=progress+'%'; }
 
-showToast("PDF রিপোর্ট ডাউনলোড হচ্ছে...");
+function renderPortfolioSections(){ let activeHtml='', completedHtml=''; let activeInv=investments.filter(i=>i.status!=='completed'); let completedInv=investments.filter(i=>i.status==='completed'); activeInv.forEach(i=>{ let investedStr=i.isCrypto?`${i.amount} ${i.type} @ $${formatNumber(i.purchasePrice||0)}`:`${formatNumber(i.amount)} BDT`; let currentVal=''; if(i.isCrypto && i.status==='active' && currentCryptoPrices[i.type]){ let currUSD=i.amount*currentCryptoPrices[i.type]; currentVal=`<small>📊 Current: $${formatNumber(currUSD)} (${formatNumber(usdToBdt(currUSD))} BDT)</small><br>`; } activeHtml+=`<div class="platform-box"><div style="display:flex;justify-content:space-between;"><div><b>${i.type}</b> <span class="status-badge status-active">Active</span><br><small>💵 Invested: ${investedStr}</small><br>${currentVal}<small>Expected: +${formatNumber(i.expectedProfit||0)} BDT</small><br><small>Actual: +${formatNumber(i.actualProfit||0)} BDT</small></div><div><button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button><button class="btn-edit" onclick="openEditModal('${i.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete" onclick="deleteInv('${i.id}')"><i class="fas fa-trash"></i></button></div></div><small>📅 ${i.start} ${i.end?'→ '+i.end:''}</small></div>`; });
+completedInv.forEach(i=>{ let investedStr=i.isCrypto?`${i.amount} ${i.type}`:`${formatNumber(i.amount)} BDT`; completedHtml+=`<div style="border-bottom:1px solid #334155; padding:8px 0;"><b>${i.type}</b> - ${i.platform}<br><small>💰 Invested: ${investedStr}</small><br><span class="profit-actual">Profit: +${formatNumber(i.actualProfit||0)} BDT</span><br><small>📅 ${i.start} → ${i.end||'Withdrawn'}</small></div>`; });
+document.getElementById('portfolioList').innerHTML=activeHtml||'<div style="padding:20px;text-align:center;">No active investments.</div>';
+document.getElementById('completedPortfolioList').innerHTML=completedHtml||'<div style="padding:20px;text-align:center;">No completed projects yet.</div>';
 }
 
-// ========== GOOGLE SHEETS EXPORT ==========
-function exportToGoogleSheets() {
-const data = investments.map(inv => ({
-'Platform': inv.platform,
-'Type': inv.type,
-'Amount (BDT)': inv.amountBDT || inv.amount,
-'Expected Profit': inv.expectedProfit || 0,
-'Actual Profit': inv.actualProfit || 0,
-'Status': inv.status,
-'Start Date': inv.start,
-'End Date': inv.end || 'Ongoing'
-}));
+function renderWithdrawHistory(){ let hist=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); let html=''; hist.slice().reverse().forEach(h=>{ html+=`<div style="border-bottom:1px solid #334155; padding:8px 0;"><i class="fas fa-hand-holding-usd" style="color:#c084fc;"></i> <b>${h.platform||'MMPDA'}</b> - Profit: <span class="profit-actual">+${formatNumber(h.profit)} BDT</span><br><small>📅 ${h.date}</small></div>`; }); document.getElementById('withdrawList').innerHTML=html||'<div>No monthly profits recorded.</div>'; }
 
-const csv = convertToCSV(data);
-const blob = new Blob([csv], { type: 'text/csv' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `google_sheets_export_${new Date().toISOString().slice(0,10)}.csv`;
-a.click();
-URL.revokeObjectURL(url);
+function updateCryptoPrices(){ fetch('https://api.binance.com/api/v3/ticker/price').then(r=>r.json()).then(data=>{ ['BTC','ETH','BNB'].forEach(coin=>{ let sym=coin+'USDT'; let p=data.find(x=>x.symbol===sym)?.price; if(p){ currentCryptoPrices[coin]=parseFloat(p); let bdtPrice=usdToBdt(p); let qty=investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto).reduce((s,i)=>s+i.amount,0); document.getElementById(`p-${coin}`).innerHTML=`$${formatNumber(p)}`; document.getElementById(`p-${coin}-BDT`).innerHTML=`${formatNumber(bdtPrice)} BDT`; document.getElementById(`q-${coin}`).innerHTML=qty.toFixed(6); let currVal=qty*p; document.getElementById(`v-${coin}-USD`).innerHTML=`$${formatNumber(currVal)}`; document.getElementById(`v-${coin}-BDT`).innerHTML=`${formatNumber(usdToBdt(currVal))} BDT`; } }); renderStats(); renderPortfolioSections(); updateChartData(); filterChartByTimeRange(); }).catch(e=>console.log); }
 
-showToast("CSV তৈরি হয়েছে! গুগল শীটে ইম্পোর্ট করুন");
-}
+function updateChartData(){ let sorted=[...investments].sort((a,b)=>new Date(a.start)-new Date(b.start)); let sum=0, currSum=0, labels=[], princ=[], cur=[];
+sorted.forEach(i=>{ if(i.isCrypto&&i.amountUSD) sum+=i.amountUSD; else if(i.amountBDT) sum+=bdtToUsd(i.amountBDT); else if(i.amount) sum+=bdtToUsd(i.amount); princ.push(sum); labels.push(i.start); if(i.isCrypto&&i.status==='active'&&currentCryptoPrices[i.type]) currSum+=i.amount*currentCryptoPrices[i.type]; else if(!i.isCrypto&&i.amountBDT) currSum+=bdtToUsd(i.amountBDT); else if(i.amount) currSum+=bdtToUsd(i.amount); cur.push(currSum); }); allChartData={labels,principal:princ,current:cur}; filterChartByTimeRange(); }
+function filterChartByTimeRange(){ if(!allChartData.labels.length) return; let labels=allChartData.labels, princ=allChartData.principal, cur=allChartData.current; if(gChart) gChart.destroy(); let ctx=document.getElementById('mainChart').getContext('2d'); gChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label:'Invested (USD)',data:princ,borderColor:'#94a3b8',borderDash:[5,5]},{label:'Current Value (USD)',data:cur,borderColor:'#4ade80',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false}}); }
+function renderAll(){ renderStats(); renderPortfolioSections(); renderWithdrawHistory(); updateChartData(); }
+async function addEntry(){ if(!isAdmin) return alert("Admin only"); let type=document.getElementById('type').value; let isCrypto=['BTC','ETH','BNB'].includes(type); let amount=parseFloat(document.getElementById('amt').value); let purchasePrice=isCrypto?parseFloat(document.getElementById('purchasePrice').value):null; if(!amount||!document.getElementById('sDate').value) return alert("Fill all"); let amountBDT, amountUSD; if(isCrypto){ if(!purchasePrice) return alert("Purchase price required"); amountUSD=amount*purchasePrice; amountBDT=usdToBdt(amountUSD); } else { amountBDT=amount; amountUSD=bdtToUsd(amount); } let inv={ id:Date.now().toString(), platform:document.getElementById('plat').value, type, amount, amountBDT, amountUSD, isCrypto, purchasePrice:purchasePrice||null, expectedProfit:parseFloat(document.getElementById('expectedProfit').value||0), actualProfit:0, status:document.getElementById('status').value, start:document.getElementById('sDate').value, end:document.getElementById('eDate').value }; investments.push(inv); await syncInvestments(); renderAll(); showToast(`${type} added`); document.getElementById('amt').value=''; document.getElementById('purchasePrice').value=''; }
+async function withdrawInv(id){ if(!isAdmin) return; let inv=investments.find(i=>i.id===id); if(!inv||!confirm("Mark as completed?")) return; inv.status="completed"; let profit=inv.actualProfit||0; let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); history.push({ amount:inv.amount, profit, date:new Date().toISOString().slice(0,10), platform:inv.platform, type:inv.type }); localStorage.setItem("withdraw_history_firebase",JSON.stringify(history)); if(db) await db.collection("withdrawals").add({ profit, date:new Date().toISOString().slice(0,10), platform:inv.platform, type:inv.type }); await syncInvestments(); renderAll(); showToast("Completed & moved to history"); }
+async function deleteInv(id){ if(!isAdmin||!confirm("Delete?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); await syncInvestments(); renderAll(); }
+function openEditModal(id){ currentEditId=id; let inv=investments.find(i=>i.id===id); document.getElementById('editActualProfit').value=inv?.actualProfit||0; document.getElementById('editProfitModal').style.display='flex'; }
+async function saveProfitEdit(){ if(!isAdmin) return; let inv=investments.find(i=>i.id===currentEditId); if(inv){ inv.actualProfit=parseFloat(document.getElementById('editActualProfit').value)||0; await syncInvestments(); renderAll(); showToast("Profit updated"); } closeModal(); }
+function closeModal(){ document.getElementById('editProfitModal').style.display='none'; }
+function editExchangeRate(){ document.getElementById('newExchangeRate').value=USD_TO_BDT; document.getElementById('editRateModal').style.display='flex'; }
+function saveExchangeRate(){ let newRate=parseFloat(document.getElementById('newExchangeRate').value); if(newRate>0){ USD_TO_BDT=newRate; localStorage.setItem("usd_to_bdt_rate",USD_TO_BDT); document.getElementById('exchangeRate').innerText=USD_TO_BDT; renderAll(); updateCryptoPrices(); closeRateModal(); } }
+function closeRateModal(){ document.getElementById('editRateModal').style.display='none'; }
+function updateAmountLabel(){ let type=document.getElementById('type').value; if(['BTC','ETH','BNB'].includes(type)){ document.getElementById('amountLabel').innerHTML='Quantity (Coins)'; document.getElementById('purchasePrice').parentElement.style.display='flex'; } else { document.getElementById('amountLabel').innerHTML='Amount (BDT)'; document.getElementById('purchasePrice').parentElement.style.display='none'; } }
+function showMonthlyProfitModal(){ document.getElementById('monthlyProfitModal').style.display='flex'; }
+function closeMonthlyModal(){ document.getElementById('monthlyProfitModal').style.display='none'; }
+async function saveMonthlyProfit(){ let profit=parseFloat(document.getElementById('monthlyProfitAmount').value); if(isNaN(profit)) return alert("Enter profit amount"); let month=document.getElementById('profitMonth').value||new Date().toISOString().slice(0,7); let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); history.push({ profit, date:month, platform:"Islami Bank MMPDA", type:"Monthly Profit" }); localStorage.setItem("withdraw_history_firebase",JSON.stringify(history)); if(db) await db.collection("withdrawals").add({ profit, date:month, platform:"Islami Bank MMPDA", type:"Monthly Profit" }); showToast(`MMPDA Profit ${profit} BDT added!`); renderWithdrawHistory(); closeMonthlyModal(); document.getElementById('monthlyProfitAmount').value=''; }
+function exportToCSV(){ let headers=['Platform','Type','Amount BDT','Expected Profit','Actual Profit','Status','Start']; let rows=investments.map(i=>[i.platform,i.type,i.amountBDT||i.amount,i.expectedProfit||0,i.actualProfit||0,i.status,i.start]); let csv=[headers,...rows].map(r=>r.join(',')).join('\n'); let blob=new Blob(["\uFEFF"+csv],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`wealth_${new Date().toISOString().slice(0,10)}.csv`; a.click(); showToast("CSV Exported"); }
+function requestNotificationPermission(){ if('Notification' in window) Notification.requestPermission().then(p=>{notificationPermission=p==='granted'; showToast(p==='granted'?"Notifications on":"Denied");}); }
 
-function convertToCSV(data) {
-const headers = Object.keys(data[0]);
-const rows = data.map(obj => headers.map(header => JSON.stringify(obj[header] || '')).join(','));
-return [headers.join(','), ...rows].join('\n');
-}
-
-// ========== BACKUP & RESTORE ==========
-function backupData() {
-const backup = {
-investments: investments,
-exchangeRate: USD_TO_BDT,
-date: new Date().toISOString(),
-version: '1.0'
-};
-const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `wealth_backup_${new Date().toISOString().slice(0,10)}.json`;
-a.click();
-URL.revokeObjectURL(url);
-showToast("ব্যাকআপ নেওয়া হয়েছে!");
-}
-
-function restoreData() {
-const input = document.createElement('input');
-input.type = 'file';
-input.accept = '.json';
-input.onchange = function(e) {
-const file = e.target.files[0];
-const reader = new FileReader();
-reader.onload = function(evt) {
-try {
-const backup = JSON.parse(evt.target.result);
-if (backup.investments) {
-investments = backup.investments;
-syncInvestmentsToFirestore();
-renderAll();
-showToast("ডাটা রিস্টোর সম্পন্ন!");
-} else {
-showToast("ইনভালিড ব্যাকআপ ফাইল!", true);
-}
-} catch(err) {
-showToast("এরর: ইনভালিড ফাইল!", true);
-}
-};
-reader.readAsText(file);
-};
-input.click();
-}
-
-// ========== COMPOUND INTEREST CALCULATOR ==========
-function showCompoundCalculator() {
-document.getElementById('compoundModal').style.display = 'flex';
-}
-
-function calculateCompound() {
-const principal = parseFloat(document.getElementById('compoundPrincipal').value);
-const rate = parseFloat(document.getElementById('compoundRate').value);
-const years = parseFloat(document.getElementById('compoundYears').value);
-
-if (isNaN(principal) || isNaN(rate) || isNaN(years)) {
-showToast("সব ফিল্ড পূরণ করুন!", true);
-return;
-}
-
-const amount = principal * Math.pow((1 + rate / 100), years);
-const profit = amount - principal;
-
-document.getElementById('compoundResult').innerHTML = `
-<strong>ফলাফল:</strong><br>
-মোট টাকা: ${formatNumber(amount)} BDT<br>
-মুনাফা: ${formatNumber(profit)} BDT<br>
-রিটার্ন: ${((profit / principal) * 100).toFixed(2)}%
-`;
-}
-
-// ========== TAX CALCULATOR ==========
-function showTaxCalculator() {
-document.getElementById('taxModal').style.display = 'flex';
-}
-
-function calculateTax() {
-const profit = parseFloat(document.getElementById('taxProfit').value);
-const rate = parseFloat(document.getElementById('taxRate').value);
-
-if (isNaN(profit)) {
-showToast("লাভের পরিমাণ দিন!", true);
-return;
-}
-
-const tax = profit * rate / 100;
-const netProfit = profit - tax;
-
-document.getElementById('taxResult').innerHTML = `
-<strong>ট্যাক্স ক্যালকুলেশন:</strong><br>
-মোট লাভ: ${formatNumber(profit)} BDT<br>
-ট্যাক্স (${rate}%): ${formatNumber(tax)} BDT<br>
-নেট লাভ: ${formatNumber(netProfit)} BDT
-`;
-}
-
-// ========== CURRENCY CONVERTER ==========
-const exchangeRates = {
-USD: 1,
-BDT: 126,
-EUR: 0.92,
-GBP: 0.79,
-AED: 3.67
-};
-
-function showCurrencyConverter() {
-document.getElementById('currencyModal').style.display = 'flex';
-}
-
-function convertCurrency() {
-const amount = parseFloat(document.getElementById('currencyAmount').value);
-const from = document.getElementById('currencyFrom').value;
-const to = document.getElementById('currencyTo').value;
-
-if (isNaN(amount)) {
-showToast("পরিমাণ দিন!", true);
-return;
-}
-
-const inUSD = amount / exchangeRates[from];
-const converted = inUSD * exchangeRates[to];
-
-document.getElementById('currencyResult').innerHTML = `
-${formatNumber(amount)} ${from} = ${formatNumber(converted)} ${to}
-`;
-}
-
-// ========== EMAIL REPORT SETUP ==========
-function setupEmailReport() {
-document.getElementById('emailModal').style.display = 'flex';
-}
-
-function saveEmailReport() {
-const email = document.getElementById('reportEmail').value;
-const frequency = document.getElementById('reportFrequency').value;
-
-if (!email) {
-showToast("ইমেইল দিন!", true);
-return;
-}
-
-localStorage.setItem('report_email', email);
-localStorage.setItem('report_frequency', frequency);
-
-document.getElementById('emailResult').innerHTML = `
-<span style="color: #4ade80;">✅ সেভ হয়েছে! ${frequency === 'weekly' ? 'সাপ্তাহিক' : 'মাসিক'} রিপোর্ট পাঠানো হবে</span>
-`;
-
-setTimeout(() => {
-closeModal('emailModal');
-}, 2000);
-
-showToast("ইমেইল রিপোর্ট সেটআপ সম্পন্ন!");
-}
-
-// ========== PIN LOCK SYSTEM ==========
-let pinCode = localStorage.getItem('user_pin');
-let currentPin = '';
-
-function setupPin() {
-const newPin = prompt("একটি 4-ডিজিটের পিন সেট করুন:");
-if (newPin && newPin.length === 4 && !isNaN(newPin)) {
-localStorage.setItem('user_pin', newPin);
-pinCode = newPin;
-showToast("পিন সেট করা হয়েছে!");
-} else {
-showToast("ভ্যালিড 4-ডিজিট পিন দিন!", true);
-}
-}
-
-function lockApp() {
-if (!pinCode) {
-setupPin();
-return;
-}
-currentPin = '';
-updatePinDots();
-document.getElementById('pinModal').style.display = 'flex';
-document.querySelector('.container').style.opacity = '0.5';
-document.querySelector('.container').style.pointerEvents = 'none';
-}
-
-function updatePinDots() {
-const dots = document.querySelectorAll('.pin-dot');
-dots.forEach((dot, i) => {
-if (i < currentPin.length) {
-dot.classList.add('filled');
-} else {
-dot.classList.remove('filled');
-}
-});
-}
-
-// Pin keypad handler
-document.querySelectorAll('.pin-key').forEach(key => {
-key.addEventListener('click', function() {
-const num = this.getAttribute('data-num');
-if (num === 'clear') {
-currentPin = '';
-} else if (num === 'ok') {
-if (currentPin === pinCode) {
-document.getElementById('pinModal').style.display = 'none';
-document.querySelector('.container').style.opacity = '1';
-document.querySelector('.container').style.pointerEvents = 'auto';
-currentPin = '';
-showToast("আনলক করা হয়েছে!");
-} else if (currentPin.length === 4) {
-showToast("ভুল পিন!", true);
-currentPin = '';
-}
-} else if (currentPin.length < 4) {
-currentPin += num;
-}
-updatePinDots();
-});
-});
-
-// ========== SESSION TIMEOUT ==========
-let sessionTimer;
-function resetSessionTimer() {
-clearTimeout(sessionTimer);
-sessionTimer = setTimeout(() => {
-if (isAdmin) {
-adminLogout();
-showToast("সেশন টাইমআউট! আবার লগইন করুন");
-}
-}, 30 * 60 * 1000); // 30 minutes
-}
-
-// Reset timer on user activity
-['click', 'mousemove', 'keypress'].forEach(event => {
-document.addEventListener(event, resetSessionTimer);
-});
-
-// ========== EXISTING FUNCTIONS (Simplified for brevity) ==========
-let investments = [];
-let isAdmin = false;
-let USD_TO_BDT = 126;
-let db = null;
-let firebaseInitialized = false;
-
-const ADMIN_EMAIL = "ronygp123@gmail.com";
-const ADMIN_PASSWORD = "Tt12345";
-
-const firebaseConfig = {
-apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
-authDomain: "mywealthtracker-b7f62.firebaseapp.com",
-projectId: "mywealthtracker-b7f62",
-storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
-messagingSenderId: "575029483834",
-appId: "1:575029483834:web:4d9927d1c6ed653fff5803"
-};
-
-function formatNumber(num) { if (isNaN(num)) return "0.00"; return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function showToast(msg, isError = false) {
-const toast = document.createElement('div');
-toast.className = 'toast-message';
-toast.style.background = isError ? '#f87171' : '#4ade80';
-toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-bell'}"></i> ${msg}`;
-document.body.appendChild(toast);
-setTimeout(() => toast.remove(), 4000);
-}
-
-function renderAll() {
-const principal = calculateTotalPrincipal();
-document.getElementById('totalPrincipalBDT').innerHTML = formatNumber(principal);
-document.getElementById('goalFill').style.width = Math.min((principal / 300000) * 100, 100) + "%";
-document.getElementById('goalPercent').innerText = Math.min((principal / 300000) * 100, 100).toFixed(1) + "%";
-}
-
-function calculateTotalPrincipal() {
-return investments.reduce((sum, inv) => sum + (inv.amountBDT || inv.amount || 0), 0);
-}
-
-async function adminLogin(email, password) {
-if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) { alert("Wrong credentials!"); return false; }
-isAdmin = true;
-document.getElementById('investmentFormCard').style.display = 'block';
-document.getElementById('loginWidget').style.display = 'none';
-document.getElementById('logoutWidget').style.display = 'block';
-document.getElementById('authDisplay').innerHTML = '<i class="fas fa-user-check"></i> Admin: Taslim Rony';
-showToast("Welcome Taslim Rony!");
-resetSessionTimer();
-return true;
-}
-
-function adminLogout() {
-isAdmin = false;
-document.getElementById('investmentFormCard').style.display = 'none';
-document.getElementById('loginWidget').style.display = 'block';
-document.getElementById('logoutWidget').style.display = 'none';
-document.getElementById('authDisplay').innerHTML = '<i class="fas fa-lock"></i> Read-only Mode';
-showToast("Logged out");
-}
-
-async function addEntry() {
-if (!isAdmin) { alert("Admin login required!"); return; }
-const type = document.getElementById('type').value;
-const amount = parseFloat(document.getElementById('amt').value);
-const startDate = document.getElementById('sDate').value;
-if (!amount || !startDate) { alert("Please fill all fields!"); return; }
-investments.push({
-id: Date.now().toString(),
-platform: document.getElementById('plat').value,
-type: type,
-amount: amount,
-amountBDT: amount,
-status: 'active',
-start: startDate,
-expectedProfit: 0,
-actualProfit: 0
-});
-renderAll();
-showToast(`${type} investment added!`);
-document.getElementById('amt').value = '';
-}
-
-function closeModal(modalId) {
-document.getElementById(modalId).style.display = 'none';
-}
-
-// Initialize
-document.getElementById('loginBtn').onclick = () => adminLogin(document.getElementById('adminEmailInput').value, document.getElementById('adminPassInput').value);
-document.getElementById('logoutBtn').onclick = () => adminLogout();
-document.getElementById('exportCSVBtn').onclick = () => exportToGoogleSheets();
-document.getElementById('enableNotificationsBtn').onclick = () => showToast("Notifications enabled!");
-
-loadExchangeRate();
-document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
-renderAll();
-
-try { if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); firebaseInitialized = true; } } catch(e) { console.log("Firebase optional"); }
-
-// Auto email report check
-if (localStorage.getItem('report_email')) {
-setInterval(() => {
-// In production, this would send actual email
-console.log("Email report would be sent to:", localStorage.getItem('report_email'));
-}, 7 * 24 * 60 * 60 * 1000);
-}
-
-window.toggleTheme = toggleTheme;
-window.toggleFabMenu = toggleFabMenu;
-window.exportToGoogleSheets = exportToGoogleSheets;
-window.downloadPDFReport = downloadPDFReport;
-window.backupData = backupData;
-window.restoreData = restoreData;
-window.showCompoundCalculator = showCompoundCalculator;
-window.calculateCompound = calculateCompound;
-window.showTaxCalculator = showTaxCalculator;
-window.calculateTax = calculateTax;
-window.showCurrencyConverter = showCurrencyConverter;
-window.convertCurrency = convertCurrency;
-window.setupEmailReport = setupEmailReport;
-window.saveEmailReport = saveEmailReport;
-window.setupPin = setupPin;
-window.lockApp = lockApp;
-window.closeModal = closeModal;
-window.addEntry = addEntry;
+document.getElementById('loginBtn').addEventListener('click',adminLogin);
+document.getElementById('logoutBtn').addEventListener('click',adminLogout);
+document.getElementById('exportCSVBtn').addEventListener('click',exportToCSV);
+document.getElementById('enableNotificationsBtn').addEventListener('click',requestNotificationPermission);
+document.getElementById('addMonthlyProfitBtn').addEventListener('click',showMonthlyProfitModal);
+window.addEntry=addEntry; window.withdrawInv=withdrawInv; window.deleteInv=deleteInv; window.openEditModal=openEditModal; window.saveProfitEdit=saveProfitEdit; window.closeModal=closeModal; window.editExchangeRate=editExchangeRate; window.saveExchangeRate=saveExchangeRate; window.closeRateModal=closeRateModal; window.saveMonthlyProfit=saveMonthlyProfit; window.closeMonthlyModal=closeMonthlyModal;
+loadExchangeRate(); document.getElementById('sDate').value=new Date().toISOString().slice(0,10); updateAmountLabel(); let localInv=localStorage.getItem("wealth_realtime"); if(localInv) investments=JSON.parse(localInv); renderAll(); updateCryptoPrices(); setInterval(updateCryptoPrices,8000); if(db) setTimeout(loadAllFirestoreData,500);
 </script>
 </body>
 </html>
