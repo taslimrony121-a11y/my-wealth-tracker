@@ -5,14 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 
-<!-- iOS Home Screen Icon -->
-<link rel="apple-touch-icon" href="new-icon.png">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#facc15">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WTR Pro">
-
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -30,9 +22,6 @@
 --text-sub: #94a3b8;
 --profit-color: #4ade80;
 --loss-color: #f87171;
---btc-color: #f7931a;
---eth-color: #627eea;
---bnb-color: #f3ba2f;
 --usd-color: #10b981;
 }
 
@@ -41,266 +30,362 @@ body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
 .container { max-width: 1200px; margin: 0 auto; }
 
 .app-header {
-background: linear-gradient(135deg, var(--card-bg) 0%, var(--input-bg) 100%);
+background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 border-radius: 20px;
 padding: 20px;
 margin-bottom: 20px;
-border: 1px solid var(--accent);
-position: relative;
-overflow: hidden;
+border: 1px solid #facc15;
 }
-.app-header::before {
-content: '';
-position: absolute;
-top: -50%;
-right: -50%;
-width: 200%;
-height: 200%;
-background: radial-gradient(circle, rgba(250,204,21,0.05) 0%, transparent 70%);
-pointer-events: none;
-}
-.header-top {
-display: flex;
-justify-content: space-between;
-align-items: center;
-flex-wrap: wrap;
-gap: 15px;
-}
-.app-title {
-display: flex;
-align-items: center;
-gap: 12px;
-}
-.app-title h1 {
-font-size: 1.5rem;
-margin: 0;
-background: linear-gradient(135deg, var(--accent) 0%, #ffd966 100%);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
-}
-.owner-badge {
-background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
-padding: 8px 20px;
-border-radius: 40px;
-display: flex;
-align-items: center;
-gap: 10px;
-box-shadow: 0 4px 15px rgba(250,204,21,0.2);
-}
-.owner-badge i, .owner-badge span { color: #000; font-weight: bold; }
-.owner-name { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; }
-.header-stats {
-display: flex;
-gap: 15px;
-background: rgba(15,23,42,0.5);
-padding: 8px 15px;
-border-radius: 40px;
-backdrop-filter: blur(10px);
-}
-.header-stats .stat { font-size: 0.7rem; color: var(--text-sub); }
-.header-stats .stat strong { color: var(--accent); font-size: 0.9rem; }
-.version-tag {
-position: absolute;
-bottom: 10px;
-right: 20px;
-font-size: 0.6rem;
-color: var(--text-sub);
-opacity: 0.5;
-}
-.action-buttons {
-display: flex;
-gap: 10px;
-margin-bottom: 15px;
-flex-wrap: wrap;
-}
-.action-btn {
-background: var(--input-bg);
-border: 1px solid var(--accent);
-color: var(--accent);
-padding: 8px 15px;
-border-radius: 30px;
-font-size: 0.75rem;
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s;
-}
-.action-btn:hover {
-background: var(--accent);
-color: #000;
-}
-.admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap; }
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+.app-title { display: flex; align-items: center; gap: 12px; }
+.app-title h1 { font-size: 1.5rem; background: linear-gradient(135deg, #facc15, #ffd966); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.owner-badge { background: #facc15; padding: 8px 20px; border-radius: 40px; color: #000; font-weight: bold; }
+.version-tag { font-size: 0.7rem; color: #94a3b8; margin-top: 10px; text-align: right; }
+
+.admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
-.admin-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-.login-panel { background: var(--card-bg); padding: 6px 15px; border-radius: 40px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.login-panel input { background: var(--input-bg); border: 1px solid #475569; padding: 6px 12px; border-radius: 30px; color: white; width: 180px; }
-.login-panel .admin-hint { font-size: 0.7rem; color: var(--accent); margin-left: 5px; }
-.goal-card { background: var(--card-bg); border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+.admin-btn { background: #facc15; color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+.login-panel { background: #1e293b; padding: 6px 15px; border-radius: 40px; display: flex; gap: 10px; align-items: center; }
+.login-panel input { background: #0f172a; border: 1px solid #475569; padding: 6px 12px; border-radius: 30px; color: white; width: 180px; }
+
+.action-buttons { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+.action-btn { background: #0f172a; border: 1px solid #facc15; color: #facc15; padding: 8px 15px; border-radius: 30px; font-size: 0.75rem; cursor: pointer; }
+.action-btn:hover { background: #facc15; color: #000; }
+
+.goal-card { background: #1e293b; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
 .progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
-.progress-fill { background: var(--accent); height: 100%; transition: 0.5s; width: 0%; }
+.progress-fill { background: #facc15; height: 100%; width: 0%; }
+
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.stat-card { background: var(--card-bg); border-radius: 15px; padding: 20px; border: 1px solid #334155; position: relative; overflow: hidden; }
-.stat-label { font-size: 0.7rem; color: var(--text-sub); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-.stat-value-bdt { font-size: 2rem; font-weight: 800; margin-top: 5px; color: var(--accent); line-height: 1.2; }
-.stat-value-usd { font-size: 0.85rem; color: var(--usd-color); margin-top: 5px; }
-.stat-sub { font-size: 0.7rem; color: var(--text-sub); margin-top: 8px; }
+.stat-card { background: #1e293b; border-radius: 15px; padding: 20px; border: 1px solid #334155; position: relative; }
+.stat-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.stat-value-bdt { font-size: 1.8rem; font-weight: 800; color: #facc15; margin-top: 5px; }
+.stat-value-usd { font-size: 0.85rem; color: #10b981; margin-top: 5px; }
+.stat-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; }
 .realtime-badge { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: #4ade8033; padding: 3px 8px; border-radius: 20px; }
-.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.crypto-card { background: var(--input-bg); border-radius: 15px; padding: 15px; border-left: 4px solid var(--accent); transition: all 0.3s; }
-.btc-card { border-color: var(--btc-color); }
-.eth-card { border-color: var(--eth-color); }
-.bnb-card { border-color: var(--bnb-color); }
-.crypto-price-usd { font-size: 1.3rem; font-weight: 700; color: var(--text-main); }
-.crypto-price-bdt { font-size: 0.9rem; color: var(--accent); font-weight: 500; }
-.crypto-details { font-size: 0.75rem; margin-top: 10px; color: var(--text-sub); border-top: 1px solid #334155; padding-top: 8px; }
-.crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+.crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.crypto-card { background: #0f172a; border-radius: 15px; padding: 15px; border-left: 4px solid #facc15; }
+.crypto-card.btc-card { border-color: #f7931a; }
+.crypto-card.eth-card { border-color: #627eea; }
+.crypto-card.bnb-card { border-color: #f3ba2f; }
+.crypto-price-usd { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; }
+.crypto-price-bdt { font-size: 0.85rem; color: #facc15; font-weight: 500; margin-top: 3px; }
+.crypto-details { font-size: 0.7rem; margin-top: 10px; color: #94a3b8; border-top: 1px solid #334155; padding-top: 8px; }
+.crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
 .purchase-info { background: rgba(15,23,42,0.5); border-radius: 8px; padding: 6px; margin-top: 8px; font-size: 0.7rem; }
-.card { background: var(--card-bg); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+.purchase-info .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.value-usd { color: #10b981; font-weight: 500; }
+.value-bdt { color: #facc15; font-weight: 500; }
+
+.card { background: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
-.input-group { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 5px; }
-input, select { background: var(--input-bg); border: 1px solid #334155; padding: 10px; border-radius: 8px; color: white; }
-button { border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
-.btn-save { background: var(--accent); color: #000; width: 100%; justify-content: center; margin-top: 10px; }
-.btn-action { background: #334155; color: #fff; font-size: 0.7rem; }
-.btn-withdraw { background: #4ade80; color: #000; font-size: 0.7rem; }
-.btn-delete { background: #f87171; color: #000; font-size: 0.7rem; }
-.btn-edit { background: #facc15; color: #000; font-size: 0.7rem; }
-.btn-mmpda-monthly { background: #10b981; color: #000; font-size: 0.7rem; }
-.platform-box { background: var(--input-bg); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
-.status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 5px; }
+.input-group { flex: 1; min-width: 140px; }
+.input-group label { font-size: 0.7rem; display: block; margin-bottom: 4px; }
+.input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 8px; color: white; }
+.btn-save { background: #facc15; color: #000; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+.platform-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #facc15; }
+.platform-box.completed { border-left-color: #6b7280; opacity: 0.85; }
+.platform-header { font-weight: bold; font-size: 1rem; margin-bottom: 12px; color: #facc15; display: flex; justify-content: space-between; align-items: center; }
+.platform-percent { font-size: 0.75rem; color: #94a3b8; }
+.investment-item { border-bottom: 1px solid #334155; padding: 10px 0; }
+.investment-item:last-child { border-bottom: none; }
+.investment-title { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; }
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
-.status-completed { background: #94a3b822; color: #94a3b8; border: 1px solid #94a3b8; }
-.profit-actual { color: var(--profit-color); }
-.profit-expected { color: var(--text-sub); text-decoration: line-through; }
+.status-completed { background: #6b728022; color: #9ca3af; border: 1px solid #6b7280; }
+.investment-details { font-size: 0.7rem; color: #94a3b8; margin-top: 5px; }
+.investment-actions { display: flex; gap: 5px; }
+.btn-icon { background: #334155; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; }
+.btn-withdraw { background: #4ade80; color: #000; }
+.btn-edit { background: #facc15; color: #000; }
+.btn-delete { background: #f87171; color: #000; }
+
+.charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.gantt-notification { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid #facc15; }
+.gantt-timeline { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
+.timeline-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(15,23,42,0.6); border-radius: 12px; }
+.timeline-item.expiring-today { border-left: 4px solid #ef4444; background: rgba(239,68,68,0.1); }
+.timeline-item.expiring-soon { border-left: 4px solid #f59e0b; background: rgba(245,158,11,0.1); }
+
 .modern-chart-container { background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%); border-radius: 16px; padding: 16px; margin-bottom: 20px; border: 1px solid #334155; }
-.chart-wrapper { position: relative; height: 260px; width: 100%; }
-.toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; animation: slideIn 0.3s ease; }
+.chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.chart-time-range { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.time-btn { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
+.time-btn.active { background: #facc15; color: #000; }
+.chart-wrapper { height: 260px; }
+.chart-stats-cards { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+.stat-card-mini { flex: 1; background: #1e293b; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #334155; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.dot-invested { background: #94a3b8; }
+.dot-current { background: #4ade80; }
+
+.exchange-rate-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; }
+.footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; font-size: 0.7rem; }
+.toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; }
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
-.modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid var(--accent); }
-.footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; color: var(--text-sub); font-size: 0.75rem; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.modal-content { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid #facc15; }
+.platform-legend { margin-top: 15px; font-size: 0.7rem; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.legend-item { display: inline-flex; align-items: center; gap: 5px; background: #0f172a; padding: 4px 10px; border-radius: 20px; }
+.legend-color { width: 12px; height: 12px; border-radius: 2px; }
 </style>
 </head>
 <body>
 <div class="container">
-<div class="app-header"><div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: var(--accent);"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i><span>OWNER</span><span class="owner-name">TASLIM RONY</span><i class="fas fa-check-circle" style="color: #10b981;"></i></div></div><div class="header-stats"><div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div><div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div><div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div></div><div class="version-tag"><i class="fas fa-code-branch"></i> v5.1 | MMPDA Monthly Withdraw | Admin Email Login</div></div>
+<div class="app-header">
+<div class="header-top"><div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: #facc15;"></i><h1>Wealth Tracker Ultra Pro</h1></div><div class="owner-badge"><i class="fas fa-crown"></i> OWNER <strong>TASLIM RONY</strong></div></div>
+<div class="version-tag"><i class="fas fa-code-branch"></i> v7.5 | Smart Alerts | CSV Export | Real-time Crypto</div>
+</div>
 
-<!-- Admin Panel with Email + Password -->
-<div id="adminBar" class="admin-bar">
+<div class="gantt-notification"><div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3></div><div id="timelineContainer" class="gantt-timeline">Loading...</div></div>
+
+<div class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
-<div id="loginWidget">
-<div class="login-panel">
-<input type="email" id="adminEmailInput" placeholder="Admin Email" value="ronygp123@gmail.com" autocomplete="off">
-<input type="password" id="adminPassInput" placeholder="Password" autocomplete="off">
-<button id="loginBtn" class="admin-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
-<div class="admin-hint"><i class="fas fa-info-circle"></i> Use email: ronygp123@gmail.com | Pass: Tt12345</div>
-</div>
-</div>
-<div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+<div id="loginWidget"><div class="login-panel"><input type="password" id="adminPass" placeholder="Password"><button id="loginBtn" class="admin-btn">Login</button></div></div>
+<div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn">Logout</button></div>
 </div>
 
-<div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">126</strong> BDT<button onclick="editExchangeRate()" style="background:none; border:1px solid var(--accent); padding:2px 8px; margin-left:8px; display:inline-flex;"><i class="fas fa-edit"></i> Edit</button><span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto live prices</span></div>
+<div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">122.5</strong> BDT <button onclick="editRate()" style="background:none;border:1px solid #facc15;padding:2px 8px;margin-left:8px;">Edit</button> <span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto prices update every 10 seconds</span></div>
 
 <div class="action-buttons">
-<button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
-<button id="enableNotificationsBtn" class="action-btn"><i class="fas fa-bell"></i> Enable Alerts</button>
+<button id="exportBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
+<button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Withdraw</button>
 </div>
 
-<div class="crypto-grid"><div class="crypto-card btc-card" id="btc-card"><div style="color:var(--btc-color); font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div><div class="crypto-price-usd" id="p-BTC">$0.00</div><div class="crypto-price-bdt" id="p-BTC-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BTC">0</span></div><div id="btc-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card eth-card" id="eth-card"><div style="color:var(--eth-color); font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div><div class="crypto-price-usd" id="p-ETH">$0.00</div><div class="crypto-price-bdt" id="p-ETH-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-ETH">0</span></div><div id="eth-purchase-info" class="purchase-info"></div></div></div><div class="crypto-card bnb-card" id="bnb-card"><div style="color:var(--bnb-color); font-weight:bold;"><i class="fas fa-coins"></i> BNB</div><div class="crypto-price-usd" id="p-BNB">$0.00</div><div class="crypto-price-bdt" id="p-BNB-BDT">0.00 BDT</div><div class="crypto-details"><div class="row"><span class="label">📊 Quantity:</span><span id="q-BNB">0</span></div><div id="bnb-purchase-info" class="purchase-info"></div></div></div></div>
+<!-- Crypto Cards with full details -->
+<div class="crypto-grid">
+<div class="crypto-card btc-card">
+<div style="color:#f7931a; font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
+<div class="crypto-price-usd" id="btcUsd">$0.00</div>
+<div class="crypto-price-bdt" id="btcBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="btcQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="btcValueUsd">$0.00</span> | <span class="value-bdt" id="btcValueBdt">0.00 BDT</span></div>
+<div id="btcPurchaseInfo" class="purchase-info"></div>
+</div>
+</div>
+<div class="crypto-card eth-card">
+<div style="color:#627eea; font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
+<div class="crypto-price-usd" id="ethUsd">$0.00</div>
+<div class="crypto-price-bdt" id="ethBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="ethQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="ethValueUsd">$0.00</span> | <span class="value-bdt" id="ethValueBdt">0.00 BDT</span></div>
+<div id="ethPurchaseInfo" class="purchase-info"></div>
+</div>
+</div>
+<div class="crypto-card bnb-card">
+<div style="color:#f3ba2f; font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
+<div class="crypto-price-usd" id="bnbUsd">$0.00</div>
+<div class="crypto-price-bdt" id="bnbBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="bnbQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="bnbValueUsd">$0.00</span> | <span class="value-bdt" id="bnbValueBdt">0.00 BDT</span></div>
+<div id="bnbPurchaseInfo" class="purchase-info"></div>
+</div>
+</div>
+</div>
 
-<div class="dashboard-grid"><div class="stat-card"><div class="stat-label">💰 Total Invested (Principal)</div><div class="stat-value-bdt"><span id="totalPrincipalBDT">0</span> BDT</div><div class="stat-value-usd">$ <span id="totalPrincipalUSD">0.00</span> USD</div></div><div class="stat-card"><div class="stat-label">📈 Current Portfolio Value</div><div class="stat-value-bdt"><span id="currentValueBDT">0</span> BDT</div><div class="stat-value-usd">$ <span id="currentValueUSD">0.00</span> USD</div><div class="stat-sub" id="profitLossDisplay"></div></div><div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeInvestmentBDT">0</span> BDT</div></div></div>
+<div class="dashboard-grid">
+<div class="stat-card"><div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div><div class="stat-label">💰 Total Invested (Principal)</div><div class="stat-value-bdt"><span id="totalPrincipal">0</span> BDT</div><div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div><div class="stat-sub">📌 This is what you PAID (never changes)</div></div>
+<div class="stat-card"><div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div><div class="stat-label">📈 Current Portfolio Value</div><div class="stat-value-bdt"><span id="currentValue">0</span> BDT</div><div class="stat-value-usd">$ <span id="currentValueUsd">0.00</span> USD</div><div class="stat-sub" id="plDisplay"></div></div>
+<div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeAmount">0</span> BDT</div><div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div></div>
+</div>
 
-<div class="goal-card"><div style="display:flex; justify-content:space-between;"><span>🎯 Target Goal: <strong>300,000 BDT</strong></span><span id="goalPercent">0%</span></div><div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div><small id="goalRem">Remaining: 0 BDT</small></div>
+<div class="goal-card"><div style="display:flex; justify-content:space-between;"><span>🎯 Target Goal: <strong>300,000 BDT</strong></span><span id="goalPercent">0%</span></div><div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div><small id="goalRem"></small></div>
 
-<div id="investmentFormCard" class="card" style="display:none;"><h3><i class="fas fa-plus-circle"></i> Add New Investment</h3><div class="form-row"><div class="input-group"><label>Platform</label><select id="plat"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank (MMPDA)</option><option>Islami Bank (MSSA)</option><option>Other</option></select></div><div class="input-group"><label>Asset Type</label><select id="type" onchange="updateAmountLabel()"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="MMPDA">MMPDA - Islamic Bank (Variable Profit)</option><option value="Agriculture">Agriculture (Fixed)</option><option value="MSSA Installment">MSSA Installment</option><option value="Shop/Business">Shop/Business</option></select></div><div class="input-group"><label id="amountLabel">Amount (BDT)</label><input type="number" id="amt" step="any" placeholder="0.00"></div><div class="input-group"><label>Purchase Price (USD for Crypto)</label><input type="number" id="purchasePrice" step="any" placeholder="Optional"></div><div class="input-group"><label>Expected Annual Profit % (MMPDA)</label><input type="number" id="expectedProfitPercent" value="0" step="any" placeholder="e.g., 8.5%"></div><div class="input-group"><label>Start Date</label><input type="date" id="sDate"></div><div class="input-group"><label>End Date (Maturity)</label><input type="date" id="eDate"></div></div><div class="form-row"><div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div><button class="btn-save" onclick="addEntry()"><i class="fas fa-cloud-upload-alt"></i> Save Investment</button></div><small class="text-sub" style="display:block; margin-top:8px;"><i class="fas fa-info-circle"></i> MMPDA: Add principal amount. Monthly profit will be calculated based on current annual rate. You can withdraw monthly profit using "Monthly MMPDA Withdraw" button.</small></div>
+<div id="formCard" class="card" style="display:none;">
+<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
+<div class="form-row">
+<div class="input-group"><label>Platform</label><select id="platform"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank</option><option>Other</option></select></div>
+<div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="MMPDA">MMPDA</option><option value="Agriculture">Agriculture</option><option value="MSSA">MSSA Installment</option><option value="Business">Shop/Business</option><option value="Gold">Gold</option></select></div>
+<div class="input-group"><label id="amountLabel">Quantity / Amount</label><input type="number" id="amount" step="any" placeholder="0.00"></div>
+<div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="For crypto only"></div>
+</div>
+<div class="form-row">
+<div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0"></div>
+<div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0"></div>
+<div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
+</div>
+<div class="form-row">
+<div class="input-group"><label>Start Date</label><input type="date" id="startDate"></div>
+<div class="input-group"><label>End Date</label><input type="date" id="endDate"></div>
+</div>
+<button class="btn-save" id="saveBtn">Save Investment</button>
+</div>
 
-<div class="modern-chart-container"><div class="chart-wrapper"><canvas id="mainChart"></canvas></div></div>
+<div class="modern-chart-container">
+<div class="chart-header"><div><h3><i class="fas fa-chart-line"></i> Portfolio Growth vs Current Value</h3><p>Real-time portfolio tracking | Live crypto prices</p></div><div><span class="legend-dot dot-invested"></span> Invested (Principal) <span class="legend-dot dot-current"></span> Current Value</div></div>
+<div class="chart-time-range" id="timeRange"><button class="time-btn" data-days="7">7D</button><button class="time-btn" data-days="30">30D</button><button class="time-btn" data-days="90">3M</button><button class="time-btn active" data-days="all">All</button></div>
+<div class="chart-wrapper"><canvas id="growthChart"></canvas></div>
+<div class="chart-stats-cards"><div class="stat-card-mini"><div class="stat-label-mini">Start Value</div><div class="stat-value-mini" id="startValue">$0.00</div></div><div class="stat-card-mini"><div class="stat-label-mini">Current Value</div><div class="stat-value-mini" id="endValue">$0.00</div></div><div class="stat-card-mini"><div class="stat-label-mini">Total Return</div><div class="stat-value-mini" id="changeValue">0%</div></div><div class="stat-card-mini"><div class="stat-label-mini">Period</div><div class="stat-value-mini" id="periodDays">All Time</div></div></div>
+</div>
 
-<div class="charts-grid"><div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><div style="height:200px"><canvas id="platformChart"></canvas></div></div><div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit Realized</h3><div style="height:200px"><canvas id="monthlyChart"></canvas></div></div></div>
+<div class="charts-grid">
+<div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><canvas id="platformChart" style="height:200px;"></canvas><div id="platformLegend" class="platform-legend"></div></div>
+<div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit Realized</h3><canvas id="monthlyChart" style="height:200px;"></canvas></div>
+</div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;"><div class="card"><h2><i class="fas fa-briefcase"></i> Portfolio View</h2><div id="portfolioList"></div></div><div class="card"><h2><i class="fas fa-history"></i> Withdraw / Profit History</h2><div id="withdrawList" style="font-size:0.85rem; max-height:400px; overflow-y:auto;"></div></div></div>
+<div class="card"><h2><i class="fas fa-briefcase"></i> Active Portfolio by Platform</h2><div id="activePortfolio"></div></div>
+<div class="card"><h2><i class="fas fa-check-circle"></i> Completed Projects</h2><div id="completedPortfolio"></div></div>
+<div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
-<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong style="color: var(--accent);">TASLIM RONY</strong> | Admin: ronygp123@gmail.com</p></div></div>
+<div class="footer"><p><i class="fas fa-crown"></i> Developed by <strong>TASLIM RONY</strong> | Founder & CEO | With Ajwa Jannat Dua</p><p>Smart Alerts | CSV Export | Real-time Crypto | Powered by Firebase Cloud</p></div>
+</div>
 
-<div id="editProfitModal" class="modal"><div class="modal-content"><h3><i class="fas fa-edit"></i> Edit Actual Profit (BDT)</h3><div id="editInvestmentInfo"></div><label>Expected Profit: <span id="showExpectedProfit"></span> BDT</label><label>Actual Profit:</label><input type="number" id="editActualProfit" step="any"><div style="display: flex; gap: 10px; margin-top: 15px;"><button onclick="saveProfitEdit()" class="btn-save" style="margin:0;">Save</button><button onclick="closeModal()" class="btn-action">Cancel</button></div></div></div>
-<div id="editRateModal" class="modal"><div class="modal-content"><h3>Edit USD to BDT Rate</h3><input type="number" id="newExchangeRate" step="0.01"><button onclick="saveExchangeRate()" class="btn-save">Save</button></div></div>
-<div id="mmpdaMonthlyModal" class="modal"><div class="modal-content"><h3><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Profit Withdrawal</h3><p>Select MMPDA Investment:</p><select id="mmpdaSelect"></select><p><label>Current Annual Rate (%):</label> <input type="number" id="mmpdaRate" step="0.1" placeholder="e.g., 8.5"></p><p><label>Profit Amount (BDT):</label> <input type="number" id="mmpdaProfitAmount" readonly></p><button onclick="confirmMMPDAWithdraw()" class="btn-save">Withdraw Monthly Profit</button><button onclick="closeMMPDAModal()" class="btn-action">Cancel</button></div></div>
+<div id="editModal" class="modal"><div class="modal-content"><h3>Edit Actual Profit</h3><div id="editInfo"></div><input type="number" id="editProfit" step="any"><button onclick="saveEdit()" class="btn-save">Save</button><button onclick="closeEditModal()">Cancel</button></div></div>
+<div id="rateModal" class="modal"><div class="modal-content"><h3>Edit USD to BDT Rate</h3><input type="number" id="newRate" step="0.01"><button onclick="saveRate()" class="btn-save">Save</button></div></div>
+<div id="mmpdaModal" class="modal"><div class="modal-content"><h3>MMPDA Monthly Withdrawal</h3><select id="mmpdaSelect" style="width:100%;padding:8px;margin:10px 0;"></select><label>Current Annual Rate (%):</label><input type="number" id="mmpdaRate" step="0.1"><label>Monthly Profit (BDT):</label><input type="number" id="mmpdaProfit" readonly><button onclick="confirmMmpda()" class="btn-save">Withdraw Profit</button><button onclick="closeMmpdaModal()">Cancel</button></div></div>
 
 <script>
-const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
-let db = null, isAdmin = false, investments = [], USD_TO_BDT = 126, currentCryptoPrices = { BTC:0, ETH:0, BNB:0 };
-const ADMIN_EMAIL = "ronygp123@gmail.com", ADMIN_PASSWORD = "Tt12345";
-let gChart = null, allChartData = { labels:[], principal:[], current:[] };
+const firebaseConfig = {
+apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
+authDomain: "mywealthtracker-b7f62.firebaseapp.com",
+projectId: "mywealthtracker-b7f62",
+storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
+messagingSenderId: "575029483834",
+appId: "1:575029483834:web:4d9927d1c6ed653fff5803"
+};
 
-function showToast(msg,err=false){ let t=document.createElement('div'); t.className='toast-message'; t.style.background=err?'#f87171':'#4ade80'; t.innerHTML=`<i class="fas ${err?'fa-exclamation-triangle':'fa-bell'}"></i> ${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),4000); }
-function formatNumber(n){ if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function loadExchangeRate(){ let saved=localStorage.getItem("usd_to_bdt_rate"); if(saved) USD_TO_BDT=parseFloat(saved); document.getElementById('exchangeRate').innerText=USD_TO_BDT; }
-function saveExchangeRate(){ let newRate=parseFloat(document.getElementById('newExchangeRate').value); if(newRate>0){ USD_TO_BDT=newRate; localStorage.setItem("usd_to_bdt_rate",USD_TO_BDT); showToast(`Rate updated`); closeRateModal(); renderAll(); } }
-function editExchangeRate(){ document.getElementById('newExchangeRate').value=USD_TO_BDT; document.getElementById('editRateModal').style.display='flex'; }
-function closeRateModal(){ document.getElementById('editRateModal').style.display='none'; }
-function usdToBdt(usd){ return usd*USD_TO_BDT; }
-function bdtToUsd(bdt){ return bdt/USD_TO_BDT; }
+let db = null, isAdmin = false, investments = [], usdToBdt = 122.5, cryptoPrices = { BTC: 66500, ETH: 3500, BNB: 580 };
+let growthChart = null, platformChart = null, monthlyChart = null, currentTimeRange = "all", editId = null;
+const ADMIN_PASSWORD = "Tt12345";
 
-async function adminLogin(email,pass){ if(email===ADMIN_EMAIL && pass===ADMIN_PASSWORD){ isAdmin=true; updateAdminUI(); if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); await loadAllFirestoreData(); showToast("Admin access granted"); renderAll(); } else { alert("Invalid admin credentials!"); } }
-function adminLogout(){ isAdmin=false; updateAdminUI(); renderAll(); showToast("Logged out"); }
-function updateAdminUI(){ let formCard=document.getElementById('investmentFormCard'), loginWidget=document.getElementById('loginWidget'), logoutWidget=document.getElementById('logoutWidget'), authDisplay=document.getElementById('authDisplay'); if(isAdmin){ if(formCard) formCard.style.display='block'; loginWidget.style.display='none'; logoutWidget.style.display='block'; authDisplay.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; } else { if(formCard) formCard.style.display='none'; loginWidget.style.display='block'; logoutWidget.style.display='none'; authDisplay.innerHTML='<i class="fas fa-lock"></i> Read-only Mode'; } }
-async function loadAllFirestoreData(){ if(!db) return; try{ let snap=await db.collection("investments").orderBy("start","desc").get(); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); localStorage.setItem("wealth_realtime",JSON.stringify(investments)); renderAll(); }catch(e){ console.error(e); } }
-async function syncInvestmentsToFirestore(){ if(!isAdmin || !db) { localStorage.setItem("wealth_realtime",JSON.stringify(investments)); renderAll(); return; } try{ for(let inv of investments){ await db.collection("investments").doc(inv.id.toString()).set({...inv,id:inv.id.toString()}); } localStorage.setItem("wealth_realtime",JSON.stringify(investments)); renderAll(); }catch(e){ showToast("Sync error",true); } }
+// Demo data with Binance 13,097.85 BDT
+const demoInvestments = [
+{ id: "1", platform: "Binance", type: "BTC", amount: 0.001184, amountBDT: 9787.85, amountUSD: 79.88, isCrypto: true, purchasePrice: 67444.46, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-15", end: "2025-01-15" },
+{ id: "2", platform: "Binance", type: "BNB", amount: 0.85, amountBDT: 3310, amountUSD: 27.02, isCrypto: true, purchasePrice: 31.79, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-02-10", end: "" },
+{ id: "3", platform: "Wegro", type: "Agriculture", amount: 25000, amountBDT: 25000, amountUSD: 204.08, isCrypto: false, purchasePrice: null, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2024-12-31" },
+{ id: "4", platform: "Biniyog", type: "Shop/Business", amount: 15000, amountBDT: 15000, amountUSD: 122.45, isCrypto: false, purchasePrice: null, expectedProfit: 2500, actualProfit: 0, status: "active", start: "2024-03-01", end: "" },
+{ id: "5", platform: "iFarmer", type: "Agriculture", amount: 10000, amountBDT: 10000, amountUSD: 81.63, isCrypto: false, purchasePrice: null, expectedProfit: 1200, actualProfit: 0, status: "active", start: "2024-02-15", end: "2024-08-15" },
+{ id: "6", platform: "Islami Bank", type: "MMPDA", amount: 100000, amountBDT: 100000, amountUSD: 816.33, isCrypto: false, purchasePrice: null, expectedProfit: 8000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2025-01-01" },
+{ id: "7", platform: "Binance", type: "ETH", amount: 0.05, amountBDT: 21437.5, amountUSD: 175, isCrypto: true, purchasePrice: 3500, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-20", end: "" }
+];
 
-function updateAmountLabel(){ let type=document.getElementById('type').value; if(['BTC','ETH','BNB'].includes(type)){ document.getElementById('amountLabel').innerHTML='Quantity (Coins)'; document.getElementById('purchasePrice').parentElement.style.display='flex'; } else { document.getElementById('amountLabel').innerHTML='Amount (BDT)'; document.getElementById('purchasePrice').parentElement.style.display='none'; } }
+function showToast(msg, err) { let t = document.createElement('div'); t.className = 'toast-message'; t.style.background = err ? '#f87171' : '#4ade80'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+function formatNumber(n) { if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-async function addEntry(){ if(!isAdmin){ alert("Admin login required"); return; }
-let type=document.getElementById('type').value, isCrypto=['BTC','ETH','BNB'].includes(type);
-let amount=parseFloat(document.getElementById('amt').value), purchasePrice=isCrypto?parseFloat(document.getElementById('purchasePrice').value):null;
-if(!amount || !document.getElementById('sDate').value) return alert("Fill required fields");
-let amountBDT, amountUSD, amountDisplay;
-if(isCrypto){ if(!purchasePrice) return alert("Crypto needs purchase price"); amountUSD=amount*purchasePrice; amountBDT=usdToBdt(amountUSD); amountDisplay=`${amount} ${type} @ $${formatNumber(purchasePrice)}`; } else { amountBDT=amount; amountUSD=bdtToUsd(amount); amountDisplay=`${formatNumber(amount)} BDT`; }
-let expectedProfitPercent=parseFloat(document.getElementById('expectedProfitPercent').value)||0;
-let expectedProfit=0; if(type==='MMPDA') expectedProfit=(amountBDT*expectedProfitPercent/100); // annual expected
-let inv={ id:Date.now().toString(), platform:document.getElementById('plat').value, type:type, amount:amount, amountBDT:amountBDT, amountUSD:amountUSD, amountDisplay:amountDisplay, isCrypto:isCrypto, purchasePrice:purchasePrice||null, expectedProfit:expectedProfit, actualProfit:0, status:document.getElementById('status').value, start:document.getElementById('sDate').value, end:document.getElementById('eDate').value, mmpdaAnnualRate:expectedProfitPercent };
-investments.push(inv); await syncInvestmentsToFirestore(); document.getElementById('amt').value=''; document.getElementById('purchasePrice').value=''; document.getElementById('expectedProfitPercent').value=''; renderAll(); showToast(`${type} added: ${amountDisplay}`);
+function loadRate() { let r = localStorage.getItem("usd_rate"); if(r) usdToBdt = parseFloat(r); document.getElementById('exchangeRate').innerText = usdToBdt; }
+function saveRate() { let nr = parseFloat(document.getElementById('newRate').value); if(nr > 0) { usdToBdt = nr; localStorage.setItem("usd_rate", usdToBdt); document.getElementById('exchangeRate').innerText = usdToBdt; closeRateModal(); showToast("Rate updated"); renderAll(); } }
+function editRate() { document.getElementById('newRate').value = usdToBdt; document.getElementById('rateModal').style.display = 'flex'; }
+function closeRateModal() { document.getElementById('rateModal').style.display = 'none'; }
+
+async function adminLogin(pass) { if(pass !== ADMIN_PASSWORD) { showToast("Wrong password!", true); return; } isAdmin = true; updateUI(); if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig); db = firebase.firestore(); await loadData(); showToast("Admin logged in"); renderAll(); }
+function adminLogout() { isAdmin = false; updateUI(); showToast("Logged out"); renderAll(); }
+function updateUI() { let form = document.getElementById('formCard'), login = document.getElementById('loginWidget'), logout = document.getElementById('logoutWidget'), auth = document.getElementById('authDisplay'); if(isAdmin) { form.style.display = 'block'; login.style.display = 'none'; logout.style.display = 'block'; auth.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; } else { form.style.display = 'none'; login.style.display = 'flex'; logout.style.display = 'none'; auth.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode'; } }
+
+async function loadData() { if(!db) return; try { let snap = await db.collection("investments").get(); if(snap.empty) { investments = JSON.parse(JSON.stringify(demoInvestments)); await syncToFirebase(); } else { investments = []; snap.forEach(doc => investments.push({ id: doc.id, ...doc.data() })); } localStorage.setItem("investments_backup", JSON.stringify(investments)); renderAll(); } catch(e) { investments = JSON.parse(JSON.stringify(demoInvestments)); renderAll(); } }
+async function syncToFirebase() { if(!isAdmin || !db) { localStorage.setItem("investments_backup", JSON.stringify(investments)); renderAll(); return; } try { for(let inv of investments) { await db.collection("investments").doc(inv.id.toString()).set({ ...inv, id: inv.id.toString() }); } } catch(e) { showToast("Sync error", true); } }
+
+async function addInvestment() {
+if(!isAdmin) { showToast("Admin required", true); return; }
+let type = document.getElementById('type').value;
+let isCrypto = ['BTC','ETH','BNB'].includes(type);
+let amount = parseFloat(document.getElementById('amount').value);
+let purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+if(!amount || !document.getElementById('startDate').value) { showToast("Fill required fields", true); return; }
+let amountBDT, amountUSD;
+if(isCrypto) { if(!purchasePrice) { showToast("Crypto needs purchase price", true); return; } amountUSD = amount * purchasePrice; amountBDT = amountUSD * usdToBdt; }
+else { amountBDT = amount; amountUSD = amount / usdToBdt; }
+let inv = {
+id: Date.now().toString(), platform: document.getElementById('platform').value, type: type, amount: amount,
+amountBDT: amountBDT, amountUSD: amountUSD, isCrypto: isCrypto, purchasePrice: purchasePrice,
+expectedProfit: parseFloat(document.getElementById('expectedProfit').value) || 0,
+actualProfit: parseFloat(document.getElementById('actualProfit').value) || 0,
+status: document.getElementById('status').value, start: document.getElementById('startDate').value, end: document.getElementById('endDate').value
+};
+investments.push(inv); await syncToFirebase(); renderAll(); showToast(`${type} added`);
 }
 
-async function withdrawInv(id){ if(!isAdmin) return; let inv=investments.find(i=>i.id===id); if(!inv) return; if(inv.type==='MMPDA'){ showToast("Use MMPDA monthly withdrawal button for profit"); return; }
-if(confirm("Mark as completed?")){ inv.status="completed"; let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); history.push({ amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), platform:inv.platform, type:inv.type, isMMPDA:false }); localStorage.setItem("withdraw_history_firebase",JSON.stringify(history)); await syncInvestmentsToFirestore(); renderAll(); showToast("Investment completed"); } }
+function openEdit(id) { let inv = investments.find(i => i.id === id); if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `${inv.type} (${inv.platform})`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editModal').style.display = 'flex'; } }
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+async function saveEdit() { let np = parseFloat(document.getElementById('editProfit').value); let inv = investments.find(i => i.id === editId); if(inv) { inv.actualProfit = np; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Profit updated"); } }
+async function deleteInv(id) { if(!confirm("Delete?")) return; investments = investments.filter(i => i.id !== id); if(db) await db.collection("investments").doc(id.toString()).delete(); renderAll(); showToast("Deleted"); }
+async function markComplete(id) { if(!isAdmin) return; let inv = investments.find(i => i.id === id); if(inv && inv.status === 'active') { inv.status = 'completed'; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10) }); localStorage.setItem("withdraw_history", JSON.stringify(history)); await syncToFirebase(); renderAll(); showToast(`${inv.type} completed`); } }
 
-async function deleteInv(id){ if(!isAdmin) return; if(confirm("Delete permanently?")){ investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("wealth_realtime",JSON.stringify(investments)); renderAll(); showToast("Deleted"); } }
+function updateCryptoPurchaseInfo() {
+['BTC','ETH','BNB'].forEach(coin => {
+let totalQty = 0, totalCostUSD = 0;
+investments.forEach(inv => { if(inv.isCrypto && inv.type === coin && inv.status === 'active' && inv.purchasePrice && inv.amount) { totalQty += inv.amount; totalCostUSD += inv.amount * inv.purchasePrice; } });
+let avgPrice = totalQty > 0 ? totalCostUSD / totalQty : 0;
+let div = document.getElementById(coin.toLowerCase() + 'PurchaseInfo');
+if(div) {
+if(totalQty > 0) { div.innerHTML = `<div class="row"><span>📈 Avg Purchase Price:</span><span class="value-usd">$${formatNumber(avgPrice)}</span> <span class="value-bdt">(${formatNumber(avgPrice * usdToBdt)} BDT)</span></div><div class="row"><span>💵 Total Invested:</span><span class="value-usd">$${formatNumber(totalCostUSD)}</span> <span class="value-bdt">(${formatNumber(totalCostUSD * usdToBdt)} BDT)</span></div><div class="row"><span>📦 Total Quantity:</span><span>${totalQty.toFixed(6)} ${coin}</span></div>`; }
+else { div.innerHTML = '<div class="row"><span>📈 No active holdings</span></div>'; }
+}
+});
+}
 
-function openEditModal(id){ currentEditId=id; let inv=investments.find(i=>i.id===id); document.getElementById('editInvestmentInfo').innerHTML=`${inv.type} (${inv.platform})`; document.getElementById('showExpectedProfit').innerText=formatNumber(inv.expectedProfit||0); document.getElementById('editActualProfit').value=inv.actualProfit||0; document.getElementById('editProfitModal').style.display='flex'; }
-function closeModal(){ document.getElementById('editProfitModal').style.display='none'; }
-async function saveProfitEdit(){ if(!isAdmin) return; let newProfit=parseFloat(document.getElementById('editActualProfit').value); let inv=investments.find(i=>i.id===currentEditId); if(inv){ inv.actualProfit=newProfit; await syncInvestmentsToFirestore(); renderAll(); showToast("Profit updated"); closeModal(); } }
+function renderPortfolioByPlatform() {
+let activeMap = {}, completedMap = {};
+let totalActiveBDT = 0;
+investments.forEach(inv => { if(inv.status === 'active') totalActiveBDT += inv.amountBDT || 0; });
+investments.forEach(inv => { if(inv.status === 'active') { if(!activeMap[inv.platform]) activeMap[inv.platform] = []; activeMap[inv.platform].push(inv); } else { if(!completedMap[inv.platform]) completedMap[inv.platform] = []; completedMap[inv.platform].push(inv); } });
+let activeHtml = '';
+for(let plat of Object.keys(activeMap).sort()) {
+let platTotal = activeMap[plat].reduce((s,i)=>s+(i.amountBDT||0),0);
+let percent = totalActiveBDT > 0 ? (platTotal / totalActiveBDT * 100).toFixed(1) : 0;
+activeHtml += `<div class="platform-box"><div class="platform-header"><span><i class="fas fa-chart-line"></i> ${plat}</span><span class="platform-percent">${formatNumber(platTotal)} BDT (${percent}%)</span></div>`;
+for(let inv of activeMap[plat]) {
+let displayAmount = inv.isCrypto ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}` : `${formatNumber(inv.amountBDT)} BDT`;
+let currentHtml = '';
+if(inv.isCrypto && cryptoPrices[inv.type]) { let currVal = inv.amount * cryptoPrices[inv.type] * usdToBdt; let pl = currVal - inv.amountBDT; currentHtml = `<div class="investment-details">📊 Current: <span class="value-usd">$${formatNumber(currVal / usdToBdt)}</span> | <span class="value-bdt">${formatNumber(currVal)} BDT</span> (${pl>=0?'+':''}${formatNumber(pl)} BDT)</div>`; }
+activeHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-active">Active</span></div><div class="investment-actions"><button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')">Complete</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Invested: ${displayAmount}</div>${currentHtml}<div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''} | Expected: ${formatNumber(inv.expectedProfit)} BDT | Actual: ${formatNumber(inv.actualProfit)} BDT</div></div>`;
+}
+activeHtml += `</div>`;
+}
+if(Object.keys(activeMap).length === 0) activeHtml = '<div style="text-align:center;padding:20px;">No active investments</div>';
+let completedHtml = '';
+for(let plat of Object.keys(completedMap).sort()) {
+completedHtml += `<div class="platform-box completed"><div class="platform-header completed-header"><i class="fas fa-archive"></i> ${plat}</div>`;
+for(let inv of completedMap[plat]) {
+let displayAmount = inv.isCrypto ? `${inv.amount} ${inv.type}` : `${formatNumber(inv.amountBDT)} BDT`;
+completedHtml += `<div class="investment-item"><div class="investment-title"><div><strong>${inv.type}</strong> <span class="status-badge status-completed">Completed</span></div><div class="investment-actions"><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')">Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')">Del</button></div></div><div class="investment-details">💰 Amount: ${displayAmount}</div><div class="investment-details">📅 ${inv.start} ${inv.end ? '→ '+inv.end : ''}</div></div>`;
+}
+completedHtml += `</div>`;
+}
+if(Object.keys(completedMap).length === 0) completedHtml = '<div style="text-align:center;padding:20px;">No completed projects</div>';
+document.getElementById('activePortfolio').innerHTML = activeHtml;
+document.getElementById('completedPortfolio').innerHTML = completedHtml;
+}
 
-function calculateTotalPrincipal(){ let totalBDT=0; investments.forEach(inv=>{ if(inv.isCrypto && inv.amountUSD) totalBDT+=usdToBdt(inv.amountUSD); else if(inv.amountBDT) totalBDT+=inv.amountBDT; else if(inv.amount) totalBDT+=inv.amount; }); return {bdt:totalBDT, usd:bdtToUsd(totalBDT)}; }
-function calculateCurrentPortfolioValue(){ let totalBDT=0; investments.forEach(inv=>{ if(inv.status==='active'){ if(inv.isCrypto && currentCryptoPrices[inv.type]) totalBDT+=usdToBdt(inv.amount*currentCryptoPrices[inv.type]); else if(inv.amountBDT) totalBDT+=inv.amountBDT; } }); return {bdt:totalBDT, usd:bdtToUsd(totalBDT)}; }
+function renderHistory() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let html = ''; history.slice().reverse().forEach(h => { html += `<div style="border-bottom:1px solid #334155;padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT<br><small>${h.date}</small></div>`; }); document.getElementById('historyList').innerHTML = html || '<div>No history</div>'; }
 
-function renderStats(){ let principal=calculateTotalPrincipal(), current=calculateCurrentPortfolioValue(), profitLoss=current.bdt-principal.bdt, percent=principal.bdt>0?(profitLoss/principal.bdt*100):0; document.getElementById('totalPrincipalBDT').innerHTML=formatNumber(principal.bdt); document.getElementById('totalPrincipalUSD').innerHTML=formatNumber(principal.usd); document.getElementById('currentValueBDT').innerHTML=formatNumber(current.bdt); document.getElementById('currentValueUSD').innerHTML=formatNumber(current.usd); document.getElementById('profitLossDisplay').innerHTML=`<span style="color:${profitLoss>=0?'#4ade80':'#f87171'}">${profitLoss>=0?'+':''}${formatNumber(profitLoss)} BDT (${profitLoss>=0?'+':''}${percent.toFixed(2)}%)</span>`; let activeBDT=investments.filter(i=>i.status==='active').reduce((sum,i)=>sum+(i.amountBDT||0),0); document.getElementById('activeInvestmentBDT').innerHTML=formatNumber(activeBDT); let progress=Math.min((principal.bdt/300000)*100,100); document.getElementById('goalFill').style.width=progress+"%"; document.getElementById('goalPercent').innerText=progress.toFixed(1)+"%"; document.getElementById('goalRem').innerHTML=`Remaining: ${formatNumber(Math.max(0,300000-principal.bdt))} BDT`; }
+function calcPrincipal() { let total = 0; investments.forEach(i => total += i.amountBDT || 0); return { bdt: total, usd: total/usdToBdt }; }
+function calcCurrent() { let total = 0; investments.forEach(i => { if(i.status === 'active') { if(i.isCrypto && cryptoPrices[i.type]) total += i.amount * cryptoPrices[i.type] * usdToBdt; else total += i.amountBDT || 0; } }); return { bdt: total, usd: total/usdToBdt }; }
 
-function renderPortfolio(){ let container=document.getElementById('portfolioList'); if(investments.length===0){ container.innerHTML='<div>No investments</div>'; return; } let html=''; investments.forEach(i=>{ let isCompleted=i.status==='completed'; let investDisplay=i.isCrypto?`${i.amount} ${i.type} @ $${formatNumber(i.purchasePrice||0)}`:`${formatNumber(i.amountBDT||i.amount)} BDT`; let mmpdaNote=(i.type==='MMPDA' && i.status==='active')?`<br><small class="profit-actual"><i class="fas fa-chart-line"></i> MMPDA Monthly Profit Available (Click Monthly Withdraw)</small>`:''; html+=`<div class="platform-box"><div style="display:flex; justify-content:space-between;"><div><b>${i.type}</b> (${i.platform}) <span class="status-badge ${isCompleted?'status-completed':'status-active'}">${i.status}</span><br>💰 ${investDisplay}<br>📅 ${i.start} ${i.end?`→ ${i.end}`:''}<br>📈 Expected Annual: ${i.mmpdaAnnualRate||0}% | Expected Profit: ${formatNumber(i.expectedProfit||0)} BDT<br>✅ Actual Profit: ${formatNumber(i.actualProfit||0)} BDT${mmpdaNote}</div><div style="display:flex; gap:5px;">${!isCompleted && i.type!=='MMPDA'?`<button class="btn-withdraw" onclick="withdrawInv('${i.id}')"><i class="fas fa-money-bill-wave"></i></button>`:''}<button class="btn-edit" onclick="openEditModal('${i.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete" onclick="deleteInv('${i.id}')"><i class="fas fa-trash-alt"></i></button></div></div></div>`; }); container.innerHTML=html; }
+function renderStats() { let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt, per = p.bdt > 0 ? (pl/p.bdt*100) : 0; document.getElementById('totalPrincipal').innerHTML = formatNumber(p.bdt); document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(p.usd); document.getElementById('currentValue').innerHTML = formatNumber(c.bdt); document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd); document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${pl>=0?'+':''}${per.toFixed(2)}%)</span>`; let activeBDT = investments.filter(i=>i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0); document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT); document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`; let prog = Math.min((p.bdt/300000)*100,100); document.getElementById('goalFill').style.width = prog+"%"; document.getElementById('goalPercent').innerText = prog.toFixed(1)+"%"; document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0,300000-p.bdt))} BDT`; }
 
-function renderWithdrawHistory(){ let container=document.getElementById('withdrawList'); let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); if(history.length===0){ container.innerHTML='<div>No history</div>'; return; } let html=''; history.slice().reverse().forEach(h=>{ html+=`<div style="border-bottom:1px solid #334155; padding:8px 0;"><b>${h.platform} - ${h.type}</b><br>${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT<br><small>${h.date}</small></div>`; }); container.innerHTML=html; }
+function renderProjectGantt() { let container = document.getElementById('timelineContainer'); if(!container) return; let today = new Date(); today.setHours(0,0,0,0); let projects = investments.filter(i => i.end && i.end.trim() !== '' && i.status !== 'completed'); if(projects.length === 0) { container.innerHTML = '<div>No active projects with end date</div>'; return; } let sorted = [...projects].sort((a,b)=>new Date(a.end)-new Date(b.end)); let html = ''; sorted.forEach(proj => { let end = new Date(proj.end); end.setHours(0,0,0,0); let diff = Math.ceil((end - today)/(1000*60*60*24)); if(diff > 30) return; let cls = diff===0 ? 'expiring-today' : (diff<=7 ? 'expiring-soon' : ''); let badge = diff===0 ? 'Expires Today!' : (diff<=7 ? `${diff} days left` : ''); if(!cls) return; html += `<div class="timeline-item ${cls}"><div class="timeline-icon"><i class="fas ${diff===0?'fa-exclamation-circle':'fa-hourglass-half'}"></i></div><div class="timeline-content"><div class="timeline-title">${proj.type} - ${proj.platform}</div><div class="timeline-date">Ends: ${proj.end} | ${badge}</div></div></div>`; }); container.innerHTML = html || '<div>No upcoming expirations</div>'; }
 
-function getMonthlyData(){ let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); let monthly={}; history.forEach(h=>{ let m=h.date.slice(0,7); monthly[m]=(monthly[m]||0)+h.profit; }); return monthly; }
-let mChart,pChart;
-function renderMonthlyChart(){ let ctx=document.getElementById('monthlyChart').getContext('2d'); if(mChart) mChart.destroy(); let dataObj=getMonthlyData(); mChart=new Chart(ctx,{type:'bar',data:{labels:Object.keys(dataObj),datasets:[{label:'Profit (BDT)',data:Object.values(dataObj),backgroundColor:'#4ade80'}]},options:{responsive:true,maintainAspectRatio:false}}); }
-function renderCharts(){ let pCtx=document.getElementById('platformChart').getContext('2d'); if(pChart) pChart.destroy(); let platMap={}; investments.forEach(i=>{ let val=i.amountBDT||i.amount||0; platMap[i.platform]=(platMap[i.platform]||0)+val; }); pChart=new Chart(pCtx,{type:'doughnut',data:{labels:Object.keys(platMap),datasets:[{data:Object.values(platMap),backgroundColor:['#facc15','#4ade80','#627eea','#f87171','#a78bfa']}]},options:{responsive:true}}); renderMonthlyChart(); }
+function renderPlatformChart() { let map = {}; investments.forEach(i => { let val = i.amountBDT || 0; map[i.platform] = (map[i.platform] || 0) + val; }); let ctx = document.getElementById('platformChart').getContext('2d'); if(platformChart) platformChart.destroy(); let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981']; platformChart = new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(map), datasets: [{ data: Object.values(map), backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${formatNumber(ctx.raw)} BDT` } } } } }); let total = calcPrincipal().bdt; let legendHtml = ''; Object.keys(map).forEach((k,i) => { let percent = total > 0 ? ((map[k]/total)*100).toFixed(1) : 0; legendHtml += `<span class="legend-item"><span class="legend-color" style="background:${colors[i%colors.length]}"></span>${k}: ${formatNumber(map[k])} BDT (${percent}%)</span>`; }); document.getElementById('platformLegend').innerHTML = legendHtml || 'No data'; }
 
-async function updateCryptoPrices(){ try{ let res=await fetch('https://api.binance.com/api/v3/ticker/price'); let data=await res.json(); ['BTC','ETH','BNB'].forEach(coin=>{ let found=data.find(p=>p.symbol===coin+'USDT'); let price=found?parseFloat(found.price):0; currentCryptoPrices[coin]=price; let qty=investments.filter(i=>i.type===coin && i.status==='active').reduce((s,i)=>s+i.amount,0); let currentUSD=qty*price; document.getElementById(`p-${coin}`).innerHTML=`$${formatNumber(price)}`; document.getElementById(`p-${coin}-BDT`).innerHTML=`${formatNumber(usdToBdt(price))} BDT`; document.getElementById(`q-${coin}`).innerText=qty.toFixed(6); }); renderStats(); renderPortfolio(); renderCharts(); }catch(e){ console.warn(e); } }
+function renderMonthlyChart() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let monthly = {}; history.forEach(h => { let m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; }); let ctx = document.getElementById('monthlyChart').getContext('2d'); if(monthlyChart) monthlyChart.destroy(); monthlyChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly), datasets: [{ label: 'Profit (BDT)', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: true } }); }
 
-function openMMPDAModal(){ let mmpdaList=investments.filter(i=>i.type==='MMPDA' && i.status==='active'); if(mmpdaList.length===0){ showToast("No active MMPDA investment found",true); return; } let select=document.getElementById('mmpdaSelect'); select.innerHTML=''; mmpdaList.forEach(inv=>{ let option=document.createElement('option'); option.value=inv.id; option.textContent=`${inv.platform} - ${formatNumber(inv.amountBDT)} BDT | Rate: ${inv.mmpdaAnnualRate||0}%`; select.appendChild(option); }); document.getElementById('mmpdaRate').value=''; document.getElementById('mmpdaProfitAmount').value=''; document.getElementById('mmpdaMonthlyModal').style.display='flex'; select.onchange=calculateMMPDAProfit; calculateMMPDAProfit(); }
-function calculateMMPDAProfit(){ let select=document.getElementById('mmpdaSelect'); let inv=investments.find(i=>i.id===select.value); if(inv){ let rate=parseFloat(document.getElementById('mmpdaRate').value); if(isNaN(rate)) rate=inv.mmpdaAnnualRate||0; let monthlyProfit=(inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfitAmount').value=monthlyProfit.toFixed(2); } }
-function confirmMMPDAWithdraw(){ let select=document.getElementById('mmpdaSelect'); let inv=investments.find(i=>i.id===select.value); if(!inv) return; let profit=parseFloat(document.getElementById('mmpdaProfitAmount').value); if(isNaN(profit)||profit<=0){ showToast("Invalid profit amount",true); return; } let history=JSON.parse(localStorage.getItem("withdraw_history_firebase")||"[]"); history.push({ amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), platform:inv.platform, type:`${inv.type} Monthly Profit`, isMMPDA:true }); localStorage.setItem("withdraw_history_firebase",JSON.stringify(history)); inv.actualProfit=(inv.actualProfit||0)+profit; syncInvestmentsToFirestore(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT as MMPDA monthly profit`); closeMMPDAModal(); }
-function closeMMPDAModal(){ document.getElementById('mmpdaMonthlyModal').style.display='none'; }
+async function updateCryptoPrices() { try { let res = await fetch('https://api.binance.com/api/v3/ticker/price'); let data = await res.json(); for(let coin of ['BTC','ETH','BNB']) { let found = data.find(p => p.symbol === coin+'USDT'); if(found) cryptoPrices[coin] = parseFloat(found.price); } for(let coin of ['BTC','ETH','BNB']) { let qty = investments.filter(i => i.type===coin && i.status==='active').reduce((s,i)=>s+i.amount,0); let currentUSD = qty * cryptoPrices[coin]; let currentBDT = currentUSD * usdToBdt; document.getElementById(coin.toLowerCase()+'Usd').innerHTML = `$${formatNumber(cryptoPrices[coin])}`; document.getElementById(coin.toLowerCase()+'Bdt').innerHTML = `${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`; document.getElementById(coin.toLowerCase()+'Qty').innerHTML = qty.toFixed(6); document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML = `$${formatNumber(currentUSD)}`; document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML = `${formatNumber(currentBDT)} BDT`; } updateCryptoPurchaseInfo(); renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); } catch(e) { console.error(e); } }
 
-function renderAll(){ renderStats(); renderPortfolio(); renderCharts(); renderWithdrawHistory(); updateCryptoPrices(); }
+function updateGrowthChart() { let sorted = [...investments.filter(i=>i.status==='active')].sort((a,b)=>new Date(a.start)-new Date(b.start)); let pSum=0, cSum=0, labels=[], principal=[], current=[]; sorted.forEach(i => { if(i.isCrypto && i.amountUSD) pSum += i.amountUSD; else if(i.amountBDT) pSum += i.amountBDT/usdToBdt; principal.push(pSum); labels.push(i.start); if(i.isCrypto && cryptoPrices[i.type]) cSum += i.amount * cryptoPrices[i.type]; else if(i.amountBDT) cSum += i.amountBDT/usdToBdt; current.push(cSum); }); if(currentTimeRange !== "all") { let days = parseInt(currentTimeRange), cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days); let idx = 0; for(let i=0;i<labels.length;i++) { if(new Date(labels[i]) >= cutoff) { idx=i; break; } } labels = labels.slice(idx); principal = principal.slice(idx); current = current.slice(idx); } let startVal = principal[0]||0, endVal = current[current.length-1]||0; let change = startVal>0 ? ((endVal-startVal)/startVal*100) : 0; document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`; document.getElementById('endValue').innerHTML = `$${formatNumber(endVal)}`; document.getElementById('changeValue').innerHTML = `${change>=0?'+':''}${change.toFixed(2)}%`; document.getElementById('periodDays').innerHTML = currentTimeRange==='all'?'All Time':`Last ${currentTimeRange} Days`; let ctx = document.getElementById('growthChart').getContext('2d'); if(growthChart) growthChart.destroy(); growthChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Invested (Principal)', data: principal, borderColor: '#94a3b8', borderDash: [8,4], fill: false, pointRadius: 2 }, { label: 'Current Value', data: current, borderColor: '#4ade80', fill: false, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${formatNumber(ctx.raw)}` } } } } }); }
 
-document.getElementById('loginBtn').addEventListener('click',()=>adminLogin(document.getElementById('adminEmailInput').value,document.getElementById('adminPassInput').value));
-document.getElementById('logoutBtn').addEventListener('click',()=>adminLogout());
-document.getElementById('exportCSVBtn').addEventListener('click',()=>{ let dataStr=JSON.stringify(investments); let blob=new Blob([dataStr],{type:'text/csv'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='portfolio.csv'; a.click(); showToast("Exported"); });
-document.getElementById('enableNotificationsBtn').addEventListener('click',()=>alert("Notifications simulated"));
-window.addEntry=addEntry; window.withdrawInv=withdrawInv; window.deleteInv=deleteInv; window.openEditModal=openEditModal; window.saveProfitEdit=saveProfitEdit; window.closeModal=closeModal; window.updateAmountLabel=updateAmountLabel; window.editExchangeRate=editExchangeRate; window.saveExchangeRate=saveExchangeRate; window.closeRateModal=closeRateModal; window.openMMPDAModal=openMMPDAModal; window.confirmMMPDAWithdraw=confirmMMPDAWithdraw; window.closeMMPDAModal=closeMMPDAModal; window.calculateMMPDAProfit=calculateMMPDAProfit;
-loadExchangeRate(); document.getElementById('sDate').value=new Date().toISOString().slice(0,10); updateAmountLabel(); let localInv=localStorage.getItem("wealth_realtime"); if(localInv) investments=JSON.parse(localInv); renderAll(); setInterval(updateCryptoPrices,8000); if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); loadAllFirestoreData();
-setTimeout(()=>{ let btn=document.createElement('button'); btn.innerHTML='<i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Withdraw'; btn.className='action-btn'; btn.style.background='#10b981'; btn.style.color='#000'; btn.onclick=openMMPDAModal; document.querySelector('.action-buttons').appendChild(btn); },500);
+function openMmpdaModal() { let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active'); if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; } let select = document.getElementById('mmpdaSelect'); select.innerHTML = ''; mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); }); document.getElementById('mmpdaRate').value = ''; document.getElementById('mmpdaProfit').value = ''; select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); }; document.getElementById('mmpdaModal').style.display = 'flex'; }
+function confirmMmpda() { let id = document.getElementById('mmpdaSelect').value; let inv = investments.find(i => i.id === id); let profit = parseFloat(document.getElementById('mmpdaProfit').value); if(!inv || isNaN(profit)) return; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10) }); localStorage.setItem("withdraw_history", JSON.stringify(history)); inv.actualProfit = (inv.actualProfit || 0) + profit; syncToFirebase(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT`); closeMmpdaModal(); }
+function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display = 'none'; }
+function exportCSV() { let headers = ['ID','Platform','Type','Amount BDT','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date']; let rows = investments.map(i => [i.id, i.platform, i.type, i.amountBDT, i.isCrypto, i.purchasePrice, i.expectedProfit, i.actualProfit, i.status, i.start, i.end]); let csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n'); let blob = new Blob(["\uFEFF"+csv], {type:'text/csv'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wealth_${new Date().toISOString().slice(0,10)}.csv`; a.click(); showToast("Exported"); }
+
+function initTimeRange() { document.querySelectorAll('.time-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentTimeRange = this.getAttribute('data-days'); updateGrowthChart(); }); }); }
+function renderAll() { renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
+
+document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
+document.getElementById('logoutBtn').addEventListener('click', adminLogout);
+document.getElementById('saveBtn').addEventListener('click', addInvestment);
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
+window.editRate = editRate; window.saveRate = saveRate; window.closeRateModal = closeRateModal;
+window.openEdit = openEdit; window.saveEdit = saveEdit; window.closeEditModal = closeEditModal;
+window.markComplete = markComplete; window.deleteInv = deleteInv;
+window.confirmMmpda = confirmMmpda; window.closeMmpdaModal = closeMmpdaModal;
+
+loadRate(); document.getElementById('startDate').value = new Date().toISOString().slice(0,10); let backup = localStorage.getItem("investments_backup"); if(backup) investments = JSON.parse(backup); else investments = JSON.parse(JSON.stringify(demoInvestments)); renderAll(); initTimeRange(); setInterval(updateCryptoPrices, 10000); if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig); db = firebase.firestore(); loadData();
 </script>
 </body>
 </html>
