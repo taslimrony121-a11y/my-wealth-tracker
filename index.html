@@ -200,7 +200,7 @@ padding-top: 10px;
 <div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
 <div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
 </div>
-<div class="version-tag"><i class="fas fa-code-branch"></i> v9.0 | Persistent Login | One Line CEO Title</div>
+<div class="version-tag"><i class="fas fa-code-branch"></i> v9.0 | Persistent Login | Admin Protected Actions</div>
 </div>
 
 <div class="gantt-notification"><div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3></div><div id="timelineContainer" class="gantt-timeline">Loading...</div></div>
@@ -299,7 +299,6 @@ padding-top: 10px;
 <div class="card"><h2><i class="fas fa-check-circle"></i> Completed Projects</h2><div id="completedPortfolio"></div></div>
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
-<!-- Updated Footer with proper formatting -->
 <div class="footer">
 <p style="margin: 5px 0;"><i class="fas fa-crown"></i> <strong style="color: var(--accent); font-size: 1rem;">TASLIM RONY</strong> | Founder & CEO</p>
 <p style="margin: 5px 0; font-weight: bold; font-size: 0.9rem; color: var(--accent); letter-spacing: 0.5px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua</p>
@@ -326,7 +325,6 @@ let growthChart = null, platformChart = null, monthlyChart = null, currentTimeRa
 const ADMIN_PASSWORD = "Tt12345";
 const STORAGE_KEY = "wealth_admin_logged_in";
 
-// Check saved login state on page load
 function checkSavedLogin() {
 const savedLogin = localStorage.getItem(STORAGE_KEY);
 if (savedLogin === "true") {
@@ -334,7 +332,6 @@ adminLogin(ADMIN_PASSWORD, true);
 }
 }
 
-// Demo Data
 const demoInvestments = [
 { id: "1", platform: "Binance", type: "BTC", amount: 0.001184, amountBDT: 9787.85, amountUSD: 79.88, isCrypto: true, purchasePrice: 67444.46, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-15", end: "2025-01-15", note: "" },
 { id: "2", platform: "Binance", type: "ETH", amount: 0.05, amountBDT: 2143.75, amountUSD: 17.5, isCrypto: true, purchasePrice: 3500, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-20", end: "", note: "" },
@@ -349,8 +346,8 @@ function showToast(msg, err) { let t = document.createElement('div'); t.classNam
 function formatNumber(n) { if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function loadRate() { let r = localStorage.getItem("usd_rate"); if(r) usdToBdt = parseFloat(r); document.getElementById('exchangeRate').innerText = usdToBdt; }
-function saveRate() { let nr = parseFloat(document.getElementById('newRate').value); if(nr > 0) { usdToBdt = nr; localStorage.setItem("usd_rate", usdToBdt); document.getElementById('exchangeRate').innerText = usdToBdt; closeRateModal(); showToast("Rate updated"); renderAll(); } }
-function editRate() { document.getElementById('newRate').value = usdToBdt; document.getElementById('rateModal').style.display = 'flex'; }
+function saveRate() { if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; } let nr = parseFloat(document.getElementById('newRate').value); if(nr > 0) { usdToBdt = nr; localStorage.setItem("usd_rate", usdToBdt); document.getElementById('exchangeRate').innerText = usdToBdt; closeRateModal(); showToast("Rate updated"); renderAll(); } }
+function editRate() { if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; } document.getElementById('newRate').value = usdToBdt; document.getElementById('rateModal').style.display = 'flex'; }
 function closeRateModal() { document.getElementById('rateModal').style.display = 'none'; }
 
 async function adminLogin(pass, isAuto = false) {
@@ -396,7 +393,7 @@ async function loadData() { if(!db) return; try { let snap = await db.collection
 async function syncToFirebase() { if(!isAdmin || !db) { localStorage.setItem("investments_backup", JSON.stringify(investments)); renderAll(); return; } try { for(let inv of investments) { await db.collection("investments").doc(inv.id.toString()).set({ ...inv, id: inv.id.toString() }); } } catch(e) { showToast("Sync error", true); } }
 
 async function addInvestment() {
-if(!isAdmin) { showToast("Admin required", true); return; }
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
 let type = document.getElementById('type').value;
 let isCrypto = ['BTC','ETH','BNB'].includes(type);
 let amount = parseFloat(document.getElementById('amount').value);
@@ -416,11 +413,39 @@ end: document.getElementById('endDate').value, note: document.getElementById('in
 investments.push(inv); await syncToFirebase(); renderAll(); showToast(`${type} added`); document.getElementById('investmentNote').value = '';
 }
 
-function openEdit(id) { let inv = investments.find(i => i.id === id); if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `<strong>${inv.type}</strong> (${inv.platform})<br>Amount: ${formatNumber(inv.amountBDT)} BDT`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editNote').value = inv.note || ''; document.getElementById('editModal').style.display = 'flex'; } }
+function openEdit(id) {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+let inv = investments.find(i => i.id === id);
+if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `<strong>${inv.type}</strong> (${inv.platform})<br>Amount: ${formatNumber(inv.amountBDT)} BDT`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editNote').value = inv.note || ''; document.getElementById('editModal').style.display = 'flex'; }
+}
 function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-async function saveEdit() { let np = parseFloat(document.getElementById('editProfit').value); let newNote = document.getElementById('editNote').value; let inv = investments.find(i => i.id === editId); if(inv) { inv.actualProfit = np; inv.note = newNote; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Updated"); } }
-async function deleteInv(id) { if(!confirm("Delete?")) return; investments = investments.filter(i => i.id !== id); if(db) await db.collection("investments").doc(id.toString()).delete(); renderAll(); showToast("Deleted"); }
-async function markComplete(id) { if(!isAdmin) return; let inv = investments.find(i => i.id === id); if(inv && inv.status === 'active') { inv.status = 'completed'; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); await syncToFirebase(); renderAll(); showToast(`${inv.type} completed`); } }
+async function saveEdit() {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+let np = parseFloat(document.getElementById('editProfit').value);
+let newNote = document.getElementById('editNote').value;
+let inv = investments.find(i => i.id === editId);
+if(inv) { inv.actualProfit = np; inv.note = newNote; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Updated"); }
+}
+async function deleteInv(id) {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+if(!confirm("Delete?")) return;
+investments = investments.filter(i => i.id !== id);
+if(db) await db.collection("investments").doc(id.toString()).delete();
+renderAll(); showToast("Deleted");
+}
+async function markComplete(id) {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+let inv = investments.find(i => i.id === id);
+if(inv && inv.status === 'active') {
+inv.status = 'completed';
+let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10), note: inv.note || '' });
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+await syncToFirebase();
+renderAll();
+showToast(`${inv.type} completed`);
+}
+}
 
 function updateCryptoPurchaseInfo() {
 ['BTC','ETH','BNB'].forEach(coin => {
@@ -476,7 +501,7 @@ let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note">
 activeHtml += `<div class="investment-item">
 <div class="investment-title">
 <div><span class="investment-name">${inv.type}</span> <span class="status-badge status-active">ACTIVE</span></div>
-<div class="investment-actions"><button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button></div>
+<div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div>
 </div>
 ${investedDisplay}
 ${currentDisplay}
@@ -500,7 +525,7 @@ let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note">
 completedHtml += `<div class="investment-item">
 <div class="investment-title">
 <div><span class="investment-name">${inv.type}</span> <span class="status-badge status-completed">COMPLETED</span></div>
-<div class="investment-actions"><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button></div>
+<div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div>
 </div>
 <span class="investment-details">💰 Amount: ${investedDisplay}</span>
 <span class="investment-details profit-actual">Actual Profit: +${formatNumber(inv.actualProfit)} BDT</span>
@@ -532,10 +557,51 @@ async function updateCryptoPrices() { try { let res = await fetch('https://api.b
 
 function updateGrowthChart() { let sorted = [...investments.filter(i=>i.status==='active')].sort((a,b)=>new Date(a.start)-new Date(b.start)); let pSum=0, cSum=0, labels=[], principal=[], current=[]; sorted.forEach(i => { if(i.isCrypto && i.amountUSD) pSum += i.amountUSD; else if(i.amountBDT) pSum += i.amountBDT/usdToBdt; principal.push(pSum); labels.push(i.start); if(i.isCrypto && cryptoPrices[i.type]) cSum += i.amount * cryptoPrices[i.type]; else if(i.amountBDT) cSum += i.amountBDT/usdToBdt; current.push(cSum); }); if(currentTimeRange !== "all") { let days = parseInt(currentTimeRange), cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days); let idx = 0; for(let i=0;i<labels.length;i++) { if(new Date(labels[i]) >= cutoff) { idx=i; break; } } labels = labels.slice(idx); principal = principal.slice(idx); current = current.slice(idx); } let startVal = principal[0]||0, endVal = current[current.length-1]||0; let change = startVal>0 ? ((endVal-startVal)/startVal*100) : 0; document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`; document.getElementById('endValue').innerHTML = `$${formatNumber(endVal)}`; document.getElementById('changeValue').innerHTML = `${change>=0?'+':''}${change.toFixed(2)}%`; document.getElementById('periodDays').innerHTML = currentTimeRange==='all'?'All Time':`Last ${currentTimeRange} Days`; let ctx = document.getElementById('growthChart').getContext('2d'); if(growthChart) growthChart.destroy(); growthChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Invested (Principal)', data: principal, borderColor: '#94a3b8', borderDash: [8,4], fill: false, pointRadius: 2 }, { label: 'Current Value', data: current, borderColor: '#4ade80', fill: false, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${formatNumber(ctx.raw)}` } } } } }); }
 
-function openMmpdaModal() { let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active'); if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; } let select = document.getElementById('mmpdaSelect'); select.innerHTML = ''; mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); }); document.getElementById('mmpdaRate').value = ''; document.getElementById('mmpdaProfit').value = ''; select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); }; document.getElementById('mmpdaModal').style.display = 'flex'; }
-function confirmMmpda() { let id = document.getElementById('mmpdaSelect').value; let inv = investments.find(i => i.id === id); let profit = parseFloat(document.getElementById('mmpdaProfit').value); if(!inv || isNaN(profit)) return; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); inv.actualProfit = (inv.actualProfit || 0) + profit; syncToFirebase(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT`); closeMmpdaModal(); }
+function openMmpdaModal() {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active');
+if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; }
+let select = document.getElementById('mmpdaSelect');
+select.innerHTML = '';
+mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); });
+document.getElementById('mmpdaRate').value = '';
+document.getElementById('mmpdaProfit').value = '';
+select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); };
+document.getElementById('mmpdaModal').style.display = 'flex';
+}
+function confirmMmpda() {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+let id = document.getElementById('mmpdaSelect').value;
+let inv = investments.find(i => i.id === id);
+let profit = parseFloat(document.getElementById('mmpdaProfit').value);
+if(!inv || isNaN(profit)) return;
+let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10), note: inv.note || '' });
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+inv.actualProfit = (inv.actualProfit || 0) + profit;
+syncToFirebase();
+renderAll();
+showToast(`Withdrawn ${formatNumber(profit)} BDT`);
+closeMmpdaModal();
+}
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display = 'none'; }
-function exportToCSV() { if (investments.length === 0) { showToast("No data to export", true); return; } const headers = ['ID', 'Platform', 'Type', 'Amount', 'Amount BDT', 'Amount USD', 'Is Crypto', 'Purchase Price', 'Expected Profit', 'Actual Profit', 'Status', 'Start Date', 'End Date', 'Note']; const rows = investments.map(inv => [inv.id, inv.platform, inv.type, inv.amount, inv.amountBDT, inv.amountUSD, inv.isCrypto ? 'Yes' : 'No', inv.purchasePrice || '', inv.expectedProfit || 0, inv.actualProfit || 0, inv.status, inv.start, inv.end || '', inv.note || '']); const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n'); const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement('a'); const url = URL.createObjectURL(blob); link.setAttribute('href', url); link.setAttribute('download', `wealth_tracker_${new Date().toISOString().slice(0,10)}.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); showToast("Portfolio exported to CSV!"); }
+function exportToCSV() {
+if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+if (investments.length === 0) { showToast("No data to export", true); return; }
+const headers = ['ID', 'Platform', 'Type', 'Amount', 'Amount BDT', 'Amount USD', 'Is Crypto', 'Purchase Price', 'Expected Profit', 'Actual Profit', 'Status', 'Start Date', 'End Date', 'Note'];
+const rows = investments.map(inv => [inv.id, inv.platform, inv.type, inv.amount, inv.amountBDT, inv.amountUSD, inv.isCrypto ? 'Yes' : 'No', inv.purchasePrice || '', inv.expectedProfit || 0, inv.actualProfit || 0, inv.status, inv.start, inv.end || '', inv.note || '']);
+const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+const link = document.createElement('a');
+const url = URL.createObjectURL(blob);
+link.setAttribute('href', url);
+link.setAttribute('download', `wealth_tracker_${new Date().toISOString().slice(0,10)}.csv`);
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+URL.revokeObjectURL(url);
+showToast("Portfolio exported to CSV!");
+}
 
 function initTimeRange() { document.querySelectorAll('.time-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentTimeRange = this.getAttribute('data-days'); updateGrowthChart(); }); }); }
 function renderAll() { renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
