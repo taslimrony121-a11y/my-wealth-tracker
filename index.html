@@ -1,623 +1,1658 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+
 <title>Taslim Rony - Wealth Tracker Ultra Pro</title>
 
+
+
 <!-- Firebase SDKs -->
+
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+
+
 <style>
+
 :root {
+
 --bg-dark: #0b1120;
+
 --card-bg: #1e293b;
+
 --input-bg: #0f172a;
+
 --accent: #facc15;
+
 --text-main: #e2e8f0;
+
 --text-sub: #94a3b8;
+
 --profit-color: #4ade80;
+
 --loss-color: #f87171;
+
 --usd-color: #10b981;
+
 }
+
+
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
 body { background: var(--bg-dark); color: var(--text-main); padding: 15px; }
+
 .container { max-width: 1200px; margin: 0 auto; }
 
+
+
 .app-header {
+
 background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+
 border-radius: 20px;
+
 padding: 20px;
+
 margin-bottom: 20px;
+
 border: 1px solid #facc15;
+
 }
+
 .header-top {
+
 display: flex;
+
 justify-content: space-between;
+
 align-items: center;
+
 flex-wrap: wrap;
+
 gap: 15px;
+
 }
+
 .app-title {
+
 display: flex;
+
 align-items: center;
+
 gap: 12px;
+
 }
+
 .app-title h1 {
+
 font-size: 1.5rem;
+
 background: linear-gradient(135deg, #facc15, #ffd966);
+
 -webkit-background-clip: text;
+
 -webkit-text-fill-color: transparent;
+
 }
+
 .owner-badge {
+
 background: #facc15;
+
 padding: 8px 20px;
+
 border-radius: 40px;
+
 color: #000;
+
 font-weight: bold;
+
 display: flex;
+
 align-items: center;
+
 gap: 8px;
+
 }
+
 .header-stats {
+
 display: flex;
+
 gap: 20px;
+
 background: rgba(15,23,42,0.5);
+
 padding: 8px 20px;
+
 border-radius: 40px;
+
 backdrop-filter: blur(10px);
+
 margin-top: 15px;
+
 flex-wrap: wrap;
+
 }
+
 .header-stats .stat {
+
 font-size: 0.75rem;
+
 color: #94a3b8;
+
 display: flex;
+
 align-items: center;
+
 gap: 6px;
+
 }
+
 .header-stats .stat strong {
+
 color: #facc15;
+
 font-size: 0.85rem;
+
 }
+
 .version-tag {
+
 font-size: 0.65rem;
+
 color: #94a3b8;
+
 margin-top: 12px;
+
 text-align: right;
+
 border-top: 1px solid #334155;
+
 padding-top: 10px;
+
 }
+
+
 
 .admin-bar { background: #2d3748; padding: 8px 15px; border-radius: 40px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+
 .admin-status { font-size: 0.8rem; background: #0f172a; padding: 5px 12px; border-radius: 20px; }
+
 .admin-btn { background: #facc15; color: #000; border: none; padding: 6px 14px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+
 .login-panel { background: #1e293b; padding: 6px 15px; border-radius: 40px; display: flex; gap: 10px; align-items: center; }
+
 .login-panel input { background: #0f172a; border: 1px solid #475569; padding: 6px 12px; border-radius: 30px; color: white; width: 180px; }
 
+
+
 .action-buttons { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
 .action-btn { background: #0f172a; border: 1px solid #facc15; color: #facc15; padding: 8px 15px; border-radius: 30px; font-size: 0.75rem; cursor: pointer; }
+
 .action-btn:hover { background: #facc15; color: #000; }
 
+
+
 .goal-card { background: #1e293b; border-radius: 15px; padding: 15px; margin-bottom: 20px; border: 1px solid #334155; }
+
 .progress-bg { background: #0f172a; border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
+
 .progress-fill { background: #facc15; height: 100%; width: 0%; }
 
+
+
 .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+
 .stat-card { background: #1e293b; border-radius: 15px; padding: 20px; border: 1px solid #334155; position: relative; }
+
 .stat-label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+
 .stat-value-bdt { font-size: 1.8rem; font-weight: 800; color: #facc15; margin-top: 5px; }
+
 .stat-value-usd { font-size: 0.85rem; color: #10b981; margin-top: 5px; }
+
 .stat-sub { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; }
+
 .realtime-badge { position: absolute; top: 15px; right: 15px; font-size: 0.6rem; background: #4ade8033; padding: 3px 8px; border-radius: 20px; }
 
+.today-change { font-size: 0.85rem; font-weight: bold; margin-top: 8px; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+
+.today-change.positive { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
+
+.today-change.negative { background: #f8717122; color: #f87171; border: 1px solid #f87171; }
+
+
+
 .crypto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 15px; margin-bottom: 20px; }
+
 .crypto-card { background: #0f172a; border-radius: 15px; padding: 15px; border-left: 4px solid #facc15; }
+
 .crypto-card.btc-card { border-color: #f7931a; }
+
 .crypto-card.eth-card { border-color: #627eea; }
+
 .crypto-card.bnb-card { border-color: #f3ba2f; }
+
 .crypto-price-usd { font-size: 1.2rem; font-weight: 700; color: #e2e8f0; }
+
 .crypto-price-bdt { font-size: 0.85rem; color: #facc15; font-weight: 500; margin-top: 3px; }
+
 .crypto-details { font-size: 0.7rem; margin-top: 10px; color: #94a3b8; border-top: 1px solid #334155; padding-top: 8px; }
+
 .crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
 .purchase-info { background: rgba(15,23,42,0.5); border-radius: 8px; padding: 6px; margin-top: 8px; }
+
 .value-usd { color: #10b981; font-weight: 500; }
+
 .value-bdt { color: #facc15; font-weight: 500; }
 
+
+
 .card { background: #1e293b; border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+
 .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+
 .input-group { flex: 1; min-width: 140px; }
+
 .input-group label { font-size: 0.7rem; display: block; margin-bottom: 4px; color: #94a3b8; }
+
 .input-group input, .input-group select, .input-group textarea { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 8px; color: white; }
+
 .input-group textarea { resize: vertical; min-height: 60px; }
+
 .btn-save { background: #facc15; color: #000; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
+
+
 .platform-box { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #facc15; }
+
 .platform-box.completed { border-left-color: #6b7280; opacity: 0.85; }
+
 .platform-header { font-weight: bold; font-size: 1rem; margin-bottom: 12px; color: #facc15; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+
 .platform-percent { font-size: 0.75rem; color: #94a3b8; }
+
 .investment-item { border-bottom: 1px solid #334155; padding: 12px 0; }
+
 .investment-item:last-child { border-bottom: none; }
+
 .investment-title { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+
 .investment-name { font-weight: 600; font-size: 0.9rem; }
+
 .status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
+
 .status-active { background: #4ade8022; color: #4ade80; border: 1px solid #4ade80; }
+
 .status-completed { background: #6b728022; color: #9ca3af; border: 1px solid #6b7280; }
+
 .investment-details { font-size: 0.7rem; color: #94a3b8; margin-top: 6px; line-height: 1.5; }
+
 .investment-details .profit-actual { color: #4ade80; }
+
 .investment-details .profit-expected { color: #94a3b8; text-decoration: line-through; }
+
+.investment-details .profit-diff-negative { color: #f87171; }
+
 .investment-actions { display: flex; gap: 5px; }
+
 .btn-icon { background: #334155; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; }
+
 .btn-withdraw { background: #4ade80; color: #000; }
+
 .btn-edit { background: #facc15; color: #000; }
+
 .btn-delete { background: #f87171; color: #000; }
+
 .note-text { background: #1e293b; padding: 4px 8px; border-radius: 6px; font-size: 0.65rem; color: #a78bfa; margin-top: 4px; display: inline-block; }
 
+
+
 .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+
 .gantt-notification { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid #facc15; }
+
 .gantt-timeline { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
+
 .timeline-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(15,23,42,0.6); border-radius: 12px; }
+
 .timeline-item.expiring-today { border-left: 4px solid #ef4444; background: rgba(239,68,68,0.1); }
+
 .timeline-item.expiring-soon { border-left: 4px solid #f59e0b; background: rgba(245,158,11,0.1); }
 
+
+
 .modern-chart-container { background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%); border-radius: 16px; padding: 16px; margin-bottom: 20px; border: 1px solid #334155; }
+
 .chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+
 .chart-time-range { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+
 .time-btn { background: transparent; border: 1px solid #334155; color: #94a3b8; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
+
 .time-btn.active { background: #facc15; color: #000; }
+
 .chart-wrapper { height: 260px; }
+
 .chart-stats-cards { display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap; }
+
 .stat-card-mini { flex: 1; background: #1e293b; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #334155; }
+
+.stat-card-mini .stat-label-mini { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.stat-card-mini .stat-value-mini { font-size: 1rem; font-weight: 700; margin-top: 5px; }
+
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
 .dot-invested { background: #94a3b8; }
+
 .dot-current { background: #4ade80; }
 
+
+
+/* New Net Worth Chart Styles */
+
+.networth-chart-container {
+
+    background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%);
+
+    border-radius: 16px;
+
+    padding: 16px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid #facc15;
+
+}
+
+.networth-chart-container .chart-header h3 {
+
+    color: #facc15;
+
+}
+
+.networth-chart-container .chart-header p {
+
+    font-size: 0.7rem;
+
+    color: #94a3b8;
+
+}
+
+.networth-chart-wrapper {
+
+    height: 300px;
+
+}
+
+.insight-box {
+
+    background: #1e293b;
+
+    border-radius: 12px;
+
+    padding: 12px;
+
+    margin-top: 15px;
+
+    border-left: 3px solid #facc15;
+
+}
+
+.insight-box p {
+
+    font-size: 0.75rem;
+
+    margin: 5px 0;
+
+}
+
+.insight-box i {
+
+    color: #facc15;
+
+    margin-right: 6px;
+
+}
+
+.networth-stats {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+.networth-stat {
+
+    flex: 1;
+
+    background: rgba(15,23,42,0.6);
+
+    border-radius: 10px;
+
+    padding: 8px;
+
+    text-align: center;
+
+}
+
+.networth-stat .label {
+
+    font-size: 0.6rem;
+
+    color: #94a3b8;
+
+}
+
+.networth-stat .value {
+
+    font-size: 0.9rem;
+
+    font-weight: bold;
+
+    color: #facc15;
+
+}
+
+
+
 .exchange-rate-box { background: #0f172a; padding: 8px; border-radius: 8px; margin-bottom: 10px; text-align: center; font-size: 0.8rem; }
+
 .footer { text-align: center; margin-top: 30px; padding: 20px; border-top: 1px solid #334155; }
+
 .footer p { margin: 5px 0; }
+
 .toast-message { position: fixed; bottom: 20px; right: 20px; background: #4ade80; color: #000; padding: 12px 20px; border-radius: 8px; z-index: 2000; }
+
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+
 .modal-content { background: #1e293b; padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid #facc15; }
+
 .platform-legend { margin-top: 15px; font-size: 0.7rem; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+
 .legend-item { display: inline-flex; align-items: center; gap: 5px; background: #0f172a; padding: 4px 10px; border-radius: 20px; }
+
 .legend-color { width: 12px; height: 12px; border-radius: 2px; }
+
 </style>
+
 </head>
+
 <body>
+
 <div class="container">
+
 <div class="app-header">
+
 <div class="header-top">
+
 <div class="app-title"><i class="fas fa-chart-line" style="font-size: 2rem; color: #facc15;"></i><h1>Wealth Tracker Ultra Pro</h1></div>
+
 <div class="owner-badge"><i class="fas fa-crown"></i> OWNER <strong>TASLIM RONY</strong> <i class="fas fa-check-circle" style="color: #10b981;"></i></div>
+
 </div>
+
 <div class="header-stats">
+
 <div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div>
+
 <div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
+
 <div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
+
 </div>
-<div class="version-tag"><i class="fas fa-code-branch"></i> v9.0 | Persistent Login | Admin Protected Actions</div>
+
+<div class="version-tag"><i class="fas fa-code-branch"></i> v9.1 | 24H Change Tracker | Profit/Loss Color</div>
+
 </div>
+
+
 
 <div class="gantt-notification"><div class="gantt-header"><i class="fas fa-calendar-alt"></i><h3>📅 Project Expiry Tracker</h3></div><div id="timelineContainer" class="gantt-timeline">Loading...</div></div>
 
+
+
 <div class="admin-bar">
+
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
+
 <div id="loginWidget"><div class="login-panel"><input type="password" id="adminPass" placeholder="Password"><button id="loginBtn" class="admin-btn">Login</button></div></div>
+
 <div id="logoutWidget" style="display:none;"><button id="logoutBtn" class="admin-btn">Logout</button></div>
+
 </div>
 
-<div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">122.5</strong> BDT <button onclick="editRate()" style="background:none;border:1px solid #facc15;padding:2px 8px;margin-left:8px;">Edit</button> <span style="margin-left:15px;"><i class="fas fa-clock"></i> Crypto prices update every 10 seconds</span></div>
+
+
+<div class="exchange-rate-box"><i class="fas fa-exchange-alt"></i> 1 USD = <strong id="exchangeRate">122.5</strong> BDT <button onclick="editRate()" style="background:none;border:1px solid #facc15;padding:2px 8px;margin-left:8px;">Edit</button> <span style="margin-left:15px;"><i class="fas fa-clock"></i> Live prices update every 10s | 24H Change updates every 10s</span></div>
+
+
 
 <div class="action-buttons">
+
 <button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
+
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
+
 </div>
+
+
+
+<!-- NEW: Asset Net Worth Trend Chart -->
+
+<div class="networth-chart-container">
+
+    <div class="chart-header">
+
+        <div>
+
+            <h3><i class="fas fa-chart-line" style="color: #facc15;"></i> Asset Net Worth Trend</h3>
+
+            <p>Track your wealth growth over time | Based on investment start dates and current valuations</p>
+
+        </div>
+
+        <div>
+
+            <span class="legend-dot dot-invested"></span> Principal (Invested) 
+
+            <span class="legend-dot dot-current"></span> Current Value (Real-time)
+
+        </div>
+
+    </div>
+
+    <div class="networth-chart-wrapper">
+
+        <canvas id="netWorthChart"></canvas>
+
+    </div>
+
+    <div class="insight-box">
+
+        <p><i class="fas fa-lightbulb"></i> <strong>Wealth Insights:</strong></p>
+
+        <div class="networth-stats">
+
+            <div class="networth-stat">
+
+                <div class="label">📈 Highest Net Worth</div>
+
+                <div class="value" id="highestNetWorth">-</div>
+
+            </div>
+
+            <div class="networth-stat">
+
+                <div class="label">📉 Lowest Net Worth</div>
+
+                <div class="value" id="lowestNetWorth">-</div>
+
+            </div>
+
+            <div class="networth-stat">
+
+                <div class="label">📊 Best Performance</div>
+
+                <div class="value" id="bestPeriod">-</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
 
 <!-- Crypto Cards -->
+
 <div class="crypto-grid">
+
 <div class="crypto-card btc-card">
+
 <div style="color:#f7931a; font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
+
 <div class="crypto-price-usd" id="btcUsd">$0.00</div>
+
 <div class="crypto-price-bdt" id="btcBdt">0.00 BDT</div>
+
 <div class="crypto-details">
+
 <div class="row"><span>📊 Quantity:</span><span id="btcQty">0</span></div>
+
 <div class="row"><span>💰 Current Value:</span><span class="value-usd" id="btcValueUsd">$0.00</span> | <span class="value-bdt" id="btcValueBdt">0.00 BDT</span></div>
+
 <div id="btcPurchaseInfo" class="purchase-info"></div>
-</div>
-</div>
-<div class="crypto-card eth-card">
-<div style="color:#627eea; font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
-<div class="crypto-price-usd" id="ethUsd">$0.00</div>
-<div class="crypto-price-bdt" id="ethBdt">0.00 BDT</div>
-<div class="crypto-details">
-<div class="row"><span>📊 Quantity:</span><span id="ethQty">0</span></div>
-<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="ethValueUsd">$0.00</span> | <span class="value-bdt" id="ethValueBdt">0.00 BDT</span></div>
-<div id="ethPurchaseInfo" class="purchase-info"></div>
-</div>
-</div>
-<div class="crypto-card bnb-card">
-<div style="color:#f3ba2f; font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
-<div class="crypto-price-usd" id="bnbUsd">$0.00</div>
-<div class="crypto-price-bdt" id="bnbBdt">0.00 BDT</div>
-<div class="crypto-details">
-<div class="row"><span>📊 Quantity:</span><span id="bnbQty">0</span></div>
-<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="bnbValueUsd">$0.00</span> | <span class="value-bdt" id="bnbValueBdt">0.00 BDT</span></div>
-<div id="bnbPurchaseInfo" class="purchase-info"></div>
-</div>
-</div>
+
 </div>
 
-<div class="dashboard-grid">
-<div class="stat-card"><div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div><div class="stat-label">💰 Total Invested (Principal)</div><div class="stat-value-bdt"><span id="totalPrincipal">0</span> BDT</div><div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div><div class="stat-sub">📌 This is what you PAID (never changes)</div></div>
-<div class="stat-card"><div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div><div class="stat-label">📈 Current Portfolio Value</div><div class="stat-value-bdt"><span id="currentValue">0</span> BDT</div><div class="stat-value-usd">$ <span id="currentValueUsd">0.00</span> USD</div><div class="stat-sub" id="plDisplay"></div></div>
-<div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeAmount">0</span> BDT</div><div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div></div>
 </div>
+
+<div class="crypto-card eth-card">
+
+<div style="color:#627eea; font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
+
+<div class="crypto-price-usd" id="ethUsd">$0.00</div>
+
+<div class="crypto-price-bdt" id="ethBdt">0.00 BDT</div>
+
+<div class="crypto-details">
+
+<div class="row"><span>📊 Quantity:</span><span id="ethQty">0</span></div>
+
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="ethValueUsd">$0.00</span> | <span class="value-bdt" id="ethValueBdt">0.00 BDT</span></div>
+
+<div id="ethPurchaseInfo" class="purchase-info"></div>
+
+</div>
+
+</div>
+
+<div class="crypto-card bnb-card">
+
+<div style="color:#f3ba2f; font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
+
+<div class="crypto-price-usd" id="bnbUsd">$0.00</div>
+
+<div class="crypto-price-bdt" id="bnbBdt">0.00 BDT</div>
+
+<div class="crypto-details">
+
+<div class="row"><span>📊 Quantity:</span><span id="bnbQty">0</span></div>
+
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="bnbValueUsd">$0.00</span> | <span class="value-bdt" id="bnbValueBdt">0.00 BDT</span></div>
+
+<div id="bnbPurchaseInfo" class="purchase-info"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="dashboard-grid">
+
+<div class="stat-card"><div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div><div class="stat-label">💰 Total Invested (Principal)</div><div class="stat-value-bdt"><span id="totalPrincipal">0</span> BDT</div><div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div><div class="stat-sub">📌 This is what you PAID (never changes)</div></div>
+
+<div class="stat-card"><div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div><div class="stat-label">📈 Current Portfolio Value</div><div class="stat-value-bdt"><span id="currentValue">0</span> BDT</div><div class="stat-value-usd">$ <span id="currentValueUsd">0.00</span> USD</div><div class="stat-sub" id="plDisplay"></div>
+
+<div id="todayChangeDisplay" class="today-change"></div></div>
+
+<div class="stat-card"><div class="stat-label">🎯 Active Investment</div><div class="stat-value-bdt"><span id="activeAmount">0</span> BDT</div><div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div></div>
+
+</div>
+
+
 
 <div class="goal-card"><div style="display:flex; justify-content:space-between;"><span>🎯 Target Goal: <strong>300,000 BDT</strong></span><span id="goalPercent">0%</span></div><div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div><small id="goalRem"></small></div>
 
+
+
 <div id="formCard" class="card" style="display:none;">
+
 <h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
+
 <div class="form-row">
+
 <div class="input-group"><label>Platform</label><select id="platform"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank</option><option>Other</option></select></div>
+
 <div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="MMPDA">MMPDA</option><option value="Agriculture">Agriculture</option><option value="MSSA">MSSA Installment</option><option value="Business">Shop/Business</option><option value="Gold">Gold</option></select></div>
+
 <div class="input-group"><label id="amountLabel">Quantity / Amount</label><input type="number" id="amount" step="any" placeholder="0.00"></div>
+
 <div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="For crypto only"></div>
+
 </div>
+
 <div class="form-row">
+
 <div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0"></div>
+
 <div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0"></div>
+
 <div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div>
+
 </div>
+
 <div class="form-row">
+
 <div class="input-group"><label>Start Date</label><input type="date" id="startDate"></div>
+
 <div class="input-group"><label>End Date</label><input type="date" id="endDate"></div>
+
 </div>
+
 <div class="form-row">
+
 <div class="input-group"><label>📝 Investment Note / Remarks</label><textarea id="investmentNote" rows="2" placeholder="Example: Chardike Limited [2], Reference ID, Project Name etc."></textarea></div>
+
 </div>
+
 <button class="btn-save" id="saveBtn">Save Investment</button>
+
 </div>
+
+
 
 <div class="modern-chart-container">
+
 <div class="chart-header"><div><h3><i class="fas fa-chart-line"></i> Portfolio Growth vs Current Value</h3><p>Real-time portfolio tracking | Live crypto prices</p></div><div><span class="legend-dot dot-invested"></span> Invested (Principal) <span class="legend-dot dot-current"></span> Current Value</div></div>
+
 <div class="chart-time-range" id="timeRange"><button class="time-btn" data-days="7">7D</button><button class="time-btn" data-days="30">30D</button><button class="time-btn" data-days="90">3M</button><button class="time-btn active" data-days="all">All</button></div>
+
 <div class="chart-wrapper"><canvas id="growthChart"></canvas></div>
-<div class="chart-stats-cards"><div class="stat-card-mini"><div class="stat-label-mini">Start Value</div><div class="stat-value-mini" id="startValue">$0.00</div></div><div class="stat-card-mini"><div class="stat-label-mini">Current Value</div><div class="stat-value-mini" id="endValue">$0.00</div></div><div class="stat-card-mini"><div class="stat-label-mini">Total Return</div><div class="stat-value-mini" id="changeValue">0%</div></div><div class="stat-card-mini"><div class="stat-label-mini">Period</div><div class="stat-value-mini" id="periodDays">All Time</div></div></div>
+
+<div class="chart-stats-cards">
+
+    <div class="stat-card-mini"><div class="stat-label-mini"><i class="fas fa-flag-checkered"></i> START VALUE</div><div class="stat-value-mini" id="startValue" style="color: #94a3b8;">$0.00</div></div>
+
+    <div class="stat-card-mini"><div class="stat-label-mini"><i class="fas fa-chart-simple"></i> CURRENT VALUE</div><div class="stat-value-mini" id="endValue" style="color: #4ade80;">$0.00</div></div>
+
+    <div class="stat-card-mini"><div class="stat-label-mini"><i class="fas fa-arrow-trend-up"></i> TOTAL RETURN</div><div class="stat-value-mini" id="changeValue" style="color: #facc15;">0%</div></div>
+
+    <div class="stat-card-mini"><div class="stat-label-mini"><i class="fas fa-calendar-week"></i> PERIOD</div><div class="stat-value-mini" id="periodDays" style="color: #10b981;">All Time</div></div>
+
 </div>
+
+</div>
+
+
 
 <div class="charts-grid">
+
 <div class="card"><h3><i class="fas fa-chart-pie"></i> Platforms Distribution</h3><canvas id="platformChart" style="height:200px;"></canvas><div id="platformLegend" class="platform-legend"></div></div>
+
 <div class="card"><h3><i class="fas fa-chart-bar"></i> Monthly Profit Realized</h3><canvas id="monthlyChart" style="height:200px;"></canvas></div>
+
 </div>
+
+
 
 <div class="card"><h2><i class="fas fa-briefcase"></i> Active Portfolio by Platform</h2><div id="activePortfolio"></div></div>
+
 <div class="card"><h2><i class="fas fa-check-circle"></i> Completed Projects</h2><div id="completedPortfolio"></div></div>
+
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
+
+
 <div class="footer">
-<p style="margin: 5px 0;"><i class="fas fa-crown"></i> <strong style="color: var(--accent); font-size: 1rem;">TASLIM RONY</strong> | Founder & CEO</p>
-<p style="margin: 5px 0; font-weight: bold; font-size: 0.9rem; color: var(--accent); letter-spacing: 0.5px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua</p>
-<p style="font-size: 0.7rem; margin-top: 8px; color: #94a3b8;">Smart Alerts | CSV Export | Real-time Crypto | Investment Notes | Powered by Firebase Cloud</p>
-</div>
+
+    <p><i class="fas fa-crown"></i> <strong style="color: var(--accent);">TASLIM RONY</strong> | Founder & CEO | With Ajwa Jannat Dua</p>
+
+    <p style="font-size: 0.7rem; margin-top: 5px;">Smart Alerts | CSV Export | Real-time Crypto | 24H Change Tracker | Powered by Firebase Cloud</p>
+
 </div>
 
-<div id="editModal" class="modal"><div class="modal-content"><h3>Edit Investment</h3><div id="editInfo"></div><label>Actual Profit (BDT):</label><input type="number" id="editProfit" step="any"><label>Investment Note:</label><textarea id="editNote" rows="2" style="width:100%; background:#0f172a; border:1px solid #334155; padding:8px; border-radius:8px; color:white;"></textarea><button onclick="saveEdit()" class="btn-save" style="margin-top:10px;">Save Changes</button><button onclick="closeEditModal()" style="margin-top:5px;">Cancel</button></div></div>
-<div id="rateModal" class="modal"><div class="modal-content"><h3>Edit USD to BDT Rate</h3><input type="number" id="newRate" step="0.01"><button onclick="saveRate()" class="btn-save">Save</button></div></div>
-<div id="mmpdaModal" class="modal"><div class="modal-content"><h3>MMPDA Monthly Withdrawal</h3><select id="mmpdaSelect" style="width:100%;padding:8px;margin:10px 0;"></select><label>Current Annual Rate (%):</label><input type="number" id="mmpdaRate" step="0.1"><label>Monthly Profit (BDT):</label><input type="number" id="mmpdaProfit" readonly><button onclick="confirmMmpda()" class="btn-save">Withdraw Profit</button><button onclick="closeMmpdaModal()">Cancel</button></div></div>
+</div>
+
+
+
+<div id="editModal" class="modal"><div class="modal-content"><h3>Edit Investment</h3><div id="editInfo"></div><label>Actual Profit (BDT):</label><input type="number" id="editProfit" step="any"><label>Investment Note:</label><textarea id="editNote" rows="2"></textarea><button onclick="saveEdit()" class="btn-save">Save</button><button onclick="closeEditModal()">Cancel</button></div></div>
+
+<div id="rateModal" class="modal"><div class="modal-content"><h3>Edit USD Rate</h3><input type="number" id="newRate"><button onclick="saveRate()" class="btn-save">Save</button></div></div>
+
+<div id="mmpdaModal" class="modal"><div class="modal-content"><h3>MMPDA Monthly Withdrawal</h3><select id="mmpdaSelect"></select><label>Annual Rate (%):</label><input type="number" id="mmpdaRate"><label>Monthly Profit:</label><input type="number" id="mmpdaProfit" readonly><button onclick="confirmMmpda()" class="btn-save">Withdraw</button><button onclick="closeMmpdaModal()">Cancel</button></div></div>
+
+
 
 <script>
+
 const firebaseConfig = {
+
 apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY",
+
 authDomain: "mywealthtracker-b7f62.firebaseapp.com",
+
 projectId: "mywealthtracker-b7f62",
+
 storageBucket: "mywealthtracker-b7f62.firebasestorage.app",
+
 messagingSenderId: "575029483834",
+
 appId: "1:575029483834:web:4d9927d1c6ed653fff5803"
+
 };
 
+
+
 let db = null, isAdmin = false, investments = [], usdToBdt = 122.5, cryptoPrices = { BTC: 66500, ETH: 3500, BNB: 580 };
-let growthChart = null, platformChart = null, monthlyChart = null, currentTimeRange = "all", editId = null;
+
+let growthChart = null, platformChart = null, monthlyChart = null, netWorthChart = null;
+
+let currentTimeRange = "all", editId = null;
+
 const ADMIN_PASSWORD = "Tt12345";
+
 const STORAGE_KEY = "wealth_admin_logged_in";
 
+
+
+// 24 Hour Change Tracking
+
+let lastDayValue = null;
+
+let lastUpdateTime = null;
+
+
+
 function checkSavedLogin() {
-const savedLogin = localStorage.getItem(STORAGE_KEY);
-if (savedLogin === "true") {
-adminLogin(ADMIN_PASSWORD, true);
+
+    if (localStorage.getItem(STORAGE_KEY) === "true") adminLogin(ADMIN_PASSWORD, true);
+
 }
-}
+
+
 
 const demoInvestments = [
+
 { id: "1", platform: "Binance", type: "BTC", amount: 0.001184, amountBDT: 9787.85, amountUSD: 79.88, isCrypto: true, purchasePrice: 67444.46, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-15", end: "2025-01-15", note: "" },
+
 { id: "2", platform: "Binance", type: "ETH", amount: 0.05, amountBDT: 2143.75, amountUSD: 17.5, isCrypto: true, purchasePrice: 3500, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-01-20", end: "", note: "" },
+
 { id: "3", platform: "Binance", type: "BNB", amount: 0.01, amountBDT: 584.42, amountUSD: 4.77, isCrypto: true, purchasePrice: 584.42, expectedProfit: 0, actualProfit: 0, status: "active", start: "2026-04-03", end: "2035-10-03", note: "" },
+
 { id: "4", platform: "Wegro", type: "Agriculture", amount: 40000, amountBDT: 40000, amountUSD: 326.53, isCrypto: false, purchasePrice: null, expectedProfit: 5000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2024-12-31", note: "Organic Farming Project" },
-{ id: "5", platform: "Biniyog", type: "Shop/Business", amount: 15050, amountBDT: 15050, amountUSD: 122.86, isCrypto: false, purchasePrice: null, expectedProfit: 2500, actualProfit: 0, status: "active", start: "2024-03-01", end: "", note: "Chardike Limited [2] - Retail Business" },
-{ id: "6", platform: "iFarmer", type: "Agriculture", amount: 25000, amountBDT: 25000, amountUSD: 204.08, isCrypto: false, purchasePrice: null, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-02-15", end: "2024-08-15", note: "Dairy Farm Project" },
-{ id: "7", platform: "Islami Bank", type: "MSSA", amount: 18000, amountBDT: 18000, amountUSD: 146.94, isCrypto: false, purchasePrice: null, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2025-01-01", note: "Monthly Savings Account" }
+
+{ id: "5", platform: "Biniyog", type: "Shop/Business", amount: 15050, amountBDT: 15050, amountUSD: 122.86, isCrypto: false, purchasePrice: null, expectedProfit: 2500, actualProfit: 0, status: "active", start: "2024-03-01", end: "", note: "Chardike Limited [2]" },
+
+{ id: "6", platform: "iFarmer", type: "Agriculture", amount: 25000, amountBDT: 25000, amountUSD: 204.08, isCrypto: false, purchasePrice: null, expectedProfit: 3000, actualProfit: 0, status: "active", start: "2024-02-15", end: "2024-08-15", note: "Dairy Farm" },
+
+{ id: "7", platform: "Islami Bank", type: "MSSA", amount: 18000, amountBDT: 18000, amountUSD: 146.94, isCrypto: false, purchasePrice: null, expectedProfit: 2000, actualProfit: 0, status: "active", start: "2024-01-01", end: "2025-01-01", note: "Monthly Savings" }
+
 ];
 
+
+
 function showToast(msg, err) { let t = document.createElement('div'); t.className = 'toast-message'; t.style.background = err ? '#f87171' : '#4ade80'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+
 function formatNumber(n) { if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 function loadRate() { let r = localStorage.getItem("usd_rate"); if(r) usdToBdt = parseFloat(r); document.getElementById('exchangeRate').innerText = usdToBdt; }
-function saveRate() { if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; } let nr = parseFloat(document.getElementById('newRate').value); if(nr > 0) { usdToBdt = nr; localStorage.setItem("usd_rate", usdToBdt); document.getElementById('exchangeRate').innerText = usdToBdt; closeRateModal(); showToast("Rate updated"); renderAll(); } }
-function editRate() { if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; } document.getElementById('newRate').value = usdToBdt; document.getElementById('rateModal').style.display = 'flex'; }
+
+function saveRate() { if(!isAdmin) { showToast("Admin login required", true); return; } let nr = parseFloat(document.getElementById('newRate').value); if(nr > 0) { usdToBdt = nr; localStorage.setItem("usd_rate", usdToBdt); document.getElementById('exchangeRate').innerText = usdToBdt; closeRateModal(); showToast("Rate updated"); renderAll(); } }
+
+function editRate() { if(!isAdmin) { showToast("Admin login required", true); return; } document.getElementById('newRate').value = usdToBdt; document.getElementById('rateModal').style.display = 'flex'; }
+
 function closeRateModal() { document.getElementById('rateModal').style.display = 'none'; }
 
-async function adminLogin(pass, isAuto = false) {
-if(pass !== ADMIN_PASSWORD) {
-if(!isAuto) showToast("Wrong password!", true);
-return false;
-}
-isAdmin = true;
-localStorage.setItem(STORAGE_KEY, "true");
-updateUI();
-if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
-db = firebase.firestore();
-await loadData();
-if(!isAuto) showToast("Admin logged in - Session saved");
-renderAll();
-return true;
+
+
+async function adminLogin(pass, isAuto = false) { 
+
+    if(pass !== ADMIN_PASSWORD) { if(!isAuto) showToast("Wrong password!", true); return false; } 
+
+    isAdmin = true; localStorage.setItem(STORAGE_KEY, "true"); updateUI(); 
+
+    if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig); 
+
+    db = firebase.firestore(); await loadData(); 
+
+    if(!isAuto) showToast("Admin logged in - Session saved"); renderAll(); return true; 
+
 }
 
-function adminLogout() {
-isAdmin = false;
-localStorage.removeItem(STORAGE_KEY);
-updateUI();
-showToast("Logged out - Session cleared");
-renderAll();
-}
+function adminLogout() { isAdmin = false; localStorage.removeItem(STORAGE_KEY); updateUI(); showToast("Logged out"); renderAll(); }
 
-function updateUI() {
-let form = document.getElementById('formCard'), login = document.getElementById('loginWidget'), logout = document.getElementById('logoutWidget'), auth = document.getElementById('authDisplay');
-if(isAdmin) {
-form.style.display = 'block';
-login.style.display = 'none';
-logout.style.display = 'block';
-auth.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony';
-} else {
-form.style.display = 'none';
-login.style.display = 'flex';
-logout.style.display = 'none';
-auth.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode';
-}
+function updateUI() { 
+
+    let form = document.getElementById('formCard'), login = document.getElementById('loginWidget'), logout = document.getElementById('logoutWidget'), auth = document.getElementById('authDisplay'); 
+
+    if(isAdmin) { form.style.display = 'block'; login.style.display = 'none'; logout.style.display = 'block'; auth.innerHTML = '<i class="fas fa-user-shield"></i> Admin Mode'; } 
+
+    else { form.style.display = 'none'; login.style.display = 'flex'; logout.style.display = 'none'; auth.innerHTML = '<i class="fas fa-lock"></i> Read-only Mode'; } 
+
 }
 
 async function loadData() { if(!db) return; try { let snap = await db.collection("investments").get(); if(snap.empty) { investments = JSON.parse(JSON.stringify(demoInvestments)); await syncToFirebase(); } else { investments = []; snap.forEach(doc => investments.push({ id: doc.id, ...doc.data() })); } localStorage.setItem("investments_backup", JSON.stringify(investments)); renderAll(); } catch(e) { investments = JSON.parse(JSON.stringify(demoInvestments)); renderAll(); } }
+
 async function syncToFirebase() { if(!isAdmin || !db) { localStorage.setItem("investments_backup", JSON.stringify(investments)); renderAll(); return; } try { for(let inv of investments) { await db.collection("investments").doc(inv.id.toString()).set({ ...inv, id: inv.id.toString() }); } } catch(e) { showToast("Sync error", true); } }
 
+
+
 async function addInvestment() {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
+
+if(!isAdmin) { showToast("Admin login required", true); return; }
+
 let type = document.getElementById('type').value;
+
 let isCrypto = ['BTC','ETH','BNB'].includes(type);
+
 let amount = parseFloat(document.getElementById('amount').value);
+
 let purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+
 if(!amount || !document.getElementById('startDate').value) { showToast("Fill required fields", true); return; }
+
 let amountBDT, amountUSD;
+
 if(isCrypto) { if(!purchasePrice) { showToast("Crypto needs purchase price", true); return; } amountUSD = amount * purchasePrice; amountBDT = amountUSD * usdToBdt; }
+
 else { amountBDT = amount; amountUSD = amount / usdToBdt; }
-let inv = {
-id: Date.now().toString(), platform: document.getElementById('platform').value, type: type, amount: amount,
-amountBDT: amountBDT, amountUSD: amountUSD, isCrypto: isCrypto, purchasePrice: purchasePrice,
-expectedProfit: parseFloat(document.getElementById('expectedProfit').value) || 0,
-actualProfit: parseFloat(document.getElementById('actualProfit').value) || 0,
-status: document.getElementById('status').value, start: document.getElementById('startDate').value,
-end: document.getElementById('endDate').value, note: document.getElementById('investmentNote').value || ""
-};
+
+let inv = { id: Date.now().toString(), platform: document.getElementById('platform').value, type: type, amount: amount, amountBDT: amountBDT, amountUSD: amountUSD, isCrypto: isCrypto, purchasePrice: purchasePrice, expectedProfit: parseFloat(document.getElementById('expectedProfit').value) || 0, actualProfit: parseFloat(document.getElementById('actualProfit').value) || 0, status: document.getElementById('status').value, start: document.getElementById('startDate').value, end: document.getElementById('endDate').value, note: document.getElementById('investmentNote').value || "" };
+
 investments.push(inv); await syncToFirebase(); renderAll(); showToast(`${type} added`); document.getElementById('investmentNote').value = '';
+
 }
 
-function openEdit(id) {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-let inv = investments.find(i => i.id === id);
-if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `<strong>${inv.type}</strong> (${inv.platform})<br>Amount: ${formatNumber(inv.amountBDT)} BDT`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editNote').value = inv.note || ''; document.getElementById('editModal').style.display = 'flex'; }
-}
+function openEdit(id) { if(!isAdmin) { showToast("Admin login required", true); return; } let inv = investments.find(i => i.id === id); if(inv) { editId = id; document.getElementById('editInfo').innerHTML = `<strong>${inv.type}</strong> (${inv.platform})`; document.getElementById('editProfit').value = inv.actualProfit || 0; document.getElementById('editNote').value = inv.note || ''; document.getElementById('editModal').style.display = 'flex'; } }
+
 function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-async function saveEdit() {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-let np = parseFloat(document.getElementById('editProfit').value);
-let newNote = document.getElementById('editNote').value;
-let inv = investments.find(i => i.id === editId);
-if(inv) { inv.actualProfit = np; inv.note = newNote; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Updated"); }
-}
-async function deleteInv(id) {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-if(!confirm("Delete?")) return;
-investments = investments.filter(i => i.id !== id);
-if(db) await db.collection("investments").doc(id.toString()).delete();
-renderAll(); showToast("Deleted");
-}
-async function markComplete(id) {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-let inv = investments.find(i => i.id === id);
-if(inv && inv.status === 'active') {
-inv.status = 'completed';
-let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10), note: inv.note || '' });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-await syncToFirebase();
-renderAll();
-showToast(`${inv.type} completed`);
-}
-}
 
-function updateCryptoPurchaseInfo() {
-['BTC','ETH','BNB'].forEach(coin => {
-let totalQty = 0, totalCostUSD = 0;
-investments.forEach(inv => { if(inv.isCrypto && inv.type === coin && inv.status === 'active' && inv.purchasePrice && inv.amount) { totalQty += inv.amount; totalCostUSD += inv.amount * inv.purchasePrice; } });
-let avgPrice = totalQty > 0 ? totalCostUSD / totalQty : 0;
-let div = document.getElementById(coin.toLowerCase() + 'PurchaseInfo');
-if(div) {
-if(totalQty > 0) { div.innerHTML = `<div class="row"><span>📈 Avg Purchase Price:</span><span class="value-usd">$${formatNumber(avgPrice)}</span> <span class="value-bdt">(${formatNumber(avgPrice * usdToBdt)} BDT)</span></div><div class="row"><span>💵 Total Invested:</span><span class="value-usd">$${formatNumber(totalCostUSD)}</span> <span class="value-bdt">(${formatNumber(totalCostUSD * usdToBdt)} BDT)</span></div><div class="row"><span>📦 Total Quantity:</span><span>${totalQty.toFixed(6)} ${coin}</span></div>`; }
-else { div.innerHTML = '<div class="row"><span>📈 No active holdings</span></div>'; }
-}
-});
-}
+async function saveEdit() { if(!isAdmin) { showToast("Admin login required", true); return; } let np = parseFloat(document.getElementById('editProfit').value); let newNote = document.getElementById('editNote').value; let inv = investments.find(i => i.id === editId); if(inv) { inv.actualProfit = np; inv.note = newNote; await syncToFirebase(); closeEditModal(); renderAll(); showToast("Updated"); } }
+
+async function deleteInv(id) { if(!isAdmin) { showToast("Admin login required", true); return; } if(!confirm("Delete?")) return; investments = investments.filter(i => i.id !== id); if(db) await db.collection("investments").doc(id.toString()).delete(); renderAll(); showToast("Deleted"); }
+
+async function markComplete(id) { if(!isAdmin) { showToast("Admin login required", true); return; } let inv = investments.find(i => i.id === id); if(inv && inv.status === 'active') { inv.status = 'completed'; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: inv.type, amount: inv.amountBDT, profit: inv.actualProfit || 0, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); await syncToFirebase(); renderAll(); showToast(`${inv.type} completed`); } }
+
+
 
 function renderPortfolioByPlatform() {
+
 let activeMap = {}, completedMap = {};
+
 let totalActiveBDT = 0;
+
 investments.forEach(inv => { if(inv.status === 'active') totalActiveBDT += inv.amountBDT || 0; });
+
 investments.forEach(inv => { if(inv.status === 'active') { if(!activeMap[inv.platform]) activeMap[inv.platform] = []; activeMap[inv.platform].push(inv); } else { if(!completedMap[inv.platform]) completedMap[inv.platform] = []; completedMap[inv.platform].push(inv); } });
 
+
+
 let sortedPlatforms = Object.keys(activeMap).sort();
+
 let activeHtml = '';
+
 for(let plat of sortedPlatforms) {
+
 let platTotal = activeMap[plat].reduce((s,i)=>s+(i.amountBDT||0),0);
+
 let percent = totalActiveBDT > 0 ? (platTotal / totalActiveBDT * 100).toFixed(1) : 0;
+
 activeHtml += `<div class="platform-box"><div class="platform-header"><span><i class="fas fa-chart-line"></i> ${plat}</span><span class="platform-percent">${formatNumber(platTotal)} BDT (${percent}%)</span></div>`;
+
 for(let inv of activeMap[plat]) {
+
 let investedDisplay = '';
+
 let currentDisplay = '';
-let expectedDisplay = '';
-let actualDisplay = '';
 
 if(inv.isCrypto) {
+
 let investedUSD = inv.amount * (inv.purchasePrice || 0);
+
 let investedBDT = investedUSD * usdToBdt;
+
 investedDisplay = `<span class="investment-details">💵 Invested: ${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)} = $${formatNumber(investedUSD)} (${formatNumber(investedBDT)} BDT)</span>`;
+
 if(inv.status === 'active' && cryptoPrices[inv.type]) {
+
 let currentUSD = inv.amount * cryptoPrices[inv.type];
+
 let currentBDT = currentUSD * usdToBdt;
+
 let profitLoss = currentBDT - investedBDT;
-let plClass = profitLoss >= 0 ? 'profit-actual' : 'profit-diff-negative';
+
+let plColor = profitLoss >= 0 ? '#4ade80' : '#f87171';
+
 let plSign = profitLoss >= 0 ? '+' : '';
-currentDisplay = `<span class="investment-details ${plClass}">📊 Current: $${formatNumber(currentUSD)} (${formatNumber(currentBDT)} BDT) | ${plSign}${formatNumber(profitLoss)} BDT</span>`;
+
+currentDisplay = `<span class="investment-details">📊 Current: <span style="color:#10b981;">$${formatNumber(currentUSD)}</span> (<span style="color:#facc15;">${formatNumber(currentBDT)} BDT</span>) | <span style="color:${plColor};">${plSign}${formatNumber(profitLoss)} BDT</span></span>`;
+
 }
+
 } else {
+
 investedDisplay = `<span class="investment-details">💵 Invested: ${formatNumber(inv.amountBDT)} BDT ($${formatNumber(inv.amountUSD)})</span>`;
+
 }
-expectedDisplay = `<span class="investment-details profit-expected">Expected: +${formatNumber(inv.expectedProfit)} BDT</span>`;
-actualDisplay = `<span class="investment-details profit-actual">Actual: +${formatNumber(inv.actualProfit)} BDT</span>`;
 
 let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note"></i> ${inv.note}</div>` : '';
 
-activeHtml += `<div class="investment-item">
-<div class="investment-title">
-<div><span class="investment-name">${inv.type}</span> <span class="status-badge status-active">ACTIVE</span></div>
-<div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div>
-</div>
-${investedDisplay}
-${currentDisplay}
-${expectedDisplay}
-${actualDisplay}
-${noteHtml}
-<span class="investment-details">📅 ${inv.start} ${inv.end ? '→ ' + inv.end : ''}</span>
-</div>`;
+activeHtml += `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span> <span class="status-badge status-active">ACTIVE</span></div><div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div></div>${investedDisplay}${currentDisplay}<span class="investment-details profit-expected">Expected: +${formatNumber(inv.expectedProfit)} BDT</span><span class="investment-details profit-actual">Actual: +${formatNumber(inv.actualProfit)} BDT</span>${noteHtml}<span class="investment-details">📅 ${inv.start} ${inv.end ? '→ ' + inv.end : ''}</span></div>`;
+
 }
+
 activeHtml += `</div>`;
+
 }
+
 if(Object.keys(activeMap).length === 0) activeHtml = '<div style="text-align:center;padding:20px;">No active investments</div>';
 
+
+
 let completedHtml = '';
+
 let sortedCompleted = Object.keys(completedMap).sort();
+
 for(let plat of sortedCompleted) {
+
 completedHtml += `<div class="platform-box completed"><div class="platform-header completed-header"><i class="fas fa-archive"></i> ${plat}</div>`;
+
 for(let inv of completedMap[plat]) {
+
 let investedDisplay = inv.isCrypto ? `${inv.amount} ${inv.type} coins @ $${formatNumber(inv.purchasePrice)}` : `${formatNumber(inv.amountBDT)} BDT`;
+
 let noteHtml = inv.note ? `<div class="note-text"><i class="fas fa-sticky-note"></i> ${inv.note}</div>` : '';
-completedHtml += `<div class="investment-item">
-<div class="investment-title">
-<div><span class="investment-name">${inv.type}</span> <span class="status-badge status-completed">COMPLETED</span></div>
-<div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div>
-</div>
-<span class="investment-details">💰 Amount: ${investedDisplay}</span>
-<span class="investment-details profit-actual">Actual Profit: +${formatNumber(inv.actualProfit)} BDT</span>
-${noteHtml}
-<span class="investment-details">📅 ${inv.start} ${inv.end ? '→ ' + inv.end : ''}</span>
-</div>`;
+
+completedHtml += `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span> <span class="status-badge status-completed">COMPLETED</span></div><div class="investment-actions">${isAdmin ? `<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>` : '<span class="note-text">🔒 Login required</span>'}</div></div><span class="investment-details">💰 Amount: ${investedDisplay}</span><span class="investment-details profit-actual">Actual Profit: +${formatNumber(inv.actualProfit)} BDT</span>${noteHtml}<span class="investment-details">📅 ${inv.start} ${inv.end ? '→ ' + inv.end : ''}</span></div>`;
+
 }
+
 completedHtml += `</div>`;
+
 }
+
 if(Object.keys(completedMap).length === 0) completedHtml = '<div style="text-align:center;padding:20px;">No completed projects</div>';
+
 document.getElementById('activePortfolio').innerHTML = activeHtml;
+
 document.getElementById('completedPortfolio').innerHTML = completedHtml;
+
 }
+
+
 
 function renderHistory() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let html = ''; history.slice().reverse().forEach(h => { let noteHtml = h.note ? `<div class="note-text" style="font-size:0.65rem;"><i class="fas fa-sticky-note"></i> ${h.note}</div>` : ''; html += `<div style="border-bottom:1px solid #334155;padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT${noteHtml}<br><small>${h.date}</small></div>`; }); document.getElementById('historyList').innerHTML = html || '<div>No history</div>'; }
 
+
+
 function calcPrincipal() { let total = 0; investments.forEach(i => total += i.amountBDT || 0); return { bdt: total, usd: total/usdToBdt }; }
+
 function calcCurrent() { let total = 0; investments.forEach(i => { if(i.status === 'active') { if(i.isCrypto && cryptoPrices[i.type]) total += i.amount * cryptoPrices[i.type] * usdToBdt; else total += i.amountBDT || 0; } }); return { bdt: total, usd: total/usdToBdt }; }
 
-function renderStats() { let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt, per = p.bdt > 0 ? (pl/p.bdt*100) : 0; document.getElementById('totalPrincipal').innerHTML = formatNumber(p.bdt); document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(p.usd); document.getElementById('currentValue').innerHTML = formatNumber(c.bdt); document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd); document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${pl>=0?'+':''}${per.toFixed(2)}%)</span>`; let activeBDT = investments.filter(i=>i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0); document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT); document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`; let prog = Math.min((p.bdt/300000)*100,100); document.getElementById('goalFill').style.width = prog+"%"; document.getElementById('goalPercent').innerText = prog.toFixed(1)+"%"; document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0,300000-p.bdt))} BDT`; }
+
+
+function renderStats() { 
+
+let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt, per = p.bdt > 0 ? (pl/p.bdt*100) : 0; 
+
+document.getElementById('totalPrincipal').innerHTML = formatNumber(p.bdt); 
+
+document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(p.usd); 
+
+document.getElementById('currentValue').innerHTML = formatNumber(c.bdt); 
+
+document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd); 
+
+document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${pl>=0?'+':''}${per.toFixed(2)}%)</span>`; 
+
+let activeBDT = investments.filter(i=>i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0); 
+
+document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT); 
+
+document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`; 
+
+let prog = Math.min((p.bdt/300000)*100,100); 
+
+document.getElementById('goalFill').style.width = prog+"%"; 
+
+document.getElementById('goalPercent').innerText = prog.toFixed(1)+"%"; 
+
+document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0,300000-p.bdt))} BDT`;
+
+
+
+// 24 Hour Change Calculation and Display
+
+let currentValueBDT = c.bdt;
+
+let now = new Date();
+
+if (lastDayValue === null) {
+
+    lastDayValue = currentValueBDT;
+
+    lastUpdateTime = now;
+
+    localStorage.setItem('lastDayValue', lastDayValue);
+
+    localStorage.setItem('lastUpdateTime', lastUpdateTime.toISOString());
+
+} else {
+
+    let timeDiff = (now - new Date(lastUpdateTime)) / (1000 * 60 * 60);
+
+    if (timeDiff >= 24) {
+
+        lastDayValue = currentValueBDT;
+
+        lastUpdateTime = now;
+
+        localStorage.setItem('lastDayValue', lastDayValue);
+
+        localStorage.setItem('lastUpdateTime', lastUpdateTime.toISOString());
+
+    } else {
+
+        let savedValue = localStorage.getItem('lastDayValue');
+
+        if (savedValue) lastDayValue = parseFloat(savedValue);
+
+    }
+
+}
+
+let change24h = currentValueBDT - lastDayValue;
+
+let change24hPercent = lastDayValue > 0 ? (change24h / lastDayValue * 100) : 0;
+
+let changeElement = document.getElementById('todayChangeDisplay');
+
+if (changeElement) {
+
+    let changeSign = change24h >= 0 ? '+' : '';
+
+    let changeClass = change24h >= 0 ? 'positive' : 'negative';
+
+    changeElement.innerHTML = `<i class="fas ${change24h >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> 24H: ${changeSign}${formatNumber(Math.abs(change24h))} BDT (${changeSign}${change24hPercent.toFixed(2)}%)`;
+
+    changeElement.className = `today-change ${changeClass}`;
+
+}
+
+}
+
+
+
+// NEW: Render Net Worth Trend Chart
+
+function renderNetWorthChart() {
+
+    // Get all active investments sorted by start date
+
+    let activeInvestments = investments.filter(i => i.status === 'active' && i.start).sort((a,b) => new Date(a.start) - new Date(b.start));
+
+    
+
+    if (activeInvestments.length === 0) {
+
+        if (netWorthChart) netWorthChart.destroy();
+
+        document.getElementById('highestNetWorth').innerHTML = 'No Data';
+
+        document.getElementById('lowestNetWorth').innerHTML = 'No Data';
+
+        document.getElementById('bestPeriod').innerHTML = 'No Data';
+
+        return;
+
+    }
+
+
+
+    // Generate timeline from earliest start date to today
+
+    let earliestDate = new Date(activeInvestments[0].start);
+
+    let today = new Date();
+
+    
+
+    // Create monthly data points (or bi-monthly for better granularity)
+
+    let datePoints = [];
+
+    let currentDate = new Date(earliestDate);
+
+    
+
+    while (currentDate <= today) {
+
+        datePoints.push(new Date(currentDate));
+
+        // Add 15 days for smoother graph (or use month intervals)
+
+        currentDate.setDate(currentDate.getDate() + 15);
+
+    }
+
+    
+
+    // Add final point as today
+
+    datePoints.push(new Date(today));
+
+    
+
+    // Calculate net worth at each date point
+
+    let principalData = [];
+
+    let currentData = [];
+
+    let labels = [];
+
+    
+
+    for (let pointDate of datePoints) {
+
+        let principalAtDate = 0;
+
+        let currentAtDate = 0;
+
+        
+
+        for (let inv of activeInvestments) {
+
+            let invStartDate = new Date(inv.start);
+
+            // Only include investments that started on or before this date
+
+            if (invStartDate <= pointDate) {
+
+                // For principal: use the invested amount
+
+                principalAtDate += inv.amountBDT || 0;
+
+                
+
+                // For current value: calculate based on time-weighted growth simulation
+
+                let daysSinceStart = Math.max(0, (pointDate - invStartDate) / (1000 * 60 * 60 * 24));
+
+                let totalDays = 365; // Assume 1 year for full growth
+
+                let growthFactor = Math.min(1, daysSinceStart / totalDays);
+
+                
+
+                if (inv.isCrypto && cryptoPrices[inv.type]) {
+
+                    let investedUSD = inv.amount * (inv.purchasePrice || 0);
+
+                    let currentUSD = inv.amount * cryptoPrices[inv.type];
+
+                    let currentBDT = currentUSD * usdToBdt;
+
+                    currentAtDate += currentBDT;
+
+                } else {
+
+                    // For non-crypto, simulate gradual growth
+
+                    let expectedGrowth = inv.expectedProfit || 0;
+
+                    let simulatedValue = (inv.amountBDT || 0) + (expectedGrowth * growthFactor);
+
+                    currentAtDate += simulatedValue;
+
+                }
+
+            }
+
+        }
+
+        
+
+        // Format label
+
+        let label = pointDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+
+        labels.push(label);
+
+        principalData.push(principalAtDate);
+
+        currentData.push(currentAtDate);
+
+    }
+
+    
+
+    // Calculate insights
+
+    let highestWorth = Math.max(...currentData);
+
+    let lowestWorth = Math.min(...currentData);
+
+    let highestWorthIndex = currentData.indexOf(highestWorth);
+
+    let bestGrowth = ((currentData[currentData.length-1] - principalData[0]) / principalData[0] * 100).toFixed(1);
+
+    
+
+    document.getElementById('highestNetWorth').innerHTML = formatNumber(highestWorth) + ' BDT';
+
+    document.getElementById('lowestNetWorth').innerHTML = formatNumber(lowestWorth) + ' BDT';
+
+    document.getElementById('bestPeriod').innerHTML = bestGrowth + '% growth';
+
+    
+
+    // Create chart
+
+    let ctx = document.getElementById('netWorthChart').getContext('2d');
+
+    if (netWorthChart) netWorthChart.destroy();
+
+    
+
+    netWorthChart = new Chart(ctx, {
+
+        type: 'line',
+
+        data: {
+
+            labels: labels,
+
+            datasets: [
+
+                {
+
+                    label: 'Principal (Invested)',
+
+                    data: principalData,
+
+                    borderColor: '#94a3b8',
+
+                    backgroundColor: 'rgba(148, 163, 184, 0.1)',
+
+                    borderWidth: 2,
+
+                    borderDash: [5, 5],
+
+                    fill: true,
+
+                    tension: 0.3,
+
+                    pointRadius: 2,
+
+                    pointBackgroundColor: '#94a3b8'
+
+                },
+
+                {
+
+                    label: 'Current Value (Real-time)',
+
+                    data: currentData,
+
+                    borderColor: '#4ade80',
+
+                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+
+                    borderWidth: 3,
+
+                    fill: true,
+
+                    tension: 0.3,
+
+                    pointRadius: 3,
+
+                    pointBackgroundColor: '#4ade80',
+
+                    pointBorderColor: '#facc15'
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            let label = context.dataset.label || '';
+
+                            let value = context.raw;
+
+                            return `${label}: ${formatNumber(value)} BDT`;
+
+                        }
+
+                    }
+
+                },
+
+                legend: {
+
+                    position: 'top',
+
+                    labels: { color: '#e2e8f0', font: { size: 11 } }
+
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    grid: { color: '#334155' },
+
+                    title: { display: true, text: 'Amount (BDT)', color: '#94a3b8', font: { size: 10 } },
+
+                    ticks: { 
+
+                        color: '#94a3b8',
+
+                        callback: function(value) { return formatNumber(value); }
+
+                    }
+
+                },
+
+                x: {
+
+                    grid: { color: '#334155' },
+
+                    ticks: { color: '#94a3b8', rotation: 45, maxRotation: 45, autoSkip: true, maxTicksLimit: 8 }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+
 
 function renderProjectGantt() { let container = document.getElementById('timelineContainer'); if(!container) return; let today = new Date(); today.setHours(0,0,0,0); let projects = investments.filter(i => i.end && i.end.trim() !== '' && i.status !== 'completed'); if(projects.length === 0) { container.innerHTML = '<div>No active projects with end date</div>'; return; } let sorted = [...projects].sort((a,b)=>new Date(a.end)-new Date(b.end)); let html = ''; sorted.forEach(proj => { let end = new Date(proj.end); end.setHours(0,0,0,0); let diff = Math.ceil((end - today)/(1000*60*60*24)); if(diff > 30) return; let cls = diff===0 ? 'expiring-today' : (diff<=7 ? 'expiring-soon' : ''); let badge = diff===0 ? 'Expires Today!' : (diff<=7 ? `${diff} days left` : ''); if(!cls) return; let noteShow = proj.note ? `<br><small><i class="fas fa-sticky-note"></i> ${proj.note}</small>` : ''; html += `<div class="timeline-item ${cls}"><div class="timeline-icon"><i class="fas ${diff===0?'fa-exclamation-circle':'fa-hourglass-half'}"></i></div><div class="timeline-content"><div class="timeline-title">${proj.type} - ${proj.platform}</div><div class="timeline-date">Ends: ${proj.end} | ${badge}${noteShow}</div></div></div>`; }); container.innerHTML = html || '<div>No upcoming expirations</div>'; }
 
+
+
 function renderPlatformChart() { let map = {}; investments.forEach(i => { let val = i.amountBDT || 0; map[i.platform] = (map[i.platform] || 0) + val; }); let ctx = document.getElementById('platformChart').getContext('2d'); if(platformChart) platformChart.destroy(); let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981']; let sortedLabels = Object.keys(map).sort(); let sortedData = sortedLabels.map(l => map[l]); platformChart = new Chart(ctx, { type: 'doughnut', data: { labels: sortedLabels, datasets: [{ data: sortedData, backgroundColor: colors }] }, options: { responsive: true, maintainAspectRatio: true } }); let total = calcPrincipal().bdt; let legendHtml = ''; sortedLabels.forEach((k,i) => { let percent = total > 0 ? ((map[k]/total)*100).toFixed(1) : 0; legendHtml += `<span class="legend-item"><span class="legend-color" style="background:${colors[i%colors.length]}"></span>${k}: ${formatNumber(map[k])} BDT (${percent}%)</span>`; }); document.getElementById('platformLegend').innerHTML = legendHtml || 'No data'; }
+
+
 
 function renderMonthlyChart() { let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); let monthly = {}; history.forEach(h => { let m = h.date.slice(0,7); monthly[m] = (monthly[m] || 0) + h.profit; }); let ctx = document.getElementById('monthlyChart').getContext('2d'); if(monthlyChart) monthlyChart.destroy(); monthlyChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(monthly).sort(), datasets: [{ label: 'Profit (BDT)', data: Object.values(monthly), backgroundColor: '#4ade80' }] }, options: { responsive: true, maintainAspectRatio: true } }); }
 
-async function updateCryptoPrices() { try { let res = await fetch('https://api.binance.com/api/v3/ticker/price'); let data = await res.json(); for(let coin of ['BTC','ETH','BNB']) { let found = data.find(p => p.symbol === coin+'USDT'); if(found) cryptoPrices[coin] = parseFloat(found.price); } for(let coin of ['BTC','ETH','BNB']) { let qty = investments.filter(i => i.type===coin && i.status==='active').reduce((s,i)=>s+i.amount,0); let currentUSD = qty * cryptoPrices[coin]; let currentBDT = currentUSD * usdToBdt; document.getElementById(coin.toLowerCase()+'Usd').innerHTML = `$${formatNumber(cryptoPrices[coin])}`; document.getElementById(coin.toLowerCase()+'Bdt').innerHTML = `${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`; document.getElementById(coin.toLowerCase()+'Qty').innerHTML = qty.toFixed(6); document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML = `$${formatNumber(currentUSD)}`; document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML = `${formatNumber(currentBDT)} BDT`; } updateCryptoPurchaseInfo(); renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); } catch(e) { console.error(e); } }
 
-function updateGrowthChart() { let sorted = [...investments.filter(i=>i.status==='active')].sort((a,b)=>new Date(a.start)-new Date(b.start)); let pSum=0, cSum=0, labels=[], principal=[], current=[]; sorted.forEach(i => { if(i.isCrypto && i.amountUSD) pSum += i.amountUSD; else if(i.amountBDT) pSum += i.amountBDT/usdToBdt; principal.push(pSum); labels.push(i.start); if(i.isCrypto && cryptoPrices[i.type]) cSum += i.amount * cryptoPrices[i.type]; else if(i.amountBDT) cSum += i.amountBDT/usdToBdt; current.push(cSum); }); if(currentTimeRange !== "all") { let days = parseInt(currentTimeRange), cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days); let idx = 0; for(let i=0;i<labels.length;i++) { if(new Date(labels[i]) >= cutoff) { idx=i; break; } } labels = labels.slice(idx); principal = principal.slice(idx); current = current.slice(idx); } let startVal = principal[0]||0, endVal = current[current.length-1]||0; let change = startVal>0 ? ((endVal-startVal)/startVal*100) : 0; document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`; document.getElementById('endValue').innerHTML = `$${formatNumber(endVal)}`; document.getElementById('changeValue').innerHTML = `${change>=0?'+':''}${change.toFixed(2)}%`; document.getElementById('periodDays').innerHTML = currentTimeRange==='all'?'All Time':`Last ${currentTimeRange} Days`; let ctx = document.getElementById('growthChart').getContext('2d'); if(growthChart) growthChart.destroy(); growthChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Invested (Principal)', data: principal, borderColor: '#94a3b8', borderDash: [8,4], fill: false, pointRadius: 2 }, { label: 'Current Value', data: current, borderColor: '#4ade80', fill: false, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${formatNumber(ctx.raw)}` } } } } }); }
 
-function openMmpdaModal() {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active');
-if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; }
-let select = document.getElementById('mmpdaSelect');
-select.innerHTML = '';
-mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); });
-document.getElementById('mmpdaRate').value = '';
-document.getElementById('mmpdaProfit').value = '';
-select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); };
-document.getElementById('mmpdaModal').style.display = 'flex';
+async function updateCryptoPrices() { 
+
+try { 
+
+let res = await fetch('https://api.binance.com/api/v3/ticker/price'); 
+
+let data = await res.json(); 
+
+for(let coin of ['BTC','ETH','BNB']) { 
+
+let found = data.find(p => p.symbol === coin+'USDT'); 
+
+if(found) cryptoPrices[coin] = parseFloat(found.price); 
+
+} 
+
+for(let coin of ['BTC','ETH','BNB']) { 
+
+let qty = investments.filter(i => i.type===coin && i.status==='active').reduce((s,i)=>s+i.amount,0); 
+
+let currentUSD = qty * cryptoPrices[coin]; 
+
+let currentBDT = currentUSD * usdToBdt; 
+
+document.getElementById(coin.toLowerCase()+'Usd').innerHTML = `$${formatNumber(cryptoPrices[coin])}`; 
+
+document.getElementById(coin.toLowerCase()+'Bdt').innerHTML = `${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`; 
+
+document.getElementById(coin.toLowerCase()+'Qty').innerHTML = qty.toFixed(6); 
+
+document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML = `$${formatNumber(currentUSD)}`; 
+
+document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML = `${formatNumber(currentBDT)} BDT`; 
+
+} 
+
+renderStats(); 
+
+updateGrowthChart(); 
+
+renderPortfolioByPlatform(); 
+
+renderNetWorthChart(); // Update net worth chart with new prices
+
+} catch(e) { console.error(e); } 
+
 }
-function confirmMmpda() {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-let id = document.getElementById('mmpdaSelect').value;
-let inv = investments.find(i => i.id === id);
-let profit = parseFloat(document.getElementById('mmpdaProfit').value);
-if(!inv || isNaN(profit)) return;
-let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
-history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10), note: inv.note || '' });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-inv.actualProfit = (inv.actualProfit || 0) + profit;
-syncToFirebase();
-renderAll();
-showToast(`Withdrawn ${formatNumber(profit)} BDT`);
-closeMmpdaModal();
+
+
+
+function updateGrowthChart() { 
+
+let sorted = [...investments.filter(i=>i.status==='active')].sort((a,b)=>new Date(a.start)-new Date(b.start)); 
+
+let pSum=0, cSum=0, labels=[], principal=[], current=[]; 
+
+sorted.forEach(i => { 
+
+if(i.isCrypto && i.amountUSD) pSum += i.amountUSD; 
+
+else if(i.amountBDT) pSum += i.amountBDT/usdToBdt; 
+
+principal.push(pSum); labels.push(i.start); 
+
+if(i.isCrypto && cryptoPrices[i.type]) cSum += i.amount * cryptoPrices[i.type]; 
+
+else if(i.amountBDT) cSum += i.amountBDT/usdToBdt; 
+
+current.push(cSum); 
+
+}); 
+
+if(currentTimeRange !== "all") { 
+
+let days = parseInt(currentTimeRange), cutoff = new Date(); 
+
+cutoff.setDate(cutoff.getDate()-days); 
+
+let idx = 0; 
+
+for(let i=0;i<labels.length;i++) { if(new Date(labels[i]) >= cutoff) { idx=i; break; } } 
+
+labels = labels.slice(idx); principal = principal.slice(idx); current = current.slice(idx); 
+
+} 
+
+let startVal = principal[0]||0, endVal = current[current.length-1]||0; 
+
+let change = startVal>0 ? ((endVal-startVal)/startVal*100) : 0; 
+
+document.getElementById('startValue').innerHTML = `$${formatNumber(startVal)}`; 
+
+document.getElementById('endValue').innerHTML = `$${formatNumber(endVal)}`; 
+
+document.getElementById('changeValue').innerHTML = `${change>=0?'+':''}${change.toFixed(2)}%`; 
+
+document.getElementById('periodDays').innerHTML = currentTimeRange==='all'?'All Time':`Last ${currentTimeRange} Days`; 
+
+let ctx = document.getElementById('growthChart').getContext('2d'); 
+
+if(growthChart) growthChart.destroy(); 
+
+growthChart = new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: 'Invested (Principal)', data: principal, borderColor: '#94a3b8', borderDash: [8,4], fill: false, pointRadius: 2 }, { label: 'Current Value', data: current, borderColor: '#4ade80', fill: false, pointRadius: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: $${formatNumber(ctx.raw)}` } } } } }); 
+
 }
+
+
+
+function openMmpdaModal() { if(!isAdmin) { showToast("Admin login required", true); return; } let mmpdaList = investments.filter(i => i.type === 'MMPDA' && i.status === 'active'); if(mmpdaList.length === 0) { showToast("No active MMPDA", true); return; } let select = document.getElementById('mmpdaSelect'); select.innerHTML = ''; mmpdaList.forEach(inv => { let opt = document.createElement('option'); opt.value = inv.id; opt.textContent = `${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; select.appendChild(opt); }); document.getElementById('mmpdaRate').value = ''; document.getElementById('mmpdaProfit').value = ''; select.onchange = () => { let inv = investments.find(i => i.id === select.value); let rate = parseFloat(document.getElementById('mmpdaRate').value) || 8; let monthly = (inv.amountBDT * rate / 100) / 12; document.getElementById('mmpdaProfit').value = monthly.toFixed(2); }; document.getElementById('mmpdaModal').style.display = 'flex'; }
+
+function confirmMmpda() { if(!isAdmin) { showToast("Admin login required", true); return; } let id = document.getElementById('mmpdaSelect').value; let inv = investments.find(i => i.id === id); let profit = parseFloat(document.getElementById('mmpdaProfit').value); if(!inv || isNaN(profit)) return; let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]"); history.push({ platform: inv.platform, type: "MMPDA Monthly Profit", amount: profit, profit: profit, date: new Date().toISOString().slice(0,10), note: inv.note || '' }); localStorage.setItem("withdraw_history", JSON.stringify(history)); inv.actualProfit = (inv.actualProfit || 0) + profit; syncToFirebase(); renderAll(); showToast(`Withdrawn ${formatNumber(profit)} BDT`); closeMmpdaModal(); }
+
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display = 'none'; }
-function exportToCSV() {
-if(!isAdmin) { showToast("⚠️ Admin login required! Please login first.", true); return; }
-if (investments.length === 0) { showToast("No data to export", true); return; }
-const headers = ['ID', 'Platform', 'Type', 'Amount', 'Amount BDT', 'Amount USD', 'Is Crypto', 'Purchase Price', 'Expected Profit', 'Actual Profit', 'Status', 'Start Date', 'End Date', 'Note'];
-const rows = investments.map(inv => [inv.id, inv.platform, inv.type, inv.amount, inv.amountBDT, inv.amountUSD, inv.isCrypto ? 'Yes' : 'No', inv.purchasePrice || '', inv.expectedProfit || 0, inv.actualProfit || 0, inv.status, inv.start, inv.end || '', inv.note || '']);
-const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-const link = document.createElement('a');
-const url = URL.createObjectURL(blob);
-link.setAttribute('href', url);
-link.setAttribute('download', `wealth_tracker_${new Date().toISOString().slice(0,10)}.csv`);
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-URL.revokeObjectURL(url);
-showToast("Portfolio exported to CSV!");
-}
+
+function exportToCSV() { if(!isAdmin) { showToast("Admin login required", true); return; } if(investments.length === 0) { showToast("No data", true); return; } const headers = ['ID','Platform','Type','Amount BDT','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date','Note']; const rows = investments.map(i => [i.id, i.platform, i.type, i.amountBDT, i.isCrypto, i.purchasePrice, i.expectedProfit, i.actualProfit, i.status, i.start, i.end, i.note]); let csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n'); let blob = new Blob(["\uFEFF"+csv], {type:'text/csv'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `wealth_${new Date().toISOString().slice(0,10)}.csv`; a.click(); showToast("Exported"); }
+
+
 
 function initTimeRange() { document.querySelectorAll('.time-btn').forEach(btn => { btn.addEventListener('click', function() { document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active')); this.classList.add('active'); currentTimeRange = this.getAttribute('data-days'); updateGrowthChart(); }); }); }
-function renderAll() { renderStats(); updateGrowthChart(); renderPortfolioByPlatform(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
+
+function renderAll() { renderStats(); updateGrowthChart(); renderNetWorthChart(); renderPortfolioByPlatform(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
+
+
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
+
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
+
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
+
 document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
+
 window.editRate = editRate; window.saveRate = saveRate; window.closeRateModal = closeRateModal;
+
 window.openEdit = openEdit; window.saveEdit = saveEdit; window.closeEditModal = closeEditModal;
+
 window.markComplete = markComplete; window.deleteInv = deleteInv;
+
 window.confirmMmpda = confirmMmpda; window.closeMmpdaModal = closeMmpdaModal;
 
+
+
 loadRate(); document.getElementById('startDate').value = new Date().toISOString().slice(0,10); let backup = localStorage.getItem("investments_backup"); if(backup) investments = JSON.parse(backup); else investments = JSON.parse(JSON.stringify(demoInvestments)); renderAll(); initTimeRange(); setInterval(updateCryptoPrices, 10000); if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig); db = firebase.firestore(); loadData();
+
 checkSavedLogin();
+
 </script>
+
 </body>
+
 </html>
+
