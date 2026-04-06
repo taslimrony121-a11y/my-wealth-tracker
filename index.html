@@ -169,11 +169,11 @@ padding-top: 10px;
 .charts-grid canvas { max-height: 220px; width: 100%; }
 .platform-legend { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: 0.7rem; }
 
-/* ENHANCED BINANCE STYLE ASSET NET WORTH CHART - OPTIMIZED FOR MOBILE & TOUCH */
+/* ========= ENHANCED BINANCE STYLE CHART - FIXED: MORE HEIGHT, COMPACT HEADER, PRO LAYOUT ========= */
 .chart-container {
 background: linear-gradient(145deg, #0f172a 0%, #0a0f1c 100%);
 border-radius: 28px;
-padding: 20px 16px 20px 16px;
+padding: 14px 12px; /* Fix 3: reduced padding from 20px to 14px 12px (extra space removed) */
 margin-bottom: 28px;
 border: 1px solid rgba(250, 204, 21, 0.25);
 box-shadow: 0 12px 30px rgba(0,0,0,0.5);
@@ -181,38 +181,41 @@ width: 100%;
 }
 .chart-header {
 display: flex;
-justify-content: space-between;
-align-items: flex-end;
-flex-wrap: wrap;
-margin-bottom: 16px;
+flex-direction: column; /* Fix 2: column layout, was row originally */
+align-items: flex-start;
+gap: 6px;
+margin-bottom: 12px;
 border-bottom: 1px solid rgba(250,204,21,0.2);
-padding-bottom: 12px;
+padding-bottom: 8px;
+position: relative;
+z-index: 2;
 }
 .chart-header-left h3 {
-font-size: 0.85rem;
+font-size: 0.75rem;
 font-weight: 500;
 color: #94a3b8;
 letter-spacing: -0.2px;
-margin-bottom: 4px;
+margin-bottom: 2px;
 }
 .chart-header-left .asset-networth {
-font-size: 1.8rem;
+font-size: 1.5rem; /* Fix 2: reduced from 1.8rem to 1.5rem */
 font-weight: 800;
 color: #facc15;
+line-height: 1.2;
 }
 @media (min-width: 640px) {
-.chart-header-left .asset-networth { font-size: 2.2rem; }
+.chart-header-left .asset-networth { font-size: 1.8rem; } /* slightly larger on desktop but compact */
 }
 .chart-date {
-font-size: 0.65rem;
+font-size: 0.6rem; /* Fix 2: smaller font */
 color: #5b6e8c;
-margin-top: 4px;
+margin-top: 2px;
 }
 .legend-line {
 display: inline-flex;
 align-items: center;
 gap: 8px;
-font-size: 0.7rem;
+font-size: 0.65rem;
 color: #94a3b8;
 }
 .legend-color {
@@ -227,7 +230,7 @@ border-radius: 2px;
 display: flex;
 flex-wrap: wrap;
 gap: 6px;
-margin-bottom: 18px;
+margin-bottom: 10px;
 background: rgba(0,0,0,0.4);
 padding: 4px;
 border-radius: 40px;
@@ -237,7 +240,7 @@ width: fit-content;
 background: transparent;
 border: none;
 color: #94a3b8;
-padding: 6px 16px;
+padding: 4px 14px;
 border-radius: 30px;
 font-size: 0.7rem;
 font-weight: 500;
@@ -249,18 +252,24 @@ background: #facc15;
 color: #0a0a0a;
 }
 .chart-wrapper {
-height: 280px;
+height: 320px; /* Fix 1: increased from 280px to 320px */
 position: relative;
 width: 100%;
-margin-top: 4px;
+margin-top: -6px; /* Fix 4: slight overlap for Binance style (was -10px, subtle) */
 }
 @media (min-width: 768px) {
-.chart-wrapper { height: 360px; }
+.chart-wrapper { height: 400px; } /* Fix 1: even taller on desktop */
 }
 #netWorthChart {
 width: 100% !important;
 height: 100% !important;
-touch-action: pan-x pan-y; /* improves touch interaction */
+touch-action: pan-x pan-y;
+}
+
+/* premium look: smooth interaction */
+.chart-container:hover {
+border-color: rgba(250, 204, 21, 0.4);
+transition: 0.2s;
 }
 
 .gantt-notification { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 20px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid #facc15; }
@@ -288,7 +297,7 @@ touch-action: pan-x pan-y; /* improves touch interaction */
 <div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
 <div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
 </div>
-<div class="version-tag"><i class="fas fa-code-branch"></i> v12.1 | Slim Soft-Yellow Chart | Touch Optimized</div>
+<div class="version-tag"><i class="fas fa-code-branch"></i> v12.2 | Slim Soft-Yellow Chart | Touch Optimized | Premium Compact Layout</div>
 </div>
 
 <div class="gantt-notification"><div><i class="fas fa-calendar-alt"></i> <strong>📅 Project Expiry Tracker</strong> <span style="font-size:0.7rem;">🔴 Expired | 🟡 Today | 🟠 Soon</span></div><div id="timelineContainer" class="gantt-timeline">Loading...</div></div>
@@ -323,7 +332,7 @@ touch-action: pan-x pan-y; /* improves touch interaction */
 
 <div id="formCard" class="card" style="display:none;"><h3><i class="fas fa-plus-circle"></i> Add New Investment</h3><div class="form-row"><div class="input-group"><label>Platform</label><select id="platform"><option>Binance</option><option>Wegro</option><option>Biniyog</option><option>iFarmer</option><option>Islami Bank</option><option>Other</option></select></div><div class="input-group"><label>Asset Type</label><select id="type"><option value="BTC">BTC (Crypto)</option><option value="ETH">ETH (Crypto)</option><option value="BNB">BNB (Crypto)</option><option value="MMPDA">MMPDA</option><option value="Agriculture">Agriculture</option><option value="MSSA">MSSA Installment</option><option value="Business">Shop/Business</option><option value="Gold">Gold</option></select></div><div class="input-group"><label id="amountLabel">Quantity / Amount</label><input type="number" id="amount" step="any" placeholder="0.00"></div><div class="input-group"><label>Purchase Price (USD)</label><input type="number" id="purchasePrice" step="any" placeholder="For crypto only"></div></div><div class="form-row"><div class="input-group"><label>Expected Profit (BDT)</label><input type="number" id="expectedProfit" value="0"></div><div class="input-group"><label>Actual Profit (BDT)</label><input type="number" id="actualProfit" value="0"></div><div class="input-group"><label>Status</label><select id="status"><option value="active">Active</option><option value="completed">Completed</option></select></div></div><div class="form-row"><div class="input-group"><label>Start Date</label><input type="date" id="startDate"></div><div class="input-group"><label>End Date</label><input type="date" id="endDate"></div></div><div class="form-row"><div class="input-group"><label>📝 Investment Note / Remarks</label><textarea id="investmentNote" rows="2" placeholder="Example: Chardike Limited, Reference ID etc."></textarea></div></div><button class="btn-save" id="saveBtn">Save Investment</button></div>
 
-<!-- ENHANCED BINANCE STYLE ASSET NET WORTH CHART: SLIMMER + SOFT YELLOW LINE, MOBILE FRIENDLY -->
+<!-- ENHANCED BINANCE STYLE ASSET NET WORTH CHART: IMPROVED HEIGHT, COMPACT HEADER, SLIM LINE, PREMIUM LAYOUT -->
 <div class="chart-container">
 <div class="chart-header">
 <div class="chart-header-left">
@@ -342,7 +351,7 @@ touch-action: pan-x pan-y; /* improves touch interaction */
 <button class="time-btn active" data-days="all">All Time</button>
 </div>
 <div class="chart-wrapper">
-<canvas id="netWorthChart" width="800" height="280" style="width:100%; height:280px;"></canvas>
+<canvas id="netWorthChart" width="800" height="320" style="width:100%; height:320px;"></canvas>
 </div>
 </div>
 
@@ -375,19 +384,19 @@ const STORAGE_KEY = "wealth_admin_logged_in";
 function showToast(msg, err) { let t = document.createElement('div'); t.className = 'toast-message'; t.style.background = err ? '#f87171' : '#4ade80'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
 function formatNumber(n) { if(isNaN(n)) return "0.00"; return n.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-// SLIM & SOFT YELLOW CHART - enhanced mobile touch + thinner line
+// SLIM & SOFT YELLOW CHART with optimized styling (thinner line, pro hover)
 function initNetWorthChart(labels, dataValues) {
 const canvas = document.getElementById('netWorthChart');
 if (!canvas) return;
 const ctx = canvas.getContext('2d');
-const gradient = ctx.createLinearGradient(0, 0, 0, 280);
-gradient.addColorStop(0, "rgba(255, 217, 102, 0.45)"); // softer yellow
-gradient.addColorStop(0.6, "rgba(250, 204, 21, 0.08)");
+const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+gradient.addColorStop(0, "rgba(255, 217, 102, 0.4)");
+gradient.addColorStop(0.6, "rgba(250, 204, 21, 0.06)");
 gradient.addColorStop(1, "rgba(250, 204, 21, 0)");
 if (growthChart) growthChart.destroy();
 growthChart = new Chart(ctx, {
 type: 'line',
-data: { labels: labels, datasets: [{ data: dataValues, borderColor: "#ffd966", backgroundColor: gradient, fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 8, borderWidth: 2, borderCapStyle: 'round' }] },
+data: { labels: labels, datasets: [{ data: dataValues, borderColor: "#ffd966", backgroundColor: gradient, fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 6, borderWidth: 1.5, borderCapStyle: 'round' }] },
 options: {
 responsive: true,
 maintainAspectRatio: true,
@@ -407,7 +416,7 @@ x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 35, autoS
 y: { grid: { color: "rgba(148, 163, 184, 0.1)" }, ticks: { color: '#94a3b8', callback: (val) => '$' + formatNumber(val), font: { size: 10 } } }
 },
 elements: {
-point: { radius: 0, hoverRadius: 8, hoverBorderWidth: 2, hoverBackgroundColor: '#facc15' },
+point: { radius: 0, hoverRadius: 6, hoverBorderWidth: 2, hoverBackgroundColor: '#facc15' },
 line: { borderJoin: 'round', borderCap: 'round' }
 },
 interaction: { mode: 'index', intersect: false },
@@ -454,7 +463,7 @@ let shortLabels = labels.map(d => { let date = new Date(d); return `${(date.getM
 initNetWorthChart(shortLabels, values);
 }
 
-// Other core functions (identical to original but keep UI consistency)
+// [rest of the core functions remain intact - keeping all business logic exactly as original]
 function computeWeeklyActivePL() { let totalCurrentUSD=0,total7dAgoUSD=0; investments.forEach(inv=>{ if(inv.status!=='active') return; if(inv.isCrypto && inv.type && cryptoPrices[inv.type] && crypto7dPrices[inv.type]){ totalCurrentUSD+=inv.amount*cryptoPrices[inv.type]; total7dAgoUSD+=inv.amount*crypto7dPrices[inv.type]; } else if(!inv.isCrypto && inv.amountUSD){ totalCurrentUSD+=inv.amountUSD; total7dAgoUSD+=inv.amountUSD; } }); if(total7dAgoUSD===0) return null; let changeUSD=totalCurrentUSD-total7dAgoUSD; return { percent:(changeUSD/total7dAgoUSD)*100, bdt:changeUSD*usdToBdt, usd:changeUSD, isPositive:changeUSD>=0 }; }
 function updateWeeklyActiveUI() { let container=document.getElementById('weeklyPLContainer'); if(!container) return; let plData=computeWeeklyActivePL(); if(!plData){ container.innerHTML='<div class="pl-indicator">7d Change: --</div>'; return; } let sign=plData.isPositive?'+':''; container.innerHTML=`<div class="pl-indicator ${plData.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-calendar-week"></i> <strong>7d P&L:</strong> <span style="color:${plData.isPositive?'#4ade80':'#f87171'};">${sign}${formatNumber(plData.bdt)} BDT (${sign}${plData.percent.toFixed(2)}%)</span></div>`; }
 async function updateCryptoPrices() {
@@ -525,4 +534,3 @@ if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase
 </script>
 </body>
 </html>
-```
