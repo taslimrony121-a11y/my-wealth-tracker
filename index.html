@@ -8,6 +8,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="WealthTracker">
+<link rel="apple-touch-icon" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="manifest" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/manifest.json">
 <title>Taslim Rony - Wealth Tracker Ultra Pro v14</title>
 <!-- PWA Manifest inline -->
 <link rel="manifest" href="data:application/json,{%22name%22:%22Wealth+Tracker+Ultra+Pro%22,%22short_name%22:%22WealthTracker%22,%22theme_color%22:%22%230b1120%22,%22background_color%22:%22%230b1120%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
@@ -698,7 +703,6 @@ body { padding: 10px; }
 
 <div class="alert-banner alert-danger" id="alertExpired"></div>
 <div class="alert-banner alert-warning" id="alertExpiringSoon"></div>
-<div class="alert-banner alert-success" id="alertProfit"></div>
 
 <!-- HEADER -->
 
@@ -862,17 +866,6 @@ body { padding: 10px; }
 <div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div>
 <div id="weeklyPLContainer" style="margin-top:8px;"></div>
 </div>
-</div>
-
-<!-- GOAL CARD -->
-
-<div class="goal-card">
-<div style="display:flex; justify-content:space-between;">
-<span>🎯 Target Goal: <strong>300,000 BDT</strong></span>
-<span id="goalPercent">0%</span>
-</div>
-<div class="progress-bg"><div id="goalFill" class="progress-fill"></div></div>
-<small id="goalRem"></small>
 </div>
 
 <!-- ADD INVESTMENT FORM -->
@@ -1075,6 +1068,28 @@ body { padding: 10px; }
 </div>
 </div>
 
+<!-- PARTIAL WITHDRAW MODAL -->
+
+<div id="partialModal" class="modal">
+<div class="modal-content">
+<h3>💸 Partial Withdraw</h3>
+<div id="partialInfo" style="background:var(--bg-input); border-radius:12px; padding:12px; margin-bottom:4px; font-size:0.8rem;"></div>
+<label>Withdraw Amount (BDT):</label>
+<input type="number" id="partialAmount" step="any" placeholder="কত টাকা তুলবেন?">
+<label>Actual Profit on this withdrawal (BDT):</label>
+<input type="number" id="partialProfit" step="any" value="0" placeholder="0">
+<label>Note (optional):</label>
+<input type="text" id="partialNote" placeholder="e.g. ১ম কিস্তি, partial bank withdrawal...">
+<div style="display:flex; gap:8px; margin-top:15px;">
+<button onclick="confirmPartialWithdraw()" class="btn-save" style="flex:1;"><i class="fas fa-money-bill-wave"></i> Confirm</button>
+<button onclick="closePartialModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+<small style="display:block; margin-top:10px; color:var(--text-sub); font-size:0.65rem; text-align:center;">
+<i class="fas fa-info-circle"></i> বাকি টাকা investment এ থাকবে। পুরো তুলতে হলে "Withdraw" বাটন ব্যবহার করুন।
+</small>
+</div>
+</div>
+
 <!-- CALENDAR MODAL -->
 
 <div id="calendarModal" class="modal">
@@ -1243,10 +1258,8 @@ function checkAlerts() {
 let today = new Date(); today.setHours(0,0,0,0);
 let expired = investments.filter(i => { if(!i.end || i.status==='completed') return false; let e=new Date(i.end); e.setHours(0,0,0,0); return e < today; });
 let expiringSoon = investments.filter(i => { if(!i.end || i.status==='completed') return false; let e=new Date(i.end); e.setHours(0,0,0,0); let diff=Math.ceil((e-today)/(1000*60*60*24)); return diff >= 0 && diff <= 7; });
-let totalProfit = investments.reduce((s,i) => s + (i.actualProfit||0), 0);
 let expiredEl = document.getElementById('alertExpired');
 let soonEl = document.getElementById('alertExpiringSoon');
-let profitEl = document.getElementById('alertProfit');
 if(expired.length > 0) {
 expiredEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <strong>🔴 ${expired.length} investment(s) EXPIRED!</strong> ${expired.map(i=>i.type+' ('+i.platform+')').join(', ')} — দ্রুত ব্যবস্থা নিন!`;
 expiredEl.classList.add('show');
@@ -1255,12 +1268,6 @@ if(expiringSoon.length > 0) {
 soonEl.innerHTML = `<i class="fas fa-clock"></i> <strong>🟠 ${expiringSoon.length} investment(s) soon expiring!</strong> ${expiringSoon.map(i=>i.type+' → '+i.end).join(' | ')}`;
 soonEl.classList.add('show');
 } else { soonEl.classList.remove('show'); }
-if(totalProfit > 0) {
-profitEl.innerHTML = `<i class="fas fa-chart-line"></i> <strong>✅ Total Profit Earned: ${formatNumber(totalProfit)} BDT</strong> — আলহামদুলিল্লাহ! Portfolio ভালো চলছে।`;
-profitEl.classList.add('show');
-setTimeout(() => profitEl.classList.remove('show'), 6000);
-}
-
 }
 
 // ====== AI PROFIT PREDICTION ======
@@ -1375,16 +1382,32 @@ return score;
 let bestAsset = assetOptions.reduce((best, a) =>
 scoreAsset(a) > scoreAsset(best) ? a : best, assetOptions[0]);
 
-let suggestion = "";
+// ====== STEP 6: getInvestmentSuggestion (document logic) ======
+const farmValue = active
+.filter(i => ['Agriculture','Wegro','iFarmer','Biniyog'].includes(i.platform) || i.type === 'Agriculture')
+.reduce((s,i) => s + (i.amountBDT||0), 0);
+
+const platformProfits = Object.keys(platMap).map(name => ({ name, profit: platMap[name] }));
+
+function getInvestmentSuggestion() {
+if(waitMoney < 1000 && waitMoney > 0) return "⚠️ Low balance — save more before investing";
+const cPct = currentValue > 0 ? (cryptoValue / currentValue) * 100 : 0;
+const fPct = currentValue > 0 ? (farmValue / currentValue) * 100 : 0;
+const best = platformProfits.sort((a,b) => b.profit - a.profit)[0];
 if(waitMoney > 0) {
-suggestion = `⏳ Idle টাকা ${formatNumber(waitMoney)} BDT আছে — <strong>${bestAsset.name}</strong> এ invest করুন।`;
-} else if(cryptoPercent > 50) {
-suggestion = `⚖️ Crypto ${cryptoPercent.toFixed(0)}% — Wegro / iFarmer এ diversify করুন 🌱`;
-} else if(risk.includes("High")) {
-suggestion = `🛡️ Risk বেশি — <strong>${bestAsset.name}</strong> (${bestAsset.type}) বিবেচনা করুন।`;
-} else {
-suggestion = `🚀 Next best option: <strong>${bestAsset.name}</strong> (${(bestAsset.return*100).toFixed(0)}% annual return)`;
+if(cPct < 10) return `📈 BTC / ETH এ অল্প invest করুন (low exposure এখন)`;
+if(fPct < 30) return `🌱 iFarmer / Wegro বাড়ান (stable halal growth)`;
+if(best) return `🏆 Top performer: <strong>${best.name}</strong> — আরো add করুন`;
 }
+if(cPct > 50) return `⚖️ Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন 🌱`;
+if(risk.includes("High")) return `🛡️ Risk বেশি — <strong>${bestAsset.name}</strong> (${bestAsset.type}) বিবেচনা করুন`;
+if(monthsToGoal !== "Uncertain" && typeof monthsToGoal === 'string' && parseInt(monthsToGoal) > 100) {
+return `🚀 Goal দ্রুত reach করতে investment বাড়ান`;
+}
+return `✅ <strong>${bestAsset.name}</strong> — (${(bestAsset.return*100).toFixed(0)}% annual return) best option এখন`;
+}
+
+let suggestion = getInvestmentSuggestion();
 
 // ====== STEP 6: AI Insight Generator ======
 let insight = `<strong style="color:#a855f7;">🤖 AI Insight:</strong><br>`;
@@ -1418,10 +1441,10 @@ grid.innerHTML = `
 <div class="ai-item-value" style="color:#facc15;">+${formatNumber(yearlyProfit)} BDT</div>
 <div class="ai-item-sub">If trend continues</div>
 </div>
-<div class="ai-item">
-<div class="ai-item-label">🎯 Goal: 3,00,000 BDT</div>
-<div class="ai-item-value" style="color:#a855f7;">${monthsToGoal}</div>
-<div class="ai-item-sub">Current: ${formatNumber(currentValue)} BDT</div>
+<div class="ai-item" style="grid-column: span 2; background:rgba(168,85,247,0.15); border-color:rgba(168,85,247,0.5);">
+<div class="ai-item-label">💡 AI Suggestion</div>
+<div class="ai-item-value" style="color:#e879f9; font-size:0.82rem; line-height:1.4;">${suggestion}</div>
+<div class="ai-item-sub">Based on your portfolio data</div>
 </div>
 <div class="ai-item">
 <div class="ai-item-label">💹 Crypto Unrealized P&L</div>
@@ -1586,9 +1609,7 @@ let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).redu
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
 document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
 let prog = Math.min((p.bdt/300000)*100, 100);
-document.getElementById('goalFill').style.width = prog+"%";
-document.getElementById('goalPercent').innerText = prog.toFixed(1)+"%";
-document.getElementById('goalRem').innerHTML = `Remaining: ${formatNumber(Math.max(0,300000-p.bdt))} BDT`;
+// goal elements may not exist anymore, skip silently
 updateTotalPortfolio24hUI();
 updateWeeklyActiveUI();
 }
@@ -1676,9 +1697,10 @@ ${inv.person ? `<div class="note-text">👤 ${inv.person}</div>` : ''}
 ${inv.note ? `<div class="note-text">📝 ${inv.note}</div>` : ''}
 <div class="investment-actions" style="margin-top:8px;">
 ${isAdmin ? `
-<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button>
-<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i> Edit</button>
-<button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i> Del</button>
+<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button>
+<button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>
+<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button>
+<button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>
 ` : '<span class="note-text">🔒 Login required</span>'}
 </div>
 </div>
@@ -1702,7 +1724,7 @@ if(inv.isCrypto&&cryptoPrices[inv.type]){ let cUSD=inv.amount*cryptoPrices[inv.t
 else if(inv.type==="LOAN_GIVEN") currentDisplay=`<span class="investment-details" style="color:#4ade80;">💸 To Receive: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="LOAN_TAKEN") currentDisplay=`<span class="investment-details" style="color:#f87171;">💳 You Owe: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="BANK_DEPOSIT") currentDisplay=`<span class="investment-details" style="color:#10b981;">🏦 Bank Deposit: ${formatNumber(inv.amountBDT)} BDT</span>`;
-activeHtml+=`<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Withdraw</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i> Edit</button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i> Del</button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+activeHtml+=`<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
 activeHtml+=`</div>`;
 }
@@ -1884,6 +1906,92 @@ renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} 
 }
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display='none'; }
 
+// ====== PARTIAL WITHDRAW ======
+let partialInvId = null;
+function openPartialModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+partialInvId = id;
+let remaining = inv.amountBDT || 0;
+document.getElementById('partialInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+<span style="color:var(--text-sub);">Investment:</span>
+<strong>${inv.type} — ${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+<span style="color:var(--text-sub);">Total Amount:</span>
+<strong style="color:var(--accent);">${formatNumber(remaining)} BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">Person/Bank:</span>
+<strong>${inv.person || '—'}</strong>
+</div>
+`;
+document.getElementById('partialAmount').value = '';
+document.getElementById('partialProfit').value = '0';
+document.getElementById('partialNote').value = '';
+document.getElementById('partialModal').style.display = 'flex';
+}
+
+async function confirmPartialWithdraw() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === partialInvId);
+if(!inv) return showToast("Investment not found", true);
+
+let withdrawAmt = parseFloat(document.getElementById('partialAmount').value);
+let withdrawProfit = parseFloat(document.getElementById('partialProfit').value) || 0;
+let note = document.getElementById('partialNote').value || '';
+
+if(!withdrawAmt || withdrawAmt <= 0) return showToast("Amount দিন", true);
+if(withdrawAmt > inv.amountBDT) return showToast(`সর্বোচ্চ ${formatNumber(inv.amountBDT)} BDT তুলতে পারবেন`, true);
+
+let remaining = inv.amountBDT - withdrawAmt;
+
+// Save to history
+let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+history.push({
+platform: inv.platform,
+type: `${inv.type} (Partial)`,
+amount: withdrawAmt,
+profit: withdrawProfit,
+date: new Date().toISOString().slice(0,10),
+note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+
+if(remaining <= 0) {
+// Fully withdrawn — mark complete
+inv.status = 'completed';
+inv.amountBDT = 0;
+inv.amountUSD = 0;
+inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+} else {
+// Update remaining amount
+inv.amountBDT = remaining;
+inv.amountUSD = remaining / usdToBdt;
+inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+}
+
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT,
+amountUSD: inv.amountUSD,
+actualProfit: inv.actualProfit,
+status: inv.status
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closePartialModal();
+renderAll();
+showToast(`✅ ${formatNumber(withdrawAmt)} BDT withdrawn — বাকি: ${formatNumber(remaining)} BDT`);
+}
+
+function closePartialModal() {
+document.getElementById('partialModal').style.display = 'none';
+partialInvId = null;
+}
+
 // ====== UTILITIES ======
 function exportToCSV() {
 if(!isAdmin) return showToast("Admin required", true);
@@ -1925,6 +2033,7 @@ window.openCalendar=openCalendar; window.closeCalendar=closeCalendar;
 window.changeCalMonth=changeCalMonth; window.runAIPrediction=runAIPrediction;
 window.checkAlerts=checkAlerts; window.installPWA=installPWA;
 window.toggleTheme=toggleTheme; window.setCurrency=setCurrency;
+window.openPartialModal=openPartialModal; window.confirmPartialWithdraw=confirmPartialWithdraw; window.closePartialModal=closePartialModal;
 
 // ====== INIT ======
 loadTheme();
