@@ -1267,70 +1267,185 @@ setTimeout(() => profitEl.classList.remove('show'), 6000);
 function runAIPrediction() {
 let card = document.getElementById('aiPredictionCard');
 let grid = document.getElementById('aiGrid');
-let insight = document.getElementById('aiInsight');
+let insightEl = document.getElementById('aiInsight');
 let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) { showToast("কোনো active investment নেই।", true); return; }
-// Calculate based on actual profit trends
-let totalPrincipal = active.reduce((s,i) => s+(i.amountBDT||0), 0);
-let totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0);
-let avgReturnRate = totalPrincipal > 0 ? (totalActualProfit / totalPrincipal) * 100 : 8;
-let adjustedRate = Math.max(5, Math.min(avgReturnRate, 25)); // 5-25% realistic
-let monthly = (totalPrincipal * adjustedRate / 100) / 12;
-let quarterly = monthly * 3;
-let yearly = monthly * 12;
-let goalRemaining = Math.max(0, 300000 - totalPrincipal);
-let monthsToGoal = monthly > 0 ? Math.ceil(goalRemaining / monthly) : 999;
-// Crypto P&L
+
+// ====== STEP 1: Data Collect ======
+const totalInvested = active.reduce((s,i) => s + (i.amountBDT||0), 0);
+const totalActualProfit = investments.reduce((s,i) => s + (i.actualProfit||0), 0);
+const currentValue = totalInvested + totalActualProfit;
+
+const cryptoValue = active
+.filter(i => i.isCrypto && cryptoPrices[i.type])
+.reduce((s,i) => s + i.amount * cryptoPrices[i.type] * usdToBdt, 0);
+
+const loanGiven = active
+.filter(i => i.type === 'LOAN_GIVEN')
+.reduce((s,i) => s + (i.amountBDT||0), 0);
+
+const waitMoney = investments
+.filter(i => isWaitMoney(i) && i.status === 'active')
+.reduce((s,i) => s + (i.amountBDT||0), 0);
+
+const activeInvestments = active.length;
+
+// ====== STEP 2: Smart Return Rate ======
+// Calculate months active from earliest start date
+let earliestDate = null;
+active.forEach(i => {
+if(i.start) {
+let d = new Date(i.start);
+if(!earliestDate || d < earliestDate) earliestDate = d;
+}
+});
+let monthsActive = earliestDate
+? Math.max(1, Math.round((new Date() - earliestDate) / (1000*60*60*24*30)))
+: 6;
+
+let monthlyReturnRate = totalInvested > 0
+? (totalActualProfit / totalInvested) / monthsActive
+: 0;
+
+// Fallback if data is low or negative
+if (!monthlyReturnRate || monthlyReturnRate <= 0) {
+monthlyReturnRate = 0.01; // 1% fallback
+}
+// Cap at realistic max (3% monthly = 36% annual)
+monthlyReturnRate = Math.min(monthlyReturnRate, 0.03);
+
+// ====== STEP 3: Prediction Engine ======
+const monthlyProfit = totalInvested * monthlyReturnRate;
+const yearlyProfit = monthlyProfit * 12;
+const quarterlyProfit = monthlyProfit * 3;
+const annualRate = monthlyReturnRate * 12 * 100;
+
+// ====== STEP 4: Goal Achievement ======
+const GOAL = 300000;
+const monthlySaving = monthlyProfit;
+let monthsToGoal;
+if(monthlySaving <= 0) {
+monthsToGoal = "Uncertain";
+} else {
+let rem = Math.max(0, GOAL - currentValue);
+monthsToGoal = rem <= 0 ? "✅ Reached!" : Math.ceil(rem / monthlySaving) + " months";
+}
+
+// ====== STEP 5: Risk Score ======
+const cryptoPercent = currentValue > 0 ? (cryptoValue / currentValue) * 100 : 0;
+let risk = "Low 🟢";
+let riskColor = "#4ade80";
+if(cryptoPercent > 50 || loanGiven > 0) { risk = "High 🔴"; riskColor = "#f87171"; }
+else if(cryptoPercent > 25) { risk = "Medium 🟡"; riskColor = "#f59e0b"; }
+
+// ====== Crypto Unrealized P&L ======
 let cryptoPL = 0;
 active.forEach(inv => {
 if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
 cryptoPL += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount * usdToBdt;
 }
 });
+
+// ====== Best Platform from history ======
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let platMap = {};
+history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
+let bestPlatform = Object.keys(platMap).sort((a,b)=>platMap[b]-platMap[a])[0] || 'N/A';
+
+// ====== STEP 6: Smart Suggestion Engine ======
+const assetOptions = [
+{ name: "BTC", type: "crypto", return: 0.12, risk: "high" },
+{ name: "ETH", type: "crypto", return: 0.10, risk: "high" },
+{ name: "BNB", type: "crypto", return: 0.09, risk: "medium" },
+{ name: "SOL", type: "crypto", return: 0.11, risk: "high" },
+{ name: "Wegro", type: "agri", return: 0.18, risk: "medium" },
+{ name: "Biniyog", type: "p2p", return: 0.15, risk: "medium" },
+{ name: "iFarmer", type: "agri", return: 0.20, risk: "medium" },
+{ name: "MMPDA", type: "bank", return: 0.08, risk: "low" },
+];
+
+function scoreAsset(asset) {
+let score = asset.return * 100;
+if(risk.includes("High") && asset.risk === "high") score -= 20;
+if(cryptoPercent > 50 && asset.type !== "crypto") score += 15;
+if(waitMoney > 0 && asset.return > 0.10) score += 10;
+return score;
+}
+
+let bestAsset = assetOptions.reduce((best, a) =>
+scoreAsset(a) > scoreAsset(best) ? a : best, assetOptions[0]);
+
+let suggestion = "";
+if(waitMoney > 0) {
+suggestion = `⏳ Idle টাকা ${formatNumber(waitMoney)} BDT আছে — <strong>${bestAsset.name}</strong> এ invest করুন।`;
+} else if(cryptoPercent > 50) {
+suggestion = `⚖️ Crypto ${cryptoPercent.toFixed(0)}% — Wegro / iFarmer এ diversify করুন 🌱`;
+} else if(risk.includes("High")) {
+suggestion = `🛡️ Risk বেশি — <strong>${bestAsset.name}</strong> (${bestAsset.type}) বিবেচনা করুন।`;
+} else {
+suggestion = `🚀 Next best option: <strong>${bestAsset.name}</strong> (${(bestAsset.return*100).toFixed(0)}% annual return)`;
+}
+
+// ====== STEP 6: AI Insight Generator ======
+let insight = `<strong style="color:#a855f7;">🤖 AI Insight:</strong><br>`;
+insight += `আপনার portfolio তে <strong>${activeInvestments}</strong> টি active investment আছে। `;
+if(cryptoPercent > 40) insight += `Crypto exposure <strong>${cryptoPercent.toFixed(0)}%</strong> — risk control করতে rebalance করুন। `;
+if(loanGiven > 0) insight += `আপনি <strong>${formatNumber(loanGiven)} BDT</strong> ধার দিয়েছেন, recovery track রাখুন। `;
+if(waitMoney > 0) insight += `<strong>${formatNumber(waitMoney)} BDT</strong> idle আছে, invest করলে growth বাড়বে। `;
+if(totalActualProfit > 0) {
+insight += `Portfolio profit এ আছে <strong style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</strong> — আলহামদুলিল্লাহ! `;
+} else {
+insight += `বর্তমানে portfolio loss এ আছে, strategy revise করুন। `;
+}
+if(bestPlatform !== 'N/A') insight += `সর্বোচ্চ profit দিয়েছে: <strong>${bestPlatform}</strong>। `;
+insight += `<br><br>💡 <strong>AI Suggestion:</strong> ${suggestion}`;
+insight += `<br><br><span style="color:#6b7280;font-size:0.6rem;">* Real investment data ও historical return এর উপর ভিত্তি করে calculated। বাস্তব result ভিন্ন হতে পারে।</span>`;
+
+// ====== STEP 7: Render UI ======
 grid.innerHTML = `
 <div class="ai-item">
 <div class="ai-item-label">📅 Monthly Prediction</div>
-<div class="ai-item-value">+${formatNumber(monthly)} BDT</div>
-<div class="ai-item-sub">Based on ${adjustedRate.toFixed(1)}% annual rate</div>
+<div class="ai-item-value" style="color:#4ade80;">+${formatNumber(monthlyProfit)} BDT</div>
+<div class="ai-item-sub">Real rate: ${annualRate.toFixed(1)}% annual</div>
 </div>
 <div class="ai-item">
 <div class="ai-item-label">📊 Quarterly (3 Month)</div>
-<div class="ai-item-value">+${formatNumber(quarterly)} BDT</div>
-<div class="ai-item-sub">Projected Q return</div>
+<div class="ai-item-value" style="color:#4ade80;">+${formatNumber(quarterlyProfit)} BDT</div>
+<div class="ai-item-sub">Based on actual data</div>
 </div>
 <div class="ai-item">
 <div class="ai-item-label">🗓️ Yearly Projection</div>
-<div class="ai-item-value">+${formatNumber(yearly)} BDT</div>
-<div class="ai-item-sub">If growth continues</div>
+<div class="ai-item-value" style="color:#facc15;">+${formatNumber(yearlyProfit)} BDT</div>
+<div class="ai-item-sub">If trend continues</div>
 </div>
 <div class="ai-item">
-<div class="ai-item-label">🎯 Goal Achievement</div>
-<div class="ai-item-value">${monthsToGoal < 999 ? monthsToGoal + ' months' : 'N/A'}</div>
-<div class="ai-item-sub">To reach 3,00,000 BDT goal</div>
+<div class="ai-item-label">🎯 Goal: 3,00,000 BDT</div>
+<div class="ai-item-value" style="color:#a855f7;">${monthsToGoal}</div>
+<div class="ai-item-sub">Current: ${formatNumber(currentValue)} BDT</div>
 </div>
 <div class="ai-item">
 <div class="ai-item-label">💹 Crypto Unrealized P&L</div>
 <div class="ai-item-value" style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)} BDT</div>
-<div class="ai-item-sub">Current vs purchase price</div>
+<div class="ai-item-sub">Live vs purchase price</div>
 </div>
 <div class="ai-item">
 <div class="ai-item-label">⚡ Risk Score</div>
-<div class="ai-item-value" style="color:#f59e0b;">${active.filter(i=>i.isCrypto).length > active.length/2 ? 'High 🔴' : 'Medium 🟡'}</div>
-<div class="ai-item-sub">Based on crypto allocation</div>
+<div class="ai-item-value" style="color:${riskColor};">${risk}</div>
+<div class="ai-item-sub">Crypto: ${cryptoPercent.toFixed(0)}% of portfolio</div>
+</div>
+<div class="ai-item">
+<div class="ai-item-label">📈 Active Since</div>
+<div class="ai-item-value" style="color:#818cf8;">${monthsActive} months</div>
+<div class="ai-item-sub">Portfolio age</div>
+</div>
+<div class="ai-item">
+<div class="ai-item-label">🏆 Best Platform</div>
+<div class="ai-item-value" style="color:#f59e0b; font-size:0.85rem;">${bestPlatform}</div>
+<div class="ai-item-sub">Highest profit earned</div>
 </div>
 `;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let bestMonth = 0, bestPlatform = '';
-let platMap = {};
-history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; if(h.profit > bestMonth) bestMonth = h.profit; });
-bestPlatform = Object.keys(platMap).sort((a,b) => platMap[b]-platMap[a])[0] || 'N/A';
-insight.innerHTML = `
-<strong style="color:#a855f7;">🤖 AI Insight:</strong><br>
-আপনার portfolio তে ${active.length} টি active investment আছে। সর্বোচ্চ profit দিয়েছে <strong>${bestPlatform}</strong>।
-Crypto asset ${active.filter(i=>i.isCrypto).length} টি — বাজার অনুযায়ী rebalancing বিবেচনা করুন।
-মাসিক প্রত্যাশিত আয় <strong>${formatNumber(monthly)} BDT</strong> হলে ${monthsToGoal < 999 ? monthsToGoal + ' মাসে' : 'ধীরে ধীরে'} লক্ষ্যে পৌঁছানো সম্ভব।
-<br><span style="color:#6b7280; font-size:0.6rem;">* এটি historical data এবং বর্তমান rate এর উপর ভিত্তি করে prediction। বাস্তব result ভিন্ন হতে পারে।</span>
-`;
+
+insightEl.innerHTML = insight;
 card.style.display = 'block';
 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
