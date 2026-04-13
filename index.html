@@ -223,20 +223,33 @@ animation: fadeUp 0.5s ease 0.1s both;
 
 /* ====== AI CARD ====== */
 .ai-card {
-background: linear-gradient(135deg, #1a103a 0%, #0f0a20 100%);
-border-radius: 20px; padding: 18px; margin-bottom: 14px;
-border: 1px solid rgba(168,85,247,0.4);
-box-shadow: 0 0 24px rgba(168,85,247,0.15);
+background: linear-gradient(145deg, #0f0a1e 0%, #1a0f3a 50%, #0a0f1e 100%);
+border-radius: 22px; padding: 18px; margin-bottom: 14px;
+border: 1px solid rgba(168,85,247,0.35);
+box-shadow: 0 0 40px rgba(168,85,247,0.1), 0 8px 32px rgba(0,0,0,0.4);
+position: relative; overflow: hidden;
 }
-[data-theme="light"] .ai-card { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border-color: #a855f7; }
-.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-.ai-badge { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 700; }
-.ai-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-@media (min-width: 600px) { .ai-grid { grid-template-columns: repeat(3, 1fr); } }
-.ai-item { background: rgba(168,85,247,0.1); border-radius: 12px; padding: 12px; border: 1px solid rgba(168,85,247,0.25); }
-.ai-item-label { font-size: 0.6rem; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.5px; }
-.ai-item-value { font-size: 1rem; font-weight: 700; color: #c084fc; margin-top: 3px; }
-.ai-item-sub { font-size: 0.6rem; color: var(--text-sub); margin-top: 2px; }
+.ai-card::before {
+content: ''; position: absolute; top: -60px; right: -60px;
+width: 200px; height: 200px;
+background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
+pointer-events: none;
+}
+[data-theme="light"] .ai-card {
+background: linear-gradient(145deg, #faf5ff 0%, #f3e8ff 100%);
+border-color: rgba(168,85,247,0.4);
+box-shadow: 0 8px 24px rgba(168,85,247,0.15);
+}
+.ai-metric {
+background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2);
+border-radius: 14px; padding: 12px; transition: all 0.2s; position: relative;
+}
+.ai-metric:active { transform: scale(0.97); }
+.ai-metric-label { font-size: 0.58rem; color: #9333ea; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; }
+.ai-metric-value { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 800; margin-top: 3px; line-height: 1.1; }
+.ai-metric-sub { font-size: 0.6rem; color: #6b7280; margin-top: 3px; }
+[data-theme="light"] .ai-metric { background: rgba(168,85,247,0.06); }
+[data-theme="light"] .ai-metric-label { color: #7c3aed; }
 
 /* ====== ADMIN BAR ====== */
 .admin-bar {
@@ -729,6 +742,10 @@ body { padding: 10px; }
 <div class="stat"><i class="fas fa-robot"></i> <strong>AI</strong> Prediction</div>
 <div class="stat"><i class="fas fa-satellite-dish" style="color:#4ade80;"></i> <strong>Live</strong> FX Rates</div>
 </div>
+<div style="margin-top:12px; text-align:center; padding:8px 0; border-top:1px solid rgba(250,204,21,0.15);">
+<div style="font-size:0.7rem; color:#94a3b8; letter-spacing:0.5px; margin-bottom:3px;">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<div style="font-size:0.6rem; color:#64748b;">বিসমিল্লাহির রাহমানির রাহিম</div>
+</div>
 <div class="salaam-text">
 <i class="fas fa-hands-praying" style="color:#facc15;"></i>
 আসসালামু আলাইকুম, <span style="color:#facc15;">Taslim Rony</span> ভাই &amp; <span style="color:#f9a8d4;">Ajwa Jannat Dua</span> আপু! 🌙💍
@@ -787,14 +804,44 @@ body { padding: 10px; }
 <!-- AI PREDICTION CARD -->
 
 <div class="ai-card" id="aiPredictionCard" style="display:none;">
-<div class="ai-header">
-<i class="fas fa-robot" style="color:#a855f7; font-size:1.3rem;"></i>
-<h3 style="color:#a855f7;">AI Profit Prediction</h3>
-<span class="ai-badge">🤖 AI Analysis</span>
-<button onclick="document.getElementById('aiPredictionCard').style.display='none'" style="margin-left:auto;background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1.1rem;">✕</button>
+
+<!-- Header -->
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+<div style="display:flex; align-items:center; gap:10px;">
+<div style="background:linear-gradient(135deg,#a855f7,#7c3aed); width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(168,85,247,0.4);">
+<i class="fas fa-robot" style="color:white; font-size:1rem;"></i>
 </div>
-<div class="ai-grid" id="aiGrid"></div>
-<div style="margin-top:12px; font-size:0.65rem; color:#a78bfa; background:rgba(168,85,247,0.08); padding:10px; border-radius:8px;" id="aiInsight"></div>
+<div>
+<div style="font-family:'Sora',sans-serif; font-size:1rem; font-weight:800; color:#c084fc;">AI Portfolio Analyst</div>
+<div style="font-size:0.6rem; color:#7c3aed; background:rgba(124,58,237,0.15); padding:2px 8px; border-radius:10px; display:inline-block; margin-top:2px;">🔴 LIVE · Real Data</div>
+</div>
+</div>
+<button onclick="document.getElementById('aiPredictionCard').style.display='none'"
+style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#a855f7;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+</div>
+
+<!-- Score Bar -->
+
+<div id="aiScoreBar" style="margin-bottom:16px;"></div>
+
+<!-- Main Grid -->
+
+<div id="aiGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+
+<!-- Insight Box -->
+
+<div id="aiInsight" style="margin-top:12px;"></div>
+
+<!-- Suggestion Box -->
+
+<div id="aiSuggestionBox" style="margin-top:10px;"></div>
+
+<!-- Footer -->
+
+<div style="margin-top:12px; text-align:center; font-size:0.58rem; color:#4b5563; border-top:1px solid rgba(168,85,247,0.15); padding-top:8px;">
+<i class="fas fa-info-circle"></i> Real investment data ও historical return এর উপর ভিত্তি করে calculated। বাস্তব result ভিন্ন হতে পারে।
+</div>
 </div>
 
 <!-- CRYPTO CARDS -->
@@ -1090,6 +1137,63 @@ body { padding: 10px; }
 </div>
 </div>
 
+<!-- MSSA INSTALLMENT MODAL -->
+
+<div id="mssaModal" class="modal">
+<div class="modal-content">
+<h3>📅 MSSA কিস্তি যোগ করুন</h3>
+<div id="mssaInfo" style="background:var(--bg-input); border-radius:12px; padding:12px; margin-bottom:4px; font-size:0.8rem;"></div>
+<label>মাসিক কিস্তির পরিমাণ (BDT):</label>
+<input type="number" id="mssaMonthly" step="any" placeholder="যেমন: ৩০০০">
+<label>কয় মাসের কিস্তি দিচ্ছেন?</label>
+<input type="number" id="mssaMonths" step="1" min="1" placeholder="যেমন: ৭" value="1">
+<div id="mssaCalc" style="margin-top:10px; background:rgba(250,204,21,0.08); border:1px solid rgba(250,204,21,0.3); border-radius:10px; padding:10px; font-size:0.8rem; display:none;">
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">এই বারের মোট:</span>
+<strong id="mssaTotal" style="color:var(--accent);">0 BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-top:4px;">
+<span style="color:var(--text-sub);">এখন পর্যন্ত মোট জমা:</span>
+<strong id="mssaGrandTotal" style="color:#4ade80;">0 BDT</strong>
+</div>
+</div>
+<div style="display:flex; gap:8px; margin-top:15px;">
+<button onclick="confirmMssaInstallment()" class="btn-save" style="flex:1;"><i class="fas fa-plus-circle"></i> কিস্তি যোগ করুন</button>
+<button onclick="closeMssaModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+<small style="display:block; margin-top:10px; color:var(--text-sub); font-size:0.65rem; text-align:center;">
+<i class="fas fa-info-circle"></i> কিস্তির টাকা investment amount এ যোগ হবে। History তে record থাকবে।
+</small>
+</div>
+</div>
+
+<!-- TOP-UP MODAL (Wait Money / Bank Deposit) -->
+
+<div id="topUpModal" class="modal">
+<div class="modal-content">
+<h3>➕ আরো টাকা যোগ করুন</h3>
+<div id="topUpInfo" style="background:var(--bg-input); border-radius:12px; padding:12px; margin-bottom:4px; font-size:0.8rem;"></div>
+<label>যোগ করার পরিমাণ (BDT):</label>
+<input type="number" id="topUpAmount" step="any" placeholder="কত টাকা যোগ করবেন?">
+<label>Note (optional):</label>
+<input type="text" id="topUpNote" placeholder="যেমন: ২য় কিস্তি, আরো জমা...">
+<div id="topUpCalc" style="margin-top:10px; background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.3); border-radius:10px; padding:10px; font-size:0.8rem; display:none;">
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">আগে ছিল:</span>
+<strong id="topUpBefore" style="color:var(--text-sub);">0 BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-top:4px;">
+<span style="color:var(--text-sub);">যোগ করার পর:</span>
+<strong id="topUpAfter" style="color:#818cf8;">0 BDT</strong>
+</div>
+</div>
+<div style="display:flex; gap:8px; margin-top:15px;">
+<button onclick="confirmTopUp()" class="btn-save" style="flex:1; background:linear-gradient(135deg,#6366f1,#818cf8);"><i class="fas fa-plus-circle"></i> যোগ করুন</button>
+<button onclick="closeTopUpModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+</div>
+</div>
+
 <!-- CALENDAR MODAL -->
 
 <div id="calendarModal" class="modal">
@@ -1275,200 +1379,174 @@ function runAIPrediction() {
 let card = document.getElementById('aiPredictionCard');
 let grid = document.getElementById('aiGrid');
 let insightEl = document.getElementById('aiInsight');
+let suggestionBox = document.getElementById('aiSuggestionBox');
+let scoreBar = document.getElementById('aiScoreBar');
 let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) { showToast("কোনো active investment নেই।", true); return; }
 
-// ====== STEP 1: Data Collect ======
-const totalInvested = active.reduce((s,i) => s + (i.amountBDT||0), 0);
-const totalActualProfit = investments.reduce((s,i) => s + (i.actualProfit||0), 0);
+// ── Data Collect ──
+const totalInvested = active.reduce((s,i) => s+(i.amountBDT||0), 0);
+const totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0);
 const currentValue = totalInvested + totalActualProfit;
+const cryptoValue = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+const loanGiven = active.filter(i=>i.type==='LOAN_GIVEN').reduce((s,i)=>s+(i.amountBDT||0),0);
+const waitMoney = investments.filter(i=>isWaitMoney(i)&&i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0);
+const activeCount = active.length;
 
-const cryptoValue = active
-.filter(i => i.isCrypto && cryptoPrices[i.type])
-.reduce((s,i) => s + i.amount * cryptoPrices[i.type] * usdToBdt, 0);
-
-const loanGiven = active
-.filter(i => i.type === 'LOAN_GIVEN')
-.reduce((s,i) => s + (i.amountBDT||0), 0);
-
-const waitMoney = investments
-.filter(i => isWaitMoney(i) && i.status === 'active')
-.reduce((s,i) => s + (i.amountBDT||0), 0);
-
-const activeInvestments = active.length;
-
-// ====== STEP 2: Smart Return Rate ======
-// Calculate months active from earliest start date
+// ── Smart Return Rate ──
 let earliestDate = null;
-active.forEach(i => {
-if(i.start) {
-let d = new Date(i.start);
-if(!earliestDate || d < earliestDate) earliestDate = d;
-}
-});
-let monthsActive = earliestDate
-? Math.max(1, Math.round((new Date() - earliestDate) / (1000*60*60*24*30)))
-: 6;
-
-let monthlyReturnRate = totalInvested > 0
-? (totalActualProfit / totalInvested) / monthsActive
-: 0;
-
-// Fallback if data is low or negative
-if (!monthlyReturnRate || monthlyReturnRate <= 0) {
-monthlyReturnRate = 0.01; // 1% fallback
-}
-// Cap at realistic max (3% monthly = 36% annual)
+active.forEach(i=>{ if(i.start){ let d=new Date(i.start); if(!earliestDate||d<earliestDate) earliestDate=d; } });
+let monthsActive = earliestDate ? Math.max(1, Math.round((new Date()-earliestDate)/(1000*60*60*24*30))) : 6;
+let monthlyReturnRate = totalInvested>0 ? (totalActualProfit/totalInvested)/monthsActive : 0;
+if(!monthlyReturnRate||monthlyReturnRate<=0) monthlyReturnRate = 0.01;
 monthlyReturnRate = Math.min(monthlyReturnRate, 0.03);
 
-// ====== STEP 3: Prediction Engine ======
+// ── Predictions ──
 const monthlyProfit = totalInvested * monthlyReturnRate;
-const yearlyProfit = monthlyProfit * 12;
 const quarterlyProfit = monthlyProfit * 3;
+const yearlyProfit = monthlyProfit * 12;
 const annualRate = monthlyReturnRate * 12 * 100;
 
-// ====== STEP 4: Goal Achievement ======
+// ── Goal ──
 const GOAL = 300000;
-const monthlySaving = monthlyProfit;
-let monthsToGoal;
-if(monthlySaving <= 0) {
-monthsToGoal = "Uncertain";
-} else {
 let rem = Math.max(0, GOAL - currentValue);
-monthsToGoal = rem <= 0 ? "✅ Reached!" : Math.ceil(rem / monthlySaving) + " months";
-}
+let monthsToGoalNum = monthlyProfit > 0 ? Math.ceil(rem/monthlyProfit) : null;
+let goalText = rem <= 0 ? '✅ Reached!' : monthsToGoalNum ? `${monthsToGoalNum} months` : 'Uncertain';
+let goalPct = Math.min((currentValue/GOAL)*100, 100);
 
-// ====== STEP 5: Risk Score ======
-const cryptoPercent = currentValue > 0 ? (cryptoValue / currentValue) * 100 : 0;
-let risk = "Low 🟢";
-let riskColor = "#4ade80";
-if(cryptoPercent > 50 || loanGiven > 0) { risk = "High 🔴"; riskColor = "#f87171"; }
-else if(cryptoPercent > 25) { risk = "Medium 🟡"; riskColor = "#f59e0b"; }
+// ── Risk ──
+const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
+let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
+if(cryptoPercent>50||loanGiven>0){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
+else if(cryptoPercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
 
-// ====== Crypto Unrealized P&L ======
+// ── Portfolio Health Score (0-100) ──
+let healthScore = 100;
+if(cryptoPercent>60) healthScore -= 25;
+else if(cryptoPercent>40) healthScore -= 10;
+if(loanGiven>0) healthScore -= 15;
+if(waitMoney>10000) healthScore -= 10;
+if(totalActualProfit>0) healthScore += 10;
+if(monthsActive>6) healthScore += 5;
+healthScore = Math.max(20, Math.min(100, healthScore));
+let healthLabel = healthScore>=80?'Excellent 💪':healthScore>=60?'Good 👍':healthScore>=40?'Fair ⚠️':'Needs Attention 🚨';
+let healthColor = healthScore>=80?'#4ade80':healthScore>=60?'#a3e635':healthScore>=40?'#f59e0b':'#f87171';
+
+// ── Crypto P&L ──
 let cryptoPL = 0;
-active.forEach(inv => {
-if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
-cryptoPL += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount * usdToBdt;
-}
-});
+active.forEach(inv=>{ if(inv.isCrypto&&cryptoPrices[inv.type]&&inv.purchasePrice) cryptoPL+=(cryptoPrices[inv.type]-inv.purchasePrice)*inv.amount*usdToBdt; });
 
-// ====== Best Platform from history ======
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let platMap = {};
-history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
-let bestPlatform = Object.keys(platMap).sort((a,b)=>platMap[b]-platMap[a])[0] || 'N/A';
+// ── Best Platform ──
+let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let platMap={};
+history.forEach(h=>{ platMap[h.platform]=(platMap[h.platform]||0)+h.profit; });
+let bestPlatform=Object.keys(platMap).sort((a,b)=>platMap[b]-platMap[a])[0]||'N/A';
+let bestPlatformProfit = bestPlatform!=='N/A' ? platMap[bestPlatform] : 0;
 
-// ====== STEP 6: Smart Suggestion Engine ======
-const assetOptions = [
-{ name: "BTC", type: "crypto", return: 0.12, risk: "high" },
-{ name: "ETH", type: "crypto", return: 0.10, risk: "high" },
-{ name: "BNB", type: "crypto", return: 0.09, risk: "medium" },
-{ name: "SOL", type: "crypto", return: 0.11, risk: "high" },
-{ name: "Wegro", type: "agri", return: 0.18, risk: "medium" },
-{ name: "Biniyog", type: "p2p", return: 0.15, risk: "medium" },
-{ name: "iFarmer", type: "agri", return: 0.20, risk: "medium" },
-{ name: "MMPDA", type: "bank", return: 0.08, risk: "low" },
+// ── Farm value ──
+const farmValue=active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+
+// ── Smart Suggestion ──
+const assetOptions=[
+{name:"BTC",type:"crypto",return:0.12,risk:"high"},
+{name:"ETH",type:"crypto",return:0.10,risk:"high"},
+{name:"SOL",type:"crypto",return:0.11,risk:"high"},
+{name:"Wegro",type:"agri",return:0.18,risk:"medium"},
+{name:"iFarmer",type:"agri",return:0.20,risk:"medium"},
+{name:"Biniyog",type:"p2p",return:0.15,risk:"medium"},
+{name:"MMPDA",type:"bank",return:0.08,risk:"low"},
 ];
+function scoreAsset(a){ let s=a.return*100; if(risk==='High'&&a.risk==='high') s-=20; if(cryptoPercent>50&&a.type!=='crypto') s+=15; if(waitMoney>0&&a.return>0.10) s+=10; return s; }
+let bestAsset=assetOptions.reduce((b,a)=>scoreAsset(a)>scoreAsset(b)?a:b,assetOptions[0]);
+const cPct=cryptoPercent, fPct=currentValue>0?(farmValue/currentValue)*100:0;
+const platProfits=Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
+let suggestionText='', suggestionIcon='💡';
+if(waitMoney>1000){
+if(cPct<10){ suggestionText=`BTC / ETH এ অল্প invest করুন — crypto exposure এখন কম`; suggestionIcon='📈'; }
+else if(fPct<30){ suggestionText=`iFarmer / Wegro বাড়ান — stable halal growth`; suggestionIcon='🌱'; }
+else if(platProfits[0]){ suggestionText=`Top performer ${platProfits[0].name} এ আরো add করুন`; suggestionIcon='🏆'; }
+else { suggestionText=`${formatNumber(waitMoney)} BDT idle — ${bestAsset.name} এ invest করুন`; suggestionIcon='⏳'; }
+} else if(cPct>50){ suggestionText=`Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`; suggestionIcon='⚖️'; }
+else if(risk==='High'){ suggestionText=`Risk বেশি — ${bestAsset.name} (${bestAsset.type}) বিবেচনা করুন`; suggestionIcon='🛡️'; }
+else if(monthsToGoalNum&&monthsToGoalNum>100){ suggestionText=`Goal দ্রুত reach করতে investment বাড়ান`; suggestionIcon='🚀'; }
+else { suggestionText=`${bestAsset.name} — ${(bestAsset.return*100).toFixed(0)}% annual return — best option এখন`; suggestionIcon='✅'; }
 
-function scoreAsset(asset) {
-let score = asset.return * 100;
-if(risk.includes("High") && asset.risk === "high") score -= 20;
-if(cryptoPercent > 50 && asset.type !== "crypto") score += 15;
-if(waitMoney > 0 && asset.return > 0.10) score += 10;
-return score;
-}
+// ── Health Score Bar ──
+scoreBar.innerHTML = `
+<div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="font-size:0.68rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Portfolio Health Score</span>
+<span style="font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:800; color:${healthColor};">${healthScore}/100 — ${healthLabel}</span>
+</div>
+<div style="background:rgba(0,0,0,0.3); border-radius:10px; height:8px; overflow:hidden;">
+<div style="background:linear-gradient(90deg,${healthColor},${healthColor}aa); width:${healthScore}%; height:100%; border-radius:10px; transition:width 1s ease; box-shadow:0 0 8px ${healthColor}66;"></div>
+</div>
+<div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.58rem; color:#6b7280;">
+<span>🎯 Goal: ${goalPct.toFixed(1)}% complete</span>
+<span>📅 Active: ${monthsActive} months</span>
+<span>📊 ${activeCount} investments</span>
+</div>
+</div>`;
 
-let bestAsset = assetOptions.reduce((best, a) =>
-scoreAsset(a) > scoreAsset(best) ? a : best, assetOptions[0]);
-
-// ====== STEP 6: getInvestmentSuggestion (document logic) ======
-const farmValue = active
-.filter(i => ['Agriculture','Wegro','iFarmer','Biniyog'].includes(i.platform) || i.type === 'Agriculture')
-.reduce((s,i) => s + (i.amountBDT||0), 0);
-
-const platformProfits = Object.keys(platMap).map(name => ({ name, profit: platMap[name] }));
-
-function getInvestmentSuggestion() {
-if(waitMoney < 1000 && waitMoney > 0) return "⚠️ Low balance — save more before investing";
-const cPct = currentValue > 0 ? (cryptoValue / currentValue) * 100 : 0;
-const fPct = currentValue > 0 ? (farmValue / currentValue) * 100 : 0;
-const best = platformProfits.sort((a,b) => b.profit - a.profit)[0];
-if(waitMoney > 0) {
-if(cPct < 10) return `📈 BTC / ETH এ অল্প invest করুন (low exposure এখন)`;
-if(fPct < 30) return `🌱 iFarmer / Wegro বাড়ান (stable halal growth)`;
-if(best) return `🏆 Top performer: <strong>${best.name}</strong> — আরো add করুন`;
-}
-if(cPct > 50) return `⚖️ Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন 🌱`;
-if(risk.includes("High")) return `🛡️ Risk বেশি — <strong>${bestAsset.name}</strong> (${bestAsset.type}) বিবেচনা করুন`;
-if(monthsToGoal !== "Uncertain" && typeof monthsToGoal === 'string' && parseInt(monthsToGoal) > 100) {
-return `🚀 Goal দ্রুত reach করতে investment বাড়ান`;
-}
-return `✅ <strong>${bestAsset.name}</strong> — (${(bestAsset.return*100).toFixed(0)}% annual return) best option এখন`;
-}
-
-let suggestion = getInvestmentSuggestion();
-
-// ====== STEP 6: AI Insight Generator ======
-let insight = `<strong style="color:#a855f7;">🤖 AI Insight:</strong><br>`;
-insight += `আপনার portfolio তে <strong>${activeInvestments}</strong> টি active investment আছে। `;
-if(cryptoPercent > 40) insight += `Crypto exposure <strong>${cryptoPercent.toFixed(0)}%</strong> — risk control করতে rebalance করুন। `;
-if(loanGiven > 0) insight += `আপনি <strong>${formatNumber(loanGiven)} BDT</strong> ধার দিয়েছেন, recovery track রাখুন। `;
-if(waitMoney > 0) insight += `<strong>${formatNumber(waitMoney)} BDT</strong> idle আছে, invest করলে growth বাড়বে। `;
-if(totalActualProfit > 0) {
-insight += `Portfolio profit এ আছে <strong style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</strong> — আলহামদুলিল্লাহ! `;
-} else {
-insight += `বর্তমানে portfolio loss এ আছে, strategy revise করুন। `;
-}
-if(bestPlatform !== 'N/A') insight += `সর্বোচ্চ profit দিয়েছে: <strong>${bestPlatform}</strong>। `;
-insight += `<br><br>💡 <strong>AI Suggestion:</strong> ${suggestion}`;
-insight += `<br><br><span style="color:#6b7280;font-size:0.6rem;">* Real investment data ও historical return এর উপর ভিত্তি করে calculated। বাস্তব result ভিন্ন হতে পারে।</span>`;
-
-// ====== STEP 7: Render UI ======
+// ── Main Metrics Grid ──
 grid.innerHTML = `
-<div class="ai-item">
-<div class="ai-item-label">📅 Monthly Prediction</div>
-<div class="ai-item-value" style="color:#4ade80;">+${formatNumber(monthlyProfit)} BDT</div>
-<div class="ai-item-sub">Real rate: ${annualRate.toFixed(1)}% annual</div>
+<div class="ai-metric">
+<div class="ai-metric-label">📅 Monthly</div>
+<div class="ai-metric-value" style="color:#4ade80;">+${formatNumber(monthlyProfit)}</div>
+<div class="ai-metric-sub">BDT · ${annualRate.toFixed(1)}% annual</div>
 </div>
-<div class="ai-item">
-<div class="ai-item-label">📊 Quarterly (3 Month)</div>
-<div class="ai-item-value" style="color:#4ade80;">+${formatNumber(quarterlyProfit)} BDT</div>
-<div class="ai-item-sub">Based on actual data</div>
+<div class="ai-metric">
+<div class="ai-metric-label">📊 Quarterly</div>
+<div class="ai-metric-value" style="color:#34d399;">+${formatNumber(quarterlyProfit)}</div>
+<div class="ai-metric-sub">BDT · 3 months</div>
 </div>
-<div class="ai-item">
-<div class="ai-item-label">🗓️ Yearly Projection</div>
-<div class="ai-item-value" style="color:#facc15;">+${formatNumber(yearlyProfit)} BDT</div>
-<div class="ai-item-sub">If trend continues</div>
+<div class="ai-metric">
+<div class="ai-metric-label">🗓️ Yearly</div>
+<div class="ai-metric-value" style="color:#facc15;">+${formatNumber(yearlyProfit)}</div>
+<div class="ai-metric-sub">BDT · projection</div>
 </div>
-<div class="ai-item" style="grid-column: span 2; background:rgba(168,85,247,0.15); border-color:rgba(168,85,247,0.5);">
-<div class="ai-item-label">💡 AI Suggestion</div>
-<div class="ai-item-value" style="color:#e879f9; font-size:0.82rem; line-height:1.4;">${suggestion}</div>
-<div class="ai-item-sub">Based on your portfolio data</div>
+<div class="ai-metric">
+<div class="ai-metric-label">💹 Crypto P&L</div>
+<div class="ai-metric-value" style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)}</div>
+<div class="ai-metric-sub">BDT · unrealized</div>
 </div>
-<div class="ai-item">
-<div class="ai-item-label">💹 Crypto Unrealized P&L</div>
-<div class="ai-item-value" style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)} BDT</div>
-<div class="ai-item-sub">Live vs purchase price</div>
+<div class="ai-metric">
+<div class="ai-metric-label">⚡ Risk Level</div>
+<div class="ai-metric-value" style="color:${riskColor};">${riskEmoji} ${risk}</div>
+<div class="ai-metric-sub">Crypto: ${cryptoPercent.toFixed(0)}% of total</div>
 </div>
-<div class="ai-item">
-<div class="ai-item-label">⚡ Risk Score</div>
-<div class="ai-item-value" style="color:${riskColor};">${risk}</div>
-<div class="ai-item-sub">Crypto: ${cryptoPercent.toFixed(0)}% of portfolio</div>
-</div>
-<div class="ai-item">
-<div class="ai-item-label">📈 Active Since</div>
-<div class="ai-item-value" style="color:#818cf8;">${monthsActive} months</div>
-<div class="ai-item-sub">Portfolio age</div>
-</div>
-<div class="ai-item">
-<div class="ai-item-label">🏆 Best Platform</div>
-<div class="ai-item-value" style="color:#f59e0b; font-size:0.85rem;">${bestPlatform}</div>
-<div class="ai-item-sub">Highest profit earned</div>
-</div>
-`;
+<div class="ai-metric">
+<div class="ai-metric-label">🏆 Best Platform</div>
+<div class="ai-metric-value" style="color:#f59e0b; font-size:0.88rem;">${bestPlatform}</div>
+<div class="ai-metric-sub">${bestPlatformProfit>0?'+'+formatNumber(bestPlatformProfit)+' BDT':'No history yet'}</div>
+</div>`;
 
-insightEl.innerHTML = insight;
+// ── Insight Box ──
+let insightLines = [];
+insightLines.push(`<b>${activeCount}</b> টি active investment চলছে।`);
+if(totalActualProfit>0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
+else insightLines.push(`এখনো profit শুরু হয়নি — strategy ঠিক রাখুন।`);
+if(cryptoPercent>40) insightLines.push(`Crypto <b>${cryptoPercent.toFixed(0)}%</b> — rebalance বিবেচনা করুন।`);
+if(loanGiven>0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
+if(waitMoney>0) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
+if(bestPlatform!=='N/A') insightLines.push(`সর্বোচ্চ profit দিয়েছে: <b>${bestPlatform}</b>`);
+
+insightEl.innerHTML = `
+<div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px; margin-top:2px;">
+<div style="font-size:0.65rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">🤖 AI Insight</div>
+${insightLines.map(l=>`<div style="font-size:0.72rem; color:#d8b4fe; line-height:1.6; display:flex; gap:6px; margin-bottom:4px;"><span style="color:#7c3aed; flex-shrink:0;">▸</span><span>${l}</span></div>`).join('')}
+</div>`;
+
+// ── Suggestion Box ──
+suggestionBox.innerHTML = `
+<div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1)); border:1px solid rgba(168,85,247,0.45); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px;">
+<div style="font-size:1.5rem; flex-shrink:0;">${suggestionIcon}</div>
+<div>
+<div style="font-size:0.6rem; color:#9333ea; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">AI Suggestion</div>
+<div style="font-size:0.78rem; color:#e9d5ff; font-weight:600; line-height:1.4;">${suggestionText}</div>
+</div>
+</div>`;
+
 card.style.display = 'block';
 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -1658,13 +1736,11 @@ if (!container) return;
 if (list.length === 0) { card.style.display = 'none'; return; }
 card.style.display = 'block';
 
-// Calculate totals
 let totalBDT = list.reduce((s, i) => s + (i.amountBDT || 0), 0);
 let totalUSD = totalBDT / usdToBdt;
 let totalExpectedProfit = list.reduce((s, i) => s + (i.expectedProfit || 0), 0);
 let count = list.length;
 
-// Render totals summary chips
 if (totalsEl) {
 totalsEl.innerHTML = `
 <div style="background:rgba(245,158,11,0.12); border:1px solid #f59e0b; border-radius:12px; padding:10px 16px; text-align:center;">
@@ -1685,7 +1761,6 @@ totalsEl.innerHTML = `
 `;
 }
 
-// Render individual items
 container.innerHTML = list.map(inv => `
 <div class="platform-box wait">
 <div class="platform-header">
@@ -1695,10 +1770,11 @@ container.innerHTML = list.map(inv => `
 <div class="investment-details">📅 Start: ${inv.start}${inv.end ? ' → ' + inv.end : ''} | Expected Profit: <span style="color:#4ade80;">+${formatNumber(inv.expectedProfit)} BDT</span></div>
 ${inv.person ? `<div class="note-text">👤 ${inv.person}</div>` : ''}
 ${inv.note ? `<div class="note-text">📝 ${inv.note}</div>` : ''}
-<div class="investment-actions" style="margin-top:8px;">
+<div class="investment-actions" style="margin-top:8px; flex-wrap:wrap;">
 ${isAdmin ? `
 <button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button>
 <button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>
+<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i> Top-up</button>
 <button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button>
 <button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>
 ` : '<span class="note-text">🔒 Login required</span>'}
@@ -1708,38 +1784,116 @@ ${isAdmin ? `
 }
 
 // ====== RENDER PORTFOLIO ======
-function renderPortfolioByPlatform() {
-let activeMap={}, completedMap={}, totalActiveBDT=0;
-investments.forEach(inv=>{ if(inv.status==='active'&&!isWaitMoney(inv)) totalActiveBDT+=inv.amountBDT||0; });
-investments.forEach(inv=>{ if(inv.status==='active'&&!isWaitMoney(inv)){ if(!activeMap[inv.platform]) activeMap[inv.platform]=[]; activeMap[inv.platform].push(inv); } else if(inv.status!=='active'){ if(!completedMap[inv.platform]) completedMap[inv.platform]=[]; completedMap[inv.platform].push(inv); } });
-let activeHtml='';
-for(let plat of Object.keys(activeMap).sort()){
-let platTotal=activeMap[plat].reduce((s,i)=>s+(i.amountBDT||0),0);
-let pct=totalActiveBDT>0?(platTotal/totalActiveBDT*100).toFixed(1):0;
-activeHtml+=`<div class="platform-box"><div class="platform-header"><span><i class="fas fa-chart-line"></i> ${plat}</span><span>${formatNumber(platTotal)} BDT (${pct}%)</span></div>`;
-for(let inv of activeMap[plat]){
-let investedDisplay=inv.isCrypto?`${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}`:`${formatNumber(inv.amountBDT)} BDT`;
-let currentDisplay='';
-if(inv.isCrypto&&cryptoPrices[inv.type]){ let cUSD=inv.amount*cryptoPrices[inv.type]; let cBDT=cUSD*usdToBdt; let pnl=cBDT-(inv.amount*(inv.purchasePrice||0)*usdToBdt); currentDisplay=`<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`; }
+function buildInvItemHtml(inv) {
+let investedDisplay = inv.isCrypto ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}` : `${formatNumber(inv.amountBDT)} BDT`;
+let currentDisplay = '';
+if(inv.isCrypto && cryptoPrices[inv.type]){ let cUSD=inv.amount*cryptoPrices[inv.type]; let cBDT=cUSD*usdToBdt; let pnl=cBDT-(inv.amount*(inv.purchasePrice||0)*usdToBdt); currentDisplay=`<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`; }
 else if(inv.type==="LOAN_GIVEN") currentDisplay=`<span class="investment-details" style="color:#4ade80;">💸 To Receive: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="LOAN_TAKEN") currentDisplay=`<span class="investment-details" style="color:#f87171;">💳 You Owe: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="BANK_DEPOSIT") currentDisplay=`<span class="investment-details" style="color:#10b981;">🏦 Bank Deposit: ${formatNumber(inv.amountBDT)} BDT</span>`;
-activeHtml+=`<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+let isMSSA = inv.type === 'MSSA';
+let isBankOrDeposit = inv.type === 'BANK_DEPOSIT';
+let extraBtns = '';
+if(isAdmin) {
+if(isMSSA) extraBtns = `<button class="btn-icon" style="background:rgba(250,204,21,0.15);color:var(--accent);border-color:rgba(250,204,21,0.4);" onclick="openMssaModal('${inv.id}')"><i class="fas fa-plus"></i> কিস্তি</button>`;
+if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i> Top-up</button>`;
 }
-activeHtml+=`</div>`;
+return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
-if(!Object.keys(activeMap).length) activeHtml='<div style="text-align:center;padding:20px;color:var(--text-sub);">No active investments</div>';
-let completedHtml='';
-for(let plat of Object.keys(completedMap).sort()){
-completedHtml+=`<div class="platform-box completed"><div class="platform-header" style="color:var(--text-sub);"><i class="fas fa-archive"></i> ${plat}</div>`;
-for(let inv of completedMap[plat]){
-completedHtml+=`<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">COMPLETED</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+
+function togglePlatformMore(platKey) {
+let moreEl = document.getElementById('more-' + platKey);
+let btnEl = document.getElementById('morebtn-' + platKey);
+if(!moreEl || !btnEl) return;
+let hidden = moreEl.style.display === 'none';
+moreEl.style.display = hidden ? 'block' : 'none';
+btnEl.innerHTML = hidden
+? `<i class="fas fa-chevron-up"></i> Less`
+: `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
 }
-completedHtml+=`</div>`;
+
+function renderPortfolioByPlatform() {
+let activeMap={}, completedMap={}, totalActiveBDT=0;
+investments.forEach(inv=>{ if(inv.status==='active'&&!isWaitMoney(inv)) totalActiveBDT+=inv.amountBDT||0; });
+investments.forEach(inv=>{
+if(inv.status==='active'&&!isWaitMoney(inv)){ if(!activeMap[inv.platform]) activeMap[inv.platform]=[]; activeMap[inv.platform].push(inv); }
+else if(inv.status!=='active'){ if(!completedMap[inv.platform]) completedMap[inv.platform]=[]; completedMap[inv.platform].push(inv); }
+});
+
+const SHOW_FIRST = 2; // প্রথম কতটা দেখাবে
+let activeHtml = '';
+
+for(let plat of Object.keys(activeMap).sort()) {
+let items = activeMap[plat];
+let platTotal = items.reduce((s,i) => s+(i.amountBDT||0), 0);
+let pct = totalActiveBDT > 0 ? (platTotal/totalActiveBDT*100).toFixed(1) : 0;
+let platKey = plat.replace(/[^a-zA-Z0-9]/g, '_');
+
+let visibleItems = items.slice(0, SHOW_FIRST);
+let hiddenItems = items.slice(SHOW_FIRST);
+let hasMore = hiddenItems.length > 0;
+
+activeHtml += `<div class="platform-box">
+<div class="platform-header">
+<span><i class="fas fa-chart-line"></i> ${plat}</span>
+<span>${formatNumber(platTotal)} BDT (${pct}%) &nbsp;<span style="font-size:0.65rem;color:var(--text-sub);">${items.length} item${items.length>1?'s':''}</span></span>
+</div>`;
+
+// প্রথম ২টা সবসময় দেখাবে
+visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
+
+// বাকিগুলো লুকানো থাকবে
+if(hasMore) {
+activeHtml += `
+<div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
+${hiddenItems.map(inv => buildInvItemHtml(inv)).join('')}
+</div>
+<button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
+style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.2s;">
+<i class="fas fa-chevron-down"></i> আরো ${hiddenItems.length} টি দেখুন
+</button>`;
 }
-if(!Object.keys(completedMap).length) completedHtml='<div style="text-align:center;padding:20px;color:var(--text-sub);">No completed projects</div>';
-document.getElementById('activePortfolio').innerHTML=activeHtml;
-document.getElementById('completedPortfolio').innerHTML=completedHtml;
+
+activeHtml += `</div>`;
+}
+
+if(!Object.keys(activeMap).length) activeHtml = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No active investments</div>';
+
+// Completed — same More/Less logic
+let completedHtml = '';
+for(let plat of Object.keys(completedMap).sort()) {
+let items = completedMap[plat];
+let platKey = 'c_' + plat.replace(/[^a-zA-Z0-9]/g, '_');
+let visibleItems = items.slice(0, SHOW_FIRST);
+let hiddenItems = items.slice(SHOW_FIRST);
+
+completedHtml += `<div class="platform-box completed">
+<div class="platform-header" style="color:var(--text-sub);">
+<span><i class="fas fa-archive"></i> ${plat}</span>
+<span style="font-size:0.72rem;">${items.length} item${items.length>1?'s':''}</span>
+</div>`;
+
+visibleItems.forEach(inv => {
+completedHtml += `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+});
+
+if(hiddenItems.length > 0) {
+completedHtml += `
+<div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
+${hiddenItems.map(inv => `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`).join('')}
+</div>
+<button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
+style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">
+<i class="fas fa-chevron-down"></i> আরো ${hiddenItems.length} টি দেখুন
+</button>`;
+}
+completedHtml += `</div>`;
+}
+
+if(!Object.keys(completedMap).length) completedHtml = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No completed projects</div>';
+
+document.getElementById('activePortfolio').innerHTML = activeHtml;
+document.getElementById('completedPortfolio').innerHTML = completedHtml;
 }
 
 // ====== CRYPTO PRICES ======
@@ -1800,7 +1954,7 @@ let tQty=0, tCost=0;
 investments.forEach(inv=>{ if(inv.isCrypto&&inv.type===coin&&inv.status==='active'&&inv.purchasePrice&&inv.amount){ tQty+=inv.amount; tCost+=inv.amount*inv.purchasePrice; } });
 let avg=tQty>0?tCost/tQty:0;
 let div=document.getElementById(coin.toLowerCase()+'PurchaseInfo');
-if(div) div.innerHTML=tQty>0?`<div class="row"><span>📈 Avg Price:</span><span>$${formatNumber(avg)}</span></div><div class="row"><span>💵 Invested:</span><span>$${formatNumber(tCost)} (${formatNumber(tCost*usdToBdt)} BDT)</span></div>`:'<div class="row"><span>No active holdings</span></div>';
+if(div) div.innerHTML=tQty>0?`<div class="row"><span>📈 Avg Price:</span><span style="color:#f59e0b; font-weight:600;">$${formatNumber(avg)}</span></div><div class="row"><span>💵 Invested:</span><span><span style="color:#10b981; font-weight:700;">$${formatNumber(tCost)}</span> <span style="color:#64748b;">|</span> <span style="color:#facc15; font-weight:700;">${formatNumber(tCost*usdToBdt)} BDT</span></span></div>`:'<div class="row" style="color:var(--text-sub); font-size:0.62rem;">No active holdings</div>';
 });
 }
 
@@ -1992,6 +2146,126 @@ document.getElementById('partialModal').style.display = 'none';
 partialInvId = null;
 }
 
+// ====== MSSA INSTALLMENT ======
+let mssaInvId = null;
+function openMssaModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+mssaInvId = id;
+document.getElementById('mssaInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">Platform:</span><strong>${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">এখন পর্যন্ত জমা:</span>
+<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">মোট কিস্তি দেওয়া:</span>
+<strong style="color:#4ade80;">${inv.installmentCount || 0} মাস</strong>
+</div>
+`;
+document.getElementById('mssaMonthly').value = inv.monthlyInstallment || '';
+document.getElementById('mssaMonths').value = 1;
+document.getElementById('mssaCalc').style.display = 'none';
+// Live calc on input
+['mssaMonthly','mssaMonths'].forEach(id => {
+document.getElementById(id).oninput = () => {
+let monthly = parseFloat(document.getElementById('mssaMonthly').value) || 0;
+let months = parseInt(document.getElementById('mssaMonths').value) || 0;
+if(monthly > 0 && months > 0) {
+let thisTotal = monthly * months;
+let grandTotal = (inv.amountBDT || 0) + thisTotal;
+document.getElementById('mssaTotal').textContent = formatNumber(thisTotal) + ' BDT';
+document.getElementById('mssaGrandTotal').textContent = formatNumber(grandTotal) + ' BDT';
+document.getElementById('mssaCalc').style.display = 'block';
+} else {
+document.getElementById('mssaCalc').style.display = 'none';
+}
+};
+});
+document.getElementById('mssaModal').style.display = 'flex';
+}
+
+async function confirmMssaInstallment() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === mssaInvId);
+if(!inv) return;
+let monthly = parseFloat(document.getElementById('mssaMonthly').value);
+let months = parseInt(document.getElementById('mssaMonths').value) || 1;
+if(!monthly || monthly <= 0) return showToast("মাসিক পরিমাণ দিন", true);
+let addAmt = monthly * months;
+inv.amountBDT = (inv.amountBDT || 0) + addAmt;
+inv.amountUSD = inv.amountBDT / usdToBdt;
+inv.monthlyInstallment = monthly;
+inv.installmentCount = (inv.installmentCount || 0) + months;
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT, amountUSD: inv.amountUSD,
+monthlyInstallment: monthly, installmentCount: inv.installmentCount
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeMssaModal();
+renderAll();
+showToast(`✅ ${months} মাস × ${formatNumber(monthly)} = ${formatNumber(addAmt)} BDT যোগ হয়েছে!`);
+}
+function closeMssaModal() { document.getElementById('mssaModal').style.display = 'none'; mssaInvId = null; }
+
+// ====== TOP-UP (Wait Money / Bank) ======
+let topUpInvId = null;
+function openTopUpModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+topUpInvId = id;
+document.getElementById('topUpInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">${inv.person || inv.type}:</span>
+<strong>${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">বর্তমান পরিমাণ:</span>
+<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
+</div>
+`;
+document.getElementById('topUpAmount').value = '';
+document.getElementById('topUpNote').value = '';
+document.getElementById('topUpCalc').style.display = 'none';
+document.getElementById('topUpAmount').oninput = () => {
+let amt = parseFloat(document.getElementById('topUpAmount').value) || 0;
+if(amt > 0) {
+document.getElementById('topUpBefore').textContent = formatNumber(inv.amountBDT) + ' BDT';
+document.getElementById('topUpAfter').textContent = formatNumber(inv.amountBDT + amt) + ' BDT';
+document.getElementById('topUpCalc').style.display = 'block';
+} else { document.getElementById('topUpCalc').style.display = 'none'; }
+};
+document.getElementById('topUpModal').style.display = 'flex';
+}
+
+async function confirmTopUp() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === topUpInvId);
+if(!inv) return;
+let amt = parseFloat(document.getElementById('topUpAmount').value);
+let note = document.getElementById('topUpNote').value || '';
+if(!amt || amt <= 0) return showToast("পরিমাণ দিন", true);
+inv.amountBDT = (inv.amountBDT || 0) + amt;
+inv.amountUSD = inv.amountBDT / usdToBdt;
+if(note) inv.note = (inv.note ? inv.note + ' | ' : '') + note;
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT, amountUSD: inv.amountUSD, note: inv.note
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeTopUpModal();
+renderAll();
+showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতুন মোট: ${formatNumber(inv.amountBDT)} BDT`);
+}
+function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
+
 // ====== UTILITIES ======
 function exportToCSV() {
 if(!isAdmin) return showToast("Admin required", true);
@@ -2034,6 +2308,9 @@ window.changeCalMonth=changeCalMonth; window.runAIPrediction=runAIPrediction;
 window.checkAlerts=checkAlerts; window.installPWA=installPWA;
 window.toggleTheme=toggleTheme; window.setCurrency=setCurrency;
 window.openPartialModal=openPartialModal; window.confirmPartialWithdraw=confirmPartialWithdraw; window.closePartialModal=closePartialModal;
+window.openMssaModal=openMssaModal; window.confirmMssaInstallment=confirmMssaInstallment; window.closeMssaModal=closeMssaModal;
+window.openTopUpModal=openTopUpModal; window.confirmTopUp=confirmTopUp; window.closeTopUpModal=closeTopUpModal;
+window.togglePlatformMore=togglePlatformMore;
 
 // ====== INIT ======
 loadTheme();
