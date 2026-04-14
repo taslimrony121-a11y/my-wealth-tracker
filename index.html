@@ -796,10 +796,11 @@ body { padding: 10px; }
 
 <div class="action-buttons">
 <button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
+<button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
-<button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar View</button>
+<button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
-<button class="action-btn" onclick="checkAlerts()" style="border-color:#f59e0b;color:#f59e0b;"><i class="fas fa-bell"></i> Check Alerts</button>
+<button class="action-btn" onclick="checkAlerts()" style="border-color:#f59e0b;color:#f59e0b;"><i class="fas fa-bell"></i> Alerts</button>
 </div>
 
 <!-- AI PREDICTION CARD -->
@@ -903,7 +904,7 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 
 <!-- CRYPTO AI ANALYSIS -->
 
-<div style="background:linear-gradient(145deg,#0a0f1c,#0f0520,#0a0f1c); border-radius:22px; padding:16px; margin-bottom:14px; border:1px solid rgba(250,204,21,0.2); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+<div id="cryptoAiSection" style="background:linear-gradient(145deg,#0a0f1c,#0f0520,#0a0f1c); border-radius:22px; padding:16px; margin-bottom:14px; border:1px solid rgba(250,204,21,0.2); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
 <div style="display:flex; align-items:center; gap:10px;">
 <div style="position:relative; width:36px; height:36px; flex-shrink:0;">
@@ -915,9 +916,12 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <div style="font-size:0.58rem; color:#6b7280; margin-top:1px;">Buy / Hold / Sell · Based on 24h & 7d data</div>
 </div>
 </div>
+<div style="display:flex; gap:8px; align-items:center;">
 <button onclick="runCryptoAnalysis()" style="background:linear-gradient(135deg,#f7931a,#f59e0b);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 2px 10px rgba(247,147,26,0.4);">
 <i class="fas fa-sync-alt"></i> Analyze Now
 </button>
+<button onclick="document.getElementById('cryptoAiSection').style.display='none'" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+</div>
 </div>
 <div id="cryptoAnalysisGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
 <div style="grid-column:span 2; text-align:center; padding:20px; color:#4b5563; font-size:0.75rem;">
@@ -1028,28 +1032,6 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <button class="btn-save" id="saveBtn">Save Investment</button>
 </div>
 
-<!-- NET WORTH CHART -->
-
-<div class="chart-container">
-<div class="chart-header">
-<div class="chart-header-left">
-<h3>ASSET NET WORTH (Touch line for value)</h3>
-<div class="asset-networth" id="latestNetWorth">$0.00</div>
-<div class="chart-date" id="latestDate">--</div>
-</div>
-<div class="legend-line"><span><span class="legend-color current"></span> Net Worth USD · Trend</span></div>
-</div>
-<div class="chart-time-range" id="timeRange">
-<button class="time-btn" data-days="7">7D</button>
-<button class="time-btn" data-days="30">30D</button>
-<button class="time-btn" data-days="90">90D</button>
-<button class="time-btn active" data-days="all">All Time</button>
-</div>
-<div class="chart-wrapper">
-<canvas id="netWorthChart" width="1000" height="380"></canvas>
-</div>
-</div>
-
 <!-- MONTHLY PROFIT CHART -->
 
 <div class="monthly-chart-modern">
@@ -1119,11 +1101,53 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
+<!-- WITHDRAWAL LOG CHART -->
+
+<div class="card" id="withdrawalLogCard">
+<h2><i class="fas fa-chart-bar" style="color:#10b981;"></i> Withdrawal Log Chart</h2>
+<p style="font-size:0.68rem; color:var(--text-sub); margin-bottom:12px;">প্রতি মাসে কত টাকা তুলেছেন</p>
+<div style="height:200px; position:relative;">
+<canvas id="withdrawalLogChart" style="width:100%; height:200px;"></canvas>
+</div>
+</div>
+
+<!-- MONTHLY BUDGET TRACKER -->
+
+<div class="card" id="budgetCard">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+<h2><i class="fas fa-wallet" style="color:#06b6d4;"></i> Monthly Budget Tracker</h2>
+<button onclick="openBudgetModal()" style="background:linear-gradient(135deg,#06b6d4,#0891b2);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-plus"></i> এই মাসের বাজেট
+</button>
+</div>
+<div id="budgetDisplay">
+<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.75rem;">
+এখনো বাজেট add করা হয়নি — "এই মাসের বাজেট" চাপুন
+</div>
+</div>
+</div>
+
+<!-- INVESTMENT REMINDER -->
+
+<div class="card" id="reminderCard">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+<h2><i class="fas fa-bell" style="color:#f59e0b;"></i> Investment Reminders</h2>
+<button onclick="openReminderModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-plus"></i> Reminder যোগ করুন
+</button>
+</div>
+<div id="reminderList">
+<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.75rem;">
+কোনো reminder নেই
+</div>
+</div>
+</div>
+
 <div class="footer">
 <p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
 <p style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Together building wealth, together building life 🌙</p>
 <p style="font-weight:bold; font-size:0.9rem; color:var(--accent); margin-top:6px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua's Dua always 🤲</p>
-<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v14.1 | AI + Alerts + Calendar + Dark/Light + Multi-Currency + PWA + SOL</p>
+<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v15.0 | Budget + Reminder + PDF + Withdrawal Chart + Crypto AI Signal</p>
 </div>
 </div>
 
@@ -1240,6 +1264,57 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 </div>
 </div>
 
+<!-- BUDGET MODAL -->
+
+<div id="budgetModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-wallet" style="color:#06b6d4;"></i> এই মাসের বাজেট</h3>
+<div id="budgetMonthLabel" style="font-size:0.8rem;color:var(--text-sub);margin-bottom:12px;"></div>
+<label>মোট Income (BDT):</label>
+<input type="number" id="budgetIncome" step="any" placeholder="এই মাসে মোট আয়">
+<label>মোট Expense (BDT):</label>
+<input type="number" id="budgetExpense" step="any" placeholder="এই মাসে মোট খরচ">
+<label>Investment করেছি (BDT):</label>
+<input type="number" id="budgetInvested" step="any" placeholder="এই মাসে invest করা">
+<label>Note (optional):</label>
+<input type="text" id="budgetNote" placeholder="যেমন: ঈদের মাস, বোনাস পেয়েছি...">
+<div id="budgetCalc" style="margin-top:10px; background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:10px; padding:10px; font-size:0.78rem; display:none;">
+<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-sub);">Savings:</span><strong id="budgetSavings" style="color:#4ade80;"></strong></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:var(--text-sub);">Savings Rate:</span><strong id="budgetRate" style="color:#06b6d4;"></strong></div>
+</div>
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveBudget()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#06b6d4,#0891b2);">💾 Save</button>
+<button onclick="closeBudgetModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- REMINDER MODAL -->
+
+<div id="reminderModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-bell" style="color:#f59e0b;"></i> Reminder যোগ করুন</h3>
+<label>Reminder Title:</label>
+<input type="text" id="reminderTitle" placeholder="যেমন: MSSA কিস্তি দিন, iFarmer invest করুন">
+<label>Date:</label>
+<input type="date" id="reminderDate">
+<label>Type:</label>
+<select id="reminderType" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);">
+<option value="installment">💳 কিস্তি / Installment</option>
+<option value="invest">📈 Investment</option>
+<option value="withdraw">💰 Withdrawal</option>
+<option value="review">🔍 Portfolio Review</option>
+<option value="other">📌 Other</option>
+</select>
+<label>Note:</label>
+<input type="text" id="reminderNote" placeholder="বিস্তারিত লিখুন...">
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveReminder()" class="btn-save" style="flex:1;">🔔 Save Reminder</button>
+<button onclick="closeReminderModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+</div>
+</div>
+
 <!-- CALENDAR MODAL -->
 
 <div id="calendarModal" class="modal">
@@ -1270,7 +1345,7 @@ let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let growthChart = null, platformChart = null, monthlyChart = null;
-let currentTimeRange = "all", editId = null, currentYear = 2025;
+let currentTimeRange = "all", editId = null, currentYear = new Date().getFullYear();
 let activeCurrency = "BDT";
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let deferredPrompt = null;
@@ -1378,7 +1453,7 @@ localStorage.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
 // Re-render charts for new theme
-setTimeout(() => { updateNetWorthChart(); renderPlatformChart(); renderMonthlyChart(); }, 100);
+setTimeout(() => { renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); }, 100);
 }
 function loadTheme() {
 let saved = localStorage.getItem('theme') || 'dark';
@@ -1670,55 +1745,6 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 }
 
 // ====== NET WORTH CHART ======
-function initNetWorthChart(labels, dataValues) {
-const canvas = document.getElementById('netWorthChart');
-if (!canvas) return;
-const ctx = canvas.getContext('2d');
-const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, "rgba(255, 217, 102, 0.4)");
-gradient.addColorStop(0.6, "rgba(250, 204, 21, 0.06)");
-gradient.addColorStop(1, "rgba(250, 204, 21, 0)");
-if (growthChart) growthChart.destroy();
-growthChart = new Chart(ctx, {
-type: 'line',
-data: { labels, datasets: [{ data: dataValues, borderColor: "#ffd966", backgroundColor: gradient, fill: true, tension: 0.35, pointRadius: 0, pointHoverRadius: 6, borderWidth: 2 }] },
-options: {
-responsive: true, maintainAspectRatio: true,
-plugins: { legend: { display: false }, tooltip: { backgroundColor: isDark?'#1e293b':'#fff', titleColor: '#facc15', bodyColor: isDark?'#e2e8f0':'#1e293b', borderColor: '#ffd966', callbacks: { label: (c) => `Net Worth: $${formatNumber(c.raw)}` } } },
-scales: { x: { grid: { display: false }, ticks: { color: isDark?'#94a3b8':'#64748b', maxRotation: 35, autoSkip: true, font: { size: 10 } } }, y: { grid: { color: isDark?"rgba(148,163,184,0.15)":"rgba(100,116,139,0.15)" }, ticks: { color: isDark?'#94a3b8':'#64748b', callback: (val) => '$'+formatNumber(val), font: { size: 10 } } } },
-elements: { point: { radius: 0, hoverRadius: 7, hoverBorderWidth: 2, hoverBackgroundColor: '#facc15' } }
-}
-});
-}
-function updateNetWorthChart() {
-let active = [...investments.filter(i => i.status==='active')].sort((a,b) => new Date(a.start)-new Date(b.start));
-let cumulative = 0, labels = [], values = [];
-for(let inv of active) {
-let valUSD = 0;
-if(isWaitMoney(inv)) valUSD = inv.amountBDT / usdToBdt;
-else if(inv.isCrypto && cryptoPrices[inv.type]) valUSD = inv.amount * cryptoPrices[inv.type];
-else if(inv.type==="LOAN_GIVEN") valUSD = inv.amountBDT / usdToBdt;
-else if(inv.type==="LOAN_TAKEN") valUSD = -(inv.amountBDT / usdToBdt);
-else valUSD = inv.amountBDT / usdToBdt;
-cumulative += valUSD;
-labels.push(inv.start);
-values.push(cumulative);
-}
-if(labels.length === 0) { initNetWorthChart(["Apr 01","Apr 05","Apr 10"], [0,0,0]); document.getElementById('latestNetWorth').innerHTML = '$0.00'; document.getElementById('latestDate').innerHTML = '--'; return; }
-if(currentTimeRange !== "all") {
-let days = parseInt(currentTimeRange), cutoff = new Date(); cutoff.setDate(cutoff.getDate()-days);
-let idx = 0; for(let i=0;i<labels.length;i++) { if(new Date(labels[i])>=cutoff) { idx=i; break; } }
-labels = labels.slice(idx); values = values.slice(idx);
-}
-let finalCurrent = values.length ? values[values.length-1] : 0;
-let finalDate = labels.length ? labels[labels.length-1] : '--';
-document.getElementById('latestNetWorth').innerHTML = `$${formatNumber(finalCurrent)}`;
-document.getElementById('latestDate').innerHTML = finalDate.slice(0,10);
-let shortLabels = labels.map(d => { let dt=new Date(d); return `${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; });
-initNetWorthChart(shortLabels, values);
-}
-
 // ====== STATS ======
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
@@ -1760,8 +1786,20 @@ const demo=[{year:2024,month:0,profit:12500},{year:2024,month:1,profit:18200},{y
 demo.forEach(d=>{ monthlyData[`${d.year}-${d.month}`]={...d,monthName:new Date(d.year,d.month).toLocaleString('default',{month:'short'})}; });
 }
 let years=[...new Set(Object.values(monthlyData).map(d=>d.year))].sort();
+// Always default to latest year that has data, or current year
+let latestDataYear = years[years.length - 1] || new Date().getFullYear();
+if(!years.includes(currentYear)) currentYear = latestDataYear;
 let yearSel=document.getElementById('yearSelector');
-if(yearSel){ yearSel.innerHTML=''; years.forEach(y=>{ let btn=document.createElement('button'); btn.className='year-btn'+(y===currentYear?' active':''); btn.textContent=y; btn.onclick=()=>{ document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentYear=y; renderMonthlyChartForYear(y,monthlyData); }; yearSel.appendChild(btn); }); }
+if(yearSel){
+yearSel.innerHTML='';
+years.forEach(y=>{
+let btn=document.createElement('button');
+btn.className='year-btn'+(y===currentYear?' active':'');
+btn.textContent=y;
+btn.onclick=()=>{ document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentYear=y; renderMonthlyChartForYear(y,monthlyData); };
+yearSel.appendChild(btn);
+});
+}
 renderMonthlyChartForYear(currentYear, monthlyData);
 }
 function renderMonthlyChartForYear(year, monthlyData) {
@@ -1994,7 +2032,7 @@ document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML=`$${formatNumbe
 document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML=`${formatNumber(cBDT)} BDT`;
 }
 updateCryptoPurchaseInfo();
-renderStats(); updateNetWorthChart(); renderPortfolioByPlatform(); renderWaitMoney();
+renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 // Auto check alerts on price update
 checkAlerts();
@@ -2209,7 +2247,7 @@ legendEl.innerHTML = pData.map((p, i) => `
 }
 }
 
-function renderAll() { renderStats(); updateNetWorthChart(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); updateCryptoPrices(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
@@ -2509,8 +2547,6 @@ try { let snap=await db.collection("investments").get(); investments=[]; snap.fo
 catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
 }
 function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
-function initTimeRange() { document.querySelectorAll('.time-btn').forEach(btn=>{ btn.addEventListener('click',function(){ document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); currentTimeRange=this.getAttribute('data-days'); updateNetWorthChart(); }); }); }
-
 // ====== EXPOSE GLOBALS ======
 window.openEdit=openEdit; window.saveEdit=saveEdit; window.closeEditModal=closeEditModal;
 window.markComplete=markComplete; window.deleteInv=deleteInv;
@@ -2532,7 +2568,6 @@ document.getElementById('startDate').value = new Date().toISOString().slice(0,10
 let backup = localStorage.getItem("investments_backup");
 investments = backup ? JSON.parse(backup) : [];
 renderAll();
-initTimeRange();
 
 // Fetch live exchange rates immediately, then every 10 minutes
 fetchLiveRates();
@@ -2559,7 +2594,274 @@ checkSavedLogin();
 
 // Auto alert check on load
 setTimeout(checkAlerts, 2000);
-</script>
+setTimeout(renderBudgetDisplay, 500);
+setTimeout(renderReminderList, 500);
 
+// ====== WITHDRAWAL LOG CHART ======
+let withdrawalLogChart = null;
+function renderWithdrawalLogChart() {
+let canvas = document.getElementById('withdrawalLogChart');
+if(!canvas) return;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+if(history.length === 0) {
+document.getElementById('withdrawalLogCard').style.display = 'none';
+return;
+}
+document.getElementById('withdrawalLogCard').style.display = 'block';
+let monthMap = {};
+history.forEach(h => {
+let dt = new Date(h.date);
+let key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+monthMap[key] = (monthMap[key]||0) + (h.amount||0);
+});
+let sorted = Object.keys(monthMap).sort();
+let labels = sorted.map(k => { let [y,m]=k.split('-'); return `${m}/${y.slice(2)}`; });
+let values = sorted.map(k => monthMap[k]);
+let isDark = document.documentElement.getAttribute('data-theme')==='dark';
+if(withdrawalLogChart) withdrawalLogChart.destroy();
+withdrawalLogChart = new Chart(canvas.getContext('2d'), {
+type: 'bar',
+data: {
+labels,
+datasets: [{ label: 'Withdrawn (BDT)', data: values, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 8, hoverBackgroundColor: '#10b981' }]
+},
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: { legend:{display:false}, tooltip:{ backgroundColor:isDark?'#1e293b':'#fff', titleColor:'#10b981', bodyColor:isDark?'#e2e8f0':'#1e293b', callbacks:{ label: c => ` ${formatNumber(c.raw)} BDT` } } },
+scales: {
+y: { grid:{color:isDark?'rgba(148,163,184,0.1)':'rgba(100,116,139,0.1)'}, ticks:{color:isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10}} },
+x: { grid:{display:false}, ticks:{color:isDark?'#94a3b8':'#64748b', font:{size:10}} }
+}
+}
+});
+}
+
+// ====== MONTHLY BUDGET TRACKER ======
+function openBudgetModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let now = new Date();
+let label = now.toLocaleString('default',{month:'long',year:'numeric'});
+document.getElementById('budgetMonthLabel').textContent = `📅 ${label}`;
+let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
+let saved = JSON.parse(localStorage.getItem(key)||'{}');
+document.getElementById('budgetIncome').value = saved.income||'';
+document.getElementById('budgetExpense').value = saved.expense||'';
+document.getElementById('budgetInvested').value = saved.invested||'';
+document.getElementById('budgetNote').value = saved.note||'';
+document.getElementById('budgetCalc').style.display = 'none';
+['budgetIncome','budgetExpense','budgetInvested'].forEach(id => {
+document.getElementById(id).oninput = updateBudgetCalc;
+});
+document.getElementById('budgetModal').style.display = 'flex';
+}
+function updateBudgetCalc() {
+let inc = parseFloat(document.getElementById('budgetIncome').value)||0;
+let exp = parseFloat(document.getElementById('budgetExpense').value)||0;
+let inv = parseFloat(document.getElementById('budgetInvested').value)||0;
+if(inc > 0) {
+let savings = inc - exp - inv;
+let rate = ((savings/inc)*100).toFixed(1);
+document.getElementById('budgetSavings').textContent = formatNumber(savings)+' BDT';
+document.getElementById('budgetRate').textContent = rate+'%';
+document.getElementById('budgetCalc').style.display = 'block';
+}
+}
+function saveBudget() {
+let now = new Date();
+let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
+let data = {
+income: parseFloat(document.getElementById('budgetIncome').value)||0,
+expense: parseFloat(document.getElementById('budgetExpense').value)||0,
+invested: parseFloat(document.getElementById('budgetInvested').value)||0,
+note: document.getElementById('budgetNote').value,
+month: now.getMonth(), year: now.getFullYear(),
+label: now.toLocaleString('default',{month:'long',year:'numeric'})
+};
+// Save last 12 months
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+all = all.filter(b => !(b.month===data.month && b.year===data.year));
+all.push(data);
+if(all.length > 12) all = all.slice(-12);
+localStorage.setItem('budget_all', JSON.stringify(all));
+localStorage.setItem(key, JSON.stringify(data));
+closeBudgetModal();
+renderBudgetDisplay();
+showToast('✅ বাজেট save হয়েছে!');
+}
+function closeBudgetModal() { document.getElementById('budgetModal').style.display='none'; }
+function renderBudgetDisplay() {
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+let el = document.getElementById('budgetDisplay');
+if(!el) return;
+if(all.length === 0) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);font-size:0.75rem;">এখনো বাজেট add করা হয়নি</div>'; return; }
+let sorted = [...all].sort((a,b)=>b.year-a.year||b.month-a.month);
+el.innerHTML = sorted.map(b => {
+let savings = b.income - b.expense - b.invested;
+let rate = b.income>0?((savings/b.income)*100).toFixed(1):0;
+let savColor = savings>=0?'#4ade80':'#f87171';
+return `<div style="background:var(--bg-input);border-radius:14px;padding:12px;margin-bottom:10px;border-left:3px solid #06b6d4;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-weight:700;font-size:0.85rem;color:#06b6d4;">${b.label}</span>
+<span style="font-size:0.7rem;color:${savColor};font-weight:700;">${savings>=0?'+':''}${formatNumber(savings)} BDT saved</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:0.68rem;">
+<div style="background:rgba(74,222,128,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Income</div>
+<div style="color:#4ade80;font-weight:700;">${formatNumber(b.income)}</div>
+</div>
+<div style="background:rgba(248,113,113,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Expense</div>
+<div style="color:#f87171;font-weight:700;">${formatNumber(b.expense)}</div>
+</div>
+<div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Invested</div>
+<div style="color:var(--accent);font-weight:700;">${formatNumber(b.invested)}</div>
+</div>
+</div>
+<div style="margin-top:8px;">
+<div style="background:var(--bg-dark);border-radius:6px;height:6px;overflow:hidden;">
+<div style="background:#06b6d4;height:100%;width:${Math.max(0,Math.min(100,rate))}%;border-radius:6px;"></div>
+</div>
+<div style="font-size:0.6rem;color:var(--text-sub);margin-top:3px;">Savings rate: ${rate}%${b.note?` · ${b.note}`:''}</div>
+</div>
+${isAdmin?`<button onclick="deleteBudget(${b.year},${b.month})" style="margin-top:6px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.62rem;">🗑 Delete</button>`:''}
+</div>`;
+}).join('');
+}
+function deleteBudget(year, month) {
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+all = all.filter(b=>!(b.year===year&&b.month===month));
+localStorage.setItem('budget_all', JSON.stringify(all));
+localStorage.removeItem(`budget_${year}_${month}`);
+renderBudgetDisplay();
+}
+window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
+
+// ====== INVESTMENT REMINDERS ======
+function openReminderModal() {
+if(!isAdmin) return showToast("Admin required", true);
+document.getElementById('reminderTitle').value='';
+document.getElementById('reminderDate').value=new Date().toISOString().slice(0,10);
+document.getElementById('reminderNote').value='';
+document.getElementById('reminderModal').style.display='flex';
+}
+function saveReminder() {
+let title = document.getElementById('reminderTitle').value.trim();
+let date = document.getElementById('reminderDate').value;
+let type = document.getElementById('reminderType').value;
+let note = document.getElementById('reminderNote').value;
+if(!title||!date) return showToast("Title ও Date দিন", true);
+let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
+reminders.push({ id:Date.now(), title, date, type, note, done:false });
+reminders.sort((a,b)=>new Date(a.date)-new Date(b.date));
+localStorage.setItem('inv_reminders', JSON.stringify(reminders));
+closeReminderModal();
+renderReminderList();
+showToast('🔔 Reminder save হয়েছে!');
+}
+function closeReminderModal() { document.getElementById('reminderModal').style.display='none'; }
+function toggleReminderDone(id) {
+let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
+let r = reminders.find(r=>r.id===id);
+if(r) r.done=!r.done;
+localStorage.setItem('inv_reminders', JSON.stringify(reminders));
+renderReminderList();
+}
+function deleteReminder(id) {
+let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]').filter(r=>r.id!==id);
+localStorage.setItem('inv_reminders', JSON.stringify(reminders));
+renderReminderList();
+}
+function renderReminderList() {
+let el = document.getElementById('reminderList');
+if(!el) return;
+let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
+if(reminders.length===0) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);font-size:0.75rem;">কোনো reminder নেই</div>'; return; }
+let today = new Date(); today.setHours(0,0,0,0);
+const typeIcons = { installment:'💳', invest:'📈', withdraw:'💰', review:'🔍', other:'📌' };
+el.innerHTML = reminders.map(r => {
+let d = new Date(r.date); d.setHours(0,0,0,0);
+let diff = Math.ceil((d-today)/(1000*60*60*24));
+let urgency = diff<0?'#f87171': diff===0?'#facc15': diff<=3?'#f59e0b':'#4ade80';
+let badge = diff<0?`Overdue ${Math.abs(diff)}d`:diff===0?'Today!':diff<=3?`${diff}d left`:`${diff} days`;
+return `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-input);border-radius:12px;margin-bottom:8px;border-left:3px solid ${urgency};opacity:${r.done?'0.5':'1'};">
+<div style="font-size:1.2rem;flex-shrink:0;">${typeIcons[r.type]||'📌'}</div>
+<div style="flex:1;">
+<div style="font-size:0.78rem;font-weight:700;color:${r.done?'var(--text-sub)':'var(--text-main)'};text-decoration:${r.done?'line-through':'none'};">${r.title}</div>
+<div style="font-size:0.62rem;color:var(--text-sub);margin-top:2px;">📅 ${r.date} · <span style="color:${urgency};font-weight:600;">${badge}</span></div>
+${r.note?`<div style="font-size:0.6rem;color:#a78bfa;margin-top:2px;">📝 ${r.note}</div>`:''}
+</div>
+<div style="display:flex;gap:4px;flex-shrink:0;">
+${isAdmin?`<button onclick="toggleReminderDone(${r.id})" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ade80;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:0.62rem;">${r.done?'↩':'✓'}</button>
+<button onclick="deleteReminder(${r.id})" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:0.62rem;">🗑</button>`:''}
+</div>
+</div>`;
+}).join('');
+}
+window.openReminderModal=openReminderModal; window.closeReminderModal=closeReminderModal; window.saveReminder=saveReminder; window.toggleReminderDone=toggleReminderDone; window.deleteReminder=deleteReminder;
+
+// ====== EXPORT PDF ======
+function exportPDF() {
+if(!isAdmin) return showToast("Admin required", true);
+let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt;
+let active = investments.filter(i=>i.status==='active');
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
+let now = new Date();
+let dateStr = now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+let rows = investments.map(inv=>`
+<tr style="border-bottom:1px solid #e2e8f0;">
+<td style="padding:6px 8px;font-size:11px;">${inv.platform}</td>
+<td style="padding:6px 8px;font-size:11px;">${inv.type}</td>
+<td style="padding:6px 8px;font-size:11px;text-align:right;">${formatNumber(inv.amountBDT)}</td>
+<td style="padding:6px 8px;font-size:11px;color:${inv.status==='active'?'#16a34a':'#6b7280'};text-align:center;">${inv.status}</td>
+<td style="padding:6px 8px;font-size:11px;color:#16a34a;text-align:right;">+${formatNumber(inv.actualProfit||0)}</td>
+<td style="padding:6px 8px;font-size:11px;">${inv.start}</td>
+</tr>`).join('');
+let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Wealth Report - Taslim Rony - ${dateStr}</title>
+<style>
+body{font-family:Arial,sans-serif;padding:30px;color:#1e293b;background:#fff;}
+.header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#facc15;padding:24px;border-radius:12px;margin-bottom:20px;}
+.header h1{font-size:22px;margin:0 0 4px 0;} .header p{margin:0;font-size:12px;color:#94a3b8;}
+.bismillah{text-align:center;font-size:14px;color:#6b7280;margin-bottom:16px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;}
+.stat-box .label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;}
+.stat-box .value{font-size:18px;font-weight:800;color:#0f172a;margin-top:4px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead{background:#f1f5f9;} th{padding:8px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;}
+tr:nth-child(even){background:#f8fafc;}
+.footer{margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;}
+</style></head><body>
+
+<div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<div class="header">
+<h1>💰 Wealth Tracker Report</h1>
+<p>TASLIM RONY · Generated: ${dateStr}</p>
+</div>
+<div class="stats">
+<div class="stat-box"><div class="label">Total Invested</div><div class="value">${formatNumber(p.bdt)} BDT</div></div>
+<div class="stat-box"><div class="label">Current Value</div><div class="value">${formatNumber(c.bdt)} BDT</div></div>
+<div class="stat-box"><div class="label">Total Profit</div><div class="value" style="color:${totalProfit>=0?'#16a34a':'#dc2626'};">${totalProfit>=0?'+':''}${formatNumber(totalProfit)} BDT</div></div>
+<div class="stat-box"><div class="label">Active Investments</div><div class="value">${active.length}</div></div>
+<div class="stat-box"><div class="label">P&L</div><div class="value" style="color:${pl>=0?'#16a34a':'#dc2626'};">${pl>=0?'+':''}${formatNumber(pl)} BDT</div></div>
+<div class="stat-box"><div class="label">USD Rate</div><div class="value" style="font-size:14px;">${formatNumber(usdToBdt)} BDT</div></div>
+</div>
+<table>
+<thead><tr><th>Platform</th><th>Type</th><th>Amount (BDT)</th><th>Status</th><th>Profit (BDT)</th><th>Start</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<div class="footer">Taslim Rony · Ajwa Jannat Dua 💍 · With Dua always 🤲 · Generated by Wealth Tracker Ultra Pro v15</div>
+</body></html>`;
+let blob = new Blob([html], {type:'text/html'});
+let url = URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href=url; a.download=`WealthReport_${now.toISOString().slice(0,10)}.html`;
+document.body.appendChild(a); a.click(); document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showToast('✅ PDF Report downloaded!');
+}
+window.exportPDF = exportPDF;
+</script>
 </body>
 </html>
