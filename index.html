@@ -78,6 +78,7 @@ transition: background 0.3s, color 0.3s;
 @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
 @keyframes slideIn { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes aiPulse { 0%,100% { box-shadow:0 4px 20px rgba(168,85,247,0.5); opacity:1; } 50% { box-shadow:0 4px 30px rgba(168,85,247,0.9); opacity:0.85; } }
 .fade-up { animation: fadeUp 0.45s ease both; }
 
 /* ====== HEADER ====== */
@@ -808,22 +809,33 @@ body { padding: 10px; }
 <!-- Header -->
 
 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-<div style="display:flex; align-items:center; gap:10px;">
-<div style="background:linear-gradient(135deg,#a855f7,#7c3aed); width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(168,85,247,0.4);">
-<i class="fas fa-robot" style="color:white; font-size:1rem;"></i>
+<div style="display:flex; align-items:center; gap:12px;">
+<!-- Animated AI Icon -->
+<div style="position:relative; width:44px; height:44px; flex-shrink:0;">
+<div style="position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,#a855f7,#6d28d9);box-shadow:0 4px 20px rgba(168,85,247,0.5);animation:aiPulse 2s ease-in-out infinite;"></div>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+<circle cx="12" cy="12" r="3" fill="white"/>
+<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/>
+<path d="M8 12h2M14 12h2M12 8v2M12 14v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+</svg>
+</div>
 </div>
 <div>
-<div style="font-family:'Sora',sans-serif; font-size:1rem; font-weight:800; color:#c084fc;">AI Portfolio Analyst</div>
-<div style="font-size:0.6rem; color:#7c3aed; background:rgba(124,58,237,0.15); padding:2px 8px; border-radius:10px; display:inline-block; margin-top:2px;">🔴 LIVE · Real Data</div>
+<div style="font-family:'Sora',sans-serif; font-size:1rem; font-weight:800; color:#c084fc; letter-spacing:-0.3px;">AI Portfolio Analyst</div>
+<div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+<span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;animation:aiPulse 1.5s ease-in-out infinite;"></span>
+<span style="font-size:0.6rem; color:#6b7280; font-weight:600;">LIVE · Real Data · Auto Calculated</span>
+</div>
 </div>
 </div>
 <button onclick="document.getElementById('aiPredictionCard').style.display='none'"
-style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#a855f7;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#a855f7;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
 </div>
 
 <!-- Score Bar -->
 
-<div id="aiScoreBar" style="margin-bottom:16px;"></div>
+<div id="aiScoreBar" style="margin-bottom:14px;"></div>
 
 <!-- Main Grid -->
 
@@ -887,6 +899,32 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <div id="solPurchaseInfo" class="purchase-info"></div>
 </div>
 </div>
+</div>
+
+<!-- CRYPTO AI ANALYSIS -->
+
+<div style="background:linear-gradient(145deg,#0a0f1c,#0f0520,#0a0f1c); border-radius:22px; padding:16px; margin-bottom:14px; border:1px solid rgba(250,204,21,0.2); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+<div style="display:flex; align-items:center; gap:10px;">
+<div style="position:relative; width:36px; height:36px; flex-shrink:0;">
+<div style="position:absolute;inset:0;border-radius:10px;background:linear-gradient(135deg,#f7931a,#f59e0b);box-shadow:0 4px 14px rgba(247,147,26,0.5);animation:aiPulse 2s ease-in-out infinite;"></div>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;">₿</div>
+</div>
+<div>
+<div style="font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:800; color:#fbbf24;">Crypto AI Signal</div>
+<div style="font-size:0.58rem; color:#6b7280; margin-top:1px;">Buy / Hold / Sell · Based on 24h & 7d data</div>
+</div>
+</div>
+<button onclick="runCryptoAnalysis()" style="background:linear-gradient(135deg,#f7931a,#f59e0b);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 2px 10px rgba(247,147,26,0.4);">
+<i class="fas fa-sync-alt"></i> Analyze Now
+</button>
+</div>
+<div id="cryptoAnalysisGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+<div style="grid-column:span 2; text-align:center; padding:20px; color:#4b5563; font-size:0.75rem;">
+👆 "Analyze Now" চাপুন — BTC, ETH, BNB, SOL এর signal দেখুন
+</div>
+</div>
+<div id="cryptoAnalysisSummary" style="margin-top:10px;"></div>
 </div>
 
 <!-- DASHBOARD STATS -->
@@ -1046,8 +1084,16 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <div class="charts-grid">
 <div class="card">
 <h3><i class="fas fa-chart-pie"></i> Platforms Distribution (Active Only)</h3>
-<canvas id="platformChart" style="height:200px; width:100%;"></canvas>
-<div id="platformLegend" class="platform-legend"></div>
+<div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+<div style="flex-shrink:0; width:180px; height:180px; position:relative;">
+<canvas id="platformChart" width="180" height="180" style="width:180px; height:180px;"></canvas>
+<div id="platformChartCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+<div style="font-size:0.58rem;color:var(--text-sub);">Total</div>
+<div id="platformChartTotal" style="font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:800;color:var(--accent);"></div>
+</div>
+</div>
+<div id="platformLegend" class="platform-legend" style="flex:1; justify-content:flex-start; flex-direction:column; gap:7px;"></div>
+</div>
 </div>
 </div>
 
@@ -1437,11 +1483,18 @@ let cryptoPL = 0;
 active.forEach(inv=>{ if(inv.isCrypto&&cryptoPrices[inv.type]&&inv.purchasePrice) cryptoPL+=(cryptoPrices[inv.type]-inv.purchasePrice)*inv.amount*usdToBdt; });
 
 // ── Best Platform ──
-let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let platMap={};
-history.forEach(h=>{ platMap[h.platform]=(platMap[h.platform]||0)+h.profit; });
-let bestPlatform=Object.keys(platMap).sort((a,b)=>platMap[b]-platMap[a])[0]||'N/A';
-let bestPlatformProfit = bestPlatform!=='N/A' ? platMap[bestPlatform] : 0;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let platMap = {};
+history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
+// fallback: use active investment amounts if no history
+if(Object.keys(platMap).length === 0) {
+active.forEach(inv => {
+if(!isWaitMoney(inv)) platMap[inv.platform] = (platMap[inv.platform]||0) + (inv.amountBDT||0);
+});
+}
+let bestPlatform = Object.keys(platMap).sort((a,b) => platMap[b]-platMap[a])[0] || 'N/A';
+let bestPlatformProfit = bestPlatform !== 'N/A' ? platMap[bestPlatform] : 0;
+let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit)} BDT` : `${formatNumber(bestPlatformProfit)} BDT invested`;
 
 // ── Farm value ──
 const farmValue=active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
@@ -1518,7 +1571,7 @@ grid.innerHTML = `
 <div class="ai-metric">
 <div class="ai-metric-label">🏆 Best Platform</div>
 <div class="ai-metric-value" style="color:#f59e0b; font-size:0.88rem;">${bestPlatform}</div>
-<div class="ai-metric-sub">${bestPlatformProfit>0?'+'+formatNumber(bestPlatformProfit)+' BDT':'No history yet'}</div>
+<div class="ai-metric-sub">${bestPlatformLabel}</div>
 </div>`;
 
 // ── Insight Box ──
@@ -1529,7 +1582,7 @@ else insightLines.push(`এখনো profit শুরু হয়নি — str
 if(cryptoPercent>40) insightLines.push(`Crypto <b>${cryptoPercent.toFixed(0)}%</b> — rebalance বিবেচনা করুন।`);
 if(loanGiven>0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
 if(waitMoney>0) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
-if(bestPlatform!=='N/A') insightLines.push(`সর্বোচ্চ profit দিয়েছে: <b>${bestPlatform}</b>`);
+if(bestPlatform!=='N/A') insightLines.push(`সর্বোচ্চ: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
 
 insightEl.innerHTML = `
 <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px; margin-top:2px;">
@@ -1958,6 +2011,127 @@ if(div) div.innerHTML=tQty>0?`<div class="row"><span>📈 Avg Price:</span><span
 });
 }
 
+// ====== CRYPTO AI ANALYSIS ======
+function runCryptoAnalysis() {
+const coins = [
+{ id: 'BTC', name: 'Bitcoin', color: '#f7931a', icon: '₿', borderClass: 'btc-card' },
+{ id: 'ETH', name: 'Ethereum', color: '#627eea', icon: 'Ξ', borderClass: 'eth-card' },
+{ id: 'BNB', name: 'BNB', color: '#f3ba2f', icon: '◈', borderClass: 'bnb-card' },
+{ id: 'SOL', name: 'Solana', color: '#9945ff', icon: '◎', borderClass: 'sol-card' },
+];
+
+let grid = document.getElementById('cryptoAnalysisGrid');
+let summary = document.getElementById('cryptoAnalysisSummary');
+grid.innerHTML = coins.map(c => `<div style="background:rgba(255,255,255,0.03);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.06);"><div style="color:${c.color};font-weight:800;font-size:0.85rem;margin-bottom:8px;">${c.icon} ${c.id} <span style="font-size:0.65rem;color:#6b7280;">Analyzing...</span></div><div style="font-size:0.65rem;color:#4b5563;animation:pulse 1s infinite;">⏳ Loading data...</div></div>`).join('');
+
+let results = [];
+
+coins.forEach(coin => {
+let current = cryptoPrices[coin.id] || 0;
+let prev24h = crypto24hPrices[coin.id] || 0;
+let prev7d = crypto7dPrices[coin.id] || 0;
+
+// Change calculations
+let change24h = prev24h > 0 ? ((current - prev24h) / prev24h) * 100 : 0;
+let change7d = prev7d > 0 ? ((current - prev7d) / prev7d) * 100 : 0;
+
+// RSI-like score (simplified momentum)
+let momentum = (change24h * 0.6) + (change7d * 0.4);
+
+// User's avg purchase price
+let userHoldings = investments.filter(i => i.type === coin.id && i.status === 'active' && i.purchasePrice);
+let totalQty = userHoldings.reduce((s,i) => s + i.amount, 0);
+let totalCost = userHoldings.reduce((s,i) => s + i.amount * i.purchasePrice, 0);
+let avgBuy = totalQty > 0 ? totalCost / totalQty : 0;
+let pnlPct = avgBuy > 0 ? ((current - avgBuy) / avgBuy) * 100 : null;
+
+// Signal Logic
+let signal, signalColor, signalBg, signalIcon, advice;
+
+if(current === 0) {
+signal = 'NO DATA'; signalColor = '#6b7280'; signalBg = 'rgba(107,114,128,0.12)'; signalIcon = '—';
+advice = 'Price data unavailable. Price fetch করুন।';
+} else if(momentum <= -8) {
+signal = 'STRONG BUY'; signalColor = '#4ade80'; signalBg = 'rgba(74,222,128,0.12)'; signalIcon = '🔥';
+advice = `দাম ${Math.abs(change24h).toFixed(1)}% কমেছে — এটি কেনার সুযোগ হতে পারে।`;
+} else if(momentum <= -3) {
+signal = 'BUY'; signalColor = '#86efac'; signalBg = 'rgba(134,239,172,0.1)'; signalIcon = '📈';
+advice = `দাম সামান্য কমেছে — accumulate করার ভালো সময়।`;
+} else if(momentum >= 15) {
+signal = 'TAKE PROFIT'; signalColor = '#f87171'; signalBg = 'rgba(248,113,113,0.12)'; signalIcon = '💰';
+advice = `দাম ${change24h.toFixed(1)}% বেড়েছে — কিছু profit নেওয়া বিবেচনা করুন।`;
+} else if(momentum >= 8) {
+signal = 'HOLD / WATCH'; signalColor = '#f59e0b'; signalBg = 'rgba(245,158,11,0.1)'; signalIcon = '⏳';
+advice = `দাম বাড়ছে — hold করুন, আরো বাড়তে পারে।`;
+} else {
+signal = 'HOLD'; signalColor = '#94a3b8'; signalBg = 'rgba(148,163,184,0.08)'; signalIcon = '⚖️';
+advice = `বাজার stable — এখন wait করুন।`;
+}
+
+// If user has holdings and is at loss > 15%, add extra advice
+if(pnlPct !== null && pnlPct < -15) {
+advice += ` ⚠️ আপনার avg buy $${formatNumber(avgBuy)} — এখন ${pnlPct.toFixed(1)}% loss এ আছেন।`;
+} else if(pnlPct !== null && pnlPct > 30) {
+advice += ` 🎯 আপনি ${pnlPct.toFixed(1)}% profit এ আছেন — কিছু sell করা বিবেচনা করুন।`;
+}
+
+results.push({ coin, current, change24h, change7d, momentum, signal, signalColor, signalBg, signalIcon, advice, avgBuy, pnlPct, totalQty });
+});
+
+// Render grid
+grid.innerHTML = results.map(r => `
+<div style="background:rgba(255,255,255,0.03); border-radius:14px; padding:12px; border:1px solid ${r.signalColor}33; position:relative; overflow:hidden;">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:${r.signalColor};opacity:0.6;"></div>
+<!-- Coin Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="color:${r.coin.color}; font-weight:800; font-size:0.85rem;">${r.coin.icon} ${r.coin.id}</span>
+<span style="background:${r.signalBg}; color:${r.signalColor}; border:1px solid ${r.signalColor}44; padding:3px 8px; border-radius:20px; font-size:0.6rem; font-weight:800;">${r.signalIcon} ${r.signal}</span>
+</div>
+<!-- Price -->
+<div style="font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:800; color:#e2e8f0; margin-bottom:4px;">
+$${formatNumber(r.current)}
+</div>
+<!-- Changes -->
+<div style="display:flex; gap:8px; margin-bottom:8px;">
+<span style="font-size:0.62rem; color:${r.change24h>=0?'#4ade80':'#f87171'}; background:${r.change24h>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'}; padding:2px 7px; border-radius:10px;">
+${r.change24h>=0?'▲':'▼'} ${Math.abs(r.change24h).toFixed(2)}% 24h
+</span>
+<span style="font-size:0.62rem; color:${r.change7d>=0?'#4ade80':'#f87171'}; background:${r.change7d>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'}; padding:2px 7px; border-radius:10px;">
+${r.change7d>=0?'▲':'▼'} ${Math.abs(r.change7d).toFixed(2)}% 7d
+</span>
+</div>
+<!-- User Holdings -->
+${r.totalQty > 0 ? `
+<div style="background:rgba(0,0,0,0.2); border-radius:8px; padding:5px 8px; margin-bottom:6px; font-size:0.62rem;">
+<span style="color:#94a3b8;">আপনার:</span>
+<span style="color:#facc15; font-weight:700; margin-left:4px;">${r.totalQty.toFixed(4)} ${r.coin.id}</span>
+${r.pnlPct !== null ? `<span style="margin-left:6px; color:${r.pnlPct>=0?'#4ade80':'#f87171'}; font-weight:700;">${r.pnlPct>=0?'+':''}${r.pnlPct.toFixed(1)}%</span>` : ''}
+</div>
+` : ''}
+<!-- Advice -->
+<div style="font-size:0.65rem; color:#94a3b8; line-height:1.4;">${r.advice}</div>
+</div>
+`).join('');
+
+// Summary
+let buySignals = results.filter(r => r.signal.includes('BUY'));
+let sellSignals = results.filter(r => r.signal.includes('PROFIT'));
+let bestBuy = results.filter(r => r.current > 0).sort((a,b) => a.momentum - b.momentum)[0];
+
+summary.innerHTML = `
+<div style="background:rgba(250,204,21,0.06); border:1px solid rgba(250,204,21,0.2); border-radius:12px; padding:12px;">
+<div style="font-size:0.62rem; color:#f59e0b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">📊 AI Summary</div>
+<div style="font-size:0.72rem; color:#d1d5db; line-height:1.6;">
+${buySignals.length > 0 ? `<div>🟢 <b>${buySignals.map(r=>r.coin.id).join(', ')}</b> — কেনার সুযোগ থাকতে পারে</div>` : ''}
+${sellSignals.length > 0 ? `<div>🔴 <b>${sellSignals.map(r=>r.coin.id).join(', ')}</b> — কিছু profit নেওয়া বিবেচনা করুন</div>` : ''}
+${bestBuy ? `<div>⭐ সবচেয়ে ভালো দেখাচ্ছে: <b style="color:#facc15;">${bestBuy.coin.id}</b> (momentum: ${bestBuy.momentum.toFixed(1)})</div>` : ''}
+<div style="margin-top:6px; font-size:0.6rem; color:#4b5563;">⚠️ এটি শুধু 24h ও 7d price movement এর উপর ভিত্তি করে। Investment সিদ্ধান্ত নিজে নিন।</div>
+</div>
+</div>`;
+}
+
+window.runCryptoAnalysis = runCryptoAnalysis;
+
 function renderHistory() {
 let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 document.getElementById('historyList').innerHTML=history.length?history.slice().reverse().map(h=>`<div style="border-bottom:1px solid var(--border);padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT${h.note?`<div class="note-text">📝 ${h.note}</div>`:''}<br><small style="color:var(--text-sub);">${h.date}</small></div>`).join(''):'<div style="color:var(--text-sub);">No history</div>';
@@ -1984,16 +2158,55 @@ container.innerHTML=html||'<div style="color:var(--text-sub);">No upcoming expir
 }
 
 function renderPlatformChart() {
-let active=investments.filter(i=>i.status==='active'&&!isWaitMoney(i));
-let map={}, total=0;
-active.forEach(inv=>{ let v=inv.amountBDT||0; map[inv.platform]=(map[inv.platform]||0)+v; total+=v; });
-if(!total){ document.getElementById('platformLegend').innerHTML='<span style="color:var(--text-sub);">No active investments</span>'; if(platformChart) platformChart.destroy(); return; }
-let pData=Object.keys(map).map(p=>({platform:p,amount:map[p],percent:(map[p]/total*100)})).sort((a,b)=>b.percent-a.percent);
-let ctx=document.getElementById('platformChart').getContext('2d');
+let active = investments.filter(i => i.status === 'active' && !isWaitMoney(i));
+let map = {}, total = 0;
+active.forEach(inv => { let v = inv.amountBDT||0; map[inv.platform] = (map[inv.platform]||0) + v; total += v; });
+let legendEl = document.getElementById('platformLegend');
+let totalEl = document.getElementById('platformChartTotal');
+if(!total) {
+if(legendEl) legendEl.innerHTML = '<span style="color:var(--text-sub);font-size:0.72rem;">No active investments</span>';
 if(platformChart) platformChart.destroy();
-let colors=['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981','#ec489a','#06b6d4'];
-platformChart=new Chart(ctx,{ type:'doughnut', data:{ labels:pData.map(p=>p.platform), datasets:[{ data:pData.map(p=>p.amount), backgroundColor:colors.slice(0,pData.length), borderWidth:0 }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:(c)=>`${c.label}: ${formatNumber(c.raw)} BDT (${pData[c.dataIndex].percent.toFixed(1)}%)` } } } } });
-document.getElementById('platformLegend').innerHTML=pData.map((p,i)=>`<span><span style="background:${colors[i%colors.length]};width:10px;height:10px;display:inline-block;border-radius:2px;margin-right:3px;"></span>${p.platform}: ${formatNumber(p.amount)} BDT (${p.percent.toFixed(1)}%)</span>`).join('');
+return;
+}
+let pData = Object.keys(map).map(p => ({ platform:p, amount:map[p], percent:(map[p]/total*100) })).sort((a,b) => b.percent - a.percent);
+let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981','#ec489a','#06b6d4'];
+let ctx = document.getElementById('platformChart').getContext('2d');
+if(platformChart) platformChart.destroy();
+if(totalEl) totalEl.textContent = formatNumber(total/1000) + 'K';
+platformChart = new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: pData.map(p => p.platform),
+datasets: [{ data: pData.map(p => p.amount), backgroundColor: colors.slice(0, pData.length), borderWidth: 2, borderColor: 'transparent', hoverBorderColor: '#fff', hoverOffset: 4 }]
+},
+options: {
+responsive: false,
+maintainAspectRatio: false,
+cutout: '65%',
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#1e293b',
+titleColor: '#facc15',
+bodyColor: '#e2e8f0',
+borderColor: 'rgba(250,204,21,0.3)',
+borderWidth: 1,
+callbacks: { label: (c) => ` ${c.label}: ${formatNumber(c.raw)} BDT (${pData[c.dataIndex].percent.toFixed(1)}%)` }
+}
+}
+}
+});
+// Improved legend with bars
+if(legendEl) {
+legendEl.innerHTML = pData.map((p, i) => `
+<div style="display:flex; align-items:center; gap:8px; width:100%;">
+<span style="background:${colors[i%colors.length]};width:10px;height:10px;flex-shrink:0;border-radius:3px;display:inline-block;"></span>
+<span style="flex:1; font-size:0.7rem; color:var(--text-main); font-weight:600;">${p.platform}</span>
+<span style="font-size:0.68rem; color:var(--accent); font-weight:700;">${p.percent.toFixed(1)}%</span>
+<span style="font-size:0.65rem; color:var(--text-sub);">${formatNumber(p.amount)} BDT</span>
+</div>
+`).join('');
+}
 }
 
 function renderAll() { renderStats(); updateNetWorthChart(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); updateCryptoPrices(); }
