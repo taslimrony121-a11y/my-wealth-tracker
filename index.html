@@ -1543,8 +1543,9 @@ let goalPct = Math.min((currentValue/GOAL)*100, 100);
 // ── Risk ──
 const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
 let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
-if(cryptoPercent>50||loanGiven>0){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
+if(cryptoPercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
 else if(cryptoPercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
+// Note: loan given increases caution but not risk level itself
 
 // ── Portfolio Health Score (0-100) ──
 let healthScore = 100;
@@ -1594,14 +1595,15 @@ let bestAsset=assetOptions.reduce((b,a)=>scoreAsset(a)>scoreAsset(b)?a:b,assetOp
 const cPct=cryptoPercent, fPct=currentValue>0?(farmValue/currentValue)*100:0;
 const platProfits=Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
 let suggestionText='', suggestionIcon='💡';
-if(waitMoney>1000){
-if(cPct<10){ suggestionText=`BTC / ETH এ অল্প invest করুন — crypto exposure এখন কম`; suggestionIcon='📈'; }
-else if(fPct<30){ suggestionText=`iFarmer / Wegro বাড়ান — stable halal growth`; suggestionIcon='🌱'; }
-else if(platProfits[0]){ suggestionText=`Top performer ${platProfits[0].name} এ আরো add করুন`; suggestionIcon='🏆'; }
+if(waitMoney > 1000) {
+if(cPct > 50) { suggestionText=`Crypto ${cPct.toFixed(0)}% বেশি — iFarmer / Wegro তে idle টাকা লাগান`; suggestionIcon='⚖️'; }
+else if(cPct < 10) { suggestionText=`BTC / ETH এ অল্প invest করুন — crypto exposure এখন কম`; suggestionIcon='📈'; }
+else if(fPct < 30) { suggestionText=`iFarmer / Wegro বাড়ান — stable halal growth`; suggestionIcon='🌱'; }
+else if(platProfits[0]) { suggestionText=`Top performer: ${platProfits[0].name} এ আরো add করুন`; suggestionIcon='🏆'; }
 else { suggestionText=`${formatNumber(waitMoney)} BDT idle — ${bestAsset.name} এ invest করুন`; suggestionIcon='⏳'; }
-} else if(cPct>50){ suggestionText=`Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`; suggestionIcon='⚖️'; }
-else if(risk==='High'){ suggestionText=`Risk বেশি — ${bestAsset.name} (${bestAsset.type}) বিবেচনা করুন`; suggestionIcon='🛡️'; }
-else if(monthsToGoalNum&&monthsToGoalNum>100){ suggestionText=`Goal দ্রুত reach করতে investment বাড়ান`; suggestionIcon='🚀'; }
+} else if(cPct > 50) { suggestionText=`Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`; suggestionIcon='⚖️'; }
+else if(loanGiven > 0) { suggestionText=`${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`; suggestionIcon='⚠️'; }
+else if(monthsToGoalNum && monthsToGoalNum > 100) { suggestionText=`Goal দ্রুত reach করতে investment বাড়ান`; suggestionIcon='🚀'; }
 else { suggestionText=`${bestAsset.name} — ${(bestAsset.return*100).toFixed(0)}% annual return — best option এখন`; suggestionIcon='✅'; }
 
 // ── Health Score Bar ──
@@ -1809,17 +1811,105 @@ renderMonthlyChartForYear(currentYear, monthlyData);
 }
 function renderMonthlyChartForYear(year, monthlyData) {
 let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let profits=new Array(12).fill(0);
+let profits = new Array(12).fill(0);
 for(let i=0;i<12;i++){ let key=`${year}-${i}`; if(monthlyData[key]) profits[i]=monthlyData[key].profit; }
-let total=profits.reduce((a,b)=>a+b,0), best=Math.max(...profits), avg=total/12;
-document.getElementById('totalProfitYear').innerHTML=formatNumber(total)+' BDT';
-document.getElementById('bestMonthValue').innerHTML=formatNumber(best)+' BDT';
-document.getElementById('avgMonthValue').innerHTML=formatNumber(avg)+' BDT';
+
+// Build invested per month from investments that started in this year
+let invested = new Array(12).fill(0);
+investments.forEach(inv => {
+if(!inv.start) return;
+let d = new Date(inv.start);
+if(d.getFullYear() === year) {
+invested[d.getMonth()] += (inv.amountBDT || 0);
+}
+});
+
+let total = profits.reduce((a,b)=>a+b,0);
+let totalInv = invested.reduce((a,b)=>a+b,0);
+let best = Math.max(...profits);
+let avg = total/12;
+document.getElementById('totalProfitYear').innerHTML = formatNumber(total)+' BDT';
+document.getElementById('bestMonthValue').innerHTML = formatNumber(best)+' BDT';
+document.getElementById('avgMonthValue').innerHTML = formatNumber(avg)+' BDT';
+
 let isDark = document.documentElement.getAttribute('data-theme')==='dark';
-let colors=profits.map(p=>{ if(p===best&&p>0) return '#4ade80'; if(p===0) return isDark?'#334155':'#cbd5e1'; return 'rgba(74,222,128,0.7)'; });
-let ctx=document.getElementById('monthlyProfitChart').getContext('2d');
+let ctx = document.getElementById('monthlyProfitChart').getContext('2d');
 if(monthlyChart) monthlyChart.destroy();
-monthlyChart=new Chart(ctx,{ type:'bar', data:{ labels:months, datasets:[{ label:'Profit (BDT)', data:profits, backgroundColor:colors, borderRadius:8, barPercentage:0.65, categoryPercentage:0.8, borderWidth:0, hoverBackgroundColor:'#facc15' }] }, options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{ backgroundColor:isDark?'#1e293b':'#fff', titleColor:'#facc15', bodyColor:isDark?'#e2e8f0':'#1e293b', borderColor:'#4ade80', borderWidth:1, callbacks:{ label:(c)=>c.raw===0?'No profit':` Profit: ${formatNumber(c.raw)} BDT`, afterBody:(c)=>c[0].raw===best&&best>0?['🏆 Best month!']:[] } } }, scales:{ y:{ grid:{color:isDark?'rgba(148,163,184,0.1)':'rgba(100,116,139,0.1)'}, ticks:{color:isDark?'#94a3b8':'#64748b', callback:(v)=>formatNumber(v)+' BDT', font:{size:10}} }, x:{ grid:{display:false}, ticks:{color:isDark?'#94a3b8':'#64748b', font:{size:10,weight:'500'}} } }, layout:{padding:{top:10,bottom:5}} } });
+
+monthlyChart = new Chart(ctx, {
+type: 'bar',
+data: {
+labels: months,
+datasets: [
+{
+label: '💚 Invested',
+data: invested,
+backgroundColor: 'rgba(74,222,128,0.75)',
+borderRadius: { topLeft:6, topRight:6 },
+barPercentage: 0.5,
+categoryPercentage: 0.85,
+order: 2
+},
+{
+label: '🔴 Return/Profit',
+data: profits,
+backgroundColor: profits.map(p => p===best&&p>0 ? '#f87171' : 'rgba(248,113,113,0.65)'),
+borderRadius: { topLeft:6, topRight:6 },
+barPercentage: 0.5,
+categoryPercentage: 0.85,
+order: 1
+}
+]
+},
+options: {
+responsive: true,
+maintainAspectRatio: true,
+plugins: {
+legend: {
+display: true,
+position: 'top',
+labels: {
+color: isDark?'#94a3b8':'#64748b',
+font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" },
+boxWidth: 12,
+padding: 12,
+usePointStyle: true,
+pointStyle: 'rect'
+}
+},
+tooltip: {
+backgroundColor: isDark?'#1e293b':'#fff',
+titleColor: '#facc15',
+bodyColor: isDark?'#e2e8f0':'#1e293b',
+borderColor: isDark?'#334155':'#cbd5e1',
+borderWidth: 1,
+callbacks: {
+label: (c) => {
+if(c.datasetIndex === 0) return ` Invested: ${formatNumber(c.raw)} BDT`;
+return c.raw===0 ? ' No return' : ` Return: ${formatNumber(c.raw)} BDT`;
+},
+afterBody: (c) => {
+let inv = c.find(x=>x.datasetIndex===0)?.raw||0;
+let ret = c.find(x=>x.datasetIndex===1)?.raw||0;
+if(inv>0&&ret>0) return [`Net: ${formatNumber(ret-inv)} BDT`];
+return [];
+}
+}
+}
+},
+scales: {
+y: {
+grid: { color: isDark?'rgba(148,163,184,0.08)':'rgba(100,116,139,0.08)' },
+ticks: { color: isDark?'#94a3b8':'#64748b', callback:(v)=>formatNumber(v), font:{size:10} }
+},
+x: {
+grid: { display: false },
+ticks: { color: isDark?'#94a3b8':'#64748b', font:{size:10, weight:'500'} }
+}
+},
+layout: { padding: { top:8, bottom:4 } }
+}
+});
 }
 
 // ====== RENDER WAIT MONEY ======
@@ -1891,8 +1981,8 @@ let isMSSA = inv.type === 'MSSA';
 let isBankOrDeposit = inv.type === 'BANK_DEPOSIT';
 let extraBtns = '';
 if(isAdmin) {
-if(isMSSA) extraBtns = `<button class="btn-icon" style="background:rgba(250,204,21,0.15);color:var(--accent);border-color:rgba(250,204,21,0.4);" onclick="openMssaModal('${inv.id}')"><i class="fas fa-plus"></i> কিস্তি</button>`;
-if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i> Top-up</button>`;
+if(isMSSA) extraBtns = `<button class="btn-icon" style="background:rgba(250,204,21,0.15);color:var(--accent);border-color:rgba(250,204,21,0.4);" onclick="openMssaModal('${inv.id}')"><i class="fas fa-plus"></i></button>`;
+if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i></button>`;
 }
 return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
