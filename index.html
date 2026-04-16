@@ -581,8 +581,8 @@ box-shadow: 0 8px 24px var(--shadow);
 .chart-year-selector { display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-input); padding: 4px 6px; border-radius: 30px; width: fit-content; }
 .year-btn { background: transparent; border: none; color: var(--text-sub); padding: 4px 12px; border-radius: 24px; font-size: 0.68rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
 .year-btn.active { background: var(--profit); color: #000; }
-.chart-wrapper-monthly { height: 220px; position: relative; width: 100%; }
-@media (min-width: 768px) { .chart-wrapper-monthly { height: 300px; } }
+.chart-wrapper-monthly { height: 320px; position: relative; width: 100%; }
+@media (min-width: 768px) { .chart-wrapper-monthly { height: 420px; } }
 
 .charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
 @media (min-width: 600px) { .charts-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
@@ -797,7 +797,7 @@ body { padding: 10px; }
 <div class="action-buttons">
 <button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
-<button onclick="sendEmailReport()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
+<button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
 <button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
@@ -846,6 +846,24 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <!-- Insight Box -->
 
 <div id="aiInsight" style="margin-top:12px;"></div>
+
+<!-- Invest Amount Simulator -->
+
+<div style="margin-top:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.25); border-radius:14px; padding:14px;">
+<div style="font-size:0.62rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">🎯 Smart Invest Simulator</div>
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div style="flex:1; min-width:140px;">
+<label style="font-size:0.6rem; color:#7c3aed; font-weight:600;">আমি invest করতে চাই (BDT)</label>
+<input type="number" id="aiInvestAmount" placeholder="যেমন: ১০,০০০" step="500"
+style="width:100%; margin-top:4px; background:rgba(0,0,0,0.3); border:1px solid rgba(168,85,247,0.3); padding:8px 12px; border-radius:10px; color:#e9d5ff; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.82rem;"
+oninput="updateInvestSimulator()">
+</div>
+<button onclick="updateInvestSimulator()" style="background:linear-gradient(135deg,#a855f7,#7c3aed); border:none; color:white; padding:9px 16px; border-radius:10px; font-size:0.72rem; font-weight:700; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; margin-top:18px;">
+<i class="fas fa-calculator"></i> Calculate
+</button>
+</div>
+<div id="investSimulatorResult" style="margin-top:10px;"></div>
+</div>
 
 <!-- Suggestion Box -->
 
@@ -1580,31 +1598,82 @@ let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit
 // ── Farm value ──
 const farmValue=active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 
-// ── Smart Suggestion ──
-const assetOptions=[
-{name:"BTC",type:"crypto",return:0.12,risk:"high"},
-{name:"ETH",type:"crypto",return:0.10,risk:"high"},
-{name:"SOL",type:"crypto",return:0.11,risk:"high"},
-{name:"Wegro",type:"agri",return:0.18,risk:"medium"},
-{name:"iFarmer",type:"agri",return:0.20,risk:"medium"},
-{name:"Biniyog",type:"p2p",return:0.15,risk:"medium"},
-{name:"MMPDA",type:"bank",return:0.08,risk:"low"},
+// ── Smart Suggestion with % allocation ──
+// MSSA বাদ (fixed monthly installment, not freely allocatable)
+// MMPDA থাকবে কিন্তু শুধু বড় amount (>50k) এর জন্য suggest করব
+const assetOptions = [
+{ name:"BTC", type:"crypto", return:0.12, risk:"high", minAmount:5000, label:"Bitcoin" },
+{ name:"ETH", type:"crypto", return:0.10, risk:"high", minAmount:5000, label:"Ethereum" },
+{ name:"SOL", type:"crypto", return:0.11, risk:"high", minAmount:3000, label:"Solana" },
+{ name:"BNB", type:"crypto", return:0.09, risk:"medium", minAmount:3000, label:"BNB" },
+{ name:"iFarmer", type:"agri", return:0.20, risk:"medium", minAmount:1000, label:"iFarmer" },
+{ name:"Wegro", type:"agri", return:0.18, risk:"medium", minAmount:1000, label:"Wegro" },
+{ name:"Biniyog", type:"p2p", return:0.15, risk:"medium", minAmount:5000, label:"Biniyog" },
+{ name:"MMPDA", type:"bank", return:0.08, risk:"low", minAmount:50000, label:"MMPDA (Islami Bank)" },
 ];
-function scoreAsset(a){ let s=a.return*100; if(risk==='High'&&a.risk==='high') s-=20; if(cryptoPercent>50&&a.type!=='crypto') s+=15; if(waitMoney>0&&a.return>0.10) s+=10; return s; }
-let bestAsset=assetOptions.reduce((b,a)=>scoreAsset(a)>scoreAsset(b)?a:b,assetOptions[0]);
-const cPct=cryptoPercent, fPct=currentValue>0?(farmValue/currentValue)*100:0;
-const platProfits=Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
-let suggestionText='', suggestionIcon='💡';
+
+function scoreAsset(a, budget=0) {
+let s = a.return * 100;
+if(risk==='High' && a.risk==='high') s -= 20;
+if(cryptoPercent > 50 && a.type !== 'crypto') s += 15;
+if(waitMoney > 0 && a.return > 0.10) s += 10;
+if(budget > 0 && budget < a.minAmount) s -= 50; // don't suggest if can't afford
+if(budget >= 100000 && a.name === 'MMPDA') s += 30; // push MMPDA for 1 lakh+
+return s;
+}
+
+let bestAsset = assetOptions.reduce((b,a) => scoreAsset(a) > scoreAsset(b) ? a : b, assetOptions[0]);
+const cPct = cryptoPercent;
+const fPct = currentValue > 0 ? (farmValue/currentValue)*100 : 0;
+const platProfits = Object.keys(platMap).map(n=>({name:n, profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
+
+// Ideal allocation targets
+const idealCryptoPct = 20; // target 20% crypto
+const idealFarmPct = 40; // target 40% agri/halal
+const cryptoGap = Math.max(0, idealCryptoPct - cPct);
+const farmGap = Math.max(0, idealFarmPct - fPct);
+
+let suggestionText = '', suggestionIcon = '💡', suggestionDetail = '';
+
 if(waitMoney > 1000) {
-if(cPct > 50) { suggestionText=`Crypto ${cPct.toFixed(0)}% বেশি — iFarmer / Wegro তে idle টাকা লাগান`; suggestionIcon='⚖️'; }
-else if(cPct < 10) { suggestionText=`BTC / ETH এ অল্প invest করুন — crypto exposure এখন কম`; suggestionIcon='📈'; }
-else if(fPct < 30) { suggestionText=`iFarmer / Wegro বাড়ান — stable halal growth`; suggestionIcon='🌱'; }
-else if(platProfits[0]) { suggestionText=`Top performer: ${platProfits[0].name} এ আরো add করুন`; suggestionIcon='🏆'; }
-else { suggestionText=`${formatNumber(waitMoney)} BDT idle — ${bestAsset.name} এ invest করুন`; suggestionIcon='⏳'; }
-} else if(cPct > 50) { suggestionText=`Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`; suggestionIcon='⚖️'; }
-else if(loanGiven > 0) { suggestionText=`${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`; suggestionIcon='⚠️'; }
-else if(monthsToGoalNum && monthsToGoalNum > 100) { suggestionText=`Goal দ্রুত reach করতে investment বাড়ান`; suggestionIcon='🚀'; }
-else { suggestionText=`${bestAsset.name} — ${(bestAsset.return*100).toFixed(0)}% annual return — best option এখন`; suggestionIcon='✅'; }
+if(cPct > 50) {
+suggestionText = `Crypto ${cPct.toFixed(0)}% বেশি — iFarmer / Wegro তে idle টাকা লাগান`;
+suggestionDetail = `Target: Crypto ≤ 20%, Agri ≥ 40%`;
+suggestionIcon = '⚖️';
+} else if(cPct < 10) {
+let suggestPct = Math.min(idealCryptoPct, 100-cPct);
+let suggestAmt = (waitMoney * suggestPct / 100);
+suggestionText = `BTC / ETH এ invest করুন — crypto exposure মাত্র ${cPct.toFixed(0)}%`;
+suggestionDetail = `Suggested: ${formatNumber(suggestAmt)} BDT (${suggestPct.toFixed(0)}% of idle)`;
+suggestionIcon = '📈';
+} else if(fPct < 30) {
+let suggestPct = Math.min(40, 100-fPct);
+let suggestAmt = (waitMoney * suggestPct / 100);
+suggestionText = `iFarmer / Wegro বাড়ান — halal stable return`;
+suggestionDetail = `Suggested: ${formatNumber(suggestAmt)} BDT (${suggestPct.toFixed(0)}% of idle)`;
+suggestionIcon = '🌱';
+} else if(platProfits[0]) {
+suggestionText = `Top performer: ${platProfits[0].name} এ আরো add করুন`;
+suggestionDetail = `Platform এ এখন পর্যন্ত সর্বোচ্চ return`;
+suggestionIcon = '🏆';
+} else {
+suggestionText = `${formatNumber(waitMoney)} BDT idle — ${bestAsset.name} এ invest করুন`;
+suggestionDetail = `Annual return: ${(bestAsset.return*100).toFixed(0)}%`;
+suggestionIcon = '⏳';
+}
+} else if(cPct > 50) {
+suggestionText = `Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`;
+suggestionDetail = `Rebalance target: Crypto ≤ 20%`;
+suggestionIcon = '⚖️';
+} else if(loanGiven > 0) {
+suggestionText = `${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
+suggestionDetail = `Loan recovery track রাখা জরুরি`;
+suggestionIcon = '⚠️';
+} else {
+suggestionText = `${bestAsset.label} — best option এখন`;
+suggestionDetail = `Annual return: ${(bestAsset.return*100).toFixed(0)}% | Risk: ${bestAsset.risk}`;
+suggestionIcon = '✅';
+}
 
 // ── Health Score Bar ──
 scoreBar.innerHTML = `
@@ -1674,11 +1743,14 @@ ${insightLines.map(l=>`<div style="font-size:0.72rem; color:#d8b4fe; line-height
 
 // ── Suggestion Box ──
 suggestionBox.innerHTML = `
-<div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1)); border:1px solid rgba(168,85,247,0.45); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px;">
+<div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1)); border:1px solid rgba(168,85,247,0.45); border-radius:14px; padding:14px;">
+<div style="display:flex; align-items:flex-start; gap:12px;">
 <div style="font-size:1.5rem; flex-shrink:0;">${suggestionIcon}</div>
-<div>
+<div style="flex:1;">
 <div style="font-size:0.6rem; color:#9333ea; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">AI Suggestion</div>
-<div style="font-size:0.78rem; color:#e9d5ff; font-weight:600; line-height:1.4;">${suggestionText}</div>
+<div style="font-size:0.82rem; color:#e9d5ff; font-weight:700; line-height:1.4;">${suggestionText}</div>
+${suggestionDetail ? `<div style="font-size:0.68rem; color:#a78bfa; margin-top:5px; background:rgba(168,85,247,0.12); padding:4px 10px; border-radius:8px; display:inline-block;">${suggestionDetail}</div>` : ''}
+</div>
 </div>
 </div>`;
 
@@ -2283,6 +2355,89 @@ btn.title = 'Collapse';
 }
 }
 window.toggleCryptoAi = toggleCryptoAi;
+
+// ====== INVEST SIMULATOR ======
+function updateInvestSimulator() {
+let budget = parseFloat(document.getElementById('aiInvestAmount')?.value) || 0;
+let resultEl = document.getElementById('investSimulatorResult');
+if(!resultEl) return;
+if(budget <= 0) { resultEl.innerHTML=''; return; }
+
+let active = investments.filter(i => i.status==='active');
+let totalInvested = active.reduce((s,i)=>s+(i.amountBDT||0),0);
+let cryptoVal = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+let farmVal = active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+let cPct = totalInvested>0?(cryptoVal/totalInvested)*100:0;
+let fPct = totalInvested>0?(farmVal/totalInvested)*100:0;
+
+// MSSA — skip (fixed installment, not lump sum)
+// MMPDA — only for 50k+
+// Build allocation plan based on budget & current allocation gaps
+let plan = [];
+
+if(budget >= 100000) {
+// ১ লাখ+ → MMPDA strong suggestion
+plan.push({ name:'MMPDA (Islami Bank)', pct:40, color:'#10b981', icon:'🏦', reason:'Large amount — stable halal bank return (8% annual)' });
+plan.push({ name:'iFarmer / Wegro', pct:30, color:'#4ade80', icon:'🌱', reason:'Agri halal investment — 18-20% annual' });
+if(cPct < 20) plan.push({ name:'BTC / ETH', pct:20, color:'#f7931a', icon:'₿', reason:'Crypto diversification' });
+plan.push({ name:'Biniyog', pct:10, color:'#a855f7', icon:'💼', reason:'P2P stable return' });
+} else if(budget >= 50000) {
+plan.push({ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', reason:'Best halal return for this amount' });
+plan.push({ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', reason:'P2P investment — 15% annual' });
+if(cPct < 20) plan.push({ name:'BTC / ETH', pct:20, color:'#f7931a', icon:'₿', reason:'Crypto exposure বাড়ান' });
+plan.push({ name:'Wait / Save', pct:10, color:'#94a3b8', icon:'💰', reason:'Emergency reserve' });
+} else if(budget >= 10000) {
+if(cPct < 15) {
+plan.push({ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', reason:`Crypto মাত্র ${cPct.toFixed(0)}% — বাড়ানো দরকার` });
+plan.push({ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', reason:'Stable halal return' });
+plan.push({ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', reason:'P2P diversification' });
+} else {
+plan.push({ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', reason:'Halal agri — best mid-range option' });
+plan.push({ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', reason:'P2P return 15% annual' });
+plan.push({ name:'BTC / SOL', pct:20, color:'#f7931a', icon:'₿', reason:'Small crypto position' });
+}
+} else if(budget >= 3000) {
+plan.push({ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', reason:'Smaller amount এ সেরা halal option' });
+plan.push({ name:'BTC / ETH (সামান্য)', pct:40, color:'#f7931a', icon:'₿', reason:'Crypto entry position' });
+} else {
+plan.push({ name:'iFarmer / Wegro', pct:100, color:'#4ade80', icon:'🌱', reason:'এই amount এ সেরা option' });
+}
+
+// Normalize to 100%
+let totalPct = plan.reduce((s,p)=>s+p.pct, 0);
+plan.forEach(p => p.pct = Math.round(p.pct/totalPct*100));
+plan.forEach(p => p.amount = budget * p.pct / 100);
+
+// Estimated annual return
+const returnMap = { 'MMPDA (Islami Bank)':0.08, 'iFarmer / Wegro':0.19, 'BTC / ETH':0.11, 'BTC / SOL':0.115, 'BTC / ETH (সামান্য)':0.10, 'Biniyog':0.15, 'Wait / Save':0, 'iFarmer / Wegro':0.19 };
+let estReturn = plan.reduce((s,p) => s + p.amount*(returnMap[p.name]||0.10), 0);
+
+resultEl.innerHTML = `
+<div style="margin-top:8px;">
+<div style="font-size:0.62rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
+📊 ${formatNumber(budget)} BDT এর জন্য AI Allocation Plan
+</div>
+${plan.map(p=>`
+<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:10px; padding:8px 10px;">
+<span style="font-size:1rem; flex-shrink:0;">${p.icon}</span>
+<div style="flex:1; min-width:0;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
+<span style="font-size:0.72rem; font-weight:700; color:#e9d5ff;">${p.name}</span>
+<span style="font-size:0.72rem; font-weight:800; color:${p.color};">${formatNumber(p.amount)} BDT (${p.pct}%)</span>
+</div>
+<div style="background:rgba(255,255,255,0.06); border-radius:4px; height:5px; overflow:hidden;">
+<div style="background:${p.color}; width:${p.pct}%; height:100%; border-radius:4px;"></div>
+</div>
+<div style="font-size:0.58rem; color:#6b7280; margin-top:2px;">${p.reason}</div>
+</div>
+</div>`).join('')}
+<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2); border-radius:10px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:0.68rem; color:#6b7280;">📈 Expected Annual Return</span>
+<span style="font-size:0.88rem; font-weight:800; color:#4ade80;">+${formatNumber(estReturn)} BDT</span>
+</div>
+</div>`;
+}
+window.updateInvestSimulator = updateInvestSimulator;
 
 // ====== EMAIL REPORT (EmailJS) ======
 const EMAILJS_SERVICE = 'service_wealth';
