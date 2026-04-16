@@ -1596,83 +1596,132 @@ let bestPlatformProfit = bestPlatform !== 'N/A' ? platMap[bestPlatform] : 0;
 let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit)} BDT` : `${formatNumber(bestPlatformProfit)} BDT invested`;
 
 // ── Farm value ──
-const farmValue=active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
-
-// ── Smart Suggestion with % allocation ──
-// MSSA বাদ (fixed monthly installment, not freely allocatable)
-// MMPDA থাকবে কিন্তু শুধু বড় amount (>50k) এর জন্য suggest করব
-const assetOptions = [
-{ name:"BTC", type:"crypto", return:0.12, risk:"high", minAmount:5000, label:"Bitcoin" },
-{ name:"ETH", type:"crypto", return:0.10, risk:"high", minAmount:5000, label:"Ethereum" },
-{ name:"SOL", type:"crypto", return:0.11, risk:"high", minAmount:3000, label:"Solana" },
-{ name:"BNB", type:"crypto", return:0.09, risk:"medium", minAmount:3000, label:"BNB" },
-{ name:"iFarmer", type:"agri", return:0.20, risk:"medium", minAmount:1000, label:"iFarmer" },
-{ name:"Wegro", type:"agri", return:0.18, risk:"medium", minAmount:1000, label:"Wegro" },
-{ name:"Biniyog", type:"p2p", return:0.15, risk:"medium", minAmount:5000, label:"Biniyog" },
-{ name:"MMPDA", type:"bank", return:0.08, risk:"low", minAmount:50000, label:"MMPDA (Islami Bank)" },
-];
-
-function scoreAsset(a, budget=0) {
-let s = a.return * 100;
-if(risk==='High' && a.risk==='high') s -= 20;
-if(cryptoPercent > 50 && a.type !== 'crypto') s += 15;
-if(waitMoney > 0 && a.return > 0.10) s += 10;
-if(budget > 0 && budget < a.minAmount) s -= 50; // don't suggest if can't afford
-if(budget >= 100000 && a.name === 'MMPDA') s += 30; // push MMPDA for 1 lakh+
-return s;
-}
-
-let bestAsset = assetOptions.reduce((b,a) => scoreAsset(a) > scoreAsset(b) ? a : b, assetOptions[0]);
+const farmValue = active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 const cPct = cryptoPercent;
 const fPct = currentValue > 0 ? (farmValue/currentValue)*100 : 0;
-const platProfits = Object.keys(platMap).map(n=>({name:n, profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
+const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
 
-// Ideal allocation targets
-const idealCryptoPct = 20; // target 20% crypto
-const idealFarmPct = 40; // target 40% agri/halal
-const cryptoGap = Math.max(0, idealCryptoPct - cPct);
-const farmGap = Math.max(0, idealFarmPct - fPct);
+// ══════════════════════════════════════════════
+// 🧠 ONE AI BRAIN — getAIStrategy()
+// Simulator + Suggestion দুইটাই এখান থেকে চলবে
+// MSSA বাদ (fixed installment), MMPDA শুধু ১লাখ+
+// ══════════════════════════════════════════════
+const AI_STATE = {
+cryptoExposure: cPct,
+farmExposure: fPct,
+idleMoney: waitMoney,
+riskLevel: risk,
+loanGiven: loanGiven,
+totalPortfolio: currentValue
+};
+
+function getAIStrategy(amount) {
+const c = AI_STATE.cryptoExposure;
+const f = AI_STATE.farmExposure;
+
+// ── ১ লাখ+ ──
+if(amount >= 100000) {
+return [
+{ name:'MMPDA (Islami Bank)', pct:30, color:'#10b981', icon:'🏦', annualReturn:0.08, reason:'Large amount — Islami Bank stable return' },
+{ name:'iFarmer / Wegro', pct:30, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal agri — 18-20% annual' },
+{ name:'BTC / ETH', pct:25, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto diversification' },
+{ name:'Biniyog', pct:15, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P 15% annual' },
+];
+}
+
+// ── ৫০ হাজার - ১ লাখ ──
+if(amount >= 50000) {
+if(c < 10) {
+return [
+{ name:'BTC / ETH', pct:35, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto মাত্র ${c.toFixed(0)}% — জরুরি বাড়ানো দরকার` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Stable halal return' },
+{ name:'Biniyog', pct:25, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P balance' },
+];
+}
+if(c > 50) {
+return [
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Crypto বেশি — agri shift করুন' },
+{ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P diversification' },
+{ name:'Wait / Save', pct:20, color:'#94a3b8', icon:'💰', annualReturn:0, reason:'Reserve রাখুন' },
+];
+}
+return [
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Best halal mid-range option' },
+{ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P 15% annual' },
+{ name:'BTC / ETH', pct:30, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto position' },
+];
+}
+
+// ── ১০ হাজার - ৫০ হাজার ──
+if(amount >= 10000) {
+if(c < 10) {
+return [
+{ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto ${c.toFixed(0)}% — এখন বাড়ানো দরকার` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal stable return' },
+{ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'Small P2P position' },
+];
+}
+if(c > 50) {
+return [
+{ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Crypto বেশি — agri বাড়ান' },
+{ name:'Biniyog', pct:40, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P safe option' },
+];
+}
+return [
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Best mid-amount halal option' },
+{ name:'BTC / ETH', pct:30, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto small position' },
+{ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P diversification' },
+];
+}
+
+// ── ৫ হাজার - ১০ হাজার ──
+if(amount >= 5000) {
+if(c < 10) {
+return [
+{ name:'BTC / ETH', pct:60, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto exposure কম (${c.toFixed(0)}%) — এখনই invest করুন` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal balance' },
+];
+}
+return [
+{ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'এই amount এ সেরা halal option' },
+{ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto entry' },
+];
+}
+
+// ── ৫ হাজারের নিচে ──
+if(c < 10 && amount >= 2000) {
+return [
+{ name:'BTC / ETH (সামান্য)', pct:50, color:'#f7931a', icon:'₿', annualReturn:0.10, reason:`Crypto মাত্র ${c.toFixed(0)}% — অল্প হলেও শুরু করুন` },
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal return' },
+];
+}
+return [
+{ name:'iFarmer / Wegro', pct:100, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Small amount এ সেরা — halal & stable' },
+];
+}
+
+// AI Suggestion — idle money দিয়ে strategy নাও
+const suggestBudget = waitMoney > 1000 ? waitMoney : (currentValue * 0.1);
+const defaultPlan = getAIStrategy(suggestBudget);
+const topOption = defaultPlan[0];
 
 let suggestionText = '', suggestionIcon = '💡', suggestionDetail = '';
 
-if(waitMoney > 1000) {
-if(cPct > 50) {
-suggestionText = `Crypto ${cPct.toFixed(0)}% বেশি — iFarmer / Wegro তে idle টাকা লাগান`;
+if(loanGiven > 0 && cPct <= 10 && waitMoney < 1000) {
+suggestionText = `${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
+suggestionDetail = `Loan recover হলে ${topOption.name} এ invest করুন`;
+suggestionIcon = '⚠️';
+} else if(cPct > 50) {
+suggestionText = `Crypto ${cPct.toFixed(0)}% বেশি — iFarmer / Wegro এ shift করুন`;
 suggestionDetail = `Target: Crypto ≤ 20%, Agri ≥ 40%`;
 suggestionIcon = '⚖️';
-} else if(cPct < 10) {
-let suggestPct = Math.min(idealCryptoPct, 100-cPct);
-let suggestAmt = (waitMoney * suggestPct / 100);
-suggestionText = `BTC / ETH এ invest করুন — crypto exposure মাত্র ${cPct.toFixed(0)}%`;
-suggestionDetail = `Suggested: ${formatNumber(suggestAmt)} BDT (${suggestPct.toFixed(0)}% of idle)`;
-suggestionIcon = '📈';
-} else if(fPct < 30) {
-let suggestPct = Math.min(40, 100-fPct);
-let suggestAmt = (waitMoney * suggestPct / 100);
-suggestionText = `iFarmer / Wegro বাড়ান — halal stable return`;
-suggestionDetail = `Suggested: ${formatNumber(suggestAmt)} BDT (${suggestPct.toFixed(0)}% of idle)`;
-suggestionIcon = '🌱';
-} else if(platProfits[0]) {
-suggestionText = `Top performer: ${platProfits[0].name} এ আরো add করুন`;
-suggestionDetail = `Platform এ এখন পর্যন্ত সর্বোচ্চ return`;
-suggestionIcon = '🏆';
 } else {
-suggestionText = `${formatNumber(waitMoney)} BDT idle — ${bestAsset.name} এ invest করুন`;
-suggestionDetail = `Annual return: ${(bestAsset.return*100).toFixed(0)}%`;
-suggestionIcon = '⏳';
-}
-} else if(cPct > 50) {
-suggestionText = `Crypto ${cPct.toFixed(0)}% — Wegro / iFarmer এ shift করুন`;
-suggestionDetail = `Rebalance target: Crypto ≤ 20%`;
-suggestionIcon = '⚖️';
-} else if(loanGiven > 0) {
-suggestionText = `${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
-suggestionDetail = `Loan recovery track রাখা জরুরি`;
-suggestionIcon = '⚠️';
-} else {
-suggestionText = `${bestAsset.label} — best option এখন`;
-suggestionDetail = `Annual return: ${(bestAsset.return*100).toFixed(0)}% | Risk: ${bestAsset.risk}`;
-suggestionIcon = '✅';
+let topAmt = waitMoney > 1000 ? (waitMoney * topOption.pct / 100) : 0;
+suggestionText = `${topOption.icon} ${topOption.name} এ invest করুন`;
+suggestionDetail = topAmt > 0
+? `${formatNumber(topAmt)} BDT (${topOption.pct}%) · Annual: ${(topOption.annualReturn*100).toFixed(0)}%`
+: `Annual return: ${(topOption.annualReturn*100).toFixed(0)}% · Risk: ${topOption.annualReturn > 0.10 ? 'Medium' : 'Low'}`;
+suggestionIcon = topOption.icon;
 }
 
 // ── Health Score Bar ──
@@ -2363,77 +2412,117 @@ let resultEl = document.getElementById('investSimulatorResult');
 if(!resultEl) return;
 if(budget <= 0) { resultEl.innerHTML=''; return; }
 
-let active = investments.filter(i => i.status==='active');
-let totalInvested = active.reduce((s,i)=>s+(i.amountBDT||0),0);
-let cryptoVal = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
-let farmVal = active.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
-let cPct = totalInvested>0?(cryptoVal/totalInvested)*100:0;
-let fPct = totalInvested>0?(farmVal/totalInvested)*100:0;
+// ── Same brain as AI Suggestion ──
+// Rebuild AI_STATE from current data
+let activeNow = investments.filter(i=>i.status==='active');
+let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
+let cryptoValNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+let farmValNow = activeNow.filter(i=>['Wegro','iFarmer','Biniyog'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+let waitNow = investments.filter(i=>isWaitMoney(i)&&i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0);
 
-// MSSA — skip (fixed installment, not lump sum)
-// MMPDA — only for 50k+
-// Build allocation plan based on budget & current allocation gaps
-let plan = [];
+// Build AI_STATE for simulator
+const simState = {
+cryptoExposure: totalNow>0?(cryptoValNow/totalNow)*100:0,
+farmExposure: totalNow>0?(farmValNow/totalNow)*100:0,
+idleMoney: waitNow
+};
 
-if(budget >= 100000) {
-// ১ লাখ+ → MMPDA strong suggestion
-plan.push({ name:'MMPDA (Islami Bank)', pct:40, color:'#10b981', icon:'🏦', reason:'Large amount — stable halal bank return (8% annual)' });
-plan.push({ name:'iFarmer / Wegro', pct:30, color:'#4ade80', icon:'🌱', reason:'Agri halal investment — 18-20% annual' });
-if(cPct < 20) plan.push({ name:'BTC / ETH', pct:20, color:'#f7931a', icon:'₿', reason:'Crypto diversification' });
-plan.push({ name:'Biniyog', pct:10, color:'#a855f7', icon:'💼', reason:'P2P stable return' });
-} else if(budget >= 50000) {
-plan.push({ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', reason:'Best halal return for this amount' });
-plan.push({ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', reason:'P2P investment — 15% annual' });
-if(cPct < 20) plan.push({ name:'BTC / ETH', pct:20, color:'#f7931a', icon:'₿', reason:'Crypto exposure বাড়ান' });
-plan.push({ name:'Wait / Save', pct:10, color:'#94a3b8', icon:'💰', reason:'Emergency reserve' });
-} else if(budget >= 10000) {
-if(cPct < 15) {
-plan.push({ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', reason:`Crypto মাত্র ${cPct.toFixed(0)}% — বাড়ানো দরকার` });
-plan.push({ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', reason:'Stable halal return' });
-plan.push({ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', reason:'P2P diversification' });
-} else {
-plan.push({ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', reason:'Halal agri — best mid-range option' });
-plan.push({ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', reason:'P2P return 15% annual' });
-plan.push({ name:'BTC / SOL', pct:20, color:'#f7931a', icon:'₿', reason:'Small crypto position' });
+// ── getAIStrategy (same function, same rules) ──
+function getAIStrategy(amount) {
+const c = simState.cryptoExposure;
+const f = simState.farmExposure;
+if(amount >= 100000) return [
+{ name:'MMPDA (Islami Bank)', pct:30, color:'#10b981', icon:'🏦', annualReturn:0.08, reason:'Large amount — Islami Bank stable 8% annual' },
+{ name:'iFarmer / Wegro', pct:30, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal agri 18-20% annual' },
+{ name:'BTC / ETH', pct:25, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto diversification' },
+{ name:'Biniyog', pct:15, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P 15% annual' },
+];
+if(amount >= 50000) {
+if(c < 10) return [
+{ name:'BTC / ETH', pct:35, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto ${c.toFixed(0)}% — বাড়ানো জরুরি` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Stable halal return' },
+{ name:'Biniyog', pct:25, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P balance' },
+];
+if(c > 50) return [
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Crypto বেশি — agri shift করুন' },
+{ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P safe' },
+{ name:'Wait / Save', pct:20, color:'#94a3b8', icon:'💰', annualReturn:0, reason:'Reserve' },
+];
+return [
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Best halal mid-range' },
+{ name:'Biniyog', pct:30, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P 15% annual' },
+{ name:'BTC / ETH', pct:30, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto position' },
+];
 }
-} else if(budget >= 3000) {
-plan.push({ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', reason:'Smaller amount এ সেরা halal option' });
-plan.push({ name:'BTC / ETH (সামান্য)', pct:40, color:'#f7931a', icon:'₿', reason:'Crypto entry position' });
-} else {
-plan.push({ name:'iFarmer / Wegro', pct:100, color:'#4ade80', icon:'🌱', reason:'এই amount এ সেরা option' });
+if(amount >= 10000) {
+if(c < 10) return [
+{ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto ${c.toFixed(0)}% — এখন বাড়ান` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal stable return' },
+{ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P small position' },
+];
+if(c > 50) return [
+{ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Crypto বেশি — agri বাড়ান' },
+{ name:'Biniyog', pct:40, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P safe option' },
+];
+return [
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Best halal mid-amount' },
+{ name:'BTC / ETH', pct:30, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto small position' },
+{ name:'Biniyog', pct:20, color:'#a855f7', icon:'💼', annualReturn:0.15, reason:'P2P diversification' },
+];
+}
+if(amount >= 5000) {
+if(c < 10) return [
+{ name:'BTC / ETH', pct:60, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:`Crypto exposure কম (${c.toFixed(0)}%)` },
+{ name:'iFarmer / Wegro', pct:40, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal balance' },
+];
+return [
+{ name:'iFarmer / Wegro', pct:60, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'এই amount এ সেরা halal option' },
+{ name:'BTC / ETH', pct:40, color:'#f7931a', icon:'₿', annualReturn:0.11, reason:'Crypto entry' },
+];
+}
+if(c < 10 && amount >= 2000) return [
+{ name:'BTC / ETH (সামান্য)', pct:50, color:'#f7931a', icon:'₿', annualReturn:0.10, reason:`Crypto ${c.toFixed(0)}% — শুরু করুন` },
+{ name:'iFarmer / Wegro', pct:50, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Halal return' },
+];
+return [{ name:'iFarmer / Wegro', pct:100, color:'#4ade80', icon:'🌱', annualReturn:0.19, reason:'Small amount — সেরা halal option' }];
 }
 
-// Normalize to 100%
-let totalPct = plan.reduce((s,p)=>s+p.pct, 0);
-plan.forEach(p => p.pct = Math.round(p.pct/totalPct*100));
-plan.forEach(p => p.amount = budget * p.pct / 100);
-
-// Estimated annual return
-const returnMap = { 'MMPDA (Islami Bank)':0.08, 'iFarmer / Wegro':0.19, 'BTC / ETH':0.11, 'BTC / SOL':0.115, 'BTC / ETH (সামান্য)':0.10, 'Biniyog':0.15, 'Wait / Save':0, 'iFarmer / Wegro':0.19 };
-let estReturn = plan.reduce((s,p) => s + p.amount*(returnMap[p.name]||0.10), 0);
+let plan = getAIStrategy(budget);
+// Normalize pct & calculate amounts
+let totalPct = plan.reduce((s,p)=>s+p.pct,0);
+plan.forEach(p => { p.pct = Math.round(p.pct/totalPct*100); p.amount = budget*p.pct/100; });
+let estReturn = plan.reduce((s,p)=>s+p.amount*(p.annualReturn||0.10),0);
+let estMonthly = estReturn / 12;
 
 resultEl.innerHTML = `
 <div style="margin-top:8px;">
 <div style="font-size:0.62rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">
-📊 ${formatNumber(budget)} BDT এর জন্য AI Allocation Plan
+📊 ${formatNumber(budget)} BDT এর AI Allocation Plan
+<span style="font-size:0.58rem; color:#6b7280; font-weight:400; margin-left:6px;">Crypto: ${simState.cryptoExposure.toFixed(0)}% | Farm: ${simState.farmExposure.toFixed(0)}%</span>
 </div>
 ${plan.map(p=>`
-<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:10px; padding:8px 10px;">
-<span style="font-size:1rem; flex-shrink:0;">${p.icon}</span>
-<div style="flex:1; min-width:0;">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px;">
-<span style="font-size:0.72rem; font-weight:700; color:#e9d5ff;">${p.name}</span>
-<span style="font-size:0.72rem; font-weight:800; color:${p.color};">${formatNumber(p.amount)} BDT (${p.pct}%)</span>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;background:rgba(0,0,0,0.2);border-radius:10px;padding:8px 10px;">
+<span style="font-size:1rem;flex-shrink:0;">${p.icon}</span>
+<div style="flex:1;min-width:0;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+<span style="font-size:0.72rem;font-weight:700;color:#e9d5ff;">${p.name}</span>
+<span style="font-size:0.72rem;font-weight:800;color:${p.color};">${formatNumber(p.amount)} BDT <span style="opacity:0.7;">(${p.pct}%)</span></span>
 </div>
-<div style="background:rgba(255,255,255,0.06); border-radius:4px; height:5px; overflow:hidden;">
-<div style="background:${p.color}; width:${p.pct}%; height:100%; border-radius:4px;"></div>
+<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;overflow:hidden;">
+<div style="background:${p.color};width:${p.pct}%;height:100%;border-radius:4px;"></div>
 </div>
-<div style="font-size:0.58rem; color:#6b7280; margin-top:2px;">${p.reason}</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:2px;">${p.reason}${p.annualReturn>0?` · ${(p.annualReturn*100).toFixed(0)}% annual`:''}</div>
 </div>
 </div>`).join('')}
-<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.2); border-radius:10px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
-<span style="font-size:0.68rem; color:#6b7280;">📈 Expected Annual Return</span>
-<span style="font-size:0.88rem; font-weight:800; color:#4ade80;">+${formatNumber(estReturn)} BDT</span>
+<div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:8px 12px;margin-top:4px;">
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span style="font-size:0.68rem;color:#6b7280;">📈 Expected Annual Return</span>
+<span style="font-size:0.88rem;font-weight:800;color:#4ade80;">+${formatNumber(estReturn)} BDT</span>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+<span style="font-size:0.62rem;color:#6b7280;">📅 Monthly (approx)</span>
+<span style="font-size:0.75rem;font-weight:700;color:#34d399;">+${formatNumber(estMonthly)} BDT/month</span>
+</div>
 </div>
 </div>`;
 }
@@ -3236,4 +3325,3 @@ showToast('✅ PDF Report downloaded!');
 window.exportPDF = exportPDF;
 </script>
 </body>
-</html>
