@@ -79,6 +79,7 @@ transition: background 0.3s, color 0.3s;
 @keyframes slideIn { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes aiPulse { 0%,100% { box-shadow:0 4px 20px rgba(168,85,247,0.5); opacity:1; } 50% { box-shadow:0 4px 30px rgba(168,85,247,0.9); opacity:0.85; } }
+@keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
 .fade-up { animation: fadeUp 0.45s ease both; }
 
 /* ====== HEADER ====== */
@@ -768,7 +769,22 @@ body { padding: 10px; }
 </div>
 </div>
 <!-- LIVE RATE CHIPS -->
-<div id="liveRateChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; padding:8px 14px; background:var(--bg-card); border-radius:12px; border:1px solid var(--border); font-size:0.7rem;"></div>
+<div id="liveRateChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; padding:8px 14px; background:var(--bg-card); border-radius:12px; border:1px solid var(--border); font-size:0.7rem;"></div>
+
+<!-- PORTFOLIO P&L TICKER -->
+
+<div id="plTickerWrap" style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; position:relative;">
+<div style="display:flex; align-items:center; gap:0;">
+<div style="background:var(--bg-input); padding:6px 12px; font-size:0.62rem; font-weight:700; color:var(--text-sub); white-space:nowrap; border-right:1px solid var(--border); flex-shrink:0;">
+<i class="fas fa-chart-line" style="color:var(--accent);"></i> P&L
+</div>
+<div style="overflow:hidden; flex:1; position:relative;">
+<div id="plTickerInner" style="display:flex; gap:0; animation:tickerScroll 30s linear infinite; white-space:nowrap; width:max-content;">
+<span style="color:var(--text-sub); font-size:0.7rem; padding:6px 16px;">Loading...</span>
+</div>
+</div>
+</div>
+</div>
 
 <!-- EXPIRY GANTT -->
 
@@ -2193,6 +2209,7 @@ document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML=`${formatNumber
 updateCryptoPurchaseInfo();
 renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
+renderPLTicker();
 // Auto check alerts on price update
 checkAlerts();
 } catch(e) { console.error('Crypto price fetch error:', e); }
@@ -2609,7 +2626,80 @@ legendEl.innerHTML = pData.map((p, i) => `
 }
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); updateCryptoPrices(); }
+// ====== PORTFOLIO P&L TICKER ======
+function renderPLTicker() {
+let el = document.getElementById('plTickerInner');
+if(!el) return;
+
+let active = investments.filter(i => i.status === 'active');
+if(active.length === 0) return;
+
+// ── Crypto P&L (real from Binance prices) ──
+let crypto24hBDT = 0, crypto7dBDT = 0;
+active.forEach(inv => {
+if(!inv.isCrypto || !cryptoPrices[inv.type]) return;
+let cur = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices[inv.type] * usdToBdt;
+if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
+});
+
+// ── Non-crypto P&L (estimated from annual return rates) ──
+// Daily rate = annual / 365, monthly = annual / 12
+const ANNUAL_RATES = { 'iFarmer':0.20, 'Wegro':0.18, 'Biniyog':0.15, 'MMPDA':0.08, 'BANK_DEPOSIT':0.07, 'Agriculture':0.18, 'Gold':0.10 };
+let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0, nonCrypto1y=0;
+active.forEach(inv => {
+if(inv.isCrypto) return;
+if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN') return;
+let rate = ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10;
+let amt = inv.amountBDT || 0;
+nonCrypto24h += (amt * rate) / 365;
+nonCrypto7d += (amt * rate) / 365 * 7;
+nonCrypto30d += (amt * rate) / 12;
+nonCrypto1y += (amt * rate);
+});
+
+// ── Totals ──
+let pl24h = crypto24hBDT + nonCrypto24h;
+let pl7d = crypto7dBDT + nonCrypto7d;
+let pl30d = nonCrypto30d + (crypto7dBDT / 7 * 30); // extrapolate crypto 7d
+let pl1y = nonCrypto1y + (crypto7dBDT / 7 * 365);
+
+function chip(label, val) {
+let pos = val >= 0;
+let color = pos ? '#4ade80' : '#f87171';
+let bg = pos ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)';
+let sign = pos ? '+' : '';
+return `<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-right:1px solid var(--border);font-size:0.68rem;white-space:nowrap;">
+<span style="color:var(--text-sub);font-size:0.6rem;">${label}</span>
+<span style="color:${color};font-weight:700;background:${bg};padding:2px 8px;border-radius:20px;">${sign}${formatNumber(val)} BDT</span>
+</span>`;
+}
+
+// Build ticker items (doubled for seamless loop)
+let items = chip('24H',pl24h) + chip('7D',pl7d) + chip('30D',pl30d) + chip('1Y',pl1y);
+// Add per-asset crypto breakdown
+['BTC','ETH','BNB','SOL'].forEach(coin => {
+let inv24 = active.filter(i=>i.type===coin);
+if(inv24.length===0||!cryptoPrices[coin]||!crypto24hPrices[coin]) return;
+let qty = inv24.reduce((s,i)=>s+i.amount,0);
+let chg = qty*(cryptoPrices[coin]-crypto24hPrices[coin])*usdToBdt;
+items += chip(coin, chg);
+});
+// Repeat for seamless scroll
+el.innerHTML = items + items;
+
+// Pause on hover
+let wrap = document.getElementById('plTickerWrap');
+if(wrap) {
+wrap.onmouseenter = () => el.style.animationPlayState='paused';
+wrap.onmouseleave = () => el.style.animationPlayState='running';
+// Adjust animation speed based on content width
+let speed = Math.max(20, items.length * 0.15);
+el.style.animationDuration = speed + 's';
+}
+}
+
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); renderPLTicker(); updateCryptoPrices(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
