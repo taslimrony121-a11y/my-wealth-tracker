@@ -773,14 +773,14 @@ body { padding: 10px; }
 
 <!-- PORTFOLIO P&L TICKER -->
 
-<div id="plTickerWrap" style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; position:relative;">
-<div style="display:flex; align-items:center; gap:0;">
-<div style="background:var(--bg-input); padding:6px 12px; font-size:0.62rem; font-weight:700; color:var(--text-sub); white-space:nowrap; border-right:1px solid var(--border); flex-shrink:0;">
-<i class="fas fa-chart-line" style="color:var(--accent);"></i> P&L
+<div id="plTickerWrap" style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; position:relative; cursor:default;">
+<div style="display:flex; align-items:stretch; gap:0;">
+<div style="background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(250,204,21,0.08)); padding:0 14px; font-size:0.68rem; font-weight:800; color:var(--accent); white-space:nowrap; border-right:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; gap:6px; letter-spacing:0.5px;">
+<i class="fas fa-chart-line"></i> P&L
 </div>
 <div style="overflow:hidden; flex:1; position:relative;">
-<div id="plTickerInner" style="display:flex; gap:0; animation:tickerScroll 30s linear infinite; white-space:nowrap; width:max-content;">
-<span style="color:var(--text-sub); font-size:0.7rem; padding:6px 16px;">Loading...</span>
+<div id="plTickerInner" style="display:flex; gap:0; animation:tickerScroll 12s linear infinite; white-space:nowrap; width:max-content;">
+<span style="color:var(--text-sub); font-size:0.75rem; padding:10px 20px;">⏳ Loading P&L data...</span>
 </div>
 </div>
 </div>
@@ -1186,7 +1186,14 @@ oninput="updateInvestSimulator()">
 <p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
 <p style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Together building wealth, together building life 🌙</p>
 <p style="font-weight:bold; font-size:0.9rem; color:var(--accent); margin-top:6px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua's Dua always 🤲</p>
-<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v15.0 | Budget + Reminder + PDF + Withdrawal Chart + Crypto AI Signal</p>
+<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v15.1 | P&L Ticker + Visitor Counter + AI Brain v2</p>
+</div>
+
+<!-- VISITOR COUNTER (fixed bottom-right) -->
+
+<div id="visitorCounter" style="position:fixed; bottom:16px; right:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:0.65rem; color:var(--text-sub); z-index:999; display:flex; align-items:center; gap:6px; box-shadow:0 4px 16px var(--shadow); backdrop-filter:blur(10px);">
+<i class="fas fa-eye" style="color:var(--accent); font-size:0.7rem;"></i>
+<span id="visitorCountText">...</span>
 </div>
 </div>
 
@@ -1926,8 +1933,9 @@ label: '💚 Invested',
 data: invested,
 backgroundColor: 'rgba(74,222,128,0.8)',
 borderRadius: { topLeft:8, topRight:8 },
-barPercentage: 0.75,
-categoryPercentage: 0.9,
+barPercentage: 0.85,
+categoryPercentage: 0.95,
+maxBarThickness: 36,
 order: 2
 },
 {
@@ -1935,8 +1943,9 @@ label: '🔴 Return/Profit',
 data: profits,
 backgroundColor: profits.map(p => p===best&&p>0 ? '#f87171' : 'rgba(248,113,113,0.75)'),
 borderRadius: { topLeft:8, topRight:8 },
-barPercentage: 0.75,
-categoryPercentage: 0.9,
+barPercentage: 0.85,
+categoryPercentage: 0.95,
+maxBarThickness: 36,
 order: 1
 }
 ]
@@ -2630,11 +2639,10 @@ legendEl.innerHTML = pData.map((p, i) => `
 function renderPLTicker() {
 let el = document.getElementById('plTickerInner');
 if(!el) return;
-
 let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) return;
 
-// ── Crypto P&L (real from Binance prices) ──
+// ── Crypto P&L (real Binance prices) ──
 let crypto24hBDT = 0, crypto7dBDT = 0;
 active.forEach(inv => {
 if(!inv.isCrypto || !cryptoPrices[inv.type]) return;
@@ -2643,59 +2651,72 @@ if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices
 if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
 });
 
-// ── Non-crypto P&L (estimated from annual return rates) ──
-// Daily rate = annual / 365, monthly = annual / 12
-const ANNUAL_RATES = { 'iFarmer':0.20, 'Wegro':0.18, 'Biniyog':0.15, 'MMPDA':0.08, 'BANK_DEPOSIT':0.07, 'Agriculture':0.18, 'Gold':0.10 };
+// ── Non-crypto P&L (annual rate based, proper 365-day calc) ──
+const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12 };
 let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0, nonCrypto1y=0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
-if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN') return;
+if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN'||isWaitMoney(inv)) return;
 let rate = ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10;
 let amt = inv.amountBDT || 0;
 nonCrypto24h += (amt * rate) / 365;
 nonCrypto7d += (amt * rate) / 365 * 7;
-nonCrypto30d += (amt * rate) / 12;
-nonCrypto1y += (amt * rate);
+nonCrypto30d += (amt * rate) / 365 * 30;
+nonCrypto1y += (amt * rate); // full 365 days = annual return
 });
 
-// ── Totals ──
+// ── Crypto 1Y: annualized from 7d (more realistic than extrapolation) ──
+let crypto1yEstBDT = crypto7dBDT / 7 * 365;
+
 let pl24h = crypto24hBDT + nonCrypto24h;
 let pl7d = crypto7dBDT + nonCrypto7d;
-let pl30d = nonCrypto30d + (crypto7dBDT / 7 * 30); // extrapolate crypto 7d
-let pl1y = nonCrypto1y + (crypto7dBDT / 7 * 365);
+let pl30d = (crypto7dBDT / 7 * 30) + nonCrypto30d;
+let pl1y = crypto1yEstBDT + nonCrypto1y;
 
-function chip(label, val) {
+function chip(label, val, extra='') {
 let pos = val >= 0;
 let color = pos ? '#4ade80' : '#f87171';
-let bg = pos ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)';
+let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
 let sign = pos ? '+' : '';
-return `<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 14px;border-right:1px solid var(--border);font-size:0.68rem;white-space:nowrap;">
-<span style="color:var(--text-sub);font-size:0.6rem;">${label}</span>
-<span style="color:${color};font-weight:700;background:${bg};padding:2px 8px;border-radius:20px;">${sign}${formatNumber(val)} BDT</span>
+return `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
+<span style="color:var(--text-sub);font-size:0.65rem;font-weight:600;">${label}</span>
+<span style="color:${color};font-weight:800;font-size:0.78rem;background:${bg};padding:3px 10px;border-radius:20px;">${sign}${formatNumber(val)} ৳</span>
+${extra}
 </span>`;
 }
 
-// Build ticker items (doubled for seamless loop)
-let items = chip('24H',pl24h) + chip('7D',pl7d) + chip('30D',pl30d) + chip('1Y',pl1y);
-// Add per-asset crypto breakdown
+// Crypto chips with: BTC: $avg → $current (±BDT)
+let cryptoChips = '';
 ['BTC','ETH','BNB','SOL'].forEach(coin => {
-let inv24 = active.filter(i=>i.type===coin);
-if(inv24.length===0||!cryptoPrices[coin]||!crypto24hPrices[coin]) return;
-let qty = inv24.reduce((s,i)=>s+i.amount,0);
-let chg = qty*(cryptoPrices[coin]-crypto24hPrices[coin])*usdToBdt;
-items += chip(coin, chg);
+let invs = active.filter(i=>i.type===coin && i.purchasePrice);
+if(invs.length===0 || !cryptoPrices[coin]) return;
+let qty = invs.reduce((s,i)=>s+i.amount,0);
+let totalCost = invs.reduce((s,i)=>s+i.amount*i.purchasePrice,0);
+let avgBuy = totalCost / qty;
+let curPrice = cryptoPrices[coin];
+let plUSD = qty * (curPrice - avgBuy);
+let plBDT = plUSD * usdToBdt;
+let pos = plBDT >= 0;
+let color = pos ? '#4ade80' : '#f87171';
+let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
+let coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
+cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
+<span style="color:${coinColors[coin]};font-weight:800;font-size:0.72rem;">${coin}</span>
+<span style="font-size:0.65rem;color:var(--text-sub);">$${formatNumber(avgBuy)} → $${formatNumber(curPrice)}</span>
+<span style="color:${color};font-weight:800;font-size:0.78rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳</span>
+</span>`;
 });
-// Repeat for seamless scroll
-el.innerHTML = items + items;
 
-// Pause on hover
+let divider = `<span style="padding:8px 14px;border-right:1px solid var(--border);color:var(--border);font-size:0.7rem;white-space:nowrap;">·····</span>`;
+let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1Y ✦', pl1y) + divider + cryptoChips;
+
+el.innerHTML = items + items; // double for seamless loop
+
+// Speed & hover pause
 let wrap = document.getElementById('plTickerWrap');
 if(wrap) {
-wrap.onmouseenter = () => el.style.animationPlayState='paused';
-wrap.onmouseleave = () => el.style.animationPlayState='running';
-// Adjust animation speed based on content width
-let speed = Math.max(20, items.length * 0.15);
-el.style.animationDuration = speed + 's';
+wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
+wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 }
 
@@ -3025,8 +3046,10 @@ renderAll();
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 
-// Crypto prices every 30 seconds
-setInterval(updateCryptoPrices, 30000);
+// Crypto prices every 5 seconds (ticker + cards)
+setInterval(updateCryptoPrices, 5000);
+// Ticker refresh every 5 seconds too
+setInterval(renderPLTicker, 5000);
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
@@ -3043,6 +3066,20 @@ loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 checkSavedLogin();
+
+// ====== VISITOR COUNTER ======
+(function() {
+const VISIT_KEY = 'wt_total_visits';
+const SESSION_KEY = 'wt_this_session';
+let total = parseInt(localStorage.getItem(VISIT_KEY) || '0');
+if(!sessionStorage.getItem(SESSION_KEY)) {
+total += 1;
+localStorage.setItem(VISIT_KEY, total);
+sessionStorage.setItem(SESSION_KEY, '1');
+}
+let el = document.getElementById('visitorCountText');
+if(el) el.innerHTML = `<span style="color:var(--accent);font-weight:700;">${total.toLocaleString()}</span> visits`;
+})();
 
 // Auto alert check on load
 setTimeout(checkAlerts, 2000);
