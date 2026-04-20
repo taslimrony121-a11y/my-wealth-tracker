@@ -779,7 +779,7 @@ body { padding: 10px; }
 <i class="fas fa-chart-line"></i> P&L
 </div>
 <div style="overflow:hidden; flex:1; position:relative;">
-<div id="plTickerInner" style="display:flex; gap:0; animation:tickerScroll 12s linear infinite; white-space:nowrap; width:max-content;">
+<div id="plTickerInner" style="display:flex; gap:0; animation:tickerScroll 20s linear infinite; white-space:nowrap; width:max-content;">
 <span style="color:var(--text-sub); font-size:0.75rem; padding:10px 20px;">⏳ Loading P&L data...</span>
 </div>
 </div>
@@ -811,7 +811,6 @@ body { padding: 10px; }
 <!-- ACTION BUTTONS -->
 
 <div class="action-buttons">
-<button id="exportCSVBtn" class="action-btn"><i class="fas fa-file-excel"></i> Export CSV</button>
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
@@ -2070,7 +2069,6 @@ let isMSSA = inv.type === 'MSSA';
 let isBankOrDeposit = inv.type === 'BANK_DEPOSIT';
 let extraBtns = '';
 if(isAdmin) {
-if(isMSSA) extraBtns = `<button class="btn-icon" style="background:rgba(250,204,21,0.15);color:var(--accent);border-color:rgba(250,204,21,0.4);" onclick="openMssaModal('${inv.id}')"><i class="fas fa-plus"></i></button>`;
 if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i></button>`;
 }
 return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
@@ -2653,7 +2651,7 @@ if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[in
 
 // ── Non-crypto P&L (annual rate based, proper 365-day calc) ──
 const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12 };
-let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0, nonCrypto1y=0;
+let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
 if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN'||isWaitMoney(inv)) return;
@@ -2662,16 +2660,45 @@ let amt = inv.amountBDT || 0;
 nonCrypto24h += (amt * rate) / 365;
 nonCrypto7d += (amt * rate) / 365 * 7;
 nonCrypto30d += (amt * rate) / 365 * 30;
-nonCrypto1y += (amt * rate); // full 365 days = annual return
 });
 
-// ── Crypto 1Y: annualized from 7d (more realistic than extrapolation) ──
-let crypto1yEstBDT = crypto7dBDT / 7 * 365;
+// ── REAL 1Y P&L: from actual withdrawal history + crypto unrealized gain ──
+// Step 1: Sum all actual profits from history in last 365 days
+let oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1);
+let historyAll = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let realProfitLast1Y = historyAll.reduce((s,h) => {
+if(new Date(h.date) >= oneYearAgo) return s + (h.profit||0);
+return s;
+}, 0);
+// Step 2: Add actual profit recorded in investments (last 365 days)
+let invProfitLast1Y = investments.filter(i => {
+if(!i.start) return false;
+return new Date(i.start) >= oneYearAgo;
+}).reduce((s,i) => s + (i.actualProfit||0), 0);
+// Step 3: Add crypto unrealized P&L (current vs purchase)
+let cryptoUnrealizedBDT = 0;
+active.forEach(inv => {
+if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice && inv.start) {
+if(new Date(inv.start) >= oneYearAgo) {
+cryptoUnrealizedBDT += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount * usdToBdt;
+}
+}
+});
+// Step 4: Add estimated non-crypto return for holdings older than 1y
+let nonCrypto1yOldHoldings = 0;
+active.forEach(inv => {
+if(inv.isCrypto) return;
+if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN'||isWaitMoney(inv)) return;
+if(inv.start && new Date(inv.start) < oneYearAgo) {
+let rate = ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10;
+nonCrypto1yOldHoldings += (inv.amountBDT||0) * rate;
+}
+});
+let pl1y = realProfitLast1Y + invProfitLast1Y + cryptoUnrealizedBDT + nonCrypto1yOldHoldings;
 
 let pl24h = crypto24hBDT + nonCrypto24h;
 let pl7d = crypto7dBDT + nonCrypto7d;
 let pl30d = (crypto7dBDT / 7 * 30) + nonCrypto30d;
-let pl1y = crypto1yEstBDT + nonCrypto1y;
 
 function chip(label, val, extra='') {
 let pos = val >= 0;
@@ -3054,7 +3081,6 @@ setInterval(renderPLTicker, 5000);
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
-document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
 
 // Firebase init (safe)
