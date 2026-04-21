@@ -1364,19 +1364,30 @@ oninput="updateInvestSimulator()">
 
 <div id="calendarModal" class="modal">
 <div class="modal-content" style="max-width:700px;">
-<h3><i class="fas fa-calendar-alt" style="color:#06b6d4;"></i> Investment Calendar</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+<h3 style="margin:0;"><i class="fas fa-calendar-alt" style="color:#06b6d4;"></i> Investment Calendar</h3>
+<button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;">✕</button>
+</div>
 <div class="cal-nav">
 <button onclick="changeCalMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-<h3 id="calTitle"></h3>
+<h3 id="calTitle" style="margin:0;"></h3>
 <button onclick="changeCalMonth(1)"><i class="fas fa-chevron-right"></i></button>
 </div>
-<div class="calendar-grid" id="calDayHeaders"></div>
+<div class="calendar-grid" id="calDayHeaders" style="margin-top:10px;"></div>
 <div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
-<div style="display:flex;gap:12px;margin-top:12px;font-size:0.7rem;">
-<span><span style="background:rgba(74,222,128,0.3);padding:2px 6px;border-radius:3px;">Green</span> = Start Date</span>
-<span><span style="background:rgba(248,113,113,0.3);padding:2px 6px;border-radius:3px;">Red</span> = End Date</span>
+<div style="display:flex;gap:12px;margin-top:10px;font-size:0.68rem;flex-wrap:wrap;">
+<span><span style="background:rgba(74,222,128,0.3);padding:2px 8px;border-radius:4px;">🟢</span> Start Date</span>
+<span><span style="background:rgba(248,113,113,0.3);padding:2px 8px;border-radius:4px;">🔴</span> End Date</span>
+<span style="color:var(--text-sub);">📌 তারিখে click করলে details দেখবে</span>
 </div>
-<button onclick="closeCalendar()" style="margin-top:15px;background:var(--border);color:var(--text-main);border:none;padding:8px 20px;border-radius:8px;cursor:pointer;width:100%;">Close</button>
+<!-- Day Detail Panel -->
+<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:14px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+<div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:var(--accent);"></div>
+<button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
+</div>
+<div id="calDetailBody"></div>
+</div>
 </div>
 </div>
 
@@ -1782,45 +1793,118 @@ document.getElementById('calendarModal').style.display = 'flex';
 function closeCalendar() { document.getElementById('calendarModal').style.display = 'none'; }
 function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } if(calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
 function renderCalendar() {
-let months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-document.getElementById('calTitle').textContent = months[calMonth] + ' ' + calYear;
-// Day headers
-let headerEl = document.getElementById('calDayHeaders');
-let days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-headerEl.innerHTML = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('calTitle').textContent = monthNames[calMonth] + ' ' + calYear;
+document.getElementById('calDayHeaders').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header">${d}</div>`).join('');
+document.getElementById('calDayDetail').style.display = 'none';
+
 let firstDay = new Date(calYear, calMonth, 1).getDay();
-let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+let daysInMonth= new Date(calYear, calMonth+1, 0).getDate();
 let daysInPrev = new Date(calYear, calMonth, 0).getDate();
 let today = new Date(); today.setHours(0,0,0,0);
-// Build event map
+
+// Build event map: dateStr → [{inv, eventType}]
 let eventsMap = {};
 investments.forEach(inv => {
-if(inv.start) { let d = inv.start; eventsMap[d] = eventsMap[d] || []; eventsMap[d].push({label: inv.type, type:'start'}); }
-if(inv.end && inv.status !== 'completed') { let d = inv.end; eventsMap[d] = eventsMap[d] || []; eventsMap[d].push({label: inv.type, type:'end'}); }
-});
-let grid = document.getElementById('calGrid');
-let cells = '';
-// Prev month days
-for(let i = firstDay-1; i >= 0; i--) {
-cells += `<div class="cal-day other-month"><div class="day-num">${daysInPrev-i}</div></div>`;
+if(inv.start) {
+let d = inv.start.slice(0,10);
+eventsMap[d] = eventsMap[d] || [];
+eventsMap[d].push({ inv, eventType:'start' });
 }
-// Current month days
+if(inv.end && inv.status !== 'completed') {
+let d = inv.end.slice(0,10);
+eventsMap[d] = eventsMap[d] || [];
+eventsMap[d].push({ inv, eventType:'end' });
+}
+});
+
+let cells = '';
+// Prev month gray
+for(let i = firstDay-1; i >= 0; i--)
+cells += `<div class="cal-day other-month"><div class="day-num">${daysInPrev-i}</div></div>`;
+
+// Current month
 for(let d = 1; d <= daysInMonth; d++) {
 let dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 let dayDate = new Date(calYear, calMonth, d);
 let isToday = dayDate.getTime() === today.getTime();
 let events = eventsMap[dateStr] || [];
-let evHtml = events.slice(0,2).map(e => `<div class="cal-event ${e.type}">${e.label}</div>`).join('');
-if(events.length > 2) evHtml += `<div style="font-size:0.5rem;color:var(--text-sub);">+${events.length-2} more</div>`;
-cells += `<div class="cal-day${isToday?' today':''}"><div class="day-num">${d}</div>${evHtml}</div>`;
+let hasStart = events.some(e=>e.eventType==='start');
+let hasEnd = events.some(e=>e.eventType==='end');
+let dotHtml = '';
+if(hasStart) dotHtml += `<span style="display:inline-block;width:7px;height:7px;background:#4ade80;border-radius:50%;margin-right:2px;"></span>`;
+if(hasEnd) dotHtml += `<span style="display:inline-block;width:7px;height:7px;background:#f87171;border-radius:50%;margin-right:2px;"></span>`;
+let evLabel = events.slice(0,1).map(e=>`<div style="font-size:0.48rem;padding:1px 3px;border-radius:3px;background:${e.eventType==='start'?'rgba(74,222,128,0.25)':'rgba(248,113,113,0.25)'};color:${e.eventType==='start'?'#4ade80':'#f87171'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${e.inv.type}</div>`).join('');
+if(events.length > 1) evLabel += `<div style="font-size:0.45rem;color:var(--text-sub);">+${events.length-1} more</div>`;
+let clickable = events.length > 0 ? `onclick="showCalDayDetail('${dateStr}')"` : '';
+let highlight = events.length > 0 ? 'border-color:rgba(250,204,21,0.3);' : '';
+cells += `<div class="cal-day${isToday?' today':''}" style="${highlight}" ${clickable}>
+<div class="day-num" style="display:flex;justify-content:space-between;align-items:center;">
+<span>${d}</span><span>${dotHtml}</span>
+</div>
+${evLabel}
+</div>`;
 }
-// Next month padding
+
+// Next month gray
 let remaining = 42 - (firstDay + daysInMonth);
-for(let i = 1; i <= remaining; i++) {
+for(let i = 1; i <= remaining; i++)
 cells += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+
+document.getElementById('calGrid').innerHTML = cells;
 }
-grid.innerHTML = cells;
+
+function showCalDayDetail(dateStr) {
+// Collect all events for this date
+let events = [];
+investments.forEach(inv => {
+if(inv.start && inv.start.slice(0,10) === dateStr) events.push({ inv, eventType:'start' });
+if(inv.end && inv.end.slice(0,10) === dateStr && inv.status !== 'completed') events.push({ inv, eventType:'end' });
+});
+if(events.length === 0) return;
+
+let dt = new Date(dateStr);
+let label = dt.toLocaleDateString('en-US',{ weekday:'long', year:'numeric', month:'long', day:'numeric' });
+document.getElementById('calDetailTitle').textContent = '📅 ' + label;
+
+let html = events.map(({ inv, eventType }) => {
+let isStart = eventType === 'start';
+let color = isStart ? '#4ade80' : '#f87171';
+let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
+let badge = isStart ? '🟢 Start' : '🔴 End / Maturity';
+let curVal = '';
+if(inv.isCrypto && cryptoPrices[inv.type]) {
+let v = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+curVal = `<div style="font-size:0.65rem;color:#facc15;">💰 Current value: ${formatNumber(v)} BDT</div>`;
 }
+// Days remaining / elapsed
+let today = new Date(); today.setHours(0,0,0,0);
+let evDate = new Date(dateStr); evDate.setHours(0,0,0,0);
+let diffDays = Math.ceil((evDate - today) / (1000*60*60*24));
+let diffLabel = diffDays === 0 ? '⚡ Today!' : diffDays > 0 ? `📆 ${diffDays} days from now` : `⏳ ${Math.abs(diffDays)} days ago`;
+return `<div style="background:${bg};border:1px solid ${color}33;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+<span style="font-weight:700;font-size:0.8rem;color:${color};">${inv.type} — ${inv.platform}</span>
+<span style="font-size:0.6rem;background:${color}22;color:${color};padding:2px 8px;border-radius:10px;">${badge}</span>
+</div>
+<div style="font-size:0.68rem;color:var(--text-sub);line-height:1.6;">
+<div>💵 Invested: <strong style="color:var(--text-main);">${formatNumber(inv.amountBDT)} BDT</strong>${inv.isCrypto?` (${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)})`:''}
+</div>
+${curVal}
+<div>✅ Expected profit: <strong style="color:#4ade80;">+${formatNumber(inv.expectedProfit)} BDT</strong></div>
+<div>📊 Actual profit: <strong style="color:#4ade80;">+${formatNumber(inv.actualProfit)} BDT</strong></div>
+${inv.start && inv.end ? `<div>📅 ${inv.start} → ${inv.end}</div>` : `<div>📅 Started: ${inv.start||'—'}</div>`}
+${inv.note ? `<div>📝 ${inv.note}</div>` : ''}
+<div style="margin-top:4px;color:#f59e0b;font-size:0.62rem;">${diffLabel}</div>
+</div>
+</div>`;
+}).join('');
+
+document.getElementById('calDetailBody').innerHTML = html;
+document.getElementById('calDayDetail').style.display = 'block';
+document.getElementById('calDayDetail').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+window.showCalDayDetail = showCalDayDetail;
 
 // ====== PWA ======
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2712,25 +2796,26 @@ ${extra}
 </span>`;
 }
 
-// Crypto chips with: BTC: $avg → $current (±BDT)
+// Crypto chips: BTC: $avgBuy → $current (±BDT)
 let cryptoChips = '';
+const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
 ['BTC','ETH','BNB','SOL'].forEach(coin => {
-let invs = active.filter(i=>i.type===coin && i.purchasePrice);
+let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
-let qty = invs.reduce((s,i)=>s+i.amount,0);
-let totalCost = invs.reduce((s,i)=>s+i.amount*i.purchasePrice,0);
-let avgBuy = totalCost / qty;
-let curPrice = cryptoPrices[coin];
-let plUSD = qty * (curPrice - avgBuy);
-let plBDT = plUSD * usdToBdt;
+let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
+let totalCost = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
+let avgBuyUSD = totalQty > 0 ? totalCost / totalQty : 0;
+let curUSD = cryptoPrices[coin];
+// P&L = (current price - avg buy price) × qty × BDT rate
+let plBDT = (curUSD - avgBuyUSD) * totalQty * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
 let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
-let coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
+let pctChg = avgBuyUSD > 0 ? ((curUSD - avgBuyUSD) / avgBuyUSD * 100) : 0;
 cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
 <span style="color:${coinColors[coin]};font-weight:800;font-size:0.72rem;">${coin}</span>
-<span style="font-size:0.65rem;color:var(--text-sub);">$${formatNumber(avgBuy)} → $${formatNumber(curPrice)}</span>
-<span style="color:${color};font-weight:800;font-size:0.78rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳</span>
+<span style="font-size:0.62rem;color:var(--text-sub);">$${formatNumber(avgBuyUSD)} → $${formatNumber(curUSD)}</span>
+<span style="color:${color};font-weight:800;font-size:0.75rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳ <span style="font-size:0.6rem;opacity:0.8;">(${pos?'+':''}${pctChg.toFixed(1)}%)</span></span>
 </span>`;
 });
 
