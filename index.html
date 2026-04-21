@@ -2796,26 +2796,23 @@ ${extra}
 </span>`;
 }
 
-// Crypto chips: BTC: $avgBuy → $current (±BDT)
+// Crypto chips: total invested $ → current total $ (±BDT)
 let cryptoChips = '';
 const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
 ['BTC','ETH','BNB','SOL'].forEach(coin => {
 let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
 let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
-let totalCost = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
-let avgBuyUSD = totalQty > 0 ? totalCost / totalQty : 0;
-let curUSD = cryptoPrices[coin];
-// P&L = (current price - avg buy price) × qty × BDT rate
-let plBDT = (curUSD - avgBuyUSD) * totalQty * usdToBdt;
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0); // আমার ক্রয়মূল্য
+let currentValUSD = totalQty * cryptoPrices[coin]; // বর্তমান মূল্য
+let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
 let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
-let pctChg = avgBuyUSD > 0 ? ((curUSD - avgBuyUSD) / avgBuyUSD * 100) : 0;
 cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
 <span style="color:${coinColors[coin]};font-weight:800;font-size:0.72rem;">${coin}</span>
-<span style="font-size:0.62rem;color:var(--text-sub);">$${formatNumber(avgBuyUSD)} → $${formatNumber(curUSD)}</span>
-<span style="color:${color};font-weight:800;font-size:0.75rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳ <span style="font-size:0.6rem;opacity:0.8;">(${pos?'+':''}${pctChg.toFixed(1)}%)</span></span>
+<span style="font-size:0.65rem;color:var(--text-sub);">$${formatNumber(totalCostUSD)} → $${formatNumber(currentValUSD)}</span>
+<span style="color:${color};font-weight:800;font-size:0.75rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳</span>
 </span>`;
 });
 
