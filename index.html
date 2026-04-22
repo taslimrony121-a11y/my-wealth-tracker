@@ -1656,7 +1656,9 @@ let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit
 // ── Category values ──
 const farmValue = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 const businessValue= active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
-const safeValue = active.filter(i=>i.type==='MMPDA'||i.type==='BANK_DEPOSIT').reduce((s,i)=>s+(i.amountBDT||0),0);
+const safeValue = active.filter(i =>
+(i.type==='MMPDA' || i.type==='BANK_DEPOSIT' || i.type==='MSSA') && !isWaitMoney(i)
+).reduce((s,i)=>s+(i.amountBDT||0),0);
 const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
 
 // ══════════════════════════════════════════════════════
@@ -1666,7 +1668,7 @@ const PORT = { total:Math.max(currentValue,1), idle:waitMoney, crypto:cryptoValu
 const TARGET = { crypto:15, farming:35, business:25, safe:25 };
 const CURR = {}, GAP = {};
 ['crypto','farming','business','safe'].forEach(k=>{ CURR[k]=(PORT[k]/PORT.total)*100; GAP[k]=TARGET[k]-CURR[k]; });
-const NAME_MAP = { crypto:'BTC / ETH / BNB / SOL', farming:'iFarmer / Wegro', business:'Biniyog', safe:'MMPDA (Islami Bank)' };
+const NAME_MAP = { crypto:'BTC / ETH / BNB / SOL', farming:'iFarmer / Wegro', business:'Biniyog', safe:'MMPDA + MSSA' };
 const COLOR_MAP = { crypto:'#f7931a', farming:'#4ade80', business:'#a855f7', safe:'#10b981' };
 const ICON_MAP = { crypto:'₿', farming:'🌱', business:'💼', safe:'🏦' };
 const RETURN_MAP= { crypto:0.11, farming:0.19, business:0.15, safe:0.08 };
@@ -3609,4 +3611,3 @@ showToast('✅ PDF Report downloaded!');
 window.exportPDF = exportPDF;
 </script>
 </body>
-</html>
