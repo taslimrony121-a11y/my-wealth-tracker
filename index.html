@@ -582,8 +582,9 @@ box-shadow: 0 8px 24px var(--shadow);
 .chart-year-selector { display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-input); padding: 4px 6px; border-radius: 30px; width: fit-content; }
 .year-btn { background: transparent; border: none; color: var(--text-sub); padding: 4px 12px; border-radius: 24px; font-size: 0.68rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
 .year-btn.active { background: var(--profit); color: #000; }
-.chart-wrapper-monthly { height: 360px; position: relative; width: 100%; }
-@media (min-width: 768px) { .chart-wrapper-monthly { height: 460px; } }
+.chart-wrapper-monthly { height: 380px; position: relative; width: 100%; }
+@media (min-width: 480px) { .chart-wrapper-monthly { height: 440px; } }
+@media (min-width: 768px) { .chart-wrapper-monthly { height: 500px; } }
 
 .charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
 @media (min-width: 600px) { .charts-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
@@ -825,13 +826,12 @@ body { padding: 10px; }
 
 <!-- Header -->
 
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-<div style="display:flex; align-items:center; gap:12px;">
-<!-- Animated AI Icon -->
-<div style="position:relative; width:44px; height:44px; flex-shrink:0;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+<div style="display:flex;align-items:center;gap:12px;">
+<div style="position:relative;width:46px;height:46px;flex-shrink:0;">
 <div style="position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,#a855f7,#6d28d9);box-shadow:0 4px 20px rgba(168,85,247,0.5);animation:aiPulse 2s ease-in-out infinite;"></div>
 <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none">
 <circle cx="12" cy="12" r="3" fill="white"/>
 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" stroke-width="1.5" fill="none" opacity="0.5"/>
 <path d="M8 12h2M14 12h2M12 8v2M12 14v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -839,24 +839,33 @@ body { padding: 10px; }
 </div>
 </div>
 <div>
-<div style="font-family:'Sora',sans-serif; font-size:1rem; font-weight:800; color:#c084fc; letter-spacing:-0.3px;">AI Portfolio Analyst</div>
-<div style="display:flex; align-items:center; gap:6px; margin-top:3px;">
+<div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;color:#c084fc;letter-spacing:-0.3px;">AI Portfolio Analyst</div>
+<div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
 <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;animation:aiPulse 1.5s ease-in-out infinite;"></span>
-<span style="font-size:0.6rem; color:#6b7280; font-weight:600;">LIVE · Real Data · Auto Calculated</span>
+<span style="font-size:0.6rem;color:#6b7280;font-weight:600;">LIVE · Real Data · Gap-Based AI Brain</span>
 </div>
 </div>
 </div>
+<div style="display:flex;gap:8px;align-items:center;">
+<button onclick="runAIPrediction()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:6px 12px;border-radius:8px;font-size:0.65rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-sync-alt"></i> Refresh
+</button>
 <button onclick="document.getElementById('aiPredictionCard').style.display='none'"
 style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);color:#a855f7;width:32px;height:32px;border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+</div>
 </div>
 
 <!-- Score Bar -->
 
 <div id="aiScoreBar" style="margin-bottom:14px;"></div>
 
+<!-- Portfolio Category Breakdown (new) -->
+
+<div id="aiCategoryBreakdown" style="margin-bottom:12px;"></div>
+
 <!-- Main Grid -->
 
-<div id="aiGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+<div id="aiGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
 
 <!-- Insight Box -->
 
@@ -864,16 +873,16 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 
 <!-- Invest Amount Simulator -->
 
-<div style="margin-top:12px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.25); border-radius:14px; padding:14px;">
-<div style="font-size:0.62rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">🎯 Smart Invest Simulator</div>
-<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-<div style="flex:1; min-width:140px;">
-<label style="font-size:0.6rem; color:#7c3aed; font-weight:600;">আমি invest করতে চাই (BDT)</label>
+<div style="margin-top:12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.25);border-radius:14px;padding:14px;">
+<div style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🎯 Smart Invest Simulator</div>
+<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+<div style="flex:1;min-width:140px;">
+<label style="font-size:0.6rem;color:#7c3aed;font-weight:600;">আমি invest করতে চাই (BDT)</label>
 <input type="number" id="aiInvestAmount" placeholder="যেমন: ১০,০০০" step="500"
-style="width:100%; margin-top:4px; background:rgba(0,0,0,0.3); border:1px solid rgba(168,85,247,0.3); padding:8px 12px; border-radius:10px; color:#e9d5ff; font-family:'Plus Jakarta Sans',sans-serif; font-size:0.82rem;"
+style="width:100%;margin-top:4px;background:rgba(0,0,0,0.3);border:1px solid rgba(168,85,247,0.3);padding:8px 12px;border-radius:10px;color:#e9d5ff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;"
 oninput="updateInvestSimulator()">
 </div>
-<button onclick="updateInvestSimulator()" style="background:linear-gradient(135deg,#a855f7,#7c3aed); border:none; color:white; padding:9px 16px; border-radius:10px; font-size:0.72rem; font-weight:700; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; margin-top:18px;">
+<button onclick="updateInvestSimulator()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:9px 16px;border-radius:10px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
 <i class="fas fa-calculator"></i> Calculate
 </button>
 </div>
@@ -886,8 +895,8 @@ oninput="updateInvestSimulator()">
 
 <!-- Footer -->
 
-<div style="margin-top:12px; text-align:center; font-size:0.58rem; color:#4b5563; border-top:1px solid rgba(168,85,247,0.15); padding-top:8px;">
-<i class="fas fa-info-circle"></i> Real investment data ও historical return এর উপর ভিত্তি করে calculated। বাস্তব result ভিন্ন হতে পারে।
+<div style="margin-top:12px;text-align:center;font-size:0.58rem;color:#4b5563;border-top:1px solid rgba(168,85,247,0.15);padding-top:8px;">
+<i class="fas fa-info-circle"></i> Real portfolio data ও GAP analysis এর উপর ভিত্তি করে। বাস্তব result ভিন্ন হতে পারে।
 </div>
 </div>
 
@@ -1095,7 +1104,7 @@ oninput="updateInvestSimulator()">
 </div>
 <div class="chart-year-selector" id="yearSelector"></div>
 <div class="chart-wrapper-monthly">
-<canvas id="monthlyProfitChart" width="1000" height="380"></canvas>
+<canvas id="monthlyProfitChart" style="width:100%;height:100%;display:block;"></canvas>
 </div>
 </div>
 
@@ -1363,31 +1372,47 @@ oninput="updateInvestSimulator()">
 <!-- CALENDAR MODAL -->
 
 <div id="calendarModal" class="modal">
-<div class="modal-content" style="max-width:700px;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-<h3 style="margin:0;"><i class="fas fa-calendar-alt" style="color:#06b6d4;"></i> Investment Calendar</h3>
-<button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;">✕</button>
+<div class="modal-content" style="max-width:720px;">
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<div style="display:flex;align-items:center;gap:10px;">
+<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#0891b2);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(6,182,212,0.4);">
+<i class="fas fa-calendar-alt" style="color:white;font-size:1rem;"></i>
 </div>
-<div class="cal-nav">
-<button onclick="changeCalMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-<h3 id="calTitle" style="margin:0;"></h3>
-<button onclick="changeCalMonth(1)"><i class="fas fa-chevron-right"></i></button>
+<div>
+<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#06b6d4;">Investment Calendar</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:1px;">🟢 Start · 🔴 End · 📌 Click date for details</div>
 </div>
-<div class="calendar-grid" id="calDayHeaders" style="margin-top:10px;"></div>
+</div>
+<button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
+</div>
+
+```
+<!-- Month Summary Stats -->
+<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
+
+<!-- Navigation -->
+<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
+<button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
+<div style="text-align:center;">
+<div id="calTitle" style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
+</div>
+<button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+</div>
+
+<div class="calendar-grid" id="calDayHeaders"></div>
 <div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
-<div style="display:flex;gap:12px;margin-top:10px;font-size:0.68rem;flex-wrap:wrap;">
-<span><span style="background:rgba(74,222,128,0.3);padding:2px 8px;border-radius:4px;">🟢</span> Start Date</span>
-<span><span style="background:rgba(248,113,113,0.3);padding:2px 8px;border-radius:4px;">🔴</span> End Date</span>
-<span style="color:var(--text-sub);">📌 তারিখে click করলে details দেখবে</span>
-</div>
+
 <!-- Day Detail Panel -->
-<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid var(--border);border-radius:14px;padding:14px;">
+<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-<div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:var(--accent);"></div>
+<div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:#06b6d4;"></div>
 <button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
 </div>
 <div id="calDetailBody"></div>
 </div>
+```
+
 </div>
 </div>
 
@@ -1750,31 +1775,75 @@ grid.innerHTML = `
 <div class="ai-metric-sub">${bestPlatformLabel}</div>
 </div>`;
 
+// ── Category Breakdown Panel ──
+let catBreakdown = document.getElementById('aiCategoryBreakdown');
+if(catBreakdown) {
+const cats = [
+{ key:'crypto', label:'Crypto', icon:'₿', color:'#f7931a' },
+{ key:'farming', label:'Farming', icon:'🌱', color:'#4ade80' },
+{ key:'business', label:'Business', icon:'💼', color:'#a855f7' },
+{ key:'safe', label:'Safe', icon:'🏦', color:'#10b981' },
+];
+catBreakdown.innerHTML = `
+<div style="background:rgba(0,0,0,0.2);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.06);">
+<div style="font-size:0.6rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📊 Portfolio Breakdown vs Target</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+${cats.map(c=>{
+let cur = CURR[c.key]||0, tgt = TARGET[c.key]||0, g = GAP[c.key]||0;
+let val = PORT[c.key]||0;
+let status = g > 5 ? '↑ Need more' : g < -5 ? '↓ Over' : '✓ On target';
+let statusColor = g > 5 ? '#f87171' : g < -5 ? '#f59e0b' : '#4ade80';
+return `<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px;border:1px solid ${c.color}22;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+<span style="color:${c.color};font-weight:700;font-size:0.72rem;">${c.icon} ${c.label}</span>
+<span style="font-size:0.58rem;color:${statusColor};font-weight:600;">${status}</span>
+</div>
+<div style="font-size:0.9rem;font-weight:800;color:#e2e8f0;font-family:'Sora',sans-serif;">${cur.toFixed(0)}%</div>
+<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;margin:4px 0;overflow:hidden;position:relative;">
+<div style="background:${c.color};width:${Math.min(cur,100)}%;height:100%;border-radius:4px;opacity:0.8;"></div>
+<div style="position:absolute;top:0;height:100%;left:${tgt}%;width:2px;background:rgba(255,255,255,0.4);"></div>
+</div>
+<div style="font-size:0.58rem;color:#6b7280;">${formatNumber(val)} BDT · target ${tgt}%</div>
+</div>`;
+}).join('')}
+</div>
+${PORT.idle>1000 ? `<div style="margin-top:8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:6px 10px;font-size:0.65rem;color:#f59e0b;"><i class="fas fa-exclamation-circle"></i> <strong>${formatNumber(PORT.idle)} BDT</strong> idle আছে — invest করলে growth বাড়বে!</div>` : ''}
+</div>`;
+}
+
 // ── Insight Box ──
 let insightLines = [];
 insightLines.push(`<b>${activeCount}</b> টি active investment চলছে।`);
 if(totalActualProfit>0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
 else insightLines.push(`এখনো profit শুরু হয়নি — strategy ঠিক রাখুন।`);
-if(cryptoPercent>40) insightLines.push(`Crypto <b>${cryptoPercent.toFixed(0)}%</b> — rebalance বিবেচনা করুন।`);
+// Category gap insights
+let maxGapCat = Object.entries(GAP).sort((a,b)=>b[1]-a[1])[0];
+if(maxGapCat && maxGapCat[1] > 5) insightLines.push(`<b>${NAME_MAP[maxGapCat[0]]}</b> সবচেয়ে underweight — target থেকে <b style="color:#f87171;">${maxGapCat[1].toFixed(0)}%</b> কম।`);
+let overCat = Object.entries(GAP).sort((a,b)=>a[1]-b[1])[0];
+if(overCat && overCat[1] < -5) insightLines.push(`<b>${NAME_MAP[overCat[0]]}</b> target এর চেয়ে <b style="color:#f59e0b;">${Math.abs(overCat[1]).toFixed(0)}%</b> বেশি।`);
 if(loanGiven>0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
-if(waitMoney>0) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
-if(bestPlatform!=='N/A') insightLines.push(`সর্বোচ্চ: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
+if(waitMoney>1000) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
+if(cryptoPercent>0) {
+let cryptoPLSign = cryptoPL>=0?'+':'';
+insightLines.push(`Crypto unrealized P&L: <b style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPLSign}${formatNumber(cryptoPL)} BDT</b>`);
+}
+if(bestPlatform!=='N/A') insightLines.push(`সেরা platform: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
 
 insightEl.innerHTML = `
-<div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px; margin-top:2px;">
-<div style="font-size:0.65rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">🤖 AI Insight</div>
-${insightLines.map(l=>`<div style="font-size:0.72rem; color:#d8b4fe; line-height:1.6; display:flex; gap:6px; margin-bottom:4px;"><span style="color:#7c3aed; flex-shrink:0;">▸</span><span>${l}</span></div>`).join('')}
+<div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:14px;padding:12px 14px;margin-top:2px;">
+<div style="font-size:0.65rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🤖 AI Insight</div>
+${insightLines.map(l=>`<div style="font-size:0.72rem;color:#d8b4fe;line-height:1.6;display:flex;gap:6px;margin-bottom:5px;"><span style="color:#7c3aed;flex-shrink:0;">▸</span><span>${l}</span></div>`).join('')}
 </div>`;
 
 // ── Suggestion Box ──
 suggestionBox.innerHTML = `
-<div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1)); border:1px solid rgba(168,85,247,0.45); border-radius:14px; padding:14px;">
-<div style="display:flex; align-items:flex-start; gap:12px;">
-<div style="font-size:1.5rem; flex-shrink:0;">${suggestionIcon}</div>
+<div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1));border:1px solid rgba(168,85,247,0.45);border-radius:14px;padding:14px;">
+<div style="display:flex;align-items:flex-start;gap:12px;">
+<div style="font-size:1.5rem;flex-shrink:0;">${suggestionIcon}</div>
 <div style="flex:1;">
-<div style="font-size:0.6rem; color:#9333ea; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;">AI Suggestion</div>
-<div style="font-size:0.82rem; color:#e9d5ff; font-weight:700; line-height:1.4;">${suggestionText}</div>
-${suggestionDetail ? `<div style="font-size:0.68rem; color:#a78bfa; margin-top:5px; background:rgba(168,85,247,0.12); padding:4px 10px; border-radius:8px; display:inline-block;">${suggestionDetail}</div>` : ''}
+<div style="font-size:0.6rem;color:#9333ea;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">AI Suggestion</div>
+<div style="font-size:0.82rem;color:#e9d5ff;font-weight:700;line-height:1.4;">${suggestionText}</div>
+${suggestionDetail ? `<div style="font-size:0.68rem;color:#a78bfa;margin-top:5px;background:rgba(168,85,247,0.12);padding:4px 10px;border-radius:8px;display:inline-block;">${suggestionDetail}</div>` : ''}
 </div>
 </div>
 </div>`;
@@ -1795,114 +1864,193 @@ function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0
 function renderCalendar() {
 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 document.getElementById('calTitle').textContent = monthNames[calMonth] + ' ' + calYear;
-document.getElementById('calDayHeaders').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header">${d}</div>`).join('');
+document.getElementById('calDayHeaders').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header" style="font-size:0.65rem;font-weight:700;color:var(--text-sub);text-align:center;padding:4px 0;">${d}</div>`).join('');
 document.getElementById('calDayDetail').style.display = 'none';
 
 let firstDay = new Date(calYear, calMonth, 1).getDay();
-let daysInMonth= new Date(calYear, calMonth+1, 0).getDate();
+let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
 let daysInPrev = new Date(calYear, calMonth, 0).getDate();
 let today = new Date(); today.setHours(0,0,0,0);
 
-// Build event map: dateStr → [{inv, eventType}]
+// Build event map
 let eventsMap = {};
 investments.forEach(inv => {
-if(inv.start) {
-let d = inv.start.slice(0,10);
+[[inv.start,'start'],[inv.end,'end']].forEach(([dateField, eType]) => {
+if(!dateField) return;
+if(eType==='end' && inv.status==='completed') return;
+let d = dateField.slice(0,10);
 eventsMap[d] = eventsMap[d] || [];
-eventsMap[d].push({ inv, eventType:'start' });
-}
-if(inv.end && inv.status !== 'completed') {
-let d = inv.end.slice(0,10);
-eventsMap[d] = eventsMap[d] || [];
-eventsMap[d].push({ inv, eventType:'end' });
-}
+eventsMap[d].push({ inv, eventType:eType });
+});
 });
 
-let cells = '';
-// Prev month gray
-for(let i = firstDay-1; i >= 0; i--)
-cells += `<div class="cal-day other-month"><div class="day-num">${daysInPrev-i}</div></div>`;
+// Month summary stats
+let monthInvested = 0, monthExpiring = 0, monthStarting = 0;
+Object.entries(eventsMap).forEach(([d, evs]) => {
+if(d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)) {
+evs.forEach(e => {
+if(e.eventType==='start') { monthStarting++; monthInvested += e.inv.amountBDT||0; }
+if(e.eventType==='end') monthExpiring++;
+});
+}
+});
+let summaryEl = document.getElementById('calMonthSummary');
+if(summaryEl) {
+summaryEl.innerHTML = [
+{ label:'Investments Start', val:monthStarting, color:'#4ade80', icon:'🟢' },
+{ label:'Maturing / End', val:monthExpiring, color:'#f87171', icon:'🔴' },
+{ label:'Amount Starting', val:formatNumber(monthInvested)+' BDT', color:'#facc15', icon:'💵' },
+].map(s=>`<div style="background:var(--bg-input);border-radius:10px;padding:8px 10px;text-align:center;border:1px solid var(--border);">
+<div style="font-size:0.75rem;">${s.icon}</div>
+<div style="font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:800;color:${s.color};">${s.val}</div>
+<div style="font-size:0.58rem;color:var(--text-sub);margin-top:1px;">${s.label}</div>
+</div>`).join('');
+}
 
-// Current month
+let cells = '';
+for(let i = firstDay-1; i >= 0; i--)
+cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${daysInPrev-i}</div></div>`;
+
 for(let d = 1; d <= daysInMonth; d++) {
 let dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 let dayDate = new Date(calYear, calMonth, d);
 let isToday = dayDate.getTime() === today.getTime();
+let isFri = dayDate.getDay() === 5;
 let events = eventsMap[dateStr] || [];
-let hasStart = events.some(e=>e.eventType==='start');
+let hasStart= events.some(e=>e.eventType==='start');
 let hasEnd = events.some(e=>e.eventType==='end');
-let dotHtml = '';
-if(hasStart) dotHtml += `<span style="display:inline-block;width:7px;height:7px;background:#4ade80;border-radius:50%;margin-right:2px;"></span>`;
-if(hasEnd) dotHtml += `<span style="display:inline-block;width:7px;height:7px;background:#f87171;border-radius:50%;margin-right:2px;"></span>`;
-let evLabel = events.slice(0,1).map(e=>`<div style="font-size:0.48rem;padding:1px 3px;border-radius:3px;background:${e.eventType==='start'?'rgba(74,222,128,0.25)':'rgba(248,113,113,0.25)'};color:${e.eventType==='start'?'#4ade80':'#f87171'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${e.inv.type}</div>`).join('');
-if(events.length > 1) evLabel += `<div style="font-size:0.45rem;color:var(--text-sub);">+${events.length-1} more</div>`;
-let clickable = events.length > 0 ? `onclick="showCalDayDetail('${dateStr}')"` : '';
-let highlight = events.length > 0 ? 'border-color:rgba(250,204,21,0.3);' : '';
-cells += `<div class="cal-day${isToday?' today':''}" style="${highlight}" ${clickable}>
-<div class="day-num" style="display:flex;justify-content:space-between;align-items:center;">
-<span>${d}</span><span>${dotHtml}</span>
+
+let dots = '';
+if(hasStart) dots += `<span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;"></span>`;
+if(hasEnd) dots += `<span style="width:6px;height:6px;background:#f87171;border-radius:50%;display:inline-block;margin-left:2px;"></span>`;
+
+let label = '';
+if(events.length === 1) {
+let e = events[0];
+let c = e.eventType==='start'?'#4ade80':'#f87171';
+label = `<div style="font-size:0.46rem;padding:1px 3px;border-radius:3px;background:${e.eventType==='start'?'rgba(74,222,128,0.2)':'rgba(248,113,113,0.2)'};color:${c};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;">${e.inv.type}</div>`;
+} else if(events.length > 1) {
+label = `<div style="font-size:0.46rem;color:#facc15;margin-top:2px;font-weight:700;">${events.length} events</div>`;
+}
+
+let borderStyle = events.length > 0 ? 'border-color:rgba(6,182,212,0.4);' : '';
+let fridayStyle = isFri ? 'background:rgba(168,85,247,0.05);' : '';
+let clickAttr = events.length > 0 ? `onclick="showCalDayDetail('${dateStr}')" style="cursor:pointer;${borderStyle}${fridayStyle}"` : `style="${fridayStyle}"`;
+
+cells += `<div class="cal-day${isToday?' today':''}" ${clickAttr}>
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span class="day-num" style="${isFri?'color:#a78bfa;':''}">${d}</span>
+<span>${dots}</span>
 </div>
-${evLabel}
+${label}
 </div>`;
 }
 
-// Next month gray
 let remaining = 42 - (firstDay + daysInMonth);
 for(let i = 1; i <= remaining; i++)
-cells += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${i}</div></div>`;
 
 document.getElementById('calGrid').innerHTML = cells;
 }
 
 function showCalDayDetail(dateStr) {
-// Collect all events for this date
 let events = [];
 investments.forEach(inv => {
-if(inv.start && inv.start.slice(0,10) === dateStr) events.push({ inv, eventType:'start' });
-if(inv.end && inv.end.slice(0,10) === dateStr && inv.status !== 'completed') events.push({ inv, eventType:'end' });
+if(inv.start && inv.start.slice(0,10)===dateStr) events.push({inv, eventType:'start'});
+if(inv.end && inv.end.slice(0,10)===dateStr && inv.status!=='completed') events.push({inv, eventType:'end'});
 });
-if(events.length === 0) return;
+if(!events.length) return;
 
-let dt = new Date(dateStr);
-let label = dt.toLocaleDateString('en-US',{ weekday:'long', year:'numeric', month:'long', day:'numeric' });
-document.getElementById('calDetailTitle').textContent = '📅 ' + label;
+let dt = new Date(dateStr+'T00:00:00');
+let label = dt.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('calDetailTitle').innerHTML = `📅 ${label} <span style="font-size:0.65rem;background:rgba(6,182,212,0.15);color:#06b6d4;padding:2px 8px;border-radius:10px;margin-left:6px;">${events.length} event${events.length>1?'s':''}</span>`;
 
-let html = events.map(({ inv, eventType }) => {
-let isStart = eventType === 'start';
+let today = new Date(); today.setHours(0,0,0,0);
+let evDate = new Date(dateStr+'T00:00:00'); evDate.setHours(0,0,0,0);
+let diffDays = Math.ceil((evDate-today)/(1000*60*60*24));
+
+let html = events.map(({inv, eventType}) => {
+let isStart = eventType==='start';
 let color = isStart ? '#4ade80' : '#f87171';
 let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
-let badge = isStart ? '🟢 Start' : '🔴 End / Maturity';
-let curVal = '';
-if(inv.isCrypto && cryptoPrices[inv.type]) {
-let v = inv.amount * cryptoPrices[inv.type] * usdToBdt;
-curVal = `<div style="font-size:0.65rem;color:#facc15;">💰 Current value: ${formatNumber(v)} BDT</div>`;
+let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
+
+// Current crypto value
+let cryptoInfo = '';
+if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
+let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+let costVal = inv.amount * inv.purchasePrice * usdToBdt;
+let pl = curVal - costVal;
+cryptoInfo = `
+<div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px 8px;margin-top:4px;font-size:0.62rem;">
+<span style="color:#facc15;">₿ Live:</span>
+<span style="color:#e2e8f0;margin-left:4px;">${inv.amount} ${inv.type} @ $${formatNumber(cryptoPrices[inv.type])}</span>
+<span style="color:${pl>=0?'#4ade80':'#f87171'};font-weight:700;margin-left:6px;">${pl>=0?'+':''}${formatNumber(pl)} BDT</span>
+</div>`;
 }
-// Days remaining / elapsed
-let today = new Date(); today.setHours(0,0,0,0);
-let evDate = new Date(dateStr); evDate.setHours(0,0,0,0);
-let diffDays = Math.ceil((evDate - today) / (1000*60*60*24));
-let diffLabel = diffDays === 0 ? '⚡ Today!' : diffDays > 0 ? `📆 ${diffDays} days from now` : `⏳ ${Math.abs(diffDays)} days ago`;
-return `<div style="background:${bg};border:1px solid ${color}33;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-<span style="font-weight:700;font-size:0.8rem;color:${color};">${inv.type} — ${inv.platform}</span>
-<span style="font-size:0.6rem;background:${color}22;color:${color};padding:2px 8px;border-radius:10px;">${badge}</span>
+
+// Duration
+let duration = '';
+if(inv.start && inv.end) {
+let s = new Date(inv.start), e = new Date(inv.end);
+let days = Math.ceil((e-s)/(1000*60*60*24));
+duration = `<span style="font-size:0.6rem;color:#6b7280;"> · ${days} days total</span>`;
+}
+
+let diffLabel = diffDays===0 ? '<span style="color:#facc15;font-weight:700;">⚡ Today!</span>'
+: diffDays>0 ? `<span style="color:#06b6d4;">📆 ${diffDays} days from now</span>`
+: `<span style="color:#94a3b8;">⏳ ${Math.abs(diffDays)} days ago</span>`;
+
+// Progress bar if active investment with start & end
+let progressBar = '';
+if(inv.start && inv.end && inv.status==='active') {
+let s = new Date(inv.start).getTime(), e = new Date(inv.end).getTime(), n = Date.now();
+let pct = Math.max(0,Math.min(100,((n-s)/(e-s))*100));
+progressBar = `
+<div style="margin-top:6px;">
+<div style="display:flex;justify-content:space-between;font-size:0.58rem;color:#6b7280;margin-bottom:2px;">
+<span>Progress</span><span>${pct.toFixed(0)}% complete</span>
 </div>
-<div style="font-size:0.68rem;color:var(--text-sub);line-height:1.6;">
-<div>💵 Invested: <strong style="color:var(--text-main);">${formatNumber(inv.amountBDT)} BDT</strong>${inv.isCrypto?` (${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)})`:''}
+<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;overflow:hidden;">
+<div style="background:${color};width:${pct}%;height:100%;border-radius:4px;"></div>
 </div>
-${curVal}
-<div>✅ Expected profit: <strong style="color:#4ade80;">+${formatNumber(inv.expectedProfit)} BDT</strong></div>
-<div>📊 Actual profit: <strong style="color:#4ade80;">+${formatNumber(inv.actualProfit)} BDT</strong></div>
-${inv.start && inv.end ? `<div>📅 ${inv.start} → ${inv.end}</div>` : `<div>📅 Started: ${inv.start||'—'}</div>`}
-${inv.note ? `<div>📝 ${inv.note}</div>` : ''}
-<div style="margin-top:4px;color:#f59e0b;font-size:0.62rem;">${diffLabel}</div>
+</div>`;
+}
+
+return `<div style="background:${bg};border:1px solid ${color}33;border-radius:12px;padding:12px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+<div>
+<span style="font-weight:800;font-size:0.85rem;color:${color};">${inv.type}</span>
+<span style="font-size:0.7rem;color:var(--text-sub);margin-left:6px;">@ ${inv.platform}</span>
+${duration}
 </div>
+<span style="font-size:0.6rem;background:${color}22;color:${color};padding:3px 8px;border-radius:10px;white-space:nowrap;">${badge}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:6px;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
+<div style="color:#6b7280;">💵 Invested</div>
+<div style="color:#e2e8f0;font-weight:700;">${formatNumber(inv.amountBDT)} BDT</div>
+${inv.isCrypto?`<div style="color:#94a3b8;font-size:0.58rem;">${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}</div>`:''}
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
+<div style="color:#6b7280;">✅ Profit</div>
+<div style="color:#4ade80;font-weight:700;">+${formatNumber(inv.actualProfit||0)} BDT</div>
+<div style="color:#94a3b8;font-size:0.58rem;">Expected: +${formatNumber(inv.expectedProfit||0)}</div>
+</div>
+</div>
+${cryptoInfo}
+${progressBar}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:0.62rem;">
+<span style="color:#6b7280;">📅 ${inv.start||'—'} → ${inv.end||'ongoing'}</span>
+${diffLabel}
+</div>
+${inv.note?`<div style="margin-top:4px;font-size:0.62rem;color:#a78bfa;">📝 ${inv.note}</div>`:''}
 </div>`;
 }).join('');
 
 document.getElementById('calDetailBody').innerHTML = html;
 document.getElementById('calDayDetail').style.display = 'block';
-document.getElementById('calDayDetail').scrollIntoView({ behavior:'smooth', block:'nearest' });
+document.getElementById('calDayDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 window.showCalDayDetail = showCalDayDetail;
 
@@ -2035,7 +2183,7 @@ order: 1
 },
 options: {
 responsive: true,
-maintainAspectRatio: true,
+maintainAspectRatio: false,
 plugins: {
 legend: {
 display: true,
