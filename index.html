@@ -1394,35 +1394,23 @@ oninput="updateInvestSimulator()">
 </div>
 
 ```
-<!-- Month Summary Stats -->
-<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
 
-<!-- Navigation -->
-<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
+<!-- Month Summary Stats --><div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div><!-- Navigation --><div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
 <button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
 <div style="text-align:center;">
 <div id="calTitle" style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
 </div>
 <button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
-</div>
-
-<div class="calendar-grid" id="calDayHeaders"></div>
-<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
-
-<!-- Day Detail Panel -->
-<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
+</div><div class="calendar-grid" id="calDayHeaders"></div>
+<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div><!-- Day Detail Panel --><div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
 <div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:#06b6d4;"></div>
 <button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
 </div>
 <div id="calDetailBody"></div>
 </div>
-```
-
-</div>
-</div>
-
-<script>
+```</div>
+</div><script>
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
 
@@ -2315,25 +2303,40 @@ return `<div class="investment-item"><div class="investment-title"><div><span cl
 }
 
 let _platformMoreTimers = {};
+
+// ====== FIXED: PLATFORM MORE/LESS BUTTON (NO AUTO CLOSE ON CLICK) ======
 function togglePlatformMore(platKey) {
 let moreEl = document.getElementById('more-' + platKey);
 let btnEl = document.getElementById('morebtn-' + platKey);
 if(!moreEl || !btnEl) return;
-let hidden = moreEl.style.display === 'none';
-moreEl.style.display = hidden ? 'block' : 'none';
-btnEl.innerHTML = hidden
-? `<i class="fas fa-chevron-up"></i> Less`
-: `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
 
-// Auto-close after 60 seconds when opened
-if(_platformMoreTimers[platKey]) clearTimeout(_platformMoreTimers[platKey]);
-if(hidden) {
+// Clear any existing auto-close timer for this platform
+if(_platformMoreTimers[platKey]) {
+clearTimeout(_platformMoreTimers[platKey]);
+delete _platformMoreTimers[platKey];
+}
+
+let isHidden = moreEl.style.display === 'none';
+
+if(isHidden) {
+// Show the hidden items (and also ensure the hidden items count in button)
+moreEl.style.display = 'block';
+btnEl.innerHTML = `<i class="fas fa-chevron-up"></i> কম দেখুন`;
+
+// Optional: Auto-close after 60 seconds (only when opened)
 _platformMoreTimers[platKey] = setTimeout(() => {
 let el = document.getElementById('more-' + platKey);
 let btn = document.getElementById('morebtn-' + platKey);
-if(el) el.style.display = 'none';
-if(btn) btn.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${el?.dataset.count||''} টি দেখুন`;
+if(el && el.style.display === 'block') {
+el.style.display = 'none';
+if(btn) btn.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${el.dataset.count || ''} টি দেখুন`;
+}
+delete _platformMoreTimers[platKey];
 }, 60000);
+} else {
+// Hide the items
+moreEl.style.display = 'none';
+btnEl.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count || ''} টি দেখুন`;
 }
 }
 
@@ -2369,8 +2372,10 @@ visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
 
 // বাকিগুলো লুকানো থাকবে
 if(hasMore) {
+// Store count for the button label
+let countAttr = `data-count="${hiddenItems.length}"`;
 activeHtml += `
-<div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
+<div id="more-${platKey}" style="display:none;" ${countAttr}>
 ${hiddenItems.map(inv => buildInvItemHtml(inv)).join('')}
 </div>
 <button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
@@ -2971,8 +2976,8 @@ const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' 
 let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
 let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
-let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0); // আমার ক্রয়মূল্য
-let currentValUSD = totalQty * cryptoPrices[coin]; // বর্তমান মূল্য
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
+let currentValUSD = totalQty * cryptoPrices[coin];
 let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
@@ -3618,9 +3623,7 @@ table{width:100%;border-collapse:collapse;font-size:12px;}
 thead{background:#f1f5f9;} th{padding:8px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;}
 tr:nth-child(even){background:#f8fafc;}
 .footer{margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;}
-</style></head><body>
-
-<div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+</style></head><body><div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
 <div class="header">
 <h1>💰 Wealth Tracker Report</h1>
 <p>TASLIM RONY · Generated: ${dateStr}</p>
