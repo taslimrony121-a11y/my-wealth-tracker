@@ -5,17 +5,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#0b1120">
+<!-- iOS PWA essential tags -->
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WealthTracker">
-<link rel="apple-touch-icon" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
-<link rel="apple-touch-icon" sizes="167x167" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<meta name="apple-mobile-web-app-title" content="Wealth Tracker">
+<!-- Apple touch icons (180x180 is the key one for modern iPhones) -->
 <link rel="apple-touch-icon" sizes="180x180" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" sizes="167x167" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<!-- Single manifest only (external, iOS compatible) -->
 <link rel="manifest" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/manifest.json">
-<title>Taslim Rony - Wealth Tracker Ultra Pro v14</title>
-<!-- PWA Manifest inline -->
-<link rel="manifest" href="data:application/json,{%22name%22:%22Wealth+Tracker+Ultra+Pro%22,%22short_name%22:%22WealthTracker%22,%22theme_color%22:%22%230b1120%22,%22background_color%22:%22%230b1120%22,%22display%22:%22standalone%22,%22start_url%22:%22/%22}">
+<title>Wealth Tracker — Taslim Rony</title>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
@@ -81,6 +83,10 @@ transition: background 0.3s, color 0.3s;
 @keyframes aiPulse { 0%,100% { box-shadow:0 4px 20px rgba(168,85,247,0.5); opacity:1; } 50% { box-shadow:0 4px 30px rgba(168,85,247,0.9); opacity:0.85; } }
 @keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
 .fade-up { animation: fadeUp 0.45s ease both; }
+/* iOS standalone safe area */
+@supports (padding-top: env(safe-area-inset-top)) {
+.container { padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+}
 
 /* ====== HEADER ====== */
 .app-header {
@@ -2308,6 +2314,7 @@ if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba
 return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
 
+let _platformMoreTimers = {};
 function togglePlatformMore(platKey) {
 let moreEl = document.getElementById('more-' + platKey);
 let btnEl = document.getElementById('morebtn-' + platKey);
@@ -2317,6 +2324,17 @@ moreEl.style.display = hidden ? 'block' : 'none';
 btnEl.innerHTML = hidden
 ? `<i class="fas fa-chevron-up"></i> Less`
 : `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
+
+// Auto-close after 60 seconds when opened
+if(_platformMoreTimers[platKey]) clearTimeout(_platformMoreTimers[platKey]);
+if(hidden) {
+_platformMoreTimers[platKey] = setTimeout(() => {
+let el = document.getElementById('more-' + platKey);
+let btn = document.getElementById('morebtn-' + platKey);
+if(el) el.style.display = 'none';
+if(btn) btn.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${el?.dataset.count||''} টি দেখুন`;
+}, 60000);
+}
 }
 
 function renderPortfolioByPlatform() {
@@ -3293,50 +3311,71 @@ window.openMssaModal=openMssaModal; window.confirmMssaInstallment=confirmMssaIns
 window.openTopUpModal=openTopUpModal; window.confirmTopUp=confirmTopUp; window.closeTopUpModal=closeTopUpModal;
 window.togglePlatformMore=togglePlatformMore;
 
-// ====== INIT ======
+// ====== INIT — localStorage first for instant iOS load ======
 loadTheme();
 loadCurrency();
 document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
+
+// Load from localStorage immediately (works offline + instant on iOS home screen)
 let backup = localStorage.getItem("investments_backup");
 investments = backup ? JSON.parse(backup) : [];
 renderAll();
 
-// Fetch live exchange rates immediately, then every 10 minutes
+// Check saved admin login
+checkSavedLogin();
+
+// Fetch live rates
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 
-// Crypto prices every 5 seconds (ticker + cards)
+// Crypto prices every 5 seconds
 setInterval(updateCryptoPrices, 5000);
-// Ticker refresh every 5 seconds too
 setInterval(renderPLTicker, 5000);
 
+// Event listeners
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
 
-// Firebase init (safe)
+// Firebase loads after UI is ready (non-blocking)
+setTimeout(() => {
 try {
-if(typeof firebase !== 'undefined'){
+if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
-loadData();
+// Only sync if we have network
+if(navigator.onLine) loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
-checkSavedLogin();
+}, 500);
 
 // ====== VISITOR COUNTER ======
 (function() {
 const VISIT_KEY = 'wt_total_visits';
-const SESSION_KEY = 'wt_this_session';
+const SESSION_KEY = 'wt_last_visit_date';
 let total = parseInt(localStorage.getItem(VISIT_KEY) || '0');
-if(!sessionStorage.getItem(SESSION_KEY)) {
+let today = new Date().toDateString();
+let lastVisit = localStorage.getItem(SESSION_KEY);
+if(lastVisit !== today) {
 total += 1;
 localStorage.setItem(VISIT_KEY, total);
-sessionStorage.setItem(SESSION_KEY, '1');
+localStorage.setItem(SESSION_KEY, today);
 }
 let el = document.getElementById('visitorCountText');
 if(el) el.innerHTML = `<span style="color:var(--accent);font-weight:700;">${total.toLocaleString()}</span> visits`;
+})();
+
+// ====== iOS STANDALONE DETECTION ======
+// When opened from home screen, show a subtle "App Mode" badge
+(function() {
+let isStandalone = window.navigator.standalone === true
+|| window.matchMedia('(display-mode: standalone)').matches;
+if(isStandalone) {
+// Add safe area padding for iPhone notch
+document.body.style.paddingTop = 'env(safe-area-inset-top)';
+document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
+}
 })();
 
 // Auto alert check on load
@@ -3611,3 +3650,4 @@ showToast('✅ PDF Report downloaded!');
 window.exportPDF = exportPDF;
 </script>
 </body>
+</html>
