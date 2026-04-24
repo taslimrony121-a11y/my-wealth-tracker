@@ -2285,6 +2285,19 @@ moreEl.style.display = hidden ? 'block' : 'none';
 btnEl.innerHTML = hidden
 ? `<i class="fas fa-chevron-up"></i> কম দেখুন`
 : `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
+// Save open state so re-renders don't reset it
+if(hidden) window._openPlatforms = window._openPlatforms || new Set(), window._openPlatforms.add(platKey);
+else if(window._openPlatforms) window._openPlatforms.delete(platKey);
+}
+
+function restorePlatformMoreState() {
+if(!window._openPlatforms) return;
+window._openPlatforms.forEach(platKey => {
+let moreEl = document.getElementById('more-' + platKey);
+let btnEl = document.getElementById('morebtn-' + platKey);
+if(moreEl) moreEl.style.display = 'block';
+if(btnEl) btnEl.innerHTML = `<i class="fas fa-chevron-up"></i> কম দেখুন`;
+});
 }
 
 function renderPortfolioByPlatform() {
@@ -2369,6 +2382,7 @@ if(!Object.keys(completedMap).length) completedHtml = '<div style="text-align:ce
 
 document.getElementById('activePortfolio').innerHTML = activeHtml;
 document.getElementById('completedPortfolio').innerHTML = completedHtml;
+restorePlatformMoreState();
 }
 
 // ====== CRYPTO PRICES ======
