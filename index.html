@@ -1624,43 +1624,105 @@ let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit
 // ── Category values ──
 const farmValue = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 const businessValue= active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
-const safeValue = active.filter(i =>
-(i.type==='MMPDA' || i.type==='BANK_DEPOSIT' || i.type==='MSSA') && !isWaitMoney(i)
-).reduce((s,i)=>s+(i.amountBDT||0),0);
+const safeValue = active.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
 const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
 
-// ══════════════════════════════════════════════════════
-// 🧠 ADVANCED PORTFOLIO AI — Category Gap-Based Brain
-// ══════════════════════════════════════════════════════
-const PORT = { total:Math.max(currentValue,1), idle:waitMoney, crypto:cryptoValue, farming:farmValue, business:businessValue, safe:safeValue };
-const TARGET = { crypto:15, farming:35, business:25, safe:25 };
-const CURR = {}, GAP = {};
-['crypto','farming','business','safe'].forEach(k=>{ CURR[k]=(PORT[k]/PORT.total)*100; GAP[k]=TARGET[k]-CURR[k]; });
-const NAME_MAP = { crypto:'BTC / ETH / BNB / SOL', farming:'iFarmer / Wegro', business:'Biniyog', safe:'MMPDA + MSSA' };
-const COLOR_MAP = { crypto:'#f7931a', farming:'#4ade80', business:'#a855f7', safe:'#10b981' };
-const ICON_MAP = { crypto:'₿', farming:'🌱', business:'💼', safe:'🏦' };
-const RETURN_MAP= { crypto:0.11, farming:0.19, business:0.15, safe:0.08 };
+// ══════════════════════════════════════════════════════════════
+// 🧠 AI ENGINE v2 — Clean Architecture (Gap-Based Core Brain)
+// ══════════════════════════════════════════════════════════════
 
-function advancedAI(amount) {
-const sorted = Object.entries(GAP).sort((a,b)=>b[1]-a[1]);
-const baseW = [40,30,20,10];
+// PART 5 — Data Structure
+function getPortfolioData() {
+const total = Math.max(currentValue, 1);
+return {
+idleMoney: waitMoney,
+totalPortfolio: total,
+currentAllocation: {
+crypto: (cryptoValue / total) * 100,
+farming: (farmValue / total) * 100,
+business: (businessValue / total) * 100,
+safe: (safeValue / total) * 100,
+},
+values: { crypto:cryptoValue, farming:farmValue, business:businessValue, safe:safeValue }
+};
+}
+
+// PART 1 — calculateGaps (only positive gaps = underweight categories)
+function calculateGaps(current, target) {
+let gaps = {};
+for(let key in target) gaps[key] = Math.max(0, target[key] - current[key]);
+return gaps;
+}
+
+// PART 2 — Platform Mapping
+const platformMap = {
+crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRate:0.11 },
+farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
+business: { names:['Biniyog'], color:'#a855f7', icon:'💼', returnRate:0.15 },
+safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
+};
+
+const TARGET = { crypto:15, farming:35, business:25, safe:25 };
+
+// PART 1 — getAIPlan (core brain — proportional gap allocation)
+function getAIPlan(data, investAmount) {
+const gaps = calculateGaps(data.currentAllocation, TARGET);
+const totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
+if(totalGap === 0) return null; // balanced
+
+const baseAmount = investAmount || (data.idleMoney * 0.8) || 10000;
 let result = [];
-sorted.forEach(([key],idx)=>{
-let w = baseW[idx]||0;
-if(!w) return;
-if(key==='safe'&&amount<50000) return;
-let amt = Math.round(amount*w/100);
-if(amt<300) return;
-result.push({ key, name:NAME_MAP[key], pct:w, amount:amt, color:COLOR_MAP[key], icon:ICON_MAP[key],
-annualReturn:RETURN_MAP[key], gap:GAP[key], current:CURR[key], target:TARGET[key],
-reason: GAP[key]>0 ? `এখন ${CURR[key].toFixed(0)}% → target ${TARGET[key]}% (gap ${GAP[key].toFixed(0)}%)` : `Target পূরণ — diversify এর জন্য`
+
+// Sort by gap size (biggest gap first)
+Object.entries(gaps)
+.sort((a,b) => b[1]-a[1])
+.forEach(([key, gap]) => {
+if(gap === 0) return;
+if(key === 'safe' && baseAmount < 50000) return; // MMPDA needs 50k+
+let pct = Math.round((gap / totalGap) * 100);
+let amt = Math.round(baseAmount * pct / 100);
+if(amt < 300) return;
+let pm = platformMap[key];
+let curPct = data.currentAllocation[key] || 0;
+result.push({
+key, pct, amount: amt,
+name: pm.names.join(' / '),
+color: pm.color,
+icon: pm.icon,
+annualReturn: pm.returnRate,
+gap: gap,
+current: curPct,
+target: TARGET[key],
+reason: `এখন ${curPct.toFixed(0)}% → target ${TARGET[key]}% (gap ${gap.toFixed(0)}%)`
 });
 });
-const tot=result.reduce((s,r)=>s+r.pct,0);
-result.forEach(r=>{ r.pct=Math.round(r.pct/tot*100); r.amount=Math.round(amount*r.pct/100); });
+
+// Normalize pct to 100%
+const totPct = result.reduce((s,r)=>s+r.pct, 0);
+result.forEach(r => { r.pct = Math.round(r.pct/totPct*100); r.amount = Math.round(baseAmount*r.pct/100); });
 return result;
 }
 
+// PART 6 — generateInsight
+function generateInsight(data) {
+const gaps = calculateGaps(data.currentAllocation, TARGET);
+let sorted = Object.entries(gaps).sort((a,b)=>b[1]-a[1]);
+let lines = [];
+sorted.forEach(([key, gap]) => {
+if(gap > 2) {
+let pm = platformMap[key];
+lines.push(`${pm.icon} <b>${pm.names[0]}</b> ${gap.toFixed(0)}% underweight — আরো invest করুন`);
+}
+});
+// Over-allocated warning
+Object.entries(data.currentAllocation).forEach(([key, cur]) => {
+let over = cur - TARGET[key];
+if(over > 10) lines.push(`⚠️ <b>${platformMap[key].names[0]}</b> ${over.toFixed(0)}% over target`);
+});
+return lines;
+}
+
+// splitCrypto — internal crypto distribution
 function splitCrypto(cryptoAmount) {
 return [
 { name:'BTC', pct:40, amount:Math.round(cryptoAmount*0.40), color:'#f7931a', icon:'₿' },
@@ -1670,29 +1732,49 @@ return [
 ];
 }
 
-window._AI_BRAIN = { advancedAI, splitCrypto, PORT, CURR, GAP, TARGET, NAME_MAP, COLOR_MAP, ICON_MAP, RETURN_MAP };
-if(PORT.idle>50000) window._AI_BRAIN.boostMsg = `⚡ ${PORT.idle.toLocaleString()} BDT idle — এখনই invest করুন!`;
+// ── Run the engine ──
+const PORT_DATA = getPortfolioData();
+const PORT = { total:PORT_DATA.totalPortfolio, idle:waitMoney, ...PORT_DATA.values };
+const CURR = PORT_DATA.currentAllocation;
+const GAP = calculateGaps(CURR, TARGET);
 
-const suggestBudget = waitMoney>1000 ? waitMoney : Math.round(PORT.total*0.1);
-const defaultPlan = advancedAI(suggestBudget);
-const topOption = defaultPlan[0]||{ name:'iFarmer / Wegro', icon:'🌱', annualReturn:0.19, pct:40, gap:10, current:0, target:35 };
+// Store globally for simulator
+window._AI_BRAIN = {
+getAIPlan, getPortfolioData, calculateGaps, generateInsight, splitCrypto,
+platformMap, TARGET, PORT, CURR, GAP,
+// Legacy aliases for simulator compatibility
+advancedAI: (amount) => getAIPlan(PORT_DATA, amount) || [],
+NAME_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.names.join(' / ')])),
+COLOR_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.color])),
+ICON_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.icon])),
+RETURN_MAP:Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.returnRate])),
+};
+if(PORT.idle > 50000) window._AI_BRAIN.boostMsg = `⚡ ${formatNumber(PORT.idle)} BDT idle — এখনই invest করুন!`;
+
+// ── AI Suggestion (from same engine) ──
+const suggestPlan = getAIPlan(PORT_DATA, waitMoney > 1000 ? waitMoney : Math.round(PORT.total*0.1));
+const topOption = suggestPlan?.[0] || { name:'iFarmer / Wegro', icon:'🌱', annualReturn:0.19, pct:40, gap:10, current:0, target:35 };
 
 let suggestionText='', suggestionIcon='💡', suggestionDetail='';
-if(loanGiven>0){
-suggestionText=`${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
-suggestionDetail=`Loan recover হলে ${topOption.name} এ invest করুন`;
-suggestionIcon='⚠️';
-} else if(CURR.crypto>50){
-suggestionText=`Crypto ${CURR.crypto.toFixed(0)}% বেশি (target 15%) — farming/safe এ shift করুন`;
-suggestionDetail=`Target: Crypto 15%, Farming 35%, Business 25%, Safe 25%`;
-suggestionIcon='⚖️';
+if(loanGiven > 0) {
+suggestionText = `${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
+suggestionDetail= `Loan recover হলে ${topOption.name} এ invest করুন`;
+suggestionIcon = '⚠️';
+} else if(CURR.crypto > 50) {
+suggestionText = `Crypto ${CURR.crypto.toFixed(0)}% বেশি (target 15%) — farming/safe এ shift করুন`;
+suggestionDetail= `Target: Crypto 15%, Farming 35%, Business 25%, Safe 25%`;
+suggestionIcon = '⚖️';
+} else if(!suggestPlan) {
+suggestionText = '✅ Portfolio balanced! সব category target এ আছে।';
+suggestionDetail= 'Keep investing consistently';
+suggestionIcon = '✅';
 } else {
-let topAmt = waitMoney>1000 ? Math.round(waitMoney*topOption.pct/100) : 0;
-suggestionText=`${topOption.icon} ${topOption.name} এ invest করুন`;
-suggestionDetail= topAmt>0
-? `${topAmt.toLocaleString()} BDT (${topOption.pct}%) · Gap: ${(topOption.gap||0).toFixed(0)}% · Return: ${(topOption.annualReturn*100).toFixed(0)}%`
-: `Gap: ${(topOption.gap||0).toFixed(0)}% · Return: ${(topOption.annualReturn*100).toFixed(0)}% annual`;
-suggestionIcon=topOption.icon;
+let topAmt = waitMoney > 1000 ? Math.round(waitMoney * topOption.pct / 100) : 0;
+suggestionText = `${topOption.icon} ${topOption.name} এ invest করুন`;
+suggestionDetail= topAmt > 0
+? `${formatNumber(topAmt)} BDT (${topOption.pct}%) · Gap: ${topOption.gap.toFixed(0)}% · Return: ${(topOption.annualReturn*100).toFixed(0)}%`
+: `Gap: ${topOption.gap.toFixed(0)}% · Return: ${(topOption.annualReturn*100).toFixed(0)}% annual`;
+suggestionIcon = topOption.icon;
 }
 
 // ── Health Score Bar ──
@@ -1781,23 +1863,15 @@ ${PORT.idle>1000 ? `<div style="margin-top:8px;background:rgba(245,158,11,0.1);b
 </div>`;
 }
 
-// ── Insight Box ──
-let insightLines = [];
-insightLines.push(`<b>${activeCount}</b> টি active investment চলছে।`);
-if(totalActualProfit>0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
+// ── Insight Box (generateInsight from AI Engine v2) ──
+let insightLines = generateInsight(PORT_DATA);
+if(activeCount > 0) insightLines.unshift(`<b>${activeCount}</b> টি active investment চলছে।`);
+if(totalActualProfit > 0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
 else insightLines.push(`এখনো profit শুরু হয়নি — strategy ঠিক রাখুন।`);
-// Category gap insights
-let maxGapCat = Object.entries(GAP).sort((a,b)=>b[1]-a[1])[0];
-if(maxGapCat && maxGapCat[1] > 5) insightLines.push(`<b>${NAME_MAP[maxGapCat[0]]}</b> সবচেয়ে underweight — target থেকে <b style="color:#f87171;">${maxGapCat[1].toFixed(0)}%</b> কম।`);
-let overCat = Object.entries(GAP).sort((a,b)=>a[1]-b[1])[0];
-if(overCat && overCat[1] < -5) insightLines.push(`<b>${NAME_MAP[overCat[0]]}</b> target এর চেয়ে <b style="color:#f59e0b;">${Math.abs(overCat[1]).toFixed(0)}%</b> বেশি।`);
-if(loanGiven>0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
-if(waitMoney>1000) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
-if(cryptoPercent>0) {
-let cryptoPLSign = cryptoPL>=0?'+':'';
-insightLines.push(`Crypto unrealized P&L: <b style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPLSign}${formatNumber(cryptoPL)} BDT</b>`);
-}
-if(bestPlatform!=='N/A') insightLines.push(`সেরা platform: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
+if(loanGiven > 0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
+if(waitMoney > 1000) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
+if(cryptoPercent > 0) insightLines.push(`Crypto unrealized P&L: <b style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)} BDT</b>`);
+if(bestPlatform !== 'N/A') insightLines.push(`সেরা platform: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
 
 insightEl.innerHTML = `
 <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:14px;padding:12px 14px;margin-top:2px;">
@@ -2601,9 +2675,13 @@ resultEl.innerHTML='<div style="padding:10px;text-align:center;color:#6b7280;fon
 return;
 }
 
-const { advancedAI, splitCrypto, PORT, CURR, GAP, TARGET } = brain;
-let plan = advancedAI(budget);
-if(!plan.length) plan=[{name:'iFarmer / Wegro',key:'farming',pct:100,amount:budget,color:'#4ade80',icon:'🌱',annualReturn:0.19,reason:'Small amount — halal & stable',gap:GAP.farming,current:CURR.farming,target:TARGET.farming}];
+// PART 4 — runSimulator using same getAIPlan engine
+const { getAIPlan, getPortfolioData, splitCrypto, CURR, GAP, TARGET } = brain;
+const liveData = getPortfolioData();
+let plan = getAIPlan(liveData, budget);
+if(!plan || !plan.length) {
+plan = [{ key:'farming', name:'iFarmer / Wegro', pct:100, amount:budget, color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0, current:liveData.currentAllocation.farming, target:35, reason:'Portfolio balanced — farming হলো best default' }];
+}
 
 let estAnnual = plan.reduce((s,p)=>s+p.amount*(p.annualReturn||0.10),0);
 let estMonthly = estAnnual/12;
