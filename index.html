@@ -2669,35 +2669,87 @@ let resultEl = document.getElementById('investSimulatorResult');
 if(!resultEl) return;
 if(budget <= 0) { resultEl.innerHTML=''; return; }
 
-const brain = window._AI_BRAIN;
-if(!brain) {
-resultEl.innerHTML='<div style="padding:10px;text-align:center;color:#6b7280;font-size:0.7rem;">⚠️ "AI Predict" বাটন একবার চাপুন, তারপর calculate করুন</div>';
-return;
+// ── Build live portfolio data directly (no closure dependency) ──
+let activeNow = investments.filter(i=>i.status==='active');
+let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
+let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+let farmNow = activeNow.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+let bizNow = activeNow.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
+let safeNow = activeNow.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let idleNow = activeNow.filter(i=>isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let total = Math.max(totalNow, 1);
+
+const liveAlloc = {
+crypto: (cryptoNow / total) * 100,
+farming: (farmNow / total) * 100,
+business: (bizNow / total) * 100,
+safe: (safeNow / total) * 100,
+};
+const TARGET_SIM = { crypto:15, farming:35, business:25, safe:25 };
+const pMap = {
+crypto: { name:'BTC / ETH / BNB / SOL', color:'#f7931a', icon:'₿', rate:0.11 },
+farming: { name:'iFarmer / Wegro', color:'#4ade80', icon:'🌱', rate:0.19 },
+business: { name:'Biniyog', color:'#a855f7', icon:'💼', rate:0.15 },
+safe: { name:'MMPDA + MSSA', color:'#10b981', icon:'🏦', rate:0.08 },
+};
+
+// Gap-based allocation
+let gaps = {};
+Object.keys(TARGET_SIM).forEach(k => { gaps[k] = Math.max(0, TARGET_SIM[k] - liveAlloc[k]); });
+let totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
+
+let plan = [];
+if(totalGap > 0) {
+Object.entries(gaps)
+.sort((a,b) => b[1]-a[1])
+.forEach(([key, gap]) => {
+if(gap === 0) return;
+if(key==='safe' && budget < 50000) return;
+let pct = Math.round((gap/totalGap)*100);
+let amt = Math.round(budget * pct / 100);
+if(amt < 300) return;
+plan.push({ key, pct, amount:amt, gap,
+name: pMap[key].name, color: pMap[key].color,
+icon: pMap[key].icon, annualReturn: pMap[key].rate,
+current: liveAlloc[key], target: TARGET_SIM[key],
+reason: `এখন ${liveAlloc[key].toFixed(0)}% → target ${TARGET_SIM[key]}% (gap ${gap.toFixed(0)}%)`
+});
+});
+// Normalize
+let totPct = plan.reduce((s,r)=>s+r.pct, 0);
+plan.forEach(r=>{ r.pct=Math.round(r.pct/totPct*100); r.amount=Math.round(budget*r.pct/100); });
+}
+if(!plan.length) {
+plan = [{ key:'farming', name:'iFarmer / Wegro', pct:100, amount:budget,
+color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0,
+current:liveAlloc.farming, target:35, reason:'Portfolio balanced — farming is best default' }];
 }
 
-// PART 4 — runSimulator using same getAIPlan engine
-const { getAIPlan, getPortfolioData, splitCrypto, CURR, GAP, TARGET } = brain;
-const liveData = getPortfolioData();
-let plan = getAIPlan(liveData, budget);
-if(!plan || !plan.length) {
-plan = [{ key:'farming', name:'iFarmer / Wegro', pct:100, amount:budget, color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0, current:liveData.currentAllocation.farming, target:35, reason:'Portfolio balanced — farming হলো best default' }];
+// splitCrypto
+function simSplitCrypto(amt) {
+return [
+{ name:'BTC', pct:40, amount:Math.round(amt*0.40), color:'#f7931a', icon:'₿' },
+{ name:'ETH', pct:30, amount:Math.round(amt*0.30), color:'#627eea', icon:'Ξ' },
+{ name:'BNB', pct:20, amount:Math.round(amt*0.20), color:'#f3ba2f', icon:'◈' },
+{ name:'SOL', pct:10, amount:Math.round(amt*0.10), color:'#9945ff', icon:'◎' },
+];
 }
 
-let estAnnual = plan.reduce((s,p)=>s+p.amount*(p.annualReturn||0.10),0);
-let estMonthly = estAnnual/12;
+let estAnnual = plan.reduce((s,p)=>s+p.amount*(p.annualReturn||0.10), 0);
+let estMonthly = estAnnual / 12;
 
 const catInfo = [
-{key:'crypto', label:'₿ Crypto', color:'#f7931a'},
-{key:'farming', label:'🌱 Farming', color:'#4ade80'},
-{key:'business',label:'💼 Business',color:'#a855f7'},
-{key:'safe', label:'🏦 Safe', color:'#10b981'},
+{ key:'crypto', label:'₿ Crypto', color:'#f7931a' },
+{ key:'farming', label:'🌱 Farming', color:'#4ade80' },
+{ key:'business', label:'💼 Business', color:'#a855f7' },
+{ key:'safe', label:'🏦 Safe', color:'#10b981' },
 ];
 
 resultEl.innerHTML = `
 <div style="background:rgba(0,0,0,0.15);border-radius:10px;padding:10px;margin-bottom:10px;">
 <div style="font-size:0.6rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 Current vs Target Allocation</div>
 ${catInfo.map(c=>{
-let cur=CURR[c.key]||0, tgt=TARGET[c.key]||0, g=GAP[c.key]||0;
+let cur = liveAlloc[c.key]||0, tgt = TARGET_SIM[c.key]||0, g = gaps[c.key]||0;
 return `<div style="margin-bottom:5px;">
 <div style="display:flex;justify-content:space-between;font-size:0.62rem;margin-bottom:2px;">
 <span style="color:${c.color};font-weight:600;">${c.label}</span>
@@ -2711,10 +2763,10 @@ return `<div style="margin-bottom:5px;">
 }).join('')}
 </div>
 
-<div style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🎯 ${formatNumber(budget)} BDT Allocation Plan (Gap-Based)</div>
+<div style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🎯 ${formatNumber(budget)} BDT Allocation Plan</div>
 
 ${plan.map(p=>{
-let cs = p.key==='crypto' ? splitCrypto(p.amount) : null;
+let cs = p.key==='crypto' ? simSplitCrypto(p.amount) : null;
 return `<div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;margin-bottom:8px;border-left:3px solid ${p.color};">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
 <span style="font-size:0.82rem;font-weight:700;color:#e9d5ff;">${p.icon} ${p.name}</span>
@@ -2723,26 +2775,29 @@ return `<div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;m
 <div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;">
 <div style="background:${p.color};width:${p.pct}%;height:100%;border-radius:4px;"></div>
 </div>
-<div style="font-size:0.6rem;color:#6b7280;">${p.reason}${p.annualReturn>0?' · '+(p.annualReturn*100).toFixed(0)+'% annual':''}</div>
-${cs?`<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
+<div style="font-size:0.6rem;color:#6b7280;">${p.reason} · ${(p.annualReturn*100).toFixed(0)}% annual return</div>
+${cs ? `<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
 <div style="font-size:0.58rem;color:#f7931a;font-weight:700;margin-bottom:4px;">Crypto Split:</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
-${cs.map(c=>`<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;"><span style="font-size:0.62rem;color:${c.color};font-weight:700;">${c.icon} ${c.name}</span><span style="font-size:0.62rem;color:${c.color};">${formatNumber(c.amount)} BDT</span></div>`).join('')}
+${cs.map(c=>`<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;">
+<span style="font-size:0.62rem;color:${c.color};font-weight:700;">${c.icon} ${c.name}</span>
+<span style="font-size:0.62rem;color:${c.color};">${formatNumber(c.amount)} BDT</span>
+</div>`).join('')}
 </div>
-</div>`:''}
+</div>` : ''}
 </div>`;
 }).join('')}
 
 <div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:10px;">
 <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-<span style="font-size:0.68rem;color:#6b7280;">📈 Expected Annual</span>
+<span style="font-size:0.68rem;color:#6b7280;">📈 Expected Annual Return</span>
 <span style="font-size:0.9rem;font-weight:800;color:#4ade80;">+${formatNumber(estAnnual)} BDT</span>
 </div>
 <div style="display:flex;justify-content:space-between;">
 <span style="font-size:0.62rem;color:#6b7280;">📅 Monthly (approx)</span>
-<span style="font-size:0.75rem;font-weight:700;color:#34d399;">+${formatNumber(estMonthly)} BDT</span>
+<span style="font-size:0.75rem;font-weight:700;color:#34d399;">+${formatNumber(estMonthly)} BDT/month</span>
 </div>
-${PORT.idle>50000?`<div style="margin-top:6px;font-size:0.65rem;color:#f59e0b;font-weight:600;">⚡ ${formatNumber(PORT.idle)} BDT idle — এখনই invest করুন!</div>`:''}
+${idleNow>50000?`<div style="margin-top:6px;font-size:0.65rem;color:#f59e0b;font-weight:600;">⚡ ${formatNumber(idleNow)} BDT idle — এখনই invest করুন!</div>`:''}
 </div>`;
 }
 window.updateInvestSimulator = updateInvestSimulator;
