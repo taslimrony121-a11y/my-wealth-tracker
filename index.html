@@ -1180,21 +1180,7 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
-<!-- INVESTMENT REMINDER -->
-
-<div class="card" id="reminderCard">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-<h2><i class="fas fa-bell" style="color:#f59e0b;"></i> Investment Reminders</h2>
-<button onclick="openReminderModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-<i class="fas fa-plus"></i> Reminder যোগ করুন
-</button>
-</div>
-<div id="reminderList">
-<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.75rem;">
-কোনো reminder নেই
-</div>
-</div>
-</div>
+<!-- REMINDER SECTION REMOVED -->
 
 <div class="footer">
 <p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
@@ -1349,31 +1335,7 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
-<!-- REMINDER MODAL -->
-
-<div id="reminderModal" class="modal">
-<div class="modal-content">
-<h3><i class="fas fa-bell" style="color:#f59e0b;"></i> Reminder যোগ করুন</h3>
-<label>Reminder Title:</label>
-<input type="text" id="reminderTitle" placeholder="যেমন: MSSA কিস্তি দিন, iFarmer invest করুন">
-<label>Date:</label>
-<input type="date" id="reminderDate">
-<label>Type:</label>
-<select id="reminderType" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);">
-<option value="installment">💳 কিস্তি / Installment</option>
-<option value="invest">📈 Investment</option>
-<option value="withdraw">💰 Withdrawal</option>
-<option value="review">🔍 Portfolio Review</option>
-<option value="other">📌 Other</option>
-</select>
-<label>Note:</label>
-<input type="text" id="reminderNote" placeholder="বিস্তারিত লিখুন...">
-<div style="display:flex;gap:8px;margin-top:15px;">
-<button onclick="saveReminder()" class="btn-save" style="flex:1;">🔔 Save Reminder</button>
-<button onclick="closeReminderModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
-</div>
-</div>
-</div>
+<!-- REMINDER MODAL REMOVED -->
 
 <!-- CALENDAR MODAL -->
 
@@ -1394,23 +1356,35 @@ oninput="updateInvestSimulator()">
 </div>
 
 ```
+<!-- Month Summary Stats -->
+<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
 
-<!-- Month Summary Stats --><div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div><!-- Navigation --><div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
+<!-- Navigation -->
+<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
 <button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
 <div style="text-align:center;">
 <div id="calTitle" style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
 </div>
 <button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
-</div><div class="calendar-grid" id="calDayHeaders"></div>
-<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div><!-- Day Detail Panel --><div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
+</div>
+
+<div class="calendar-grid" id="calDayHeaders"></div>
+<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
+
+<!-- Day Detail Panel -->
+<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
 <div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:#06b6d4;"></div>
 <button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
 </div>
 <div id="calDetailBody"></div>
 </div>
-```</div>
-</div><script>
+```
+
+</div>
+</div>
+
+<script>
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
 
@@ -2302,31 +2276,15 @@ if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba
 return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
 
-let _platformMoreTimers = {};
-
-// ====== FIXED: PLATFORM MORE/LESS BUTTON (NO AUTO CLOSE ON CLICK) ======
 function togglePlatformMore(platKey) {
 let moreEl = document.getElementById('more-' + platKey);
 let btnEl = document.getElementById('morebtn-' + platKey);
 if(!moreEl || !btnEl) return;
-
-// Clear any existing auto-close timer for this platform
-if(_platformMoreTimers[platKey]) {
-clearTimeout(_platformMoreTimers[platKey]);
-delete _platformMoreTimers[platKey];
-}
-
-let isHidden = moreEl.style.display === 'none';
-
-if(isHidden) {
-// Show the hidden items
-moreEl.style.display = 'block';
-btnEl.innerHTML = `<i class="fas fa-chevron-up"></i> কম দেখুন`;
-} else {
-// Hide the items
-moreEl.style.display = 'none';
-btnEl.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${moreEl.getAttribute('data-count') || ''} টি দেখুন`;
-}
+let hidden = moreEl.style.display === 'none' || moreEl.style.display === '';
+moreEl.style.display = hidden ? 'block' : 'none';
+btnEl.innerHTML = hidden
+? `<i class="fas fa-chevron-up"></i> কম দেখুন`
+: `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
 }
 
 function renderPortfolioByPlatform() {
@@ -2963,8 +2921,8 @@ const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' 
 let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
 let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
-let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
-let currentValUSD = totalQty * cryptoPrices[coin];
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0); // আমার ক্রয়মূল্য
+let currentValUSD = totalQty * cryptoPrices[coin]; // বর্তমান মূল্য
 let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
@@ -3373,7 +3331,6 @@ document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 // Auto alert check on load
 setTimeout(checkAlerts, 2000);
 setTimeout(renderBudgetDisplay, 500);
-setTimeout(renderReminderList, 500);
 
 // ====== WITHDRAWAL LOG CHART ======
 let withdrawalLogChart = null;
@@ -3516,67 +3473,7 @@ renderBudgetDisplay();
 window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
 
 // ====== INVESTMENT REMINDERS ======
-function openReminderModal() {
-if(!isAdmin) return showToast("Admin required", true);
-document.getElementById('reminderTitle').value='';
-document.getElementById('reminderDate').value=new Date().toISOString().slice(0,10);
-document.getElementById('reminderNote').value='';
-document.getElementById('reminderModal').style.display='flex';
-}
-function saveReminder() {
-let title = document.getElementById('reminderTitle').value.trim();
-let date = document.getElementById('reminderDate').value;
-let type = document.getElementById('reminderType').value;
-let note = document.getElementById('reminderNote').value;
-if(!title||!date) return showToast("Title ও Date দিন", true);
-let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
-reminders.push({ id:Date.now(), title, date, type, note, done:false });
-reminders.sort((a,b)=>new Date(a.date)-new Date(b.date));
-localStorage.setItem('inv_reminders', JSON.stringify(reminders));
-closeReminderModal();
-renderReminderList();
-showToast('🔔 Reminder save হয়েছে!');
-}
-function closeReminderModal() { document.getElementById('reminderModal').style.display='none'; }
-function toggleReminderDone(id) {
-let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
-let r = reminders.find(r=>r.id===id);
-if(r) r.done=!r.done;
-localStorage.setItem('inv_reminders', JSON.stringify(reminders));
-renderReminderList();
-}
-function deleteReminder(id) {
-let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]').filter(r=>r.id!==id);
-localStorage.setItem('inv_reminders', JSON.stringify(reminders));
-renderReminderList();
-}
-function renderReminderList() {
-let el = document.getElementById('reminderList');
-if(!el) return;
-let reminders = JSON.parse(localStorage.getItem('inv_reminders')||'[]');
-if(reminders.length===0) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);font-size:0.75rem;">কোনো reminder নেই</div>'; return; }
-let today = new Date(); today.setHours(0,0,0,0);
-const typeIcons = { installment:'💳', invest:'📈', withdraw:'💰', review:'🔍', other:'📌' };
-el.innerHTML = reminders.map(r => {
-let d = new Date(r.date); d.setHours(0,0,0,0);
-let diff = Math.ceil((d-today)/(1000*60*60*24));
-let urgency = diff<0?'#f87171': diff===0?'#facc15': diff<=3?'#f59e0b':'#4ade80';
-let badge = diff<0?`Overdue ${Math.abs(diff)}d`:diff===0?'Today!':diff<=3?`${diff}d left`:`${diff} days`;
-return `<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-input);border-radius:12px;margin-bottom:8px;border-left:3px solid ${urgency};opacity:${r.done?'0.5':'1'};">
-<div style="font-size:1.2rem;flex-shrink:0;">${typeIcons[r.type]||'📌'}</div>
-<div style="flex:1;">
-<div style="font-size:0.78rem;font-weight:700;color:${r.done?'var(--text-sub)':'var(--text-main)'};text-decoration:${r.done?'line-through':'none'};">${r.title}</div>
-<div style="font-size:0.62rem;color:var(--text-sub);margin-top:2px;">📅 ${r.date} · <span style="color:${urgency};font-weight:600;">${badge}</span></div>
-${r.note?`<div style="font-size:0.6rem;color:#a78bfa;margin-top:2px;">📝 ${r.note}</div>`:''}
-</div>
-<div style="display:flex;gap:4px;flex-shrink:0;">
-${isAdmin?`<button onclick="toggleReminderDone(${r.id})" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ade80;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:0.62rem;">${r.done?'↩':'✓'}</button>
-<button onclick="deleteReminder(${r.id})" style="background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:4px 8px;border-radius:8px;cursor:pointer;font-size:0.62rem;">🗑</button>`:''}
-</div>
-</div>`;
-}).join('');
-}
-window.openReminderModal=openReminderModal; window.closeReminderModal=closeReminderModal; window.saveReminder=saveReminder; window.toggleReminderDone=toggleReminderDone; window.deleteReminder=deleteReminder;
+// REMINDER FUNCTIONS REMOVED
 
 // ====== EXPORT PDF ======
 function exportPDF() {
@@ -3610,7 +3507,9 @@ table{width:100%;border-collapse:collapse;font-size:12px;}
 thead{background:#f1f5f9;} th{padding:8px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;}
 tr:nth-child(even){background:#f8fafc;}
 .footer{margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;}
-</style></head><body><div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+</style></head><body>
+
+<div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
 <div class="header">
 <h1>💰 Wealth Tracker Report</h1>
 <p>TASLIM RONY · Generated: ${dateStr}</p>
