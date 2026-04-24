@@ -2319,7 +2319,7 @@ delete _platformMoreTimers[platKey];
 let isHidden = moreEl.style.display === 'none';
 
 if(isHidden) {
-// Show the hidden items (and also ensure the hidden items count in button)
+// Show the hidden items
 moreEl.style.display = 'block';
 btnEl.innerHTML = `<i class="fas fa-chevron-up"></i> কম দেখুন`;
 
@@ -2329,14 +2329,14 @@ let el = document.getElementById('more-' + platKey);
 let btn = document.getElementById('morebtn-' + platKey);
 if(el && el.style.display === 'block') {
 el.style.display = 'none';
-if(btn) btn.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${el.dataset.count || ''} টি দেখুন`;
+if(btn) btn.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${el.getAttribute('data-count') || ''} টি দেখুন`;
 }
 delete _platformMoreTimers[platKey];
 }, 60000);
 } else {
 // Hide the items
 moreEl.style.display = 'none';
-btnEl.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count || ''} টি দেখুন`;
+btnEl.innerHTML = `<i class="fas fa-chevron-down"></i> আরো ${moreEl.getAttribute('data-count') || ''} টি দেখুন`;
 }
 }
 
@@ -2372,10 +2372,9 @@ visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
 
 // বাকিগুলো লুকানো থাকবে
 if(hasMore) {
-// Store count for the button label
-let countAttr = `data-count="${hiddenItems.length}"`;
+// IMPORTANT: Store count properly in data-count attribute
 activeHtml += `
-<div id="more-${platKey}" style="display:none;" ${countAttr}>
+<div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
 ${hiddenItems.map(inv => buildInvItemHtml(inv)).join('')}
 </div>
 <button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
@@ -2737,7 +2736,7 @@ return `<tr><td style="padding:6px 8px;">${coin}</td><td style="padding:6px 8px;
 }).join('');
 
 let invRows = active.slice(0,10).map(inv=>
-`<tr><td style="padding:5px 8px;font-size:11px;">${inv.platform}</td><td style="padding:5px 8px;font-size:11px;">${inv.type}</td><td style="padding:5px 8px;font-size:11px;text-align:right;">${formatNumber(inv.amountBDT)} BDT</td><td style="padding:5px 8px;font-size:11px;color:#16a34a;text-align:right;">+${formatNumber(inv.actualProfit||0)} BDT</td></tr>`
+`<td><td style="padding:5px 8px;font-size:11px;">${inv.platform}</td><td style="padding:5px 8px;font-size:11px;">${inv.type}</td><td style="padding:5px 8px;font-size:11px;text-align:right;">${formatNumber(inv.amountBDT)} BDT</td><td style="padding:5px 8px;font-size:11px;color:#16a34a;text-align:right;">+${formatNumber(inv.actualProfit||0)} BDT</td></tr>`
 ).join('');
 
 return `
