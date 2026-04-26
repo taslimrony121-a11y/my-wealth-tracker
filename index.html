@@ -993,6 +993,7 @@ oninput="updateInvestSimulator()">
 <div class="stat-value-bdt"><span id="totalPrincipal">0</span> <span id="principalCurrLabel">BDT</span></div>
 <div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div>
 <div class="stat-sub">📌 What you PAID (incl. loans given - loans taken + wait money)</div>
+<div id="totalProfitSinceInception" style="margin-top:8px;"></div>
 </div>
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
@@ -2134,8 +2135,42 @@ document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4
 let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
 document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
+
+// ── Total profit since inception (all sources) ──
+let profitEl = document.getElementById('totalProfitSinceInception');
+if(profitEl) {
+// 1. Realized profit: from withdrawal history
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0);
+
+// 2. Unrealized crypto P&L: current value - cost basis
+let cryptoUnrealized = 0;
+investments.filter(i=>i.status==='active'&&i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice).forEach(inv=>{
+let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
+cryptoUnrealized += curVal - costVal;
+});
+
+// 3. Non-crypto accrued profit: actualProfit field on each investment
+let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
+
+let totalProfit = realizedProfit + cryptoUnrealized + nonCryptoProfit;
+let pos = totalProfit >= 0;
+let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
+
+profitEl.innerHTML = `
+<div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.25)':'rgba(248,113,113,0.25)'};border-radius:10px;padding:8px 10px;">
+<div style="font-size:0.58rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">📊 শুরু থেকে মোট লাভ</div>
+<div style="font-size:0.95rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};font-family:'Sora',sans-serif;">${pos?'+':''}${formatNumber(totalProfit)} BDT</div>
+<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;">
+<span style="font-size:0.58rem;color:#6b7280;">${pos?'+':''}${pct.toFixed(1)}% return</span>
+${realizedProfit>0?`<span style="font-size:0.58rem;color:#94a3b8;">✅ Realized: ${formatNumber(realizedProfit)}</span>`:''}
+${cryptoUnrealized!==0?`<span style="font-size:0.58rem;color:#f7931a;">₿ Crypto: ${cryptoUnrealized>=0?'+':''}${formatNumber(cryptoUnrealized)}</span>`:''}
+</div>
+</div>`;
+}
+
 let prog = Math.min((p.bdt/300000)*100, 100);
-// goal elements may not exist anymore, skip silently
 updateTotalPortfolio24hUI();
 updateWeeklyActiveUI();
 }
