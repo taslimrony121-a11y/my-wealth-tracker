@@ -3804,6 +3804,9 @@ updateSellCoinInfo();
 
 function updateSellCoinInfo() {
 let coin = document.getElementById('sellCoin').value;
+// Show live price hint
+let hint = document.getElementById('livePriceHint');
+if(hint && cryptoPrices[coin]) hint.textContent = `Live: $${formatNumber(cryptoPrices[coin])}`;
 let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
 .sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO sort
 let totalQty = entries.reduce((s,i)=>s+i.amount,0);
@@ -3889,63 +3892,88 @@ async function executeCryptoSell() {
 let coin = document.getElementById('sellCoin').value;
 let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
 let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
-if(!sellUSD || !sellPrice) return showToast("Amount ও price দিন", true);
+if(!sellUSD || !sellPrice) return showToast("Sell amount ও price দিন", true);
+if(!confirm(`${coin} sell করবেন $${sellUSD} @ $${sellPrice}?`)) return;
 
-let sellQty = sellUSD / sellPrice;
-let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start));
-let totalQty = entries.reduce((s,i)=>s+i.amount,0);
-if(sellQty > totalQty) return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
+let sellQty = sellUSD / sellPrice; // কত quantity sell হবে
+let entries = investments
+.filter(i=>i.type===coin && i.status==='active' && i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO — পুরনো আগে
+let totalQty = entries.reduce((s,i)=>s+i.amount, 0);
 
-// FIFO: deduct from oldest entries
+if(sellQty > totalQty + 0.000001)
+return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
+
 let remaining = sellQty;
-let costBasis = 0;
+let costBasis = 0; // কত দামে কিনেছিলেন
 let today = new Date().toISOString().slice(0,10);
+let log = []; // কোন entry থেকে কত গেল
 
 for(let inv of entries) {
-if(remaining <= 0) break;
+if(remaining <= 0.000001) break;
 let take = Math.min(remaining, inv.amount);
-costBasis += take * (inv.purchasePrice||0);
+let takeCost = take * (inv.purchasePrice||0);
+costBasis += takeCost;
 remaining -= take;
 
-if(Math.abs(inv.amount - take) < 0.000001) {
-// Full entry sold → mark completed
+let leftQty = inv.amount - take;
+
+log.push({
+start: inv.start,
+purchasePrice: inv.purchasePrice,
+soldQty: take,
+leftQty,
+full: leftQty < 0.000001
+});
+
+if(leftQty < 0.000001) {
+// পুরো entry sell হয়ে গেছে
 inv.status = 'completed';
-inv.actualProfit = (take * sellPrice - take * (inv.purchasePrice||0)) * usdToBdt;
-if(db) await db.collection("investments").doc(inv.id).update({ status:'completed', actualProfit:inv.actualProfit });
+inv.actualProfit = (take * sellPrice - takeCost) * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({
+status: 'completed', actualProfit: inv.actualProfit
+});
 } else {
-// Partial → reduce amount, keep active
-let soldAmt = take;
-let newAmount = inv.amount - take;
-inv.amount = newAmount;
-inv.amountUSD = newAmount * (inv.purchasePrice||0);
+// Partial sell — remaining qty এর cost basis ঠিক রাখা
+// amountBDT = remaining qty × purchase price × BDT rate (cost basis, Binance এর সাথে match)
+inv.amount = leftQty;
+inv.amountUSD = leftQty * (inv.purchasePrice||0); // purchase price দিয়ে cost basis
 inv.amountBDT = inv.amountUSD * usdToBdt;
-if(db) await db.collection("investments").doc(inv.id).update({ amount:inv.amount, amountBDT:inv.amountBDT, amountUSD:inv.amountUSD });
+if(db) await db.collection("investments").doc(inv.id).update({
+amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
+});
 }
 }
 
-// Log to withdrawal history
+// Withdrawal history তে log
 let revenueBDT = sellUSD * usdToBdt;
 let profitBDT = (sellUSD - costBasis) * usdToBdt;
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 history.push({
 platform: 'Binance', type: coin,
 amount: revenueBDT, profit: profitBDT,
-sellQty, sellPriceUSD: sellPrice,
-date: today, note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)}`
+sellQty: sellQty, sellPriceUSD: sellPrice,
+date: today,
+note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
 });
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 localStorage.setItem("investments_backup", JSON.stringify(investments));
-if(db) {
-// Sync all affected
-for(let inv of investments) {
-if(inv.type===coin) await db.collection("investments").doc(inv.id).set(inv);
-}
-}
 
 closeCryptoSellModal();
 renderAll();
-showToast(`✅ ${sellQty.toFixed(4)} ${coin} sold! ${profitBDT>=0?'Profit':'Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`);
+
+// Detailed toast
+let logText = log.map(l=>
+l.full
+? `✅ ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — fully sold`
+: `📊 ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — ${l.soldQty.toFixed(6)} sold, ${l.leftQty.toFixed(6)} remaining`
+).join('\n');
+
+showToast(
+`💰 ${sellQty.toFixed(6)} ${coin} sold!\n` +
+`Revenue: $${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT\n` +
+`${profitBDT>=0?'✅ Profit':'❌ Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`
+);
 }
 
 function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
