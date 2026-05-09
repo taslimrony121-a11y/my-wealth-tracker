@@ -821,9 +821,9 @@ body { padding: 10px; }
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
+<button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
 <button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
-<button class="action-btn" onclick="checkAlerts()" style="border-color:#f59e0b;color:#f59e0b;"><i class="fas fa-bell"></i> Alerts</button>
 </div>
 
 <!-- AI PREDICTION CARD -->
@@ -1036,6 +1036,7 @@ oninput="updateInvestSimulator()">
 <option value="MSSA">MSSA Installment</option>
 <option value="Business">Shop/Business</option>
 <option value="Gold">Gold</option>
+<option value="WAHED">Wahed Invest</option>
 <option value="LOAN_GIVEN">Loan Given (ধার দিয়েছি)</option>
 <option value="LOAN_TAKEN">Loan Taken (ধার নিয়েছি)</option>
 <option value="BANK_DEPOSIT">Bank Deposit</option>
@@ -1337,6 +1338,61 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- REMINDER MODAL REMOVED -->
+
+<!-- CRYPTO SELL MODAL -->
+
+<div id="cryptoSellModal" class="modal">
+<div class="modal-content">
+<h3 style="color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</h3>
+<p style="font-size:0.72rem;color:var(--text-sub);margin-bottom:12px;">FIFO — পুরনো entry থেকে আগে বাদ যাবে। Sell amount USD এ দিন।</p>
+
+```
+<label>Coin:</label>
+<select id="sellCoin" onchange="updateSellCoinInfo()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);margin-bottom:10px;">
+<option value="BTC">₿ BTC</option>
+<option value="ETH">Ξ ETH</option>
+<option value="BNB">◈ BNB</option>
+<option value="SOL">◎ SOL</option>
+</select>
+
+<!-- Coin holdings info -->
+<div id="sellCoinInfo" style="background:var(--bg-input);border-radius:10px;padding:10px;margin-bottom:12px;font-size:0.72rem;"></div>
+
+<label>Sell Amount (USD $):</label>
+<input type="number" id="sellAmountUSD" step="0.01" placeholder="যেমন: 10" oninput="updateSellPreview()">
+
+<label style="margin-top:10px;">Sell Price per coin (USD) — optional:</label>
+<input type="number" id="sellPriceUSD" step="0.01" placeholder="ফাঁকা রাখলে Binance live price নেবে" oninput="updateSellPreview()">
+
+<!-- Preview -->
+<div id="sellPreview" style="margin-top:10px;"></div>
+
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="executeCryptoSell()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;">💰 Sell করুন</button>
+<button onclick="closeCryptoSellModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+```
+
+</div>
+</div>
+
+<!-- WAHED UPDATE MODAL -->
+
+<div id="wahedModal" class="modal">
+<div class="modal-content">
+<h3>📊 Wahed — Current Value Update</h3>
+<div id="wahedInfo" style="font-size:0.78rem;color:var(--text-sub);margin-bottom:12px;background:var(--bg-input);padding:10px;border-radius:10px;"></div>
+<label>বর্তমান মূল্য (BDT):</label>
+<input type="number" id="wahedCurrentVal" step="any" placeholder="Wahed app থেকে দেখুন">
+<div id="wahedPLPreview" style="margin-top:8px;font-size:0.78rem;"></div>
+<label style="margin-top:10px;">Note (optional):</label>
+<input type="text" id="wahedNote" placeholder="যেমন: May 2026 update">
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveWahedUpdate()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);">💾 Update করুন</button>
+<button onclick="closeWahedModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+</div>
+</div>
 
 <!-- CALENDAR MODAL -->
 
@@ -2183,99 +2239,137 @@ function updateTotalPortfolio24hUI() { let el=document.getElementById('total24hP
 // ====== MONTHLY CHART ======
 function renderMonthlyChart() {
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let monthlyData = {};
-history.forEach(h => { let dt=new Date(h.date); let key=`${dt.getFullYear()}-${dt.getMonth()}`; if(!monthlyData[key]) monthlyData[key]={year:dt.getFullYear(),month:dt.getMonth(),profit:0,monthName:dt.toLocaleString('default',{month:'short'})}; monthlyData[key].profit+=h.profit; });
-if(history.length===0) {
-const demo=[{year:2024,month:0,profit:12500},{year:2024,month:1,profit:18200},{year:2024,month:2,profit:22450},{year:2024,month:3,profit:19800},{year:2024,month:4,profit:27500},{year:2024,month:5,profit:31200},{year:2024,month:6,profit:28900},{year:2024,month:7,profit:34500},{year:2024,month:8,profit:37800},{year:2024,month:9,profit:42100},{year:2024,month:10,profit:39800},{year:2024,month:11,profit:45200},{year:2025,month:0,profit:31800},{year:2025,month:1,profit:27500},{year:2025,month:2,profit:41200},{year:2025,month:3,profit:35600},{year:2025,month:4,profit:38900},{year:2025,month:5,profit:44500},{year:2026,month:0,profit:21000},{year:2026,month:1,profit:25600},{year:2026,month:2,profit:29800}];
-demo.forEach(d=>{ monthlyData[`${d.year}-${d.month}`]={...d,monthName:new Date(d.year,d.month).toLocaleString('default',{month:'short'})}; });
+
+// STEP 1: Build proper data structure { month, invested, profit }
+let monthlyMap = {}; // key: "YYYY-M"
+
+// Profit from withdrawal history
+history.forEach(h => {
+let dt = new Date(h.date);
+let key = `${dt.getFullYear()}-${dt.getMonth()}`;
+if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
+monthlyMap[key].profit += (h.profit||0);
+});
+
+// Invested from investments start date
+investments.forEach(inv => {
+if(!inv.start) return;
+let dt = new Date(inv.start);
+let key = `${dt.getFullYear()}-${dt.getMonth()}`;
+if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
+monthlyMap[key].invested += (inv.amountBDT||0);
+});
+
+// Demo data if no real data
+if(Object.keys(monthlyMap).length === 0) {
+const demo = [
+{year:2024,month:0,invested:20000,profit:3500},{year:2024,month:1,invested:25000,profit:5200},
+{year:2024,month:2,invested:18000,profit:4800},{year:2024,month:3,invested:30000,profit:7200},
+{year:2024,month:4,invested:22000,profit:6100},{year:2024,month:5,invested:35000,profit:9800},
+{year:2024,month:6,invested:28000,profit:7500},{year:2024,month:7,invested:40000,profit:11200},
+{year:2024,month:8,invested:32000,profit:8900},{year:2024,month:9,invested:45000,profit:13400},
+{year:2024,month:10,invested:38000,profit:10600},{year:2024,month:11,invested:50000,profit:14800},
+{year:2025,month:0,invested:30000,profit:8200},{year:2025,month:1,invested:25000,profit:6800},
+{year:2025,month:2,invested:42000,profit:11500},{year:2025,month:3,invested:35000,profit:9400},
+{year:2026,month:0,invested:28000,profit:7600},{year:2026,month:1,invested:32000,profit:8900},
+{year:2026,month:2,invested:50000,profit:29800},{year:2026,month:3,invested:25000,profit:0},
+];
+demo.forEach(d => { monthlyMap[`${d.year}-${d.month}`] = d; });
 }
-let years=[...new Set(Object.values(monthlyData).map(d=>d.year))].sort();
-// Always default to latest year that has data, or current year
-let latestDataYear = years[years.length - 1] || new Date().getFullYear();
-if(!years.includes(currentYear)) currentYear = latestDataYear;
-let yearSel=document.getElementById('yearSelector');
-if(yearSel){
-yearSel.innerHTML='';
-years.forEach(y=>{
-let btn=document.createElement('button');
-btn.className='year-btn'+(y===currentYear?' active':'');
-btn.textContent=y;
-btn.onclick=()=>{ document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); currentYear=y; renderMonthlyChartForYear(y,monthlyData); };
+
+let years = [...new Set(Object.values(monthlyMap).map(d=>d.year))].sort();
+let latestYear = years[years.length-1] || new Date().getFullYear();
+if(!years.includes(currentYear)) currentYear = latestYear;
+
+let yearSel = document.getElementById('yearSelector');
+if(yearSel) {
+yearSel.innerHTML = '';
+years.forEach(y => {
+let btn = document.createElement('button');
+btn.className = 'year-btn' + (y===currentYear?' active':'');
+btn.textContent = y;
+btn.onclick = () => {
+document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+currentYear = y;
+renderMonthlyChartForYear(y, monthlyMap);
+};
 yearSel.appendChild(btn);
 });
 }
-renderMonthlyChartForYear(currentYear, monthlyData);
+renderMonthlyChartForYear(currentYear, monthlyMap);
 }
-function renderMonthlyChartForYear(year, monthlyData) {
-let months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let profits = new Array(12).fill(0);
-for(let i=0;i<12;i++){ let key=`${year}-${i}`; if(monthlyData[key]) profits[i]=monthlyData[key].profit; }
 
-// Build invested per month from investments that started in this year
-let invested = new Array(12).fill(0);
-investments.forEach(inv => {
-if(!inv.start) return;
-let d = new Date(inv.start);
-if(d.getFullYear() === year) {
-invested[d.getMonth()] += (inv.amountBDT || 0);
-}
+function renderMonthlyChartForYear(year, monthlyMap) {
+const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// STEP 1: Build 12-month arrays, 0 for missing (STEP 7: no null)
+let monthlyData = monthNames.map((m, i) => {
+let key = `${year}-${i}`;
+let data = monthlyMap[key] || { invested:0, profit:0 };
+return { month:m, invested: data.invested||0, profit: data.profit||0 };
 });
 
-let total = profits.reduce((a,b)=>a+b,0);
-let totalInv = invested.reduce((a,b)=>a+b,0);
-let best = Math.max(...profits);
-let avg = total/12;
-document.getElementById('totalProfitYear').innerHTML = formatNumber(total)+' BDT';
-document.getElementById('bestMonthValue').innerHTML = formatNumber(best)+' BDT';
-document.getElementById('avgMonthValue').innerHTML = formatNumber(avg)+' BDT';
+let investedArr = monthlyData.map(d => d.invested);
+let profitArr = monthlyData.map(d => d.profit);
+
+// STEP 4: Monthly avg — only months with data
+let monthsWithProfit = monthlyData.filter(d => d.profit > 0);
+let monthsWithInvest = monthlyData.filter(d => d.invested > 0);
+let totalProfit = profitArr.reduce((a,b)=>a+b, 0);
+let totalInvested = investedArr.reduce((a,b)=>a+b, 0);
+let avgProfit = monthsWithProfit.length > 0 ? totalProfit / monthsWithProfit.length : 0;
+
+// STEP 5: Best month
+let bestMonth = monthlyData.reduce((max,m) => m.profit > max.profit ? m : max, monthlyData[0]);
+
+document.getElementById('totalProfitYear').innerHTML = formatNumber(totalProfit) + ' BDT';
+document.getElementById('bestMonthValue').innerHTML = formatNumber(bestMonth.profit) + ' BDT' + (bestMonth.profit>0 ? ` (${bestMonth.month})` : '');
+document.getElementById('avgMonthValue').innerHTML = formatNumber(avgProfit) + ' BDT';
 
 let isDark = document.documentElement.getAttribute('data-theme')==='dark';
 let ctx = document.getElementById('monthlyProfitChart').getContext('2d');
 if(monthlyChart) monthlyChart.destroy();
 
+// STEP 2: Chart config
 monthlyChart = new Chart(ctx, {
 type: 'bar',
 data: {
-labels: months,
+labels: monthNames,
 datasets: [
 {
 label: '💚 Invested',
-data: invested,
-backgroundColor: 'rgba(74,222,128,0.8)',
-borderRadius: { topLeft:8, topRight:8 },
-barPercentage: 0.85,
-categoryPercentage: 0.95,
-maxBarThickness: 36,
+data: investedArr,
+backgroundColor: 'rgba(74,222,128,0.82)',
+borderRadius: 8,
+barThickness: 18, // STEP 2: mobile মোটা bar
 order: 2
 },
 {
 label: '🔴 Return/Profit',
-data: profits,
-backgroundColor: profits.map(p => p===best&&p>0 ? '#f87171' : 'rgba(248,113,113,0.75)'),
-borderRadius: { topLeft:8, topRight:8 },
-barPercentage: 0.85,
-categoryPercentage: 0.95,
-maxBarThickness: 36,
+data: profitArr,
+backgroundColor: profitArr.map((p,i) => p===bestMonth.profit&&p>0 ? '#ef4444' : 'rgba(248,113,113,0.78)'),
+borderRadius: 8,
+barThickness: 18, // STEP 2: mobile মোটা bar
 order: 1
 }
 ]
 },
 options: {
 responsive: true,
-maintainAspectRatio: false,
+maintainAspectRatio: false, // STEP 3: full height fill
 plugins: {
 legend: {
 display: true,
 position: 'top',
 labels: {
 color: isDark?'#94a3b8':'#64748b',
-font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" },
-boxWidth: 12,
-padding: 12,
-usePointStyle: true,
-pointStyle: 'rect'
+font: { size:11, family:"'Plus Jakarta Sans',sans-serif" },
+boxWidth: 12, padding: 12,
+usePointStyle: true, pointStyle: 'rect'
 }
 },
+// STEP 6: Tooltips with profit %
 tooltip: {
 backgroundColor: isDark?'#1e293b':'#fff',
 titleColor: '#facc15',
@@ -2283,14 +2377,21 @@ bodyColor: isDark?'#e2e8f0':'#1e293b',
 borderColor: isDark?'#334155':'#cbd5e1',
 borderWidth: 1,
 callbacks: {
-label: (c) => {
-if(c.datasetIndex === 0) return ` Invested: ${formatNumber(c.raw)} BDT`;
-return c.raw===0 ? ' No return' : ` Return: ${formatNumber(c.raw)} BDT`;
+label: (ctx) => {
+if(ctx.raw === 0) return ` ${ctx.dataset.label.replace(/[^\w ]/g,'').trim()}: 0 BDT`;
+let val = formatNumber(ctx.raw);
+// Bonus: profit % of invested
+if(ctx.datasetIndex === 1) {
+let inv = investedArr[ctx.dataIndex];
+let pct = inv > 0 ? ((ctx.raw/inv)*100).toFixed(1) : null;
+return ` Return: ${val} BDT${pct ? ` (${pct}%)` : ''}`;
+}
+return ` Invested: ${val} BDT`;
 },
-afterBody: (c) => {
-let inv = c.find(x=>x.datasetIndex===0)?.raw||0;
-let ret = c.find(x=>x.datasetIndex===1)?.raw||0;
-if(inv>0&&ret>0) return [`Net: ${formatNumber(ret-inv)} BDT`];
+afterBody: (ctxArr) => {
+let profitCtx = ctxArr.find(c=>c.datasetIndex===1);
+if(profitCtx && profitCtx.raw===bestMonth.profit && bestMonth.profit>0)
+return ['🏆 Best month!'];
 return [];
 }
 }
@@ -2299,7 +2400,7 @@ return [];
 scales: {
 y: {
 grid: { color: isDark?'rgba(148,163,184,0.08)':'rgba(100,116,139,0.08)' },
-ticks: { color: isDark?'#94a3b8':'#64748b', callback:(v)=>formatNumber(v), font:{size:10} }
+ticks: { color: isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10} }
 },
 x: {
 grid: { display: false },
@@ -2370,9 +2471,23 @@ ${isAdmin ? `
 
 // ====== RENDER PORTFOLIO ======
 function buildInvItemHtml(inv) {
-let investedDisplay = inv.isCrypto ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}` : `${formatNumber(inv.amountBDT)} BDT`;
+let investedDisplay = inv.isCrypto
+? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}`
+: `${formatNumber(inv.amountBDT)} BDT`;
 let currentDisplay = '';
-if(inv.isCrypto && cryptoPrices[inv.type]){ let cUSD=inv.amount*cryptoPrices[inv.type]; let cBDT=cUSD*usdToBdt; let pnl=cBDT-(inv.amount*(inv.purchasePrice||0)*usdToBdt); currentDisplay=`<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`; }
+if(inv.isCrypto && cryptoPrices[inv.type]) {
+let cUSD = inv.amount * cryptoPrices[inv.type];
+let cBDT = cUSD * usdToBdt;
+let pnl = cBDT - (inv.amount*(inv.purchasePrice||0)*usdToBdt);
+currentDisplay = `<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`;
+} else if(inv.isWahed || inv.type==='WAHED') {
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
+currentDisplay = `<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">
+📊 Current: ${formatNumber(curVal)} BDT ${pnl!==0?`| ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`:''}
+${isAdmin?`<button onclick="openWahedUpdate('${inv.id}')" style="margin-left:8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:2px 8px;border-radius:6px;cursor:pointer;font-size:0.58rem;">✏️ Update Value</button>`:''}
+</span>`;
+}
 else if(inv.type==="LOAN_GIVEN") currentDisplay=`<span class="investment-details" style="color:#4ade80;">💸 To Receive: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="LOAN_TAKEN") currentDisplay=`<span class="investment-details" style="color:#f87171;">💳 You Owe: ${formatNumber(inv.amountBDT)} BDT</span>`;
 else if(inv.type==="BANK_DEPOSIT") currentDisplay=`<span class="investment-details" style="color:#10b981;">🏦 Bank Deposit: ${formatNumber(inv.amountBDT)} BDT</span>`;
@@ -3034,7 +3149,7 @@ if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[in
 });
 
 // ── Non-crypto P&L (annual rate based, proper 365-day calc) ──
-const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12 };
+const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
 let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
@@ -3134,20 +3249,40 @@ function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMon
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
 if(!isAdmin) return showToast("Admin login required", true);
-let platform=document.getElementById('platform').value;
-let type=document.getElementById('type').value;
-let isCrypto=['BTC','ETH','BNB','SOL'].includes(type);
-let amount=parseFloat(document.getElementById('amount').value);
-let purchasePrice=isCrypto?parseFloat(document.getElementById('purchasePrice').value):null;
-if(!amount||!document.getElementById('startDate').value) return showToast("Fill required fields", true);
-let amountBDT,amountUSD;
-if(isCrypto){ if(!purchasePrice) return showToast("Crypto needs purchase price", true); amountUSD=amount*purchasePrice; amountBDT=amountUSD*usdToBdt; } else { amountBDT=amount; amountUSD=amount/usdToBdt; }
-let inv={ id:Date.now().toString(), platform, type, amount, amountBDT, amountUSD, isCrypto, purchasePrice, expectedProfit:parseFloat(document.getElementById('expectedProfit').value)||0, actualProfit:parseFloat(document.getElementById('actualProfit').value)||0, status:document.getElementById('status').value, start:document.getElementById('startDate').value, end:document.getElementById('endDate').value, note:document.getElementById('investmentNote').value||"", person:document.getElementById('personName').value||"" };
+let platform = document.getElementById('platform').value;
+let type = document.getElementById('type').value;
+let isCrypto = ['BTC','ETH','BNB','SOL'].includes(type);
+let isWahed = type === 'WAHED';
+let amount = parseFloat(document.getElementById('amount').value);
+let purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+if(!amount || !document.getElementById('startDate').value) return showToast("Fill required fields", true);
+let amountBDT, amountUSD;
+if(isCrypto) {
+if(!purchasePrice) return showToast("Crypto needs purchase price", true);
+amountUSD = amount * purchasePrice;
+amountBDT = amountUSD * usdToBdt;
+} else {
+amountBDT = amount;
+amountUSD = amount / usdToBdt;
+}
+let inv = {
+id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
+isCrypto, isWahed, purchasePrice,
+expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
+actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
+status: document.getElementById('status').value,
+start: document.getElementById('startDate').value,
+end: document.getElementById('endDate').value,
+note: document.getElementById('investmentNote').value||"",
+person: document.getElementById('personName').value||""
+};
 investments.push(inv);
-if(db&&isAdmin) await db.collection("investments").doc(inv.id).set(inv);
+if(db && isAdmin) await db.collection("investments").doc(inv.id).set(inv);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
-renderAll(); showToast(`✅ ${type} added successfully!`);
-document.getElementById('investmentNote').value=''; document.getElementById('personName').value='';
+renderAll();
+showToast(`✅ ${type === 'WAHED' ? 'Wahed Invest' : type} added!`);
+document.getElementById('investmentNote').value='';
+document.getElementById('personName').value='';
 }
 
 async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]"); history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
@@ -3656,6 +3791,217 @@ window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal
 
 // ====== INVESTMENT REMINDERS ======
 // REMINDER FUNCTIONS REMOVED
+
+// ====== CRYPTO SELL (FIFO) ======
+function openCryptoSellModal() {
+if(!isAdmin) return showToast("Admin required", true);
+document.getElementById('sellAmountUSD').value = '';
+document.getElementById('sellPriceUSD').value = '';
+document.getElementById('sellPreview').innerHTML = '';
+document.getElementById('cryptoSellModal').style.display = 'flex';
+updateSellCoinInfo();
+}
+
+function updateSellCoinInfo() {
+let coin = document.getElementById('sellCoin').value;
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO sort
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+let totalCostUSD = entries.reduce((s,i)=>s+i.amount*(i.purchasePrice||0),0);
+let currentUSD = cryptoPrices[coin] ? totalQty * cryptoPrices[coin] : 0;
+let el = document.getElementById('sellCoinInfo');
+if(!entries.length) {
+el.innerHTML = `<span style="color:#f87171;">কোনো active ${coin} investment নেই।</span>`;
+return;
+}
+el.innerHTML = `
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Total Qty:</span> <b style="color:#f7931a;">${totalQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Cost:</span> <b>$${formatNumber(totalCostUSD)}</b></div>
+<div><span style="color:#6b7280;">Live Price:</span> <b style="color:#facc15;">$${formatNumber(cryptoPrices[coin]||0)}</b></div>
+<div><span style="color:#6b7280;">Current Val:</span> <b>$${formatNumber(currentUSD)}</b></div>
+</div>
+<div style="font-size:0.62rem;color:#6b7280;border-top:1px solid var(--border);padding-top:6px;">
+📋 FIFO Entries (পুরনো আগে):
+${entries.map((e,i)=>`<div style="margin-top:3px;">
+${i+1}. <b>${e.amount.toFixed(6)} ${coin}</b> @ $${formatNumber(e.purchasePrice)} — ${e.start}
+</div>`).join('')}
+</div>`;
+updateSellPreview();
+}
+
+function updateSellPreview() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+let el = document.getElementById('sellPreview');
+if(!sellUSD || !sellPrice) { el.innerHTML=''; return; }
+
+let sellQty = sellUSD / sellPrice;
+
+// FIFO simulation
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+
+if(sellQty > totalQty) {
+el.innerHTML = `<div style="color:#f87171;font-size:0.72rem;">⚠️ আপনার কাছে মাত্র ${totalQty.toFixed(6)} ${coin} আছে — এত বেশি sell করতে পারবেন না।</div>`;
+return;
+}
+
+// Calculate FIFO cost basis
+let remaining = sellQty;
+let costBasis = 0;
+let affectedEntries = [];
+for(let e of entries) {
+if(remaining <= 0) break;
+let take = Math.min(remaining, e.amount);
+costBasis += take * (e.purchasePrice||0);
+affectedEntries.push({ id:e.id, take, original:e.amount, remaining:e.amount-take, start:e.start, purchasePrice:e.purchasePrice });
+remaining -= take;
+}
+
+let revenueBDT = sellUSD * usdToBdt;
+let costBDT = costBasis * usdToBdt;
+let profitBDT = revenueBDT - costBDT;
+let pos = profitBDT >= 0;
+
+el.innerHTML = `
+<div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:12px;padding:12px;">
+<div style="font-size:0.65rem;color:#6b7280;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📊 Sell Preview (FIFO)</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Sell Qty:</span> <b style="color:#f7931a;">${sellQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Sell Price:</span> <b>$${formatNumber(sellPrice)}</b></div>
+<div><span style="color:#6b7280;">Revenue:</span> <b>$${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT</b></div>
+<div><span style="color:#6b7280;">Cost Basis:</span> <b>$${formatNumber(costBasis)} = ${formatNumber(costBDT)} BDT</b></div>
+</div>
+<div style="font-size:0.88rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};">
+${pos?'✅':'❌'} ${pos?'Profit':'Loss'}: ${pos?'+':''}${formatNumber(profitBDT)} BDT
+</div>
+<div style="font-size:0.62rem;color:#6b7280;margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;">
+FIFO — এই entry গুলো থেকে বাদ যাবে:
+${affectedEntries.map(e=>`<div>• ${e.take.toFixed(6)} ${coin} from ${e.start} (@ $${formatNumber(e.purchasePrice)})</div>`).join('')}
+</div>
+</div>`;
+}
+
+async function executeCryptoSell() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+if(!sellUSD || !sellPrice) return showToast("Amount ও price দিন", true);
+
+let sellQty = sellUSD / sellPrice;
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+if(sellQty > totalQty) return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
+
+// FIFO: deduct from oldest entries
+let remaining = sellQty;
+let costBasis = 0;
+let today = new Date().toISOString().slice(0,10);
+
+for(let inv of entries) {
+if(remaining <= 0) break;
+let take = Math.min(remaining, inv.amount);
+costBasis += take * (inv.purchasePrice||0);
+remaining -= take;
+
+if(Math.abs(inv.amount - take) < 0.000001) {
+// Full entry sold → mark completed
+inv.status = 'completed';
+inv.actualProfit = (take * sellPrice - take * (inv.purchasePrice||0)) * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({ status:'completed', actualProfit:inv.actualProfit });
+} else {
+// Partial → reduce amount, keep active
+let soldAmt = take;
+let newAmount = inv.amount - take;
+inv.amount = newAmount;
+inv.amountUSD = newAmount * (inv.purchasePrice||0);
+inv.amountBDT = inv.amountUSD * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({ amount:inv.amount, amountBDT:inv.amountBDT, amountUSD:inv.amountUSD });
+}
+}
+
+// Log to withdrawal history
+let revenueBDT = sellUSD * usdToBdt;
+let profitBDT = (sellUSD - costBasis) * usdToBdt;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({
+platform: 'Binance', type: coin,
+amount: revenueBDT, profit: profitBDT,
+sellQty, sellPriceUSD: sellPrice,
+date: today, note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)}`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+if(db) {
+// Sync all affected
+for(let inv of investments) {
+if(inv.type===coin) await db.collection("investments").doc(inv.id).set(inv);
+}
+}
+
+closeCryptoSellModal();
+renderAll();
+showToast(`✅ ${sellQty.toFixed(4)} ${coin} sold! ${profitBDT>=0?'Profit':'Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`);
+}
+
+function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
+window.openCryptoSellModal=openCryptoSellModal; window.closeCryptoSellModal=closeCryptoSellModal;
+window.updateSellCoinInfo=updateSellCoinInfo; window.updateSellPreview=updateSellPreview; window.executeCryptoSell=executeCryptoSell;
+let _wahedEditId = null;
+function openWahedUpdate(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i=>i.id===id);
+if(!inv) return;
+_wahedEditId = id;
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
+document.getElementById('wahedInfo').innerHTML = `
+<div><b style="color:#10b981;">Wahed Invest</b> — ${inv.platform}</div>
+<div style="margin-top:4px;">💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b></div>
+<div>📊 Last value: <b>${formatNumber(curVal)} BDT</b>
+<span style="color:${pnl>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>
+</div>`;
+document.getElementById('wahedCurrentVal').value = curVal;
+document.getElementById('wahedNote').value = '';
+document.getElementById('wahedPLPreview').innerHTML = '';
+document.getElementById('wahedModal').style.display = 'flex';
+
+// Live preview on input
+document.getElementById('wahedCurrentVal').oninput = function() {
+let v = parseFloat(this.value)||0;
+let p = v - inv.amountBDT;
+let pct = inv.amountBDT > 0 ? (p/inv.amountBDT*100).toFixed(1) : 0;
+document.getElementById('wahedPLPreview').innerHTML = v > 0
+? `<div style="background:${p>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${p>=0?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:8px;padding:8px 10px;">
+<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}${formatNumber(p)} BDT (${p>=0?'+':''}${pct}%)</span>
+<span style="color:#6b7280;font-size:0.65rem;margin-left:8px;">vs invested</span>
+</div>` : '';
+};
+}
+
+async function saveWahedUpdate() {
+let val = parseFloat(document.getElementById('wahedCurrentVal').value);
+let note = document.getElementById('wahedNote').value;
+if(!val || val <= 0) return showToast("সঠিক মূল্য দিন", true);
+let inv = investments.find(i=>i.id===_wahedEditId);
+if(!inv) return;
+let pnl = val - inv.amountBDT;
+inv.currentValue = val;
+inv.actualProfit = pnl;
+if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeWahedModal();
+renderAll();
+showToast(`✅ Wahed updated! ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`);
+}
+
+function closeWahedModal() { document.getElementById('wahedModal').style.display='none'; _wahedEditId=null; }
+window.openWahedUpdate=openWahedUpdate; window.saveWahedUpdate=saveWahedUpdate; window.closeWahedModal=closeWahedModal;
 
 // ====== EXPORT PDF ======
 function exportPDF() {
