@@ -1184,6 +1184,26 @@ oninput="updateInvestSimulator()">
 
 <!-- REMINDER SECTION REMOVED -->
 
+<!-- ZAKAT CALCULATOR -->
+
+<div class="card" id="zakatCard">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+<div style="display:flex;align-items:center;gap:10px;">
+<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(245,158,11,0.4);">
+<span style="font-size:1.1rem;">☽</span>
+</div>
+<div>
+<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#f59e0b;">যাকাত হিসাব</div>
+<div style="font-size:0.6rem;color:#6b7280;margin-top:1px;">নিসাব: ৮৫ গ্রাম স্বর্ণ · হার: ২.৫%</div>
+</div>
+</div>
+<button onclick="openZakatModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-calculator"></i> যাকাত হিসাব করুন
+</button>
+</div>
+<div id="zakatDisplay"></div>
+</div>
+
 <div class="footer">
 <p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
 <p style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Together building wealth, together building life 🌙</p>
@@ -1370,6 +1390,54 @@ oninput="updateInvestSimulator()">
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button onclick="executeCryptoSell()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;">💰 Sell করুন</button>
 <button onclick="closeCryptoSellModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+```
+
+</div>
+</div>
+
+<!-- ZAKAT MODAL -->
+
+<div id="zakatModal" class="modal">
+<div class="modal-content">
+<h3 style="color:#f59e0b;">☽ যাকাত হিসাব — <span id="zakatYearTitle"></span></h3>
+<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:12px;margin-bottom:14px;font-size:0.72rem;color:var(--text-sub);line-height:1.7;">
+<b style="color:#f59e0b;">নিসাব:</b> ৮৫ গ্রাম স্বর্ণের বাজার মূল্য · <b style="color:#f59e0b;">হার:</b> মোট সম্পদের ২.৫%<br>
+শর্ত: সম্পদ নিসাবের বেশি হলে এবং এক চন্দ্রবছর (৩৫৪ দিন) ধরে থাকলে যাকাত ফরজ।
+</div>
+
+```
+<label>স্বর্ণের বর্তমান দাম (BDT/গ্রাম):</label>
+<input type="number" id="goldPricePerGram" placeholder="যেমন: 9500" step="1" oninput="updateZakatPreview()">
+<div style="font-size:0.62rem;color:#6b7280;margin-top:2px;">বাংলাদেশ জুয়েলার্স সমিতির দাম দিন</div>
+
+<label style="margin-top:10px;">যাকাতযোগ্য সম্পদ (BDT) — auto calculated:</label>
+<div id="zakatableBreakdown" style="background:var(--bg-input);border-radius:12px;padding:12px;margin-bottom:10px;font-size:0.72rem;"></div>
+
+<label>অতিরিক্ত সম্পদ (নগদ, অন্যান্য) BDT:</label>
+<input type="number" id="zakatExtraAssets" placeholder="নগদ টাকা, অন্য সম্পদ" step="1" value="0" oninput="updateZakatPreview()">
+
+<label style="margin-top:10px;">ঋণ / দায় (BDT) — বাদ যাবে:</label>
+<input type="number" id="zakatLiabilities" placeholder="যা পরিশোধ করতে হবে" step="1" value="0" oninput="updateZakatPreview()">
+
+<div id="zakatPreview" style="margin-top:12px;"></div>
+
+<label style="margin-top:12px;">বছর:</label>
+<select id="zakatYear" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);">
+<option value="2026">2026</option>
+<option value="2025">2025</option>
+<option value="2024">2024</option>
+</select>
+
+<label style="margin-top:10px;">যাকাত দিয়েছেন? (পরে update করুন)</label>
+<div style="display:flex;gap:8px;">
+<input type="number" id="zakatPaid" placeholder="কত BDT দিয়েছেন" step="1" style="flex:1;">
+<input type="date" id="zakatPaidDate" style="flex:1;">
+</div>
+
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveZakat()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;">💾 Save করুন</button>
+<button onclick="closeZakatModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
 ```
 
@@ -3648,6 +3716,7 @@ document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 // Auto alert check on load
 setTimeout(checkAlerts, 2000);
 setTimeout(renderBudgetDisplay, 500);
+setTimeout(renderZakatDisplay, 600);
 
 // ====== WITHDRAWAL LOG CHART ======
 let withdrawalLogChart = null;
@@ -3792,7 +3861,233 @@ window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal
 // ====== INVESTMENT REMINDERS ======
 // REMINDER FUNCTIONS REMOVED
 
-// ====== CRYPTO SELL (FIFO) ======
+// ====== ZAKAT CALCULATOR ======
+const ZAKAT_NISAB_GOLD_GRAMS = 85; // নিসাব: ৮৫ গ্রাম স্বর্ণ
+const ZAKAT_RATE = 0.025; // ২.৫%
+
+function getZakatableWealth() {
+// Current portfolio value (live crypto prices + all active investments)
+let active = investments.filter(i => i.status === 'active');
+let breakdown = [];
+
+// Crypto — live current value
+let cryptoTotal = 0;
+['BTC','ETH','BNB','SOL'].forEach(coin => {
+let invs = active.filter(i=>i.type===coin&&i.isCrypto);
+if(!invs.length) return;
+let qty = invs.reduce((s,i)=>s+i.amount, 0);
+let val = qty * (cryptoPrices[coin]||0) * usdToBdt;
+cryptoTotal += val;
+});
+if(cryptoTotal > 0) { breakdown.push({label:'Crypto (live value)', amount:cryptoTotal, icon:'₿'}); }
+
+// Non-crypto active investments (amountBDT)
+let farmTotal = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(farmTotal > 0) breakdown.push({label:'iFarmer / Wegro', amount:farmTotal, icon:'🌱'});
+
+let bizTotal = active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(bizTotal > 0) breakdown.push({label:'Biniyog / Business', amount:bizTotal, icon:'💼'});
+
+let bankTotal = active.filter(i=>i.type==='MMPDA'||i.type==='BANK_DEPOSIT').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(bankTotal > 0) breakdown.push({label:'MMPDA / Bank', amount:bankTotal, icon:'🏦'});
+
+let mssaTotal = active.filter(i=>i.type==='MSSA').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(mssaTotal > 0) breakdown.push({label:'MSSA', amount:mssaTotal, icon:'📋'});
+
+let wahedTotal = active.filter(i=>i.type==='WAHED').reduce((s,i)=>s+(i.currentValue||i.amountBDT||0),0);
+if(wahedTotal > 0) breakdown.push({label:'Wahed', amount:wahedTotal, icon:'📈'});
+
+let goldTotal = active.filter(i=>i.type==='Gold').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(goldTotal > 0) breakdown.push({label:'Gold', amount:goldTotal, icon:'🥇'});
+
+let loanGiven = active.filter(i=>i.type==='LOAN_GIVEN').reduce((s,i)=>s+(i.amountBDT||0),0);
+if(loanGiven > 0) breakdown.push({label:'Loan Given (পাওনা)', amount:loanGiven, icon:'🤝'});
+
+let waitTotal = active.filter(i=>isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+if(waitTotal > 0) breakdown.push({label:'Wait Money', amount:waitTotal, icon:'💰'});
+
+// Total = CURRENT PORTFOLIO VALUE (same as the stat card)
+let total = cryptoTotal + farmTotal + bizTotal + bankTotal + mssaTotal + wahedTotal + goldTotal + loanGiven + waitTotal;
+
+return { breakdown, total };
+}
+
+function openZakatModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let yr = new Date().getFullYear();
+document.getElementById('zakatYearTitle').textContent = yr;
+document.getElementById('zakatYear').value = yr;
+document.getElementById('zakatPaidDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('zakatPaid').value = '';
+document.getElementById('zakatExtraAssets').value = '0';
+document.getElementById('zakatLiabilities').value = '0';
+
+// Load saved gold price
+let saved = JSON.parse(localStorage.getItem('zakat_settings')||'{}');
+document.getElementById('goldPricePerGram').value = saved.goldPrice || '';
+
+// Auto-fill breakdown
+let { breakdown, total } = getZakatableWealth();
+let curPortfolio = calcCurrent().bdt; // same as CURRENT PORTFOLIO VALUE stat card
+let breakEl = document.getElementById('zakatableBreakdown');
+breakEl.innerHTML = breakdown.map(b=>
+`<div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+<span style="color:var(--text-sub);">${b.icon} ${b.label}</span>
+<span style="font-weight:700;color:#facc15;">${formatNumber(b.amount)} BDT</span>
+</div>`
+).join('') + `<div style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;">
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:0.85rem;">
+<span style="color:#f59e0b;">Current Portfolio Value</span>
+<span style="color:#f59e0b;">${formatNumber(total)} BDT</span>
+</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:2px;">Crypto live price সহ — CURRENT PORTFOLIO VALUE stat card এর সমান</div>
+</div>`;
+
+document.getElementById('zakatModal').style.display = 'flex';
+updateZakatPreview();
+}
+
+function updateZakatPreview() {
+let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
+let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
+let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
+let el = document.getElementById('zakatPreview');
+
+let { total: portfolioTotal } = getZakatableWealth();
+let totalWealth = portfolioTotal + extraAssets - liabilities;
+let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
+let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
+let eligible = totalWealth >= nisabValue;
+
+if(!goldPrice) { el.innerHTML='<div style="color:#6b7280;font-size:0.72rem;">স্বর্ণের দাম দিন নিসাব হিসাব করতে।</div>'; return; }
+
+el.innerHTML = `
+<div style="background:${eligible?'rgba(245,158,11,0.08)':'rgba(100,116,139,0.08)'};border:1px solid ${eligible?'rgba(245,158,11,0.3)':'rgba(100,116,139,0.2)'};border-radius:14px;padding:14px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.7rem;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
+<div style="color:#6b7280;font-size:0.58rem;">নিসাব (৮৫ গ্রাম)</div>
+<div style="color:#f59e0b;font-weight:800;font-size:0.85rem;">${formatNumber(nisabValue)} BDT</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
+<div style="color:#6b7280;font-size:0.58rem;">আপনার সম্পদ</div>
+<div style="color:#facc15;font-weight:800;font-size:0.85rem;">${formatNumber(totalWealth)} BDT</div>
+</div>
+</div>
+<div style="text-align:center;margin-bottom:10px;">
+<div style="font-size:0.65rem;color:#6b7280;margin-bottom:4px;">${eligible?'✅ নিসাব পূর্ণ হয়েছে — যাকাত ফরজ':'❌ নিসাব পূর্ণ হয়নি — যাকাত ফরজ নয়'}</div>
+${eligible?`<div style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:900;color:#f59e0b;">${formatNumber(zakatDue)} BDT</div>
+<div style="font-size:0.65rem;color:#6b7280;">= ${formatNumber(zakatDue/usdToBdt)} USD · ${formatNumber(zakatDue/12)} BDT/month</div>`
+:`<div style="font-size:0.8rem;color:#6b7280;">আরো ${formatNumber(nisabValue-totalWealth)} BDT হলে যাকাত দিতে হবে</div>`}
+</div>
+${eligible?`<div style="background:rgba(245,158,11,0.1);border-radius:8px;padding:8px;font-size:0.65rem;color:#92400e;line-height:1.6;">
+<b>📖 নিয়ম:</b> এই ${zakatDue>0?formatNumber(zakatDue)+' BDT':''} যাকাত গরীব, মিসকিন, ঋণগ্রস্ত — এই খাতে দিতে পারবেন। রমজানের আগে দেওয়া উত্তম।
+</div>`:''}
+</div>`;
+}
+
+function saveZakat() {
+let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
+let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
+let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
+let year = parseInt(document.getElementById('zakatYear').value);
+let paid = parseFloat(document.getElementById('zakatPaid').value) || 0;
+let paidDate = document.getElementById('zakatPaidDate').value;
+if(!goldPrice) return showToast("স্বর্ণের দাম দিন", true);
+
+let { total: portfolioTotal, breakdown } = getZakatableWealth();
+let totalWealth = portfolioTotal + extraAssets - liabilities;
+let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
+let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
+
+// Save settings
+localStorage.setItem('zakat_settings', JSON.stringify({ goldPrice }));
+
+// Save year record
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+records = records.filter(r => r.year !== year);
+records.push({ year, goldPrice, totalWealth, nisabValue, zakatDue, paid, paidDate, savedAt: new Date().toISOString() });
+records.sort((a,b) => b.year-a.year);
+localStorage.setItem('zakat_records', JSON.stringify(records));
+
+closeZakatModal();
+renderZakatDisplay();
+showToast(`✅ ${year} সালের যাকাত হিসাব save হয়েছে!`);
+}
+
+function closeZakatModal() { document.getElementById('zakatModal').style.display='none'; }
+
+function renderZakatDisplay() {
+let el = document.getElementById('zakatDisplay');
+if(!el) return;
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+
+if(!records.length) {
+el.innerHTML=`<div style="text-align:center;padding:16px;color:var(--text-sub);font-size:0.75rem;">
+যাকাত হিসাব এখনো করা হয়নি। "যাকাত হিসাব করুন" চাপুন।
+</div>`;
+return;
+}
+
+el.innerHTML = records.map(r => {
+let remaining = r.zakatDue - (r.paid||0);
+let paidPct = r.zakatDue>0 ? Math.min(100,(r.paid||0)/r.zakatDue*100) : 0;
+let eligible = r.totalWealth >= r.nisabValue;
+return `<div style="background:var(--bg-input);border-radius:14px;padding:14px;margin-bottom:10px;border-left:4px solid ${eligible?'#f59e0b':'#6b7280'};">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+<div>
+<span style="font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:800;color:#f59e0b;">${r.year} সাল</span>
+<span style="font-size:0.6rem;color:#6b7280;margin-left:8px;">${eligible?'✅ ফরজ':'—'}</span>
+</div>
+${isAdmin?`<button onclick="editZakat(${r.year})" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.62rem;">✏️ Update</button>`:''}
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:10px;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">সম্পদ</div>
+<div style="color:#facc15;font-weight:800;">${formatNumber(r.totalWealth)} ৳</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">যাকাত (২.৫%)</div>
+<div style="color:#f59e0b;font-weight:800;">${formatNumber(r.zakatDue)} ৳</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">দিয়েছেন</div>
+<div style="color:${r.paid>=r.zakatDue?'#4ade80':'#f87171'};font-weight:800;">${formatNumber(r.paid||0)} ৳</div>
+</div>
+</div>
+${r.zakatDue>0?`<div style="margin-bottom:6px;">
+<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#6b7280;margin-bottom:3px;">
+<span>পরিশোধ</span>
+<span>${paidPct.toFixed(0)}%${remaining>0?' · বাকি: '+formatNumber(remaining)+' ৳':' ✅ পরিশোধ সম্পন্ন'}</span>
+</div>
+<div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;">
+<div style="background:${paidPct>=100?'#4ade80':'#f59e0b'};width:${paidPct}%;height:100%;border-radius:4px;"></div>
+</div>
+</div>`:''}
+${r.paidDate?`<div style="font-size:0.6rem;color:#6b7280;">📅 Paid: ${r.paidDate}</div>`:''}
+</div>`;
+}).join('');
+}
+
+function editZakat(year) {
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+let r = records.find(rec=>rec.year===year);
+if(!r) return;
+document.getElementById('zakatYearTitle').textContent = year;
+document.getElementById('zakatYear').value = year;
+document.getElementById('goldPricePerGram').value = r.goldPrice||'';
+document.getElementById('zakatExtraAssets').value = '0';
+document.getElementById('zakatLiabilities').value = '0';
+document.getElementById('zakatPaid').value = r.paid||'';
+document.getElementById('zakatPaidDate').value = r.paidDate||new Date().toISOString().slice(0,10);
+let { breakdown, total } = getZakatableWealth();
+let breakEl = document.getElementById('zakatableBreakdown');
+breakEl.innerHTML = `<div style="color:var(--text-sub);font-size:0.68rem;">Saved wealth: <b style="color:#facc15;">${formatNumber(r.totalWealth)} BDT</b> (${year})</div>`;
+document.getElementById('zakatModal').style.display = 'flex';
+updateZakatPreview();
+}
+
+window.openZakatModal=openZakatModal; window.closeZakatModal=closeZakatModal;
+window.saveZakat=saveZakat; window.updateZakatPreview=updateZakatPreview; window.editZakat=editZakat;
 function openCryptoSellModal() {
 if(!isAdmin) return showToast("Admin required", true);
 document.getElementById('sellAmountUSD').value = '';
@@ -4095,4 +4390,3 @@ showToast('✅ PDF Report downloaded!');
 window.exportPDF = exportPDF;
 </script>
 </body>
-</html>
