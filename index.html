@@ -9,10 +9,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Wealth Tracker">
-<!-- Apple touch icons -->
+<!-- Apple touch icons (180x180 is the key one for modern iPhones) -->
 <link rel="apple-touch-icon" sizes="180x180" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
 <link rel="apple-touch-icon" sizes="167x167" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
 <link rel="apple-touch-icon" sizes="152x152" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<link rel="apple-touch-icon" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/new-icon.png">
+<!-- Single manifest only (external, iOS compatible) -->
 <link rel="manifest" href="https://taslimrony121-a11y.github.io/my-wealth-tracker/manifest.json">
 <title>Wealth Tracker — Taslim Rony</title>
 <!-- Firebase SDKs -->
@@ -456,26 +458,6 @@ display:inline-block; margin-top:5px;
 .crypto-change.up { color:#22d3a0; background:rgba(34,211,160,0.15); }
 .crypto-change.down { color:#f43f5e; background:rgba(244,63,94,0.15); }
 .crypto-holding { font-size:0.58rem; color:rgba(255,255,255,0.4); margin-top:4px; }
-
-/* === NEW: Current Value Line Style === */
-.current-value-line {
-font-size:0.68rem;
-font-weight:600;
-color: var(--profit);
-background: rgba(34,211,160,0.12);
-display: inline-block;
-padding: 3px 10px;
-border-radius: 30px;
-margin-top: 6px;
-letter-spacing: 0.2px;
-border: 1px solid rgba(34,211,160,0.25);
-}
-.current-value-line span {
-color: #fff;
-font-weight: 700;
-margin:0 2px;
-}
-
 /* Light theme overrides */
 [data-theme="light"] .btc-card { background:linear-gradient(135deg,#fff8f0,#fff3e0); border-color:rgba(247,147,26,0.5); box-shadow:0 4px 16px rgba(247,147,26,0.15); }
 [data-theme="light"] .eth-card { background:linear-gradient(135deg,#f0f2ff,#e8ecfd); border-color:rgba(98,126,234,0.5); box-shadow:0 4px 16px rgba(98,126,234,0.15); }
@@ -485,12 +467,6 @@ margin:0 2px;
 [data-theme="light"] .eth-card .crypto-price,
 [data-theme="light"] .bnb-card .crypto-price,
 [data-theme="light"] .sol-card .crypto-price { color:#0f172a; }
-[data-theme="light"] .current-value-line {
-background: rgba(5,150,105,0.08);
-border-color: rgba(5,150,105,0.3);
-color: #059669;
-}
-[data-theme="light"] .current-value-line span { color:#0f172a; }
 
 /* ====== ACTION BUTTONS ====== */
 .action-buttons {
@@ -1105,9 +1081,8 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
-<!-- CRYPTO CARDS (UPDATED WITH CURRENT VALUE LINE) -->
+<!-- CRYPTO CARDS (MODIFIED: Added Current Value) -->
 <div class="crypto-grid">
-<!-- BTC Card -->
 <div class="crypto-card btc-card">
 <div class="crypto-symbol"><i class="fab fa-bitcoin"></i> BTC <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Bitcoin</span></div>
 <div class="crypto-price"><span id="btcUsd">$0.00</span></div>
@@ -1116,13 +1091,13 @@ oninput="updateInvestSimulator()">
 <div class="crypto-holding">
 <span id="btcQty">0</span> BTC · <span id="btcValueBdt">0 BDT</span>
 </div>
-<!-- NEW: Current Value Line (shown as per image) -->
-<div class="current-value-line">
-📍 Current Value: <span id="btcCurrentValue">$0.00</span> | <span id="btcCurrentValueBdt">0.00 BDT</span>
-</div>
 <div id="btcPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
+<!-- NEW: Current Value Line -->
+<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
+<span style="color:var(--text-sub);">Current Value:</span>
+<span id="btcCurrentValueUsd">$0.00</span> | <span id="btcCurrentValueBdt">0.00 BDT</span>
 </div>
-<!-- ETH Card -->
+</div>
 <div class="crypto-card eth-card">
 <div class="crypto-symbol"><i class="fab fa-ethereum"></i> ETH <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Ethereum</span></div>
 <div class="crypto-price"><span id="ethUsd">$0.00</span></div>
@@ -1131,13 +1106,13 @@ oninput="updateInvestSimulator()">
 <div class="crypto-holding">
 <span id="ethQty">0</span> ETH · <span id="ethValueBdt">0 BDT</span>
 </div>
-<!-- NEW -->
-<div class="current-value-line">
-📍 Current Value: <span id="ethCurrentValue">$0.00</span> | <span id="ethCurrentValueBdt">0.00 BDT</span>
-</div>
 <div id="ethPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
+<!-- NEW: Current Value Line -->
+<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
+<span style="color:var(--text-sub);">Current Value:</span>
+<span id="ethCurrentValueUsd">$0.00</span> | <span id="ethCurrentValueBdt">0.00 BDT</span>
 </div>
-<!-- BNB Card -->
+</div>
 <div class="crypto-card bnb-card">
 <div class="crypto-symbol"><i class="fas fa-coins"></i> BNB <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">BNB Chain</span></div>
 <div class="crypto-price"><span id="bnbUsd">$0.00</span></div>
@@ -1146,13 +1121,13 @@ oninput="updateInvestSimulator()">
 <div class="crypto-holding">
 <span id="bnbQty">0</span> BNB · <span id="bnbValueBdt">0 BDT</span>
 </div>
-<!-- NEW -->
-<div class="current-value-line">
-📍 Current Value: <span id="bnbCurrentValue">$0.00</span> | <span id="bnbCurrentValueBdt">0.00 BDT</span>
-</div>
 <div id="bnbPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
+<!-- NEW: Current Value Line -->
+<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
+<span style="color:var(--text-sub);">Current Value:</span>
+<span id="bnbCurrentValueUsd">$0.00</span> | <span id="bnbCurrentValueBdt">0.00 BDT</span>
 </div>
-<!-- SOL Card -->
+</div>
 <div class="crypto-card sol-card">
 <div class="crypto-symbol"><i class="fas fa-sun"></i> SOL <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Solana</span></div>
 <div class="crypto-price"><span id="solUsd">$0.00</span></div>
@@ -1161,11 +1136,12 @@ oninput="updateInvestSimulator()">
 <div class="crypto-holding">
 <span id="solQty">0</span> SOL · <span id="solValueBdt">0 BDT</span>
 </div>
-<!-- NEW -->
-<div class="current-value-line">
-📍 Current Value: <span id="solCurrentValue">$0.00</span> | <span id="solCurrentValueBdt">0.00 BDT</span>
-</div>
 <div id="solPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
+<!-- NEW: Current Value Line -->
+<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
+<span style="color:var(--text-sub);">Current Value:</span>
+<span id="solCurrentValueUsd">$0.00</span> | <span id="solCurrentValueBdt">0.00 BDT</span>
+</div>
 </div>
 </div>
 
@@ -1735,7 +1711,7 @@ soonEl.classList.add('show');
 } else { soonEl.classList.remove('show'); }
 }
 
-// ====== AI PROFIT PREDICTION (unchanged) ======
+// ====== AI PROFIT PREDICTION ======
 function runAIPrediction() {
 let card = document.getElementById('aiPredictionCard');
 let grid = document.getElementById('aiGrid');
@@ -2067,10 +2043,202 @@ card.style.display = 'block';
 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ====== CALENDAR (unchanged) ======
-function openCalendar() { ... } // Keep original implementation for brevity, but it's present in final code.
-// NOTE: Since we cannot rewrite entire calendar due to token limit, I'll keep the core logic but assume it's present.
-// In final answer, the full calendar functions remain same.
+// ====== CALENDAR ======
+function openCalendar() {
+calYear = new Date().getFullYear();
+calMonth = new Date().getMonth();
+renderCalendar();
+document.getElementById('calendarModal').style.display = 'flex';
+}
+function closeCalendar() { document.getElementById('calendarModal').style.display = 'none'; }
+function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } if(calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function renderCalendar() {
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+document.getElementById('calTitle').textContent = monthNames[calMonth] + ' ' + calYear;
+document.getElementById('calDayHeaders').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header" style="font-size:0.65rem;font-weight:700;color:var(--text-sub);text-align:center;padding:4px 0;">${d}</div>`).join('');
+document.getElementById('calDayDetail').style.display = 'none';
+
+let firstDay = new Date(calYear, calMonth, 1).getDay();
+let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+let daysInPrev = new Date(calYear, calMonth, 0).getDate();
+let today = new Date(); today.setHours(0,0,0,0);
+
+let eventsMap = {};
+investments.forEach(inv => {
+[[inv.start,'start'],[inv.end,'end']].forEach(([dateField, eType]) => {
+if(!dateField) return;
+if(eType==='end' && inv.status==='completed') return;
+let d = dateField.slice(0,10);
+eventsMap[d] = eventsMap[d] || [];
+eventsMap[d].push({ inv, eventType:eType });
+});
+});
+
+let monthInvested = 0, monthExpiring = 0, monthStarting = 0;
+Object.entries(eventsMap).forEach(([d, evs]) => {
+if(d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)) {
+evs.forEach(e => {
+if(e.eventType==='start') { monthStarting++; monthInvested += e.inv.amountBDT||0; }
+if(e.eventType==='end') monthExpiring++;
+});
+}
+});
+let summaryEl = document.getElementById('calMonthSummary');
+if(summaryEl) {
+summaryEl.innerHTML = [
+{ label:'Investments Start', val:monthStarting, color:'#4ade80', icon:'🟢' },
+{ label:'Maturing / End', val:monthExpiring, color:'#f87171', icon:'🔴' },
+{ label:'Amount Starting', val:formatNumber(monthInvested)+' BDT', color:'#facc15', icon:'💵' },
+].map(s=>`<div style="background:var(--bg-input);border-radius:10px;padding:8px 10px;text-align:center;border:1px solid var(--border);">
+<div style="font-size:0.75rem;">${s.icon}</div>
+<div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;color:${s.color};">${s.val}</div>
+<div style="font-size:0.58rem;color:var(--text-sub);margin-top:1px;">${s.label}</div>
+</div>`).join('');
+}
+
+let cells = '';
+for(let i = firstDay-1; i >= 0; i--)
+cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${daysInPrev-i}</div></div>`;
+
+for(let d = 1; d <= daysInMonth; d++) {
+let dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+let dayDate = new Date(calYear, calMonth, d);
+let isToday = dayDate.getTime() === today.getTime();
+let isFri = dayDate.getDay() === 5;
+let events = eventsMap[dateStr] || [];
+let hasStart= events.some(e=>e.eventType==='start');
+let hasEnd = events.some(e=>e.eventType==='end');
+
+let dots = '';
+if(hasStart) dots += `<span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;"></span>`;
+if(hasEnd) dots += `<span style="width:6px;height:6px;background:#f87171;border-radius:50%;display:inline-block;margin-left:2px;"></span>`;
+
+let label = '';
+if(events.length === 1) {
+let e = events[0];
+let c = e.eventType==='start'?'#4ade80':'#f87171';
+label = `<div style="font-size:0.46rem;padding:1px 3px;border-radius:3px;background:${e.eventType==='start'?'rgba(74,222,128,0.2)':'rgba(248,113,113,0.2)'};color:${c};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;">${e.inv.type}</div>`;
+} else if(events.length > 1) {
+label = `<div style="font-size:0.46rem;color:#facc15;margin-top:2px;font-weight:700;">${events.length} events</div>`;
+}
+
+let borderStyle = events.length > 0 ? 'border-color:rgba(6,182,212,0.4);' : '';
+let fridayStyle = isFri ? 'background:rgba(168,85,247,0.05);' : '';
+let clickAttr = events.length > 0 ? `onclick="showCalDayDetail('${dateStr}')" style="cursor:pointer;${borderStyle}${fridayStyle}"` : `style="${fridayStyle}"`;
+
+cells += `<div class="cal-day${isToday?' today':''}" ${clickAttr}>
+<div style="display:flex;justify-content:space-between;align-items:center;">
+<span class="day-num" style="${isFri?'color:#a78bfa;':''}">${d}</span>
+<span>${dots}</span>
+</div>
+${label}
+</div>`;
+}
+
+let remaining = 42 - (firstDay + daysInMonth);
+for(let i = 1; i <= remaining; i++)
+cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${i}</div></div>`;
+
+document.getElementById('calGrid').innerHTML = cells;
+}
+
+function showCalDayDetail(dateStr) {
+let events = [];
+investments.forEach(inv => {
+if(inv.start && inv.start.slice(0,10)===dateStr) events.push({inv, eventType:'start'});
+if(inv.end && inv.end.slice(0,10)===dateStr && inv.status!=='completed') events.push({inv, eventType:'end'});
+});
+if(!events.length) return;
+
+let dt = new Date(dateStr+'T00:00:00');
+let label = dt.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('calDetailTitle').innerHTML = `📅 ${label} <span style="font-size:0.65rem;background:rgba(6,182,212,0.15);color:#06b6d4;padding:2px 8px;border-radius:10px;margin-left:6px;">${events.length} event${events.length>1?'s':''}</span>`;
+
+let today = new Date(); today.setHours(0,0,0,0);
+let evDate = new Date(dateStr+'T00:00:00'); evDate.setHours(0,0,0,0);
+let diffDays = Math.ceil((evDate-today)/(1000*60*60*24));
+
+let html = events.map(({inv, eventType}) => {
+let isStart = eventType==='start';
+let color = isStart ? '#4ade80' : '#f87171';
+let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
+let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
+
+let cryptoInfo = '';
+if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
+let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+let costVal = inv.amount * inv.purchasePrice * usdToBdt;
+let pl = curVal - costVal;
+cryptoInfo = `
+<div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px 8px;margin-top:4px;font-size:0.62rem;">
+<span style="color:#facc15;">₿ Live:</span>
+<span style="color:#e2e8f0;margin-left:4px;">${inv.amount} ${inv.type} @ $${formatNumber(cryptoPrices[inv.type])}</span>
+<span style="color:${pl>=0?'#4ade80':'#f87171'};font-weight:700;margin-left:6px;">${pl>=0?'+':''}${formatNumber(pl)} BDT</span>
+</div>`;
+}
+
+let duration = '';
+if(inv.start && inv.end) {
+let s = new Date(inv.start), e = new Date(inv.end);
+let days = Math.ceil((e-s)/(1000*60*60*24));
+duration = `<span style="font-size:0.6rem;color:#6b7280;"> · ${days} days total</span>`;
+}
+
+let diffLabel = diffDays===0 ? '<span style="color:#facc15;font-weight:700;">⚡ Today!</span>'
+: diffDays>0 ? `<span style="color:#06b6d4;">📆 ${diffDays} days from now</span>`
+: `<span style="color:#94a3b8;">⏳ ${Math.abs(diffDays)} days ago</span>`;
+
+let progressBar = '';
+if(inv.start && inv.end && inv.status==='active') {
+let s = new Date(inv.start).getTime(), e = new Date(inv.end).getTime(), n = Date.now();
+let pct = Math.max(0,Math.min(100,((n-s)/(e-s))*100));
+progressBar = `
+<div style="margin-top:6px;">
+<div style="display:flex;justify-content:space-between;font-size:0.58rem;color:#6b7280;margin-bottom:2px;">
+<span>Progress</span><span>${pct.toFixed(0)}% complete</span>
+</div>
+<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;overflow:hidden;">
+<div style="background:${color};width:${pct}%;height:100%;border-radius:4px;"></div>
+</div>
+</div>`;
+}
+
+return `<div style="background:${bg};border:1px solid ${color}33;border-radius:12px;padding:12px;margin-bottom:8px;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+<div>
+<span style="font-weight:800;font-size:0.85rem;color:${color};">${inv.type}</span>
+<span style="font-size:0.7rem;color:var(--text-sub);margin-left:6px;">@ ${inv.platform}</span>
+${duration}
+</div>
+<span style="font-size:0.6rem;background:${color}22;color:${color};padding:3px 8px;border-radius:10px;white-space:nowrap;">${badge}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:6px;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
+<div style="color:#6b7280;">💵 Invested</div>
+<div style="color:#e2e8f0;font-weight:700;">${formatNumber(inv.amountBDT)} BDT</div>
+${inv.isCrypto?`<div style="color:#94a3b8;font-size:0.58rem;">${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}</div>`:''}
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
+<div style="color:#6b7280;">✅ Profit</div>
+<div style="color:#4ade80;font-weight:700;">+${formatNumber(inv.actualProfit||0)} BDT</div>
+<div style="color:#94a3b8;font-size:0.58rem;">Expected: +${formatNumber(inv.expectedProfit||0)}</div>
+</div>
+</div>
+${cryptoInfo}
+${progressBar}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:0.62rem;">
+<span style="color:#6b7280;">📅 ${inv.start||'—'} → ${inv.end||'ongoing'}</span>
+${diffLabel}
+</div>
+${inv.note?`<div style="margin-top:4px;font-size:0.62rem;color:#a78bfa;">📝 ${inv.note}</div>`:''}
+</div>`;
+}).join('');
+
+document.getElementById('calDetailBody').innerHTML = html;
+document.getElementById('calDayDetail').style.display = 'block';
+document.getElementById('calDayDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+window.showCalDayDetail = showCalDayDetail;
 
 // ====== PWA ======
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2483,19 +2651,20 @@ if(kd&&kd[0]&&kd[0][4]){ let p7=parseFloat(kd[0][4]); if(p7>0) crypto7dPrices[co
 }
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let qty=investments.filter(i=>i.type===coin&&i.status==='active').reduce((s,i)=>s+i.amount,0);
-let cUSD=qty*cryptoPrices[coin], cBDT=cUSD*usdToBdt;
+let cUSD=qty*cryptoPrices[coin];
+let cBDT=cUSD*usdToBdt;
+
+// Update basic info
 document.getElementById(coin.toLowerCase()+'Usd').innerHTML=`$${formatNumber(cryptoPrices[coin])}`;
 document.getElementById(coin.toLowerCase()+'Bdt').innerHTML=`${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`;
 document.getElementById(coin.toLowerCase()+'Qty').innerHTML=qty.toFixed(6);
 document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML=`${formatNumber(cBDT)} BDT`;
 
-// Update the new "Current Value" lines
-let curValUSD = qty * cryptoPrices[coin];
-let curValBDT = curValUSD * usdToBdt;
-let curUsdSpan = document.getElementById(coin.toLowerCase()+'CurrentValue');
-let curBdtSpan = document.getElementById(coin.toLowerCase()+'CurrentValueBdt');
-if(curUsdSpan) curUsdSpan.innerHTML = `$${formatNumber(curValUSD)}`;
-if(curBdtSpan) curBdtSpan.innerHTML = `${formatNumber(curValBDT)} BDT`;
+// NEW: Update Current Value in the added lines
+let currentValUsd = cUSD;
+let currentValBdt = cBDT;
+document.getElementById(coin.toLowerCase()+'CurrentValueUsd').innerHTML = `$${formatNumber(currentValUsd)}`;
+document.getElementById(coin.toLowerCase()+'CurrentValueBdt').innerHTML = `${formatNumber(currentValBdt)} BDT`;
 }
 updateCryptoPurchaseInfo();
 renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
@@ -2516,8 +2685,139 @@ if(div) div.innerHTML=tQty>0?`<div><span>📈 Avg Price:</span><span style="colo
 }
 
 function updateInvestSimulator() {
-// same as original, keep as is
+let budget = parseFloat(document.getElementById('aiInvestAmount')?.value) || 0;
+let resultEl = document.getElementById('investSimulatorResult');
+if(!resultEl) return;
+if(budget <= 0) { resultEl.innerHTML=''; return; }
+
+let activeNow = investments.filter(i=>i.status==='active');
+let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
+let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+let farmNow = activeNow.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+let bizNow = activeNow.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
+let safeNow = activeNow.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let idleNow = activeNow.filter(i=>isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let total = Math.max(totalNow, 1);
+
+const liveAlloc = {
+crypto: (cryptoNow / total) * 100,
+farming: (farmNow / total) * 100,
+business: (bizNow / total) * 100,
+safe: (safeNow / total) * 100,
+};
+const TARGET_SIM = { crypto:15, farming:35, business:25, safe:25 };
+const pMap = {
+crypto: { name:'BTC / ETH / BNB / SOL', color:'#f7931a', icon:'₿', rate:0.11 },
+farming: { name:'iFarmer / Wegro', color:'#4ade80', icon:'🌱', rate:0.19 },
+business: { name:'Biniyog', color:'#a855f7', icon:'💼', rate:0.15 },
+safe: { name:'MMPDA + MSSA', color:'#10b981', icon:'🏦', rate:0.08 },
+};
+
+let gaps = {};
+Object.keys(TARGET_SIM).forEach(k => { gaps[k] = Math.max(0, TARGET_SIM[k] - liveAlloc[k]); });
+let totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
+
+let plan = [];
+if(totalGap > 0) {
+Object.entries(gaps)
+.sort((a,b) => b[1]-a[1])
+.forEach(([key, gap]) => {
+if(gap === 0) return;
+if(key==='safe' && budget < 50000) return;
+let pct = Math.round((gap/totalGap)*100);
+let amt = Math.round(budget * pct / 100);
+if(amt < 300) return;
+plan.push({ key, pct, amount:amt, gap,
+name: pMap[key].name, color: pMap[key].color,
+icon: pMap[key].icon, annualReturn: pMap[key].rate,
+current: liveAlloc[key], target: TARGET_SIM[key],
+reason: `এখন ${liveAlloc[key].toFixed(0)}% → target ${TARGET_SIM[key]}% (gap ${gap.toFixed(0)}%)`
+});
+});
+let totPct = plan.reduce((s,r)=>s+r.pct, 0);
+plan.forEach(r=>{ r.pct=Math.round(r.pct/totPct*100); r.amount=Math.round(budget*r.pct/100); });
 }
+if(!plan.length) {
+plan = [{ key:'farming', name:'iFarmer / Wegro', pct:100, amount:budget,
+color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0,
+current:liveAlloc.farming, target:35, reason:'Portfolio balanced — farming is best default' }];
+}
+
+function simSplitCrypto(amt) {
+return [
+{ name:'BTC', pct:40, amount:Math.round(amt*0.40), color:'#f7931a', icon:'₿' },
+{ name:'ETH', pct:30, amount:Math.round(amt*0.30), color:'#627eea', icon:'Ξ' },
+{ name:'BNB', pct:20, amount:Math.round(amt*0.20), color:'#f3ba2f', icon:'◈' },
+{ name:'SOL', pct:10, amount:Math.round(amt*0.10), color:'#9945ff', icon:'◎' },
+];
+}
+
+let estAnnual = plan.reduce((s,p)=>s+p.amount*(p.annualReturn||0.10), 0);
+let estMonthly = estAnnual / 12;
+
+const catInfo = [
+{ key:'crypto', label:'₿ Crypto', color:'#f7931a' },
+{ key:'farming', label:'🌱 Farming', color:'#4ade80' },
+{ key:'business', label:'💼 Business', color:'#a855f7' },
+{ key:'safe', label:'🏦 Safe', color:'#10b981' },
+];
+
+resultEl.innerHTML = `
+<div style="background:rgba(0,0,0,0.15);border-radius:10px;padding:10px;margin-bottom:10px;">
+<div style="font-size:0.6rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 Current vs Target Allocation</div>
+${catInfo.map(c=>{
+let cur = liveAlloc[c.key]||0, tgt = TARGET_SIM[c.key]||0, g = gaps[c.key]||0;
+return `<div style="margin-bottom:5px;">
+<div style="display:flex;justify-content:space-between;font-size:0.62rem;margin-bottom:2px;">
+<span style="color:${c.color};font-weight:600;">${c.label}</span>
+<span style="color:${g>0?'#f87171':'#4ade80'};font-weight:700;">${cur.toFixed(0)}% → ${tgt}% ${g>0?'('+g.toFixed(0)+'% short)':'✓'}</span>
+</div>
+<div style="background:rgba(255,255,255,0.05);border-radius:4px;height:5px;overflow:hidden;position:relative;">
+<div style="background:${c.color};width:${Math.min(cur,100)}%;height:100%;border-radius:4px;opacity:0.6;"></div>
+<div style="position:absolute;top:0;left:${Math.min(tgt,100)}%;width:1px;height:100%;background:rgba(255,255,255,0.4);"></div>
+</div>
+</div>`;
+}).join('')}
+</div>
+
+<div style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🎯 ${formatNumber(budget)} BDT Allocation Plan</div>
+
+${plan.map(p=>{
+let cs = p.key==='crypto' ? simSplitCrypto(p.amount) : null;
+return `<div style="background:rgba(0,0,0,0.2);border-radius:12px;padding:10px;margin-bottom:8px;border-left:3px solid ${p.color};">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+<span style="font-size:0.82rem;font-weight:700;color:#e9d5ff;">${p.icon} ${p.name}</span>
+<span style="font-size:0.8rem;font-weight:800;color:${p.color};">${formatNumber(p.amount)} BDT <span style="font-size:0.6rem;opacity:0.7;">(${p.pct}%)</span></span>
+</div>
+<div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;margin-bottom:4px;">
+<div style="background:${p.color};width:${p.pct}%;height:100%;border-radius:4px;"></div>
+</div>
+<div style="font-size:0.6rem;color:#6b7280;">${p.reason} · ${(p.annualReturn*100).toFixed(0)}% annual return</div>
+${cs ? `<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);">
+<div style="font-size:0.58rem;color:#f7931a;font-weight:700;margin-bottom:4px;">Crypto Split:</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+${cs.map(c=>`<div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;">
+<span style="font-size:0.62rem;color:${c.color};font-weight:700;">${c.icon} ${c.name}</span>
+<span style="font-size:0.62rem;color:${c.color};">${formatNumber(c.amount)} BDT</span>
+</div>`).join('')}
+</div>
+</div>` : ''}
+</div>`;
+}).join('')}
+
+<div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:10px;">
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+<span style="font-size:0.68rem;color:#6b7280;">📈 Expected Annual Return</span>
+<span style="font-size:0.9rem;font-weight:800;color:#4ade80;">+${formatNumber(estAnnual)} BDT</span>
+</div>
+<div style="display:flex;justify-content:space-between;">
+<span style="font-size:0.62rem;color:#6b7280;">📅 Monthly (approx)</span>
+<span style="font-size:0.75rem;font-weight:700;color:#34d399;">+${formatNumber(estMonthly)} BDT/month</span>
+</div>
+${idleNow>50000?`<div style="margin-top:6px;font-size:0.65rem;color:#f59e0b;font-weight:600;">⚡ ${formatNumber(idleNow)} BDT idle — এখনই invest করুন!</div>`:''}
+</div>`;
+}
+window.updateInvestSimulator = updateInvestSimulator;
 
 const EMAILJS_SERVICE = 'service_wealth';
 const EMAILJS_TEMPLATE = 'template_wealth';
@@ -2533,47 +2833,588 @@ s.onerror = () => showToast('EmailJS load failed', true);
 document.head.appendChild(s);
 }
 
-function buildEmailHTML() { /* ... keep original ... */ }
-function sendEmailReport() { /* ... keep original ... */ }
-function renderHistory() { /* ... keep original ... */ }
-function renderProjectGantt() { /* ... keep original ... */ }
-function renderPlatformChart() { /* ... keep original ... */ }
-function renderPLTicker() { /* ... keep original ... */ }
+function buildEmailHTML() {
+let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt;
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
+let active = investments.filter(i=>i.status==='active');
+let now = new Date();
+let cryptoRows = ['BTC','ETH','BNB','SOL'].map(coin=>{
+let qty = investments.filter(i=>i.type===coin&&i.status==='active').reduce((s,i)=>s+i.amount,0);
+let val = qty * (cryptoPrices[coin]||0);
+return `<tr><td style="padding:6px 8px;">${coin}</td><td style="padding:6px 8px;text-align:right;">$${formatNumber(cryptoPrices[coin]||0)}</td><td style="padding:6px 8px;text-align:right;">${qty.toFixed(4)}</td><td style="padding:6px 8px;text-align:right;">$${formatNumber(val)}</td></tr>`;
+}).join('');
+
+let invRows = active.slice(0,10).map(inv=>
+`<tr><td style="padding:5px 8px;font-size:11px;">${inv.platform}</td><td style="padding:5px 8px;font-size:11px;">${inv.type}</td><td style="padding:5px 8px;font-size:11px;text-align:right;">${formatNumber(inv.amountBDT)} BDT</td><td style="padding:5px 8px;font-size:11px;color:#16a34a;text-align:right;">+${formatNumber(inv.actualProfit||0)} BDT</td></tr>`
+).join('');
+
+return `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+<div style="text-align:center;margin-bottom:16px;">
+<div style="font-size:13px;color:#94a3b8;">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<h2 style="color:#facc15;margin:8px 0;">💰 Wealth Tracker Report</h2>
+<p style="color:#94a3b8;font-size:12px;margin:0;">TASLIM RONY · ${now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;">
+<div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center;">
+<div style="font-size:10px;color:#94a3b8;">INVESTED</div>
+<div style="font-size:16px;font-weight:800;color:#facc15;">${formatNumber(p.bdt)}</div>
+<div style="font-size:10px;color:#94a3b8;">BDT</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center;">
+<div style="font-size:10px;color:#94a3b8;">PROFIT</div>
+<div style="font-size:16px;font-weight:800;color:${totalProfit>=0?'#4ade80':'#f87171'};">${totalProfit>=0?'+':''}${formatNumber(totalProfit)}</div>
+<div style="font-size:10px;color:#94a3b8;">BDT</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center;">
+<div style="font-size:10px;color:#94a3b8;">ACTIVE</div>
+<div style="font-size:16px;font-weight:800;color:#a855f7;">${active.length}</div>
+<div style="font-size:10px;color:#94a3b8;">investments</div>
+</div>
+</div>
+<h3 style="color:#f7931a;margin:0 0 8px 0;font-size:13px;">₿ Crypto Prices</h3>
+<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+<thead><tr style="background:#1e293b;"><th style="padding:6px 8px;text-align:left;color:#94a3b8;">Coin</th><th style="padding:6px 8px;text-align:right;color:#94a3b8;">Price</th><th style="padding:6px 8px;text-align:right;color:#94a3b8;">Qty</th><th style="padding:6px 8px;text-align:right;color:#94a3b8;">Value</th></tr></thead>
+<tbody>${cryptoRows}</tbody>
+</table>
+<h3 style="color:#facc15;margin:0 0 8px 0;font-size:13px;">📊 Active Investments (top 10)</h3>
+<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;">
+<thead><tr style="background:#1e293b;"><th style="padding:5px 8px;text-align:left;color:#94a3b8;">Platform</th><th style="padding:5px 8px;text-align:left;color:#94a3b8;">Type</th><th style="padding:5px 8px;text-align:right;color:#94a3b8;">Amount</th><th style="padding:5px 8px;text-align:right;color:#94a3b8;">Profit</th></tr></thead>
+<tbody>${invRows}</tbody>
+</table>
+<div style="text-align:center;font-size:10px;color:#475569;border-top:1px solid #1e293b;padding-top:12px;">
+Taslim Rony 👑 · Ajwa Jannat Dua 💍 · With Dua always 🤲
+</div>
+</div>`;
+}
+
+function sendEmailReport() {
+if(!isAdmin) return showToast("Admin required", true);
+showToast('📧 Email পাঠানো হচ্ছে...');
+loadEmailJS(() => {
+let p = calcPrincipal(), c = calcCurrent();
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
+let templateParams = {
+to_email: REPORT_EMAIL,
+to_name: 'Taslim Rony',
+subject: `💰 Wealth Report - ${new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'})}`,
+total_invested: formatNumber(calcPrincipal().bdt) + ' BDT',
+total_profit: (totalProfit>=0?'+':'') + formatNumber(totalProfit) + ' BDT',
+active_count: investments.filter(i=>i.status==='active').length,
+btc_price: '$' + formatNumber(cryptoPrices.BTC||0),
+eth_price: '$' + formatNumber(cryptoPrices.ETH||0),
+bnb_price: '$' + formatNumber(cryptoPrices.BNB||0),
+sol_price: '$' + formatNumber(cryptoPrices.SOL||0),
+report_date: new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+html_content: buildEmailHTML(),
+message: `Portfolio Update: Invested ${formatNumber(p.bdt)} BDT, Profit ${formatNumber(totalProfit)} BDT, ${investments.filter(i=>i.status==='active').length} active investments.`
+};
+emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+.then(() => showToast('✅ Email পাঠানো হয়েছে! ' + REPORT_EMAIL))
+.catch(err => {
+console.error('EmailJS error:', err);
+showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
+setTimeout(exportPDF, 1000);
+});
+});
+}
+window.sendEmailReport = sendEmailReport;
+
+function renderHistory() {
+let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+document.getElementById('historyList').innerHTML=history.length?history.slice().reverse().map(h=>`<div style="border-bottom:1px solid var(--border);padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT${h.note?`<div class="note-text">📝 ${h.note}</div>`:''}<br><small style="color:var(--text-sub);">${h.date}</small></div>`).join(''):'<div style="color:var(--text-sub);">No history</div>';
+}
+
+function renderProjectGantt() {
+let container=document.getElementById('timelineContainer'); if(!container) return;
+let today=new Date(); today.setHours(0,0,0,0);
+let projects=investments.filter(i=>i.end&&i.end.trim()!==''&&i.status!=='completed');
+if(!projects.length){ container.innerHTML='<div style="color:var(--text-sub);">No active projects with end date</div>'; return; }
+let sorted=[...projects].sort((a,b)=>new Date(a.end)-new Date(b.end));
+let html='';
+sorted.forEach(proj=>{
+let end=new Date(proj.end); end.setHours(0,0,0,0);
+let diff=Math.ceil((end-today)/(1000*60*60*24));
+let cls='',badge='',icon='fa-calendar-day';
+if(diff<0){ cls='expired'; badge=`Expired ${Math.abs(diff)} days ago`; icon='fa-exclamation-triangle'; }
+else if(diff===0){ cls='expiring-today'; badge='Expires Today!'; icon='fa-hourglass-end'; }
+else if(diff<=7){ cls='expiring-soon'; badge=`${diff} days left`; icon='fa-hourglass-half'; }
+else return;
+html+=`<div class="timeline-item ${cls}"><div><i class="fas ${icon}" style="color:${diff<0?'#ef4444':diff===0?'#facc15':'#f59e0b'};"></i></div><div><div><b>${proj.type}</b> - ${proj.platform}</div><div style="font-size:0.7rem;color:var(--text-sub);">${diff<0?'🔴 EXPIRED — ':''}Ends: ${proj.end} | ${badge}${proj.note?`<br><small>📝 ${proj.note}</small>`:''}</div></div></div>`;
+});
+container.innerHTML=html||'<div style="color:var(--text-sub);">No upcoming expirations</div>';
+}
+
+function renderPlatformChart() {
+let active = investments.filter(i => i.status === 'active' && !isWaitMoney(i));
+let map = {}, total = 0;
+active.forEach(inv => { let v = inv.amountBDT||0; map[inv.platform] = (map[inv.platform]||0) + v; total += v; });
+let legendEl = document.getElementById('platformLegend');
+let totalEl = document.getElementById('platformChartTotal');
+if(!total) {
+if(legendEl) legendEl.innerHTML = '<span style="color:var(--text-sub);font-size:0.72rem;">No active investments</span>';
+if(platformChart) platformChart.destroy();
+return;
+}
+let pData = Object.keys(map).map(p => ({ platform:p, amount:map[p], percent:(map[p]/total*100) })).sort((a,b) => b.percent - a.percent);
+let colors = ['#facc15','#4ade80','#627eea','#f87171','#a78bfa','#f59e0b','#10b981','#ec489a','#06b6d4'];
+let ctx = document.getElementById('platformChart').getContext('2d');
+if(platformChart) platformChart.destroy();
+if(totalEl) totalEl.textContent = formatNumber(total/1000) + 'K';
+platformChart = new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: pData.map(p => p.platform),
+datasets: [{ data: pData.map(p => p.amount), backgroundColor: colors.slice(0, pData.length), borderWidth: 2, borderColor: 'transparent', hoverBorderColor: '#fff', hoverOffset: 4 }]
+},
+options: {
+responsive: false,
+maintainAspectRatio: false,
+cutout: '65%',
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#1e293b',
+titleColor: '#facc15',
+bodyColor: '#e2e8f0',
+borderColor: 'rgba(250,204,21,0.3)',
+borderWidth: 1,
+callbacks: { label: (c) => ` ${c.label}: ${formatNumber(c.raw)} BDT (${pData[c.dataIndex].percent.toFixed(1)}%)` }
+}
+}
+}
+});
+if(legendEl) {
+legendEl.innerHTML = pData.map((p, i) => `
+<div style="display:flex; align-items:center; gap:8px; width:100%;">
+<span style="background:${colors[i%colors.length]};width:10px;height:10px;flex-shrink:0;border-radius:3px;display:inline-block;"></span>
+<span style="flex:1; font-size:0.7rem; color:var(--text-main); font-weight:600;">${p.platform}</span>
+<span style="font-size:0.68rem; color:var(--accent); font-weight:700;">${p.percent.toFixed(1)}%</span>
+<span style="font-size:0.65rem; color:var(--text-sub);">${formatNumber(p.amount)} BDT</span>
+</div>
+`).join('');
+}
+}
+
+function renderPLTicker() {
+let el = document.getElementById('plTickerInner');
+if(!el) return;
+let active = investments.filter(i => i.status === 'active');
+if(active.length === 0) return;
+
+let crypto24hBDT = 0, crypto7dBDT = 0;
+active.forEach(inv => {
+if(!inv.isCrypto || !cryptoPrices[inv.type]) return;
+let cur = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices[inv.type] * usdToBdt;
+if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
+});
+
+const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
+let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
+active.forEach(inv => {
+if(inv.isCrypto) return;
+if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN'||isWaitMoney(inv)) return;
+let rate = ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10;
+let amt = inv.amountBDT || 0;
+nonCrypto24h += (amt * rate) / 365;
+nonCrypto7d += (amt * rate) / 365 * 7;
+nonCrypto30d += (amt * rate) / 365 * 30;
+});
+
+let oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1);
+let historyAll = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let realProfitLast1Y = historyAll.reduce((s,h) => {
+if(new Date(h.date) >= oneYearAgo) return s + (h.profit||0);
+return s;
+}, 0);
+let invProfitLast1Y = investments.filter(i => {
+if(!i.start) return false;
+return new Date(i.start) >= oneYearAgo;
+}).reduce((s,i) => s + (i.actualProfit||0), 0);
+let cryptoUnrealizedBDT = 0;
+active.forEach(inv => {
+if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice && inv.start) {
+if(new Date(inv.start) >= oneYearAgo) {
+cryptoUnrealizedBDT += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount * usdToBdt;
+}
+}
+});
+let nonCrypto1yOldHoldings = 0;
+active.forEach(inv => {
+if(inv.isCrypto) return;
+if(inv.type==='LOAN_GIVEN'||inv.type==='LOAN_TAKEN'||isWaitMoney(inv)) return;
+if(inv.start && new Date(inv.start) < oneYearAgo) {
+let rate = ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10;
+nonCrypto1yOldHoldings += (inv.amountBDT||0) * rate;
+}
+});
+let pl1y = realProfitLast1Y + invProfitLast1Y + cryptoUnrealizedBDT + nonCrypto1yOldHoldings;
+
+let pl24h = crypto24hBDT + nonCrypto24h;
+let pl7d = crypto7dBDT + nonCrypto7d;
+let pl30d = (crypto7dBDT / 7 * 30) + nonCrypto30d;
+
+function chip(label, val, extra='') {
+let pos = val >= 0;
+let color = pos ? '#4ade80' : '#f87171';
+let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
+let sign = pos ? '+' : '';
+return `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
+<span style="color:var(--text-sub);font-size:0.65rem;font-weight:600;">${label}</span>
+<span style="color:${color};font-weight:800;font-size:0.78rem;background:${bg};padding:3px 10px;border-radius:20px;">${sign}${formatNumber(val)} ৳</span>
+${extra}
+</span>`;
+}
+
+let cryptoChips = '';
+const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
+['BTC','ETH','BNB','SOL'].forEach(coin => {
+let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
+if(invs.length===0 || !cryptoPrices[coin]) return;
+let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
+let currentValUSD = totalQty * cryptoPrices[coin];
+let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
+let pos = plBDT >= 0;
+let color = pos ? '#4ade80' : '#f87171';
+let bg = pos ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)';
+cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-right:1px solid var(--border);white-space:nowrap;flex-shrink:0;">
+<span style="color:${coinColors[coin]};font-weight:800;font-size:0.72rem;">${coin}</span>
+<span style="font-size:0.65rem;color:var(--text-sub);">$${formatNumber(totalCostUSD)} → $${formatNumber(currentValUSD)}</span>
+<span style="color:${color};font-weight:800;font-size:0.75rem;background:${bg};padding:3px 10px;border-radius:20px;">${pos?'+':''}${formatNumber(plBDT)} ৳</span>
+</span>`;
+});
+
+let divider = `<span style="padding:8px 14px;border-right:1px solid var(--border);color:var(--border);font-size:0.7rem;white-space:nowrap;">·····</span>`;
+let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1Y ✦', pl1y) + divider + cryptoChips;
+
+el.innerHTML = items + items;
+
+let wrap = document.getElementById('plTickerWrap');
+if(wrap) {
+wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
+wrap.onmouseleave = ()=>el.style.animationPlayState='running';
+}
+}
+
 function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderPLTicker(); updateCryptoPrices(); }
 
-async function addInvestment() { /* ... keep original ... */ }
-async function markComplete(id) { /* ... keep original ... */ }
-async function deleteInv(id) { /* ... keep original ... */ }
-function openEdit(id) { /* ... keep original ... */ }
-async function saveEdit() { /* ... keep original ... */ }
+async function addInvestment() {
+if(!isAdmin) return showToast("Admin login required", true);
+let platform = document.getElementById('platform').value;
+let type = document.getElementById('type').value;
+let isCrypto = ['BTC','ETH','BNB','SOL'].includes(type);
+let isWahed = type === 'WAHED';
+let amount = parseFloat(document.getElementById('amount').value);
+let purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+if(!amount || !document.getElementById('startDate').value) return showToast("Fill required fields", true);
+let amountBDT, amountUSD;
+if(isCrypto) {
+if(!purchasePrice) return showToast("Crypto needs purchase price", true);
+amountUSD = amount * purchasePrice;
+amountBDT = amountUSD * usdToBdt;
+} else {
+amountBDT = amount;
+amountUSD = amount / usdToBdt;
+}
+let inv = {
+id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
+isCrypto, isWahed, purchasePrice,
+expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
+actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
+status: document.getElementById('status').value,
+start: document.getElementById('startDate').value,
+end: document.getElementById('endDate').value,
+note: document.getElementById('investmentNote').value||"",
+person: document.getElementById('personName').value||""
+};
+investments.push(inv);
+if(db && isAdmin) await db.collection("investments").doc(inv.id).set(inv);
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+renderAll();
+showToast(`✅ ${type === 'WAHED' ? 'Wahed Invest' : type} added!`);
+document.getElementById('investmentNote').value='';
+document.getElementById('personName').value='';
+}
+
+async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]"); history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
+async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
+function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv){ editId=id; document.getElementById('editInfo').innerHTML=`<strong>${inv.type}</strong> (${inv.platform})<br><span style="color:var(--text-sub);">Amount: ${formatNumber(inv.amountBDT)} BDT</span>`; document.getElementById('editProfit').value=inv.actualProfit||0; document.getElementById('editNote').value=inv.note||''; document.getElementById('editModal').style.display='flex'; } }
+async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
 function closeEditModal() { document.getElementById('editModal').style.display='none'; }
 
-function openMmpdaModal() { /* ... keep original ... */ }
-function calculateMmpdaMonthlyProfit() { /* ... keep original ... */ }
-function confirmMmpda() { /* ... keep original ... */ }
+function openMmpdaModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let list=investments.filter(i=>i.type&&i.type.toUpperCase()==='MMPDA'&&i.status==='active');
+if(!list.length) return showToast("No active MMPDA investment found!", true);
+let sel=document.getElementById('mmpdaSelect');
+sel.innerHTML='<option value="">-- Select MMPDA --</option>';
+list.forEach(inv=>{ let o=document.createElement('option'); o.value=inv.id; o.textContent=`${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; sel.appendChild(o); });
+document.getElementById('mmpdaRate').value='8';
+document.getElementById('mmpdaProfit').value='';
+sel.onchange=calculateMmpdaMonthlyProfit;
+document.getElementById('mmpdaRate').oninput=calculateMmpdaMonthlyProfit;
+document.getElementById('mmpdaModal').style.display='flex';
+}
+function calculateMmpdaMonthlyProfit() {
+let id=document.getElementById('mmpdaSelect').value; if(!id){ document.getElementById('mmpdaProfit').value=''; return; }
+let inv=investments.find(i=>i.id===id); if(!inv){ document.getElementById('mmpdaProfit').value=''; return; }
+let rate=parseFloat(document.getElementById('mmpdaRate').value); if(isNaN(rate)||rate<=0){ document.getElementById('mmpdaProfit').value=''; return; }
+document.getElementById('mmpdaProfit').value=((inv.amountBDT*rate/100)/12).toFixed(2);
+}
+function confirmMmpda() {
+if(!isAdmin) return showToast("Admin required", true);
+let id=document.getElementById('mmpdaSelect').value; if(!id) return showToast("Select an investment", true);
+let inv=investments.find(i=>i.id===id); if(!inv) return showToast("Not found", true);
+let profit=parseFloat(document.getElementById('mmpdaProfit').value); let rate=parseFloat(document.getElementById('mmpdaRate').value);
+if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
+if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
+let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({ platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
+localStorage.setItem("withdraw_history",JSON.stringify(history));
+inv.actualProfit=(inv.actualProfit||0)+profit;
+if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
+localStorage.setItem("investments_backup",JSON.stringify(investments));
+renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} BDT from ${inv.platform} MMPDA`);
+}
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display='none'; }
 
 let partialInvId = null;
-function openPartialModal(id) { /* ... keep original ... */ }
-async function confirmPartialWithdraw() { /* ... keep original ... */ }
-function closePartialModal() { /* ... keep original ... */ }
+function openPartialModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+partialInvId = id;
+let remaining = inv.amountBDT || 0;
+document.getElementById('partialInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+<span style="color:var(--text-sub);">Investment:</span>
+<strong>${inv.type} — ${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+<span style="color:var(--text-sub);">Total Amount:</span>
+<strong style="color:var(--accent);">${formatNumber(remaining)} BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">Person/Bank:</span>
+<strong>${inv.person || '—'}</strong>
+</div>
+`;
+document.getElementById('partialAmount').value = '';
+document.getElementById('partialProfit').value = '0';
+document.getElementById('partialNote').value = '';
+document.getElementById('partialModal').style.display = 'flex';
+}
+
+async function confirmPartialWithdraw() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === partialInvId);
+if(!inv) return showToast("Investment not found", true);
+
+let withdrawAmt = parseFloat(document.getElementById('partialAmount').value);
+let withdrawProfit = parseFloat(document.getElementById('partialProfit').value) || 0;
+let note = document.getElementById('partialNote').value || '';
+
+if(!withdrawAmt || withdrawAmt <= 0) return showToast("Amount দিন", true);
+if(withdrawAmt > inv.amountBDT) return showToast(`সর্বোচ্চ ${formatNumber(inv.amountBDT)} BDT তুলতে পারবেন`, true);
+
+let remaining = inv.amountBDT - withdrawAmt;
+
+let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+history.push({
+platform: inv.platform,
+type: `${inv.type} (Partial)`,
+amount: withdrawAmt,
+profit: withdrawProfit,
+date: new Date().toISOString().slice(0,10),
+note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+
+if(remaining <= 0) {
+inv.status = 'completed';
+inv.amountBDT = 0;
+inv.amountUSD = 0;
+inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+} else {
+inv.amountBDT = remaining;
+inv.amountUSD = remaining / usdToBdt;
+inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+}
+
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT,
+amountUSD: inv.amountUSD,
+actualProfit: inv.actualProfit,
+status: inv.status
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closePartialModal();
+renderAll();
+showToast(`✅ ${formatNumber(withdrawAmt)} BDT withdrawn — বাকি: ${formatNumber(remaining)} BDT`);
+}
+
+function closePartialModal() {
+document.getElementById('partialModal').style.display = 'none';
+partialInvId = null;
+}
 
 let mssaInvId = null;
-function openMssaModal(id) { /* ... keep original ... */ }
-async function confirmMssaInstallment() { /* ... keep original ... */ }
-function closeMssaModal() { /* ... keep original ... */ }
+function openMssaModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+mssaInvId = id;
+document.getElementById('mssaInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">Platform:</span><strong>${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">এখন পর্যন্ত জমা:</span>
+<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">মোট কিস্তি দেওয়া:</span>
+<strong style="color:#4ade80;">${inv.installmentCount || 0} মাস</strong>
+</div>
+`;
+document.getElementById('mssaMonthly').value = inv.monthlyInstallment || '';
+document.getElementById('mssaMonths').value = 1;
+document.getElementById('mssaCalc').style.display = 'none';
+['mssaMonthly','mssaMonths'].forEach(id => {
+document.getElementById(id).oninput = () => {
+let monthly = parseFloat(document.getElementById('mssaMonthly').value) || 0;
+let months = parseInt(document.getElementById('mssaMonths').value) || 0;
+if(monthly > 0 && months > 0) {
+let thisTotal = monthly * months;
+let grandTotal = (inv.amountBDT || 0) + thisTotal;
+document.getElementById('mssaTotal').textContent = formatNumber(thisTotal) + ' BDT';
+document.getElementById('mssaGrandTotal').textContent = formatNumber(grandTotal) + ' BDT';
+document.getElementById('mssaCalc').style.display = 'block';
+} else {
+document.getElementById('mssaCalc').style.display = 'none';
+}
+};
+});
+document.getElementById('mssaModal').style.display = 'flex';
+}
+
+async function confirmMssaInstallment() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === mssaInvId);
+if(!inv) return;
+let monthly = parseFloat(document.getElementById('mssaMonthly').value);
+let months = parseInt(document.getElementById('mssaMonths').value) || 1;
+if(!monthly || monthly <= 0) return showToast("মাসিক পরিমাণ দিন", true);
+let addAmt = monthly * months;
+inv.amountBDT = (inv.amountBDT || 0) + addAmt;
+inv.amountUSD = inv.amountBDT / usdToBdt;
+inv.monthlyInstallment = monthly;
+inv.installmentCount = (inv.installmentCount || 0) + months;
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT, amountUSD: inv.amountUSD,
+monthlyInstallment: monthly, installmentCount: inv.installmentCount
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeMssaModal();
+renderAll();
+showToast(`✅ ${months} মাস × ${formatNumber(monthly)} = ${formatNumber(addAmt)} BDT যোগ হয়েছে!`);
+}
+function closeMssaModal() { document.getElementById('mssaModal').style.display = 'none'; mssaInvId = null; }
 
 let topUpInvId = null;
-function openTopUpModal(id) { /* ... keep original ... */ }
-async function confirmTopUp() { /* ... keep original ... */ }
-function closeTopUpModal() { /* ... keep original ... */ }
+function openTopUpModal(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === id);
+if(!inv) return;
+topUpInvId = id;
+document.getElementById('topUpInfo').innerHTML = `
+<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+<span style="color:var(--text-sub);">${inv.person || inv.type}:</span>
+<strong>${inv.platform}</strong>
+</div>
+<div style="display:flex; justify-content:space-between;">
+<span style="color:var(--text-sub);">বর্তমান পরিমাণ:</span>
+<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
+</div>
+`;
+document.getElementById('topUpAmount').value = '';
+document.getElementById('topUpNote').value = '';
+document.getElementById('topUpCalc').style.display = 'none';
+document.getElementById('topUpAmount').oninput = () => {
+let amt = parseFloat(document.getElementById('topUpAmount').value) || 0;
+if(amt > 0) {
+document.getElementById('topUpBefore').textContent = formatNumber(inv.amountBDT) + ' BDT';
+document.getElementById('topUpAfter').textContent = formatNumber(inv.amountBDT + amt) + ' BDT';
+document.getElementById('topUpCalc').style.display = 'block';
+} else { document.getElementById('topUpCalc').style.display = 'none'; }
+};
+document.getElementById('topUpModal').style.display = 'flex';
+}
 
-function exportToCSV() { /* ... keep original ... */ }
-async function adminLogin(pass, isAuto=false) { /* ... keep original ... */ }
-function adminLogout() { /* ... keep original ... */ }
-function toggleAddForm() { /* ... keep original ... */ }
-function updateUI() { /* ... keep original ... */ }
-async function loadData() { /* ... keep original ... */ }
+async function confirmTopUp() {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i => i.id === topUpInvId);
+if(!inv) return;
+let amt = parseFloat(document.getElementById('topUpAmount').value);
+let note = document.getElementById('topUpNote').value || '';
+if(!amt || amt <= 0) return showToast("পরিমাণ দিন", true);
+inv.amountBDT = (inv.amountBDT || 0) + amt;
+inv.amountUSD = inv.amountBDT / usdToBdt;
+if(note) inv.note = (inv.note ? inv.note + ' | ' : '') + note;
+if(db && isAdmin) {
+await db.collection("investments").doc(inv.id).update({
+amountBDT: inv.amountBDT, amountUSD: inv.amountUSD, note: inv.note
+}).catch(console.error);
+}
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeTopUpModal();
+renderAll();
+showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতুন মোট: ${formatNumber(inv.amountBDT)} BDT`);
+}
+function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
+
+function exportToCSV() {
+if(!isAdmin) return showToast("Admin required", true);
+const headers=['ID','Platform','Type','Amount','Amount BDT','Amount USD','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date','Note','Person'];
+const rows=investments.map(inv=>[inv.id,inv.platform,inv.type,inv.amount,inv.amountBDT,inv.amountUSD,inv.isCrypto?'Yes':'No',inv.purchasePrice||'',inv.expectedProfit||0,inv.actualProfit||0,inv.status,inv.start,inv.end||'',inv.note||'',inv.person||'']);
+const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=`wealth_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+showToast("✅ CSV Exported!");
+}
+async function adminLogin(pass, isAuto=false) {
+if(pass!==ADMIN_PASSWORD){ if(!isAuto) showToast("Wrong password!", true); return false; }
+isAdmin=true; localStorage.setItem(STORAGE_KEY,"true"); updateUI();
+try { if(typeof firebase!=='undefined'){ if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); await loadData(); } } catch(e) { console.warn("Firebase not available, using localStorage"); }
+if(!isAuto) showToast("✅ Admin logged in!");
+renderAll(); return true;
+}
+function adminLogout() { isAdmin=false; localStorage.removeItem(STORAGE_KEY); updateUI(); showToast("Logged out"); renderAll(); }
+function toggleAddForm() {
+if(!isAdmin) return showToast("Admin login required", true);
+let form = document.getElementById('formCard');
+let isHidden = form.style.display === 'none' || form.style.display === '';
+form.style.display = isHidden ? 'block' : 'none';
+if(isHidden) form.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+window.toggleAddForm = toggleAddForm;
+
+function updateUI() {
+let form=document.getElementById('formCard'), login=document.getElementById('loginWidget'), logout=document.getElementById('logoutWidget'), auth=document.getElementById('authDisplay');
+if(isAdmin){ login.style.display='none'; logout.style.display='block'; auth.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; }
+else { form.style.display='none'; login.style.display='flex'; logout.style.display='none'; auth.innerHTML='<i class="fas fa-lock"></i> Read-only Mode'; }
+}
+async function loadData() {
+if(!db) return;
+try { let snap=await db.collection("investments").get(); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); }
+catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
+}
 function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
 window.openEdit=openEdit; window.saveEdit=saveEdit; window.closeEditModal=closeEditModal;
 window.markComplete=markComplete; window.deleteInv=deleteInv;
@@ -2645,37 +3486,368 @@ document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 
 setTimeout(checkAlerts, 2000);
 
-function openRentalModal() { /* ... keep original ... */ }
-function updateRentalInfo() { /* ... keep original ... */ }
-async function confirmRentalWithdraw() { /* ... keep original ... */ }
+function openRentalModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let list = investments.filter(i =>
+i.status==='active' && (i.type==='RENTAL' || i.platform==='Real Estate' || i.type==='Real Estate')
+);
+let sel = document.getElementById('rentalSelect');
+sel.innerHTML = '<option value="">-- Select Property --</option>';
+if(!list.length) {
+sel.innerHTML += '<option disabled>কোনো Real Estate investment নেই</option>';
+} else {
+list.forEach(inv => {
+let o = document.createElement('option');
+o.value = inv.id;
+o.textContent = `${inv.person||inv.platform} — ${formatNumber(inv.amountBDT)} BDT`;
+sel.appendChild(o);
+});
+}
+document.getElementById('rentalAmount').value = '';
+document.getElementById('rentalPeriod').value = new Date().toLocaleString('default',{month:'long',year:'numeric'});
+document.getElementById('rentalNote').value = '';
+document.getElementById('rentalInfo').style.display = 'none';
+document.getElementById('rentalPreview').innerHTML = '';
+document.getElementById('rentalModal').style.display = 'flex';
+}
+
+function updateRentalInfo() {
+let id = document.getElementById('rentalSelect').value;
+let infoEl = document.getElementById('rentalInfo');
+if(!id) { infoEl.style.display='none'; return; }
+let inv = investments.find(i=>i.id===id);
+if(!inv) return;
+let monthlyEst = inv.amountBDT * 0.007;
+infoEl.style.display = 'block';
+infoEl.innerHTML = `
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+<span style="color:var(--text-sub);">Property:</span>
+<strong>${inv.person||inv.platform}</strong>
+</div>
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+<span style="color:var(--text-sub);">Property Value:</span>
+<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
+</div>
+<div style="display:flex;justify-content:space-between;">
+<span style="color:var(--text-sub);">Est. Monthly Rental:</span>
+<strong style="color:#06b6d4;">~${formatNumber(monthlyEst)} BDT</strong>
+</div>
+${inv.note?`<div style="margin-top:4px;font-size:0.65rem;color:#a78bfa;">📝 ${inv.note}</div>`:''}`;
+document.getElementById('rentalAmount').oninput = function() {
+let v = parseFloat(this.value)||0;
+let prev = document.getElementById('rentalPreview');
+if(v > 0) {
+let annual = v * 12;
+let yld = inv.amountBDT > 0 ? (annual/inv.amountBDT*100).toFixed(2) : 0;
+prev.innerHTML = `<div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:10px;margin-top:8px;">
+<div style="font-size:0.7rem;color:#06b6d4;font-weight:700;">📊 Preview</div>
+<div style="font-size:0.9rem;font-weight:800;color:#4ade80;margin-top:4px;">+${formatNumber(v)} BDT</div>
+<div style="font-size:0.62rem;color:#6b7280;margin-top:3px;">Annual: ~${formatNumber(annual)} BDT · Yield: ${yld}%</div>
+</div>`;
+} else prev.innerHTML = '';
+};
+}
+
+async function confirmRentalWithdraw() {
+let id = document.getElementById('rentalSelect').value;
+let amount = parseFloat(document.getElementById('rentalAmount').value);
+let period = document.getElementById('rentalPeriod').value;
+let note = document.getElementById('rentalNote').value;
+if(!id) return showToast("Property select করুন", true);
+if(!amount || amount<=0) return showToast("Amount দিন", true);
+let inv = investments.find(i=>i.id===id);
+if(!inv) return;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({
+platform: inv.platform||'Real Estate', type:'Rental Income',
+amount, profit: amount,
+date: new Date().toISOString().slice(0,10),
+note: `${period}${note?' · '+note:''} | ${inv.person||''}`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+inv.actualProfit = (inv.actualProfit||0) + amount;
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit});
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeRentalModal();
+renderAll();
+showToast(`✅ Rental Income: +${formatNumber(amount)} BDT recorded!`);
+}
 function closeRentalModal() { document.getElementById('rentalModal').style.display='none'; }
 window.openRentalModal=openRentalModal; window.closeRentalModal=closeRentalModal;
 window.updateRentalInfo=updateRentalInfo; window.confirmRentalWithdraw=confirmRentalWithdraw;
 
-function exportPDF() { /* ... keep original ... */ }
+function exportPDF() {
+if(!isAdmin) return showToast("Admin required", true);
+let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt;
+let active = investments.filter(i=>i.status==='active');
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
+let now = new Date();
+let dateStr = now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+let rows = investments.map(inv=>`
+<tr style="border-bottom:1px solid #e2e8f0;">
+<td style="padding:6px 8px;font-size:11px;">${inv.platform}</td>
+<td style="padding:6px 8px;font-size:11px;">${inv.type}</td>
+<td style="padding:6px 8px;font-size:11px;text-align:right;">${formatNumber(inv.amountBDT)}</td>
+<td style="padding:6px 8px;font-size:11px;color:${inv.status==='active'?'#16a34a':'#6b7280'};text-align:center;">${inv.status}</td>
+<td style="padding:6px 8px;font-size:11px;color:#16a34a;text-align:right;">+${formatNumber(inv.actualProfit||0)}</td>
+<td style="padding:6px 8px;font-size:11px;">${inv.start}</td>
+</tr>`).join('');
+let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Wealth Report - Taslim Rony - ${dateStr}</title>
+<style>
+body{font-family:Arial,sans-serif;padding:30px;color:#1e293b;background:#fff;}
+.header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#facc15;padding:24px;border-radius:12px;margin-bottom:20px;}
+.header h1{font-size:22px;margin:0 0 4px 0;} .header p{margin:0;font-size:12px;color:#94a3b8;}
+.bismillah{text-align:center;font-size:14px;color:#6b7280;margin-bottom:16px;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;}
+.stat-box .label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;}
+.stat-box .value{font-size:18px;font-weight:800;color:#0f172a;margin-top:4px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead{background:#f1f5f9;} th{padding:8px;text-align:left;font-size:11px;color:#6b7280;font-weight:600;}
+tr:nth-child(even){background:#f8fafc;}
+.footer{margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;}
+</style></head><body>
+<div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<div class="header">
+<h1>💰 Wealth Tracker Report</h1>
+<p>TASLIM RONY · Generated: ${dateStr}</p>
+</div>
+<div class="stats">
+<div class="stat-box"><div class="label">Total Invested</div><div class="value">${formatNumber(p.bdt)} BDT</div></div>
+<div class="stat-box"><div class="label">Current Value</div><div class="value">${formatNumber(c.bdt)} BDT</div></div>
+<div class="stat-box"><div class="label">Total Profit</div><div class="value" style="color:${totalProfit>=0?'#16a34a':'#dc2626'};">${totalProfit>=0?'+':''}${formatNumber(totalProfit)} BDT</div></div>
+<div class="stat-box"><div class="label">Active Investments</div><div class="value">${active.length}</div></div>
+<div class="stat-box"><div class="label">P&L</div><div class="value" style="color:${pl>=0?'#16a34a':'#dc2626'};">${pl>=0?'+':''}${formatNumber(pl)} BDT</div></div>
+<div class="stat-box"><div class="label">USD Rate</div><div class="value" style="font-size:14px;">${formatNumber(usdToBdt)} BDT</div></div>
+</div>
+<table>
+<thead><tr><th>Platform</th><th>Type</th><th>Amount (BDT)</th><th>Status</th><th>Profit (BDT)</th><th>Start</th></tr></thead>
+<tbody>${rows}</tbody>
+</table>
+<div class="footer">Taslim Rony · Ajwa Jannat Dua 💍 · With Dua always 🤲 · Generated by Wealth Tracker Ultra Pro v15</div>
+</body></html>`;
+let blob = new Blob([html], {type:'text/html'});
+let url = URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href=url; a.download=`WealthReport_${now.toISOString().slice(0,10)}.html`;
+document.body.appendChild(a); a.click(); document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showToast('✅ PDF Report downloaded!');
+}
 window.exportPDF = exportPDF;
 
-function openCryptoSellModal() { /* ... keep original ... */ }
-function updateSellCoinInfo() { /* ... keep original ... */ }
-function updateSellPreview() { /* ... keep original ... */ }
-async function executeCryptoSell() { /* ... keep original ... */ }
+function openCryptoSellModal() {
+if(!isAdmin) return showToast("Admin required", true);
+document.getElementById('sellAmountUSD').value = '';
+document.getElementById('sellPriceUSD').value = '';
+document.getElementById('sellPreview').innerHTML = '';
+document.getElementById('cryptoSellModal').style.display = 'flex';
+updateSellCoinInfo();
+}
+
+function updateSellCoinInfo() {
+let coin = document.getElementById('sellCoin').value;
+let hint = document.getElementById('livePriceHint');
+if(hint && cryptoPrices[coin]) hint.textContent = `Live: $${formatNumber(cryptoPrices[coin])}`;
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+let totalCostUSD = entries.reduce((s,i)=>s+i.amount*(i.purchasePrice||0),0);
+let currentUSD = cryptoPrices[coin] ? totalQty * cryptoPrices[coin] : 0;
+let el = document.getElementById('sellCoinInfo');
+if(!entries.length) {
+el.innerHTML = `<span style="color:#f87171;">কোনো active ${coin} investment নেই।</span>`;
+return;
+}
+el.innerHTML = `
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Total Qty:</span> <b style="color:#f7931a;">${totalQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Cost:</span> <b>$${formatNumber(totalCostUSD)}</b></div>
+<div><span style="color:#6b7280;">Live Price:</span> <b style="color:#facc15;">$${formatNumber(cryptoPrices[coin]||0)}</b></div>
+<div><span style="color:#6b7280;">Current Val:</span> <b>$${formatNumber(currentUSD)}</b></div>
+</div>
+<div style="font-size:0.62rem;color:#6b7280;border-top:1px solid var(--border);padding-top:6px;">
+📋 FIFO Entries (পুরনো আগে):
+${entries.map((e,i)=>`<div style="margin-top:3px;">
+${i+1}. <b>${e.amount.toFixed(6)} ${coin}</b> @ $${formatNumber(e.purchasePrice)} — ${e.start}
+</div>`).join('')}
+</div>`;
+updateSellPreview();
+}
+
+function updateSellPreview() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+let el = document.getElementById('sellPreview');
+if(!sellUSD || !sellPrice) { el.innerHTML=''; return; }
+let sellQty = sellUSD / sellPrice;
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+if(sellQty > totalQty) {
+el.innerHTML = `<div style="color:#f87171;font-size:0.72rem;">⚠️ আপনার কাছে মাত্র ${totalQty.toFixed(6)} ${coin} আছে — এত বেশি sell করতে পারবেন না।</div>`;
+return;
+}
+let remaining = sellQty;
+let costBasis = 0;
+let affectedEntries = [];
+for(let e of entries) {
+if(remaining <= 0) break;
+let take = Math.min(remaining, e.amount);
+costBasis += take * (e.purchasePrice||0);
+affectedEntries.push({ id:e.id, take, original:e.amount, remaining:e.amount-take, start:e.start, purchasePrice:e.purchasePrice });
+remaining -= take;
+}
+let revenueBDT = sellUSD * usdToBdt;
+let costBDT = costBasis * usdToBdt;
+let profitBDT = revenueBDT - costBDT;
+let pos = profitBDT >= 0;
+el.innerHTML = `
+<div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:12px;padding:12px;">
+<div style="font-size:0.65rem;color:#6b7280;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📊 Sell Preview (FIFO)</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Sell Qty:</span> <b style="color:#f7931a;">${sellQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Sell Price:</span> <b>$${formatNumber(sellPrice)}</b></div>
+<div><span style="color:#6b7280;">Revenue:</span> <b>$${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT</b></div>
+<div><span style="color:#6b7280;">Cost Basis:</span> <b>$${formatNumber(costBasis)} = ${formatNumber(costBDT)} BDT</b></div>
+</div>
+<div style="font-size:0.88rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};">
+${pos?'✅':'❌'} ${pos?'Profit':'Loss'}: ${pos?'+':''}${formatNumber(profitBDT)} BDT
+</div>
+<div style="font-size:0.62rem;color:#6b7280;margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;">
+FIFO — এই entry গুলো থেকে বাদ যাবে:
+${affectedEntries.map(e=>`<div>• ${e.take.toFixed(6)} ${coin} from ${e.start} (@ $${formatNumber(e.purchasePrice)})</div>`).join('')}
+</div>
+</div>`;
+}
+
+async function executeCryptoSell() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+if(!sellUSD || !sellPrice) return showToast("Sell amount ও price দিন", true);
+if(!confirm(`${coin} sell করবেন $${sellUSD} @ $${sellPrice}?`)) return;
+let sellQty = sellUSD / sellPrice;
+let entries = investments
+.filter(i=>i.type===coin && i.status==='active' && i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount, 0);
+if(sellQty > totalQty + 0.000001)
+return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
+let remaining = sellQty;
+let costBasis = 0;
+let today = new Date().toISOString().slice(0,10);
+let log = [];
+for(let inv of entries) {
+if(remaining <= 0.000001) break;
+let take = Math.min(remaining, inv.amount);
+let takeCost = take * (inv.purchasePrice||0);
+costBasis += takeCost;
+remaining -= take;
+let leftQty = inv.amount - take;
+log.push({
+start: inv.start,
+purchasePrice: inv.purchasePrice,
+soldQty: take,
+leftQty,
+full: leftQty < 0.000001
+});
+if(leftQty < 0.000001) {
+inv.status = 'completed';
+inv.actualProfit = (take * sellPrice - takeCost) * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({
+status: 'completed', actualProfit: inv.actualProfit
+});
+} else {
+inv.amount = leftQty;
+inv.amountUSD = leftQty * (inv.purchasePrice||0);
+inv.amountBDT = inv.amountUSD * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({
+amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
+});
+}
+}
+let revenueBDT = sellUSD * usdToBdt;
+let profitBDT = (sellUSD - costBasis) * usdToBdt;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({
+platform: 'Binance', type: coin,
+amount: revenueBDT, profit: profitBDT,
+sellQty: sellQty, sellPriceUSD: sellPrice,
+date: today,
+note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeCryptoSellModal();
+renderAll();
+let logText = log.map(l=>
+l.full
+? `✅ ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — fully sold`
+: `📊 ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — ${l.soldQty.toFixed(6)} sold, ${l.leftQty.toFixed(6)} remaining`
+).join('\n');
+showToast(
+`💰 ${sellQty.toFixed(6)} ${coin} sold!\n` +
+`Revenue: $${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT\n` +
+`${profitBDT>=0?'✅ Profit':'❌ Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`
+);
+}
+
 function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
 window.openCryptoSellModal=openCryptoSellModal; window.closeCryptoSellModal=closeCryptoSellModal;
 window.updateSellCoinInfo=updateSellCoinInfo; window.updateSellPreview=updateSellPreview; window.executeCryptoSell=executeCryptoSell;
 
 let _wahedEditId = null;
-function openWahedUpdate(id) { /* ... keep original ... */ }
-async function saveWahedUpdate() { /* ... keep original ... */ }
+function openWahedUpdate(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i=>i.id===id);
+if(!inv) return;
+_wahedEditId = id;
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
+document.getElementById('wahedInfo').innerHTML = `
+<div><b style="color:#10b981;">Wahed Invest</b> — ${inv.platform}</div>
+<div style="margin-top:4px;">💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b></div>
+<div>📊 Last value: <b>${formatNumber(curVal)} BDT</b>
+<span style="color:${pnl>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>
+</div>`;
+document.getElementById('wahedCurrentVal').value = curVal;
+document.getElementById('wahedNote').value = '';
+document.getElementById('wahedPLPreview').innerHTML = '';
+document.getElementById('wahedModal').style.display = 'flex';
+document.getElementById('wahedCurrentVal').oninput = function() {
+let v = parseFloat(this.value)||0;
+let p = v - inv.amountBDT;
+let pct = inv.amountBDT > 0 ? (p/inv.amountBDT*100).toFixed(1) : 0;
+document.getElementById('wahedPLPreview').innerHTML = v > 0
+? `<div style="background:${p>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${p>=0?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:8px;padding:8px 10px;">
+<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}${formatNumber(p)} BDT (${p>=0?'+':''}${pct}%)</span>
+<span style="color:#6b7280;font-size:0.65rem;margin-left:8px;">vs invested</span>
+</div>` : '';
+};
+}
+
+async function saveWahedUpdate() {
+let val = parseFloat(document.getElementById('wahedCurrentVal').value);
+let note = document.getElementById('wahedNote').value;
+if(!val || val <= 0) return showToast("সঠিক মূল্য দিন", true);
+let inv = investments.find(i=>i.id===_wahedEditId);
+if(!inv) return;
+let pnl = val - inv.amountBDT;
+inv.currentValue = val;
+inv.actualProfit = pnl;
+if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+closeWahedModal();
+renderAll();
+showToast(`✅ Wahed updated! ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`);
+}
+
 function closeWahedModal() { document.getElementById('wahedModal').style.display='none'; _wahedEditId=null; }
 window.openWahedUpdate=openWahedUpdate; window.saveWahedUpdate=saveWahedUpdate; window.closeWahedModal=closeWahedModal;
-
-// Ensure the calendar functions exist (simplified to avoid huge code, but in final answer they are fully present)
-function openCalendar() { /* full implementation must be in final code */ }
-function closeCalendar() { document.getElementById('calendarModal').style.display='none'; }
-function changeCalMonth(dir) { /* full impl */ }
-function renderCalendar() { /* full impl */ }
-function showCalDayDetail(dateStr) { /* full impl */ }
-
 </script>
 </body>
 </html>
