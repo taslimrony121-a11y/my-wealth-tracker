@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -26,875 +27,690 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
-/* ====== IMPORT FONTS ====== */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
-
-/* ====== CSS VARIABLES ====== */
+/* ====== CSS VARIABLES - DARK/LIGHT THEME ====== */
 [data-theme="dark"] {
---bg: #060910;
---bg-card: rgba(15,21,36,0.95);
---bg-input: rgba(8,13,24,0.9);
---bg-item: rgba(12,18,30,0.8);
---border: rgba(255,255,255,0.08);
---border-gold:rgba(250,204,21,0.25);
---text-main: #f1f5f9;
---text-sub: #64748b;
---text-muted: #334155;
---accent: #f5c842;
---accent2: #fde68a;
---profit: #22d3a0;
---loss: #f43f5e;
---crypto: #f7931a;
---purple: #a78bfa;
---shadow: rgba(0,0,0,0.6);
---glow-gold: 0 0 40px rgba(245,200,66,0.12);
---glow-green: 0 0 30px rgba(34,211,160,0.15);
+--bg-dark: #0b1120;
+--bg-card: #1e293b;
+--bg-input: #0f172a;
+--bg-item: #0f172a;
+--border: #334155;
+--text-main: #e2e8f0;
+--text-sub: #94a3b8;
+--accent: #facc15;
+--profit: #4ade80;
+--loss: #f87171;
+--usd: #10b981;
+--shadow: rgba(0,0,0,0.4);
+--platform-bg: #0f172a;
 }
 [data-theme="light"] {
---bg: #f8f9fc;
+--bg-dark: #f0f4f8;
 --bg-card: #ffffff;
---bg-input: #f1f5f9;
---bg-item: #f8fafc;
---border: #e2e8f0;
---border-gold:#d97706;
---text-main: #0f172a;
+--bg-input: #f8fafc;
+--bg-item: #f1f5f9;
+--border: #cbd5e1;
+--text-main: #1e293b;
 --text-sub: #64748b;
---text-muted: #94a3b8;
 --accent: #d97706;
---accent2: #f59e0b;
---profit: #059669;
---loss: #e11d48;
---crypto: #ea580c;
---purple: #7c3aed;
---shadow: rgba(0,0,0,0.08);
---glow-gold: none;
---glow-green: none;
+--profit: #16a34a;
+--loss: #dc2626;
+--usd: #0891b2;
+--shadow: rgba(0,0,0,0.1);
+--platform-bg: #f8fafc;
 }
 
-/* ====== RESET ====== */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior: smooth; }
+/* ====== GOOGLE FONTS ====== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-font-family: 'Space Grotesk', sans-serif;
-background: var(--bg);
+font-family: 'Plus Jakarta Sans', sans-serif;
+background: var(--bg-dark);
 color: var(--text-main);
-min-height: 100vh;
+padding: 12px;
+padding-bottom: 30px;
+transition: background 0.3s, color 0.3s;
 -webkit-font-smoothing: antialiased;
-line-height: 1.5;
 }
-[data-theme="dark"] body {
-background-image:
-radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245,200,66,0.06) 0%, transparent 60%),
-radial-gradient(ellipse 60% 40% at 80% 80%, rgba(99,102,241,0.04) 0%, transparent 50%);
-background-attachment: fixed;
-}
-
-/* ====== CONTAINER - FIXED FOR DESKTOP FULL WIDTH ====== */
-.container {
-max-width: 1400px;
-margin: 0 auto;
-padding: 14px 12px 80px;
-}
-
-@media (min-width: 768px) {
-.container {
-padding: 20px 32px 80px;
-}
-}
-
-@media (min-width: 1200px) {
-.container {
-max-width: 1400px;
-padding: 24px 40px 80px;
-}
-}
+.container { max-width: 1400px; margin: 0 auto; }
 
 /* ====== ANIMATIONS ====== */
-@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-@keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
 @keyframes slideIn { from { transform:translateX(110%); opacity:0; } to { transform:translateX(0); opacity:1; } }
-@keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-@keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(245,200,66,0.2);} 50%{box-shadow:0 0 40px rgba(245,200,66,0.4);} }
-@keyframes aiPulse { 0%,100%{box-shadow:0 4px 20px rgba(167,139,250,0.4);} 50%{box-shadow:0 4px 40px rgba(167,139,250,0.8);} }
-@keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
-@keyframes spin { to{transform:rotate(360deg);} }
-@keyframes numberUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
-.fade-up { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-
-/* iOS safe area */
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes aiPulse { 0%,100% { box-shadow:0 4px 20px rgba(168,85,247,0.5); opacity:1; } 50% { box-shadow:0 4px 30px rgba(168,85,247,0.9); opacity:0.85; } }
+@keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+.fade-up { animation: fadeUp 0.45s ease both; }
+/* iOS standalone safe area */
 @supports (padding-top: env(safe-area-inset-top)) {
-.container { padding-top: max(14px, env(safe-area-inset-top)); padding-bottom: max(80px, env(safe-area-inset-bottom)); }
+.container { padding-top: max(12px, env(safe-area-inset-top)); padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 }
 
 /* ====== HEADER ====== */
 .app-header {
+background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-input) 100%);
+border-radius: 24px;
+padding: 18px 16px 14px;
+margin-bottom: 14px;
+border: 1px solid rgba(250,204,21,0.35);
+box-shadow: 0 8px 32px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.05);
+animation: fadeUp 0.4s ease both;
 position: relative;
-background: var(--bg-card);
-border: 1px solid var(--border-gold);
-border-radius: 28px;
-padding: 20px 18px 16px;
-margin-bottom: 16px;
 overflow: hidden;
-animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
-}
-[data-theme="dark"] .app-header {
-background: linear-gradient(145deg, rgba(20,28,48,0.98), rgba(10,14,26,0.98));
-box-shadow: 0 24px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(245,200,66,0.1);
 }
 .app-header::before {
-content:'';
-position:absolute; top:-60px; right:-60px;
-width:220px; height:220px;
-background: radial-gradient(circle, rgba(245,200,66,0.08) 0%, transparent 70%);
-pointer-events:none;
+content: '';
+position: absolute;
+top: -40px; right: -40px;
+width: 160px; height: 160px;
+background: radial-gradient(circle, rgba(250,204,21,0.12) 0%, transparent 70%);
+pointer-events: none;
 }
-.app-header::after {
-content:'';
-position:absolute; bottom:-40px; left:-40px;
-width:160px; height:160px;
-background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
-pointer-events:none;
-}
-.header-top { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; position:relative; }
-.app-title { display:flex; align-items:center; gap:12px; }
-.app-title-icon {
-width:42px; height:42px; border-radius:14px;
-background: linear-gradient(135deg, #f5c842, #f59e0b);
-display:flex; align-items:center; justify-content:center;
-box-shadow: 0 4px 16px rgba(245,200,66,0.35);
-font-size:1.1rem; flex-shrink:0;
-}
+.header-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.app-title { display: flex; align-items: center; gap: 10px; }
 .app-title h1 {
-font-family: 'Outfit', sans-serif;
-font-size: 1.1rem;
+font-family: 'Sora', sans-serif;
+font-size: 1.25rem;
 font-weight: 800;
-background: linear-gradient(135deg, #f5c842 0%, #fde68a 60%, #f59e0b 100%);
+background: linear-gradient(135deg, #facc15 0%, #fde68a 50%, #f59e0b 100%);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-letter-spacing: -0.5px;
-line-height: 1.2;
+letter-spacing: -0.3px;
 }
-.app-title p { font-size:0.58rem; color:var(--text-sub); margin-top:1px; letter-spacing:0.5px; text-transform:uppercase; }
 .owner-badge {
-background: linear-gradient(135deg, #f5c842, #fbbf24);
-padding: 5px 12px;
+background: linear-gradient(135deg, #facc15, #fbbf24);
+padding: 6px 14px;
 border-radius: 30px;
 color: #000;
-font-weight: 800;
-font-size: 0.65rem;
+font-weight: 700;
+font-size: 0.75rem;
 display: flex;
 align-items: center;
-gap: 5px;
-letter-spacing: 0.3px;
+gap: 6px;
+box-shadow: 0 2px 10px rgba(250,204,21,0.4);
 }
-
-/* Bismillah + Greeting */
-.bismillah-section {
-text-align:center;
-padding:14px 0 10px;
-border-top: 1px solid var(--border);
-margin-top: 14px;
-position:relative;
-}
-.bismillah-arabic {
-font-size:1.1rem;
-color:var(--accent);
-letter-spacing:2px;
-margin-bottom:3px;
-}
-.bismillah-bangla { font-size:0.58rem; color:var(--text-muted); letter-spacing:0.5px; }
 .salaam-text {
-margin-top: 10px;
-font-size: 0.82rem;
-font-weight: 600;
-color: var(--profit);
+margin-top: 12px;
+font-size: 0.9rem;
+font-weight: 700;
+color: #4ade80;
+letter-spacing: 0.2px;
 display: flex;
 align-items: center;
-justify-content: center;
 gap: 6px;
 flex-wrap: wrap;
-text-align:center;
 }
 .header-stats {
-display: flex; gap:0; margin-top:12px;
+display: flex;
+gap: 0;
 background: var(--bg-input);
-border-radius: 14px;
+border-radius: 16px;
+margin-top: 12px;
 flex-wrap: wrap;
 overflow: hidden;
 border: 1px solid var(--border);
 }
 .header-stats .stat {
-font-size: 0.6rem;
+font-size: 0.65rem;
 color: var(--text-sub);
 display: flex;
 align-items: center;
-gap: 4px;
-padding: 7px 10px;
+gap: 5px;
+padding: 8px 12px;
 border-right: 1px solid var(--border);
-white-space:nowrap;
 }
-.header-stats .stat:last-child { border-right:none; }
-.header-stats .stat strong { color: var(--accent); font-size: 0.65rem; }
-.version-tag {
-font-size:0.55rem;
-color:var(--text-muted);
-text-align:center;
-padding-top:10px;
-letter-spacing:0.3px;
-}
+.header-stats .stat:last-child { border-right: none; }
+.header-stats .stat strong { color: var(--accent); font-size: 0.7rem; }
+.version-tag { font-size: 0.58rem; color: var(--text-sub); margin-top: 10px; text-align: right; border-top: 1px solid var(--border); padding-top: 8px; opacity: 0.7; }
 
 /* ====== THEME TOGGLE ====== */
 .theme-toggle {
 background: var(--bg-input);
 border: 1px solid var(--border);
-color: var(--text-sub);
-padding: 7px 14px;
+color: var(--text-main);
+padding: 7px 13px;
 border-radius: 20px;
 cursor: pointer;
-font-size: 0.7rem;
-font-family: 'Space Grotesk', sans-serif;
-font-weight: 600;
+font-size: 0.72rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
+display: flex;
+align-items: center;
+gap: 5px;
 transition: all 0.2s;
-display:flex; align-items:center; gap:5px;
+white-space: nowrap;
 }
 .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ====== CURRENCY BAR ====== */
 .currency-bar {
+background: var(--bg-card);
+border-radius: 16px;
+padding: 10px 14px;
+margin-bottom: 12px;
 display: flex;
 align-items: center;
 gap: 8px;
 flex-wrap: wrap;
-background: var(--bg-card);
 border: 1px solid var(--border);
-border-radius: 16px;
-padding: 10px 14px;
-margin-bottom: 8px;
-font-size: 0.7rem;
+animation: fadeUp 0.45s ease 0.05s both;
 }
 .currency-btn {
-padding: 4px 12px;
-border-radius: 20px;
-border: 1px solid var(--border);
 background: var(--bg-input);
+border: 1px solid var(--border);
 color: var(--text-sub);
+padding: 5px 11px;
+border-radius: 20px;
 cursor: pointer;
-font-family: 'Space Grotesk', sans-serif;
 font-size: 0.68rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
 font-weight: 600;
 transition: all 0.18s;
 }
-.currency-btn.active, .currency-btn:hover {
+.currency-btn.active {
 background: var(--accent);
-border-color: var(--accent);
 color: #000;
+border-color: var(--accent);
+box-shadow: 0 2px 8px rgba(250,204,21,0.35);
 }
+
+/* ====== LIVE RATE CHIPS ====== */
 #liveRateChips {
-display:flex; flex-wrap:wrap; gap:6px;
-font-family:'JetBrains Mono', monospace;
-font-size:0.62rem;
+border-radius: 14px;
+font-size: 0.68rem;
+animation: fadeUp 0.5s ease 0.1s both;
 }
 
-/* ====== P&L TICKER ====== */
-#plTickerWrap {
+/* ====== ALERT BANNER ====== */
+.alert-banner { border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; display: none; animation: slideDown 0.3s ease; font-size: 0.75rem; }
+.alert-banner.show { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.alert-danger { background: rgba(239,68,68,0.12); border: 1px solid #ef4444; color: #f87171; }
+.alert-warning { background: rgba(245,158,11,0.12); border: 1px solid #f59e0b; color: #f59e0b; }
+.alert-success { background: rgba(74,222,128,0.12); border: 1px solid #4ade80; color: #4ade80; }
+
+/* ====== AI CARD ====== */
+.ai-card {
+background: linear-gradient(145deg, #0f0a1e 0%, #1a0f3a 50%, #0a0f1e 100%);
+border-radius: 22px; padding: 18px; margin-bottom: 14px;
+border: 1px solid rgba(168,85,247,0.35);
+box-shadow: 0 0 40px rgba(168,85,247,0.1), 0 8px 32px rgba(0,0,0,0.4);
+position: relative; overflow: hidden;
+}
+.ai-card::before {
+content: ''; position: absolute; top: -60px; right: -60px;
+width: 200px; height: 200px;
+background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
+pointer-events: none;
+}
+[data-theme="light"] .ai-card {
+background: linear-gradient(145deg, #faf5ff 0%, #f3e8ff 100%);
+border-color: rgba(168,85,247,0.4);
+box-shadow: 0 8px 24px rgba(168,85,247,0.15);
+}
+.ai-metric {
+background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2);
+border-radius: 14px; padding: 12px; transition: all 0.2s; position: relative;
+}
+.ai-metric:active { transform: scale(0.97); }
+.ai-metric-label { font-size: 0.58rem; color: #9333ea; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 700; }
+.ai-metric-value { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 800; margin-top: 3px; line-height: 1.1; }
+.ai-metric-sub { font-size: 0.6rem; color: #6b7280; margin-top: 3px; }
+[data-theme="light"] .ai-metric { background: rgba(168,85,247,0.06); }
+[data-theme="light"] .ai-metric-label { color: #7c3aed; }
+
+/* ====== ADMIN BAR ====== */
+.admin-bar {
 background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 12px;
+padding: 8px 12px;
+border-radius: 16px;
 margin-bottom: 12px;
-overflow: hidden;
-}
-
-/* ====== STAT CARDS ====== */
-.stats-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 10px;
-margin-bottom: 14px;
-}
-@media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(3,1fr); } }
-@media (min-width: 1024px) { .stats-grid { grid-template-columns: repeat(3,1fr); gap:14px; } }
-.stat-card {
-position: relative;
-background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 20px;
-padding: 14px 14px 12px;
-overflow: hidden;
-transition: transform 0.2s, box-shadow 0.2s;
-animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
-}
-[data-theme="dark"] .stat-card {
-background: linear-gradient(145deg, rgba(18,24,40,0.98), rgba(10,15,26,0.95));
-box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-.stat-card::before {
-content:'';
-position:absolute;
-top:0; left:0; right:0; height:2px;
-background: linear-gradient(90deg, var(--accent), transparent);
-opacity:0.6;
-}
-.stat-card:hover { transform:translateY(-2px); }
-.realtime-badge {
-font-size: 0.52rem;
-color: var(--profit);
-background: rgba(34,211,160,0.1);
-border: 1px solid rgba(34,211,160,0.2);
-padding: 2px 7px;
-border-radius: 20px;
-display: inline-flex;
+display: flex;
+justify-content: space-between;
 align-items: center;
-gap: 4px;
-margin-bottom: 8px;
-font-weight: 600;
-letter-spacing: 0.3px;
+flex-wrap: wrap;
+gap: 10px;
+border: 1px solid var(--border);
+animation: fadeUp 0.45s ease 0.1s both;
 }
-.stat-label {
-font-size: 0.62rem;
-color: var(--text-sub);
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-margin-bottom: 6px;
+.admin-status { font-size: 0.72rem; background: var(--bg-input); padding: 5px 12px; border-radius: 20px; }
+.admin-btn {
+background: linear-gradient(135deg, #facc15, #f59e0b);
+color: #000;
+border: none;
+padding: 6px 14px;
+border-radius: 20px;
+font-weight: 700;
+font-size: 0.75rem;
+cursor: pointer;
+font-family: 'Plus Jakarta Sans', sans-serif;
+box-shadow: 0 2px 8px rgba(250,204,21,0.3);
 }
-.stat-value-bdt {
-font-family: 'Outfit', sans-serif;
-font-size: 1.35rem;
-font-weight: 800;
-color: var(--accent);
-line-height: 1;
-letter-spacing: -0.5px;
-animation: numberUp 0.4s ease both;
+.login-panel { display: flex; gap: 8px; align-items: center; }
+.login-panel input {
+background: var(--bg-input);
+border: 1px solid var(--border);
+padding: 6px 12px;
+border-radius: 20px;
+color: var(--text-main);
+width: 160px;
+font-size: 0.8rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
 }
-.stat-value-usd {
-font-family: 'JetBrains Mono', monospace;
-font-size: 0.65rem;
-color: var(--text-sub);
-margin-top: 4px;
-}
-.stat-sub {
-font-size: 0.55rem;
-color: var(--text-muted);
-margin-top: 5px;
-line-height: 1.4;
-}
-
-/* ====== CRYPTO CARDS ====== */
-.crypto-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
-@media(min-width:600px) { .crypto-grid { grid-template-columns:repeat(4,1fr); } }
-@media(min-width:1024px) { .crypto-grid { gap:14px; } }
-
-/* Desktop 2-column layout for main sections */
-@media(min-width:1024px) {
-.desktop-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 14px;
-align-items: start;
-}
-.desktop-grid-3 {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 14px;
-align-items: start;
-}
-}
-.crypto-card {
-border-radius: 18px;
-padding: 13px 12px;
-position:relative; overflow:hidden;
-transition: transform 0.2s;
-cursor:default;
-border: 1px solid transparent;
-}
-.crypto-card:hover { transform:translateY(-2px); }
-.btc-card {
-background: linear-gradient(135deg, #1a0f00 0%, #2d1800 50%, #1a0f00 100%);
-border-color: rgba(247,147,26,0.4);
-box-shadow: 0 4px 24px rgba(247,147,26,0.2);
-}
-.eth-card {
-background: linear-gradient(135deg, #080d2a 0%, #101d50 50%, #080d2a 100%);
-border-color: rgba(98,126,234,0.4);
-box-shadow: 0 4px 24px rgba(98,126,234,0.2);
-}
-.bnb-card {
-background: linear-gradient(135deg, #1a1400 0%, #2d2200 50%, #1a1400 100%);
-border-color: rgba(243,186,47,0.4);
-box-shadow: 0 4px 24px rgba(243,186,47,0.2);
-}
-.sol-card {
-background: linear-gradient(135deg, #0d0020 0%, #1a0040 50%, #0d0020 100%);
-border-color: rgba(153,69,255,0.4);
-box-shadow: 0 4px 24px rgba(153,69,255,0.2);
-}
-.crypto-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-.btc-card::before { background:linear-gradient(90deg,#f7931a,#fbbf24,transparent); }
-.eth-card::before { background:linear-gradient(90deg,#627eea,#a5b4fc,transparent); }
-.bnb-card::before { background:linear-gradient(90deg,#f3ba2f,#fde68a,transparent); }
-.sol-card::before { background:linear-gradient(90deg,#9945ff,#c084fc,transparent); }
-.crypto-symbol {
-font-family:'Outfit',sans-serif;
-font-size:0.78rem; font-weight:800;
-text-transform:uppercase; letter-spacing:0.5px;
-margin-bottom:6px; display:flex; align-items:center; gap:6px;
-}
-.btc-card .crypto-symbol { color:#f7931a; }
-.eth-card .crypto-symbol { color:#818cf8; }
-.bnb-card .crypto-symbol { color:#f3ba2f; }
-.sol-card .crypto-symbol { color:#c084fc; }
-.crypto-price {
-font-family:'JetBrains Mono',monospace;
-font-size:1rem; font-weight:700;
-color:#ffffff; line-height:1;
-}
-.crypto-change {
-font-size:0.6rem; font-weight:700;
-padding:2px 7px; border-radius:10px;
-display:inline-block; margin-top:5px;
-}
-.crypto-change.up { color:#22d3a0; background:rgba(34,211,160,0.15); }
-.crypto-change.down { color:#f43f5e; background:rgba(244,63,94,0.15); }
-.crypto-holding { font-size:0.58rem; color:rgba(255,255,255,0.4); margin-top:4px; }
-/* Light theme overrides */
-[data-theme="light"] .btc-card { background:linear-gradient(135deg,#fff8f0,#fff3e0); border-color:rgba(247,147,26,0.5); box-shadow:0 4px 16px rgba(247,147,26,0.15); }
-[data-theme="light"] .eth-card { background:linear-gradient(135deg,#f0f2ff,#e8ecfd); border-color:rgba(98,126,234,0.5); box-shadow:0 4px 16px rgba(98,126,234,0.15); }
-[data-theme="light"] .bnb-card { background:linear-gradient(135deg,#fffbf0,#fef9e0); border-color:rgba(243,186,47,0.5); box-shadow:0 4px 16px rgba(243,186,47,0.15); }
-[data-theme="light"] .sol-card { background:linear-gradient(135deg,#f8f0ff,#f3e8ff); border-color:rgba(153,69,255,0.5); box-shadow:0 4px 16px rgba(153,69,255,0.15); }
-[data-theme="light"] .btc-card .crypto-price,
-[data-theme="light"] .eth-card .crypto-price,
-[data-theme="light"] .bnb-card .crypto-price,
-[data-theme="light"] .sol-card .crypto-price { color:#0f172a; }
 
 /* ====== ACTION BUTTONS ====== */
 .action-buttons {
 display: flex;
 gap: 8px;
-flex-wrap: wrap;
 margin-bottom: 14px;
+flex-wrap: wrap;
+animation: fadeUp 0.45s ease 0.15s both;
 }
 .action-btn {
-padding: 9px 16px;
-border-radius: 22px;
-border: 1px solid var(--border);
 background: var(--bg-card);
+border: 1px solid var(--border);
 color: var(--text-sub);
-font-family: 'Space Grotesk', sans-serif;
+padding: 8px 13px;
+border-radius: 20px;
 font-size: 0.7rem;
 font-weight: 600;
+font-family: 'Plus Jakarta Sans', sans-serif;
 cursor: pointer;
+transition: all 0.18s;
 display: flex;
 align-items: center;
-gap: 6px;
-transition: all 0.18s;
-white-space:nowrap;
+gap: 5px;
+white-space: nowrap;
 }
-.action-btn:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-1px); }
+.action-btn:hover, .action-btn:active { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 12px var(--shadow); }
 
-/* ====== CARDS ====== */
-.card {
+/* ====== GOAL CARD ====== */
+.goal-card {
 background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 22px;
-padding: 18px 16px;
+border-radius: 18px;
+padding: 14px 16px;
 margin-bottom: 14px;
-animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+border: 1px solid var(--border);
+animation: fadeUp 0.45s ease 0.2s both;
 }
-[data-theme="dark"] .card {
-background: linear-gradient(160deg, rgba(16,22,38,0.98), rgba(10,14,24,0.96));
-box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-}
-.card h2 {
-font-family:'Outfit',sans-serif;
-font-size:0.9rem;
-font-weight:700;
-color:var(--text-main);
-margin-bottom:14px;
-display:flex;
-align-items:center;
-gap:8px;
-letter-spacing:-0.2px;
-}
-.card h3 {
-font-family:'Outfit',sans-serif;
-font-size:0.82rem;
-font-weight:700;
-color:var(--text-main);
-margin-bottom:12px;
-display:flex;
-align-items:center;
-gap:8px;
+.goal-card > div { font-size: 0.8rem; font-weight: 600; }
+.progress-bg { background: var(--bg-input); border-radius: 10px; height: 8px; margin: 10px 0; overflow: hidden; }
+.progress-fill {
+background: linear-gradient(90deg, #facc15, #fbbf24, #f59e0b);
+height: 100%; width: 0%;
+transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+border-radius: 10px;
+box-shadow: 0 0 8px rgba(250,204,21,0.5);
 }
 
-/* ====== FORM ====== */
-label {
-font-size:0.68rem;
-color:var(--text-sub);
-font-weight:600;
-display:block;
-margin-bottom:5px;
-margin-top:10px;
-text-transform:uppercase;
-letter-spacing:0.4px;
-}
-input[type="text"], input[type="number"], input[type="date"], input[type="password"], select, textarea {
-width:100%;
-background: var(--bg-input);
+/* ====== DASHBOARD STAT CARDS ====== */
+.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+@media (min-width: 500px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } }
+.stat-card {
+background: var(--bg-card);
+border-radius: 20px;
+padding: 16px;
 border: 1px solid var(--border);
-border-radius: 12px;
-padding: 10px 13px;
-color: var(--text-main);
-font-size: 0.82rem;
-font-family: 'Space Grotesk', sans-serif;
-outline: none;
-transition: border-color 0.2s, box-shadow 0.2s;
+position: relative;
+overflow: hidden;
+transition: transform 0.2s, box-shadow 0.2s;
+animation: fadeUp 0.45s ease both;
 }
-input:focus, select:focus {
-border-color: var(--accent);
-box-shadow: 0 0 0 3px rgba(245,200,66,0.1);
+.stat-card::after {
+content: '';
+position: absolute;
+bottom: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, var(--accent), transparent);
+opacity: 0.5;
 }
-select option { background: var(--bg-input); }
-.btn-save {
-background: linear-gradient(135deg, #f5c842, #f59e0b);
-border: none;
-border-radius: 14px;
-padding: 12px 20px;
-color: #000;
+.stat-card:active { transform: scale(0.985); }
+.stat-label { font-size: 0.65rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-bottom: 6px; }
+.stat-value-bdt {
+font-family: 'Sora', sans-serif;
+font-size: 1.5rem;
 font-weight: 800;
-font-size: 0.82rem;
-cursor: pointer;
-font-family: 'Space Grotesk', sans-serif;
-width:100%;
-transition: transform 0.15s, box-shadow 0.15s;
-box-shadow: 0 4px 16px rgba(245,200,66,0.3);
-letter-spacing:0.2px;
+color: var(--accent);
+margin-top: 4px;
+letter-spacing: -0.5px;
+line-height: 1.1;
 }
-.btn-save:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(245,200,66,0.4); }
-.btn-save:active { transform:scale(0.98); }
+.stat-value-usd { font-size: 0.78rem; color: var(--usd); margin-top: 4px; font-weight: 600; }
+.stat-sub { font-size: 0.62rem; color: var(--text-sub); margin-top: 6px; line-height: 1.4; }
+.realtime-badge {
+position: absolute;
+top: 12px; right: 12px;
+font-size: 0.55rem;
+background: rgba(74,222,128,0.15);
+padding: 3px 8px;
+border-radius: 20px;
+color: var(--profit);
+border: 1px solid rgba(74,222,128,0.3);
+}
+.pl-indicator { font-size: 0.68rem; font-weight: 600; margin-top: 8px; padding: 5px 10px; border-radius: 10px; display: inline-flex; align-items: center; gap: 5px; }
+.pl-positive { background: rgba(74,222,128,0.12); color: var(--profit); border-left: 2px solid var(--profit); }
+.pl-negative { background: rgba(248,113,113,0.12); color: var(--loss); border-left: 2px solid var(--loss); }
+
+/* ====== CRYPTO CARDS ====== */
+.crypto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+@media (min-width: 700px) { .crypto-grid { grid-template-columns: repeat(4, 1fr); } }
+.crypto-card {
+background: var(--bg-card);
+border-radius: 18px;
+padding: 13px;
+border: 1px solid var(--border);
+border-top: 3px solid var(--accent);
+position: relative;
+transition: all 0.2s;
+overflow: hidden;
+}
+.crypto-card:active { transform: scale(0.97); }
+.crypto-card.btc-card { border-top-color: #f7931a; }
+.crypto-card.eth-card { border-top-color: #627eea; }
+.crypto-card.bnb-card { border-top-color: #f3ba2f; }
+.crypto-card.sol-card { border-top-color: #9945ff; }
+.crypto-coin-label { font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.crypto-price-usd {
+font-family: 'Sora', sans-serif;
+font-size: 1rem;
+font-weight: 700;
+color: var(--text-main);
+display: flex;
+align-items: center;
+flex-wrap: wrap;
+gap: 4px;
+line-height: 1.2;
+}
+.crypto-price-bdt { font-size: 0.68rem; color: var(--accent); font-weight: 600; margin-top: 2px; }
+.crypto-details { font-size: 0.65rem; margin-top: 8px; color: var(--text-sub); border-top: 1px solid var(--border); padding-top: 6px; }
+.crypto-details .row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+.purchase-info { background: rgba(0,0,0,0.15); border-radius: 8px; padding: 5px; margin-top: 6px; }
+[data-theme="light"] .purchase-info { background: rgba(0,0,0,0.04); }
+.crypto-pl-chip { font-size: 0.62rem; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: 600; }
+.value-usd { color: var(--usd); font-weight: 600; }
+.value-bdt { color: var(--accent); font-weight: 600; }
 
 /* ====== INVESTMENT ITEMS ====== */
-.platform-box {
-background: var(--bg-item);
-border: 1px solid var(--border);
-border-radius: 16px;
-padding: 12px;
-margin-bottom: 10px;
-transition: border-color 0.2s;
-}
-.platform-box:hover { border-color: rgba(245,200,66,0.2); }
-.platform-name {
-font-family:'Outfit',sans-serif;
-font-size:0.78rem;
-font-weight:700;
-color:var(--accent);
-margin-bottom:6px;
-display:flex;
-align-items:center;
-gap:6px;
-}
-.inv-item {
-background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 12px;
-padding: 10px 12px;
-margin-bottom:6px;
-font-size:0.72rem;
-}
-.inv-item:last-child { margin-bottom:0; }
-.investment-title {
-font-weight:700;
-font-size:0.78rem;
-color:var(--text-main);
-margin-bottom:3px;
-}
-.investment-details {
-font-size:0.65rem;
-color:var(--text-sub);
-line-height:1.5;
-display:block;
-margin-top:2px;
-}
+.investment-item { border-bottom: 1px solid var(--border); padding: 12px 0; }
+.investment-item:last-child { border-bottom: none; }
+.investment-title { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+.investment-name { font-weight: 700; font-size: 0.88rem; }
+.status-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 20px; margin-left: 5px; font-weight: 600; }
+.status-active { background: rgba(74,222,128,0.12); color: var(--profit); border: 1px solid rgba(74,222,128,0.4); }
+.status-completed { background: rgba(107,114,128,0.12); color: #9ca3af; border: 1px solid #6b7280; }
+.status-wait { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid #f59e0b; }
+.investment-details { font-size: 0.68rem; color: var(--text-sub); margin-top: 5px; line-height: 1.5; display: block; }
+.investment-actions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
 .btn-icon {
 background: var(--bg-input);
 border: 1px solid var(--border);
-color: var(--text-sub);
-padding: 5px 10px;
-border-radius: 8px;
+padding: 5px 11px;
+border-radius: 10px;
+font-size: 0.68rem;
 cursor: pointer;
-font-size: 0.65rem;
-font-family:'Space Grotesk',sans-serif;
+color: var(--text-main);
+display: inline-flex;
+align-items: center;
+gap: 4px;
 transition: all 0.15s;
-display:inline-flex; align-items:center; gap:4px;
-}
-.btn-icon:hover { border-color:var(--accent); color:var(--accent); }
-
-/* ====== MODALS ====== */
-.modal {
-display: none;
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.7);
-backdrop-filter: blur(8px);
--webkit-backdrop-filter: blur(8px);
-z-index: 9999;
-align-items: flex-end;
-justify-content: center;
-padding: 0;
-}
-@media(min-width:600px) { .modal { align-items:center; padding:20px; } }
-.modal-content {
-background: var(--bg-card);
-border: 1px solid var(--border);
-border-radius: 28px 28px 0 0;
-padding: 24px 20px 32px;
-width: 100%;
-max-width: 500px;
-max-height: 92vh;
-overflow-y: auto;
-animation: slideDown 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-@media(min-width:600px) {
-.modal-content {
-border-radius: 28px;
-animation: fadeUp 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-}
-[data-theme="dark"] .modal-content {
-background: linear-gradient(160deg, rgba(18,26,44,0.99), rgba(10,14,26,0.99));
-box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-}
-.modal-content h3 {
-font-family:'Outfit',sans-serif;
-font-size:1rem;
-font-weight:800;
-margin-bottom:16px;
-display:flex; align-items:center; gap:8px;
-}
-
-/* ====== AI CARD ====== */
-.ai-card {
-background: linear-gradient(145deg, rgba(15,10,30,0.98), rgba(8,5,20,0.95));
-border: 1px solid rgba(167,139,250,0.25);
-border-radius: 22px;
-padding: 18px 16px;
-margin-bottom: 14px;
-box-shadow: 0 8px 32px rgba(139,92,246,0.1);
-position:relative; overflow:hidden;
-}
-.ai-card::before {
-content:'';
-position:absolute; top:-40px; right:-40px;
-width:160px; height:160px;
-background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
-pointer-events:none;
-}
-.ai-metric {
-background: rgba(255,255,255,0.03);
-border: 1px solid rgba(255,255,255,0.06);
-border-radius: 14px;
-padding: 12px;
-}
-.ai-metric-label { font-size:0.58rem; color:#6b7280; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
-.ai-metric-value { font-family:'Outfit',sans-serif; font-size:1rem; font-weight:800; margin-top:3px; line-height:1.1; }
-.ai-metric-sub { font-size:0.6rem; color:#6b7280; margin-top:2px; }
-
-/* ====== CHARTS ====== */
-.chart-wrapper-monthly { height:360px; position:relative; width:100%; }
-@media(min-width:480px) { .chart-wrapper-monthly { height:440px; } }
-@media(min-width:768px) { .chart-wrapper-monthly { height:500px; } }
-.year-btn {
-padding: 5px 14px;
-border-radius: 20px;
-border: 1px solid var(--border);
-background: var(--bg-input);
-color: var(--text-sub);
-cursor: pointer;
-font-size: 0.7rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
 font-weight: 600;
-font-family:'Space Grotesk',sans-serif;
-transition: all 0.15s;
 }
-.year-btn.active { background:var(--accent); border-color:var(--accent); color:#000; }
-#yearSelector { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.btn-icon:active { transform: scale(0.95); }
+.btn-withdraw { background: rgba(74,222,128,0.15); color: var(--profit); border-color: rgba(74,222,128,0.4); }
+.btn-edit { background: rgba(250,204,21,0.15); color: var(--accent); border-color: rgba(250,204,21,0.4); }
+.btn-delete { background: rgba(248,113,113,0.15); color: var(--loss); border-color: rgba(248,113,113,0.4); }
+.note-text { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); padding: 3px 8px; border-radius: 6px; font-size: 0.62rem; color: #a78bfa; margin-top: 4px; display: inline-block; }
 
-/* ====== PLATFORM CHART ====== */
-.charts-grid { margin-bottom: 14px; }
-.platform-legend { display:flex; flex-wrap:wrap; gap:6px; }
+/* ====== PLATFORM BOXES ====== */
+.platform-box {
+background: var(--bg-input);
+padding: 14px;
+border-radius: 16px;
+margin-bottom: 12px;
+border-left: 3px solid var(--accent);
+transition: all 0.2s;
+}
+.platform-box.completed { border-left-color: #6b7280; opacity: 0.8; }
+.platform-box.wait { border-left-color: #f59e0b; background: rgba(245,158,11,0.06); }
+.platform-header {
+font-weight: 700;
+font-size: 0.88rem;
+margin-bottom: 10px;
+color: var(--accent);
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 6px;
+}
+
+/* ====== CARD ====== */
+.card {
+background: var(--bg-card);
+border-radius: 20px;
+padding: 16px;
+margin-bottom: 14px;
+border: 1px solid var(--border);
+box-shadow: 0 2px 12px var(--shadow);
+}
+.card h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.input-group { flex: 1; min-width: 140px; }
+.input-group label { font-size: 0.68rem; display: block; margin-bottom: 4px; color: var(--text-sub); font-weight: 600; }
+.input-group input, .input-group select, .input-group textarea {
+width: 100%;
+background: var(--bg-input);
+border: 1px solid var(--border);
+padding: 9px 12px;
+border-radius: 12px;
+color: var(--text-main);
+font-size: 0.82rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
+transition: border 0.15s;
+-webkit-appearance: none;
+}
+.input-group input:focus, .input-group select:focus, .input-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(250,204,21,0.12); }
+.btn-save {
+background: linear-gradient(135deg, #facc15, #f59e0b);
+color: #000;
+width: 100%;
+padding: 12px;
+border-radius: 14px;
+font-weight: 800;
+font-size: 0.85rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
+cursor: pointer;
+margin-top: 10px;
+transition: all 0.2s;
+border: none;
+box-shadow: 0 4px 14px rgba(250,204,21,0.35);
+}
+.btn-save:active { transform: scale(0.98); }
 
 /* ====== CALENDAR ====== */
-.calendar-grid {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-gap: 3px;
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cal-header { text-align: center; font-size: 0.6rem; color: var(--text-sub); padding: 4px; font-weight: 700; text-transform: uppercase; }
+.cal-day { background: var(--bg-input); border-radius: 8px; padding: 4px; min-height: 52px; font-size: 0.6rem; border: 1px solid transparent; cursor: pointer; transition: all 0.15s; }
+.cal-day:hover { border-color: var(--accent); }
+.cal-day.today { border-color: var(--accent); background: rgba(250,204,21,0.08); }
+.cal-day.other-month { opacity: 0.3; }
+.cal-day .day-num { font-weight: 700; color: var(--text-main); margin-bottom: 2px; font-size: 0.68rem; }
+.cal-event { font-size: 0.52rem; padding: 1px 3px; border-radius: 3px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-event.end { background: rgba(248,113,113,0.25); color: #f87171; }
+.cal-event.start { background: rgba(74,222,128,0.25); color: #4ade80; }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.cal-nav button { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
+.cal-nav h3 { font-size: 0.95rem; color: var(--accent); font-weight: 700; }
+
+/* ====== CHARTS ====== */
+.chart-container {
+background: var(--bg-card);
+border-radius: 22px;
+padding: 14px 12px;
+margin-bottom: 14px;
+border: 1px solid rgba(250,204,21,0.2);
+box-shadow: 0 8px 24px var(--shadow);
 }
-.cal-header {
-font-size:0.6rem; font-weight:700;
-color:var(--text-muted);
-text-align:center; padding:4px 0;
-text-transform:uppercase; letter-spacing:0.5px;
+.chart-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 8px; gap: 8px; }
+.chart-header-left h3 { font-size: 0.62rem; color: var(--text-sub); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.chart-header-left .asset-networth { font-family: 'Sora', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+.chart-date { font-size: 0.55rem; color: var(--text-sub); margin-top: 2px; }
+.legend-line { display: inline-flex; align-items: center; gap: 6px; font-size: 0.58rem; color: var(--text-sub); }
+.legend-color { width: 16px; height: 2px; display: inline-block; border-radius: 4px; }
+.legend-color.current { background: #ffd966; box-shadow: 0 0 4px rgba(250,204,21,0.6); }
+.chart-time-range { display: flex; gap: 4px; margin-bottom: 10px; background: var(--bg-input); padding: 4px 6px; border-radius: 30px; width: fit-content; }
+.time-btn { background: transparent; border: none; color: var(--text-sub); padding: 4px 12px; border-radius: 24px; font-size: 0.68rem; font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
+.time-btn.active { background: var(--accent); color: #000; }
+.chart-wrapper { height: 260px; position: relative; width: 100%; }
+@media (min-width: 768px) { .chart-wrapper { height: 380px; } }
+#netWorthChart { width: 100% !important; height: 100% !important; touch-action: pan-x pan-y; }
+
+.monthly-chart-modern {
+background: var(--bg-card);
+border-radius: 22px;
+padding: 16px 14px;
+margin-bottom: 14px;
+border: 1px solid rgba(74,222,128,0.2);
+box-shadow: 0 8px 24px var(--shadow);
 }
-.cal-day {
+.monthly-chart-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(74,222,128,0.15); gap: 10px; }
+.monthly-chart-title h3 { font-size: 0.82rem; font-weight: 700; color: var(--profit); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.monthly-chart-title p { font-size: 0.62rem; color: var(--text-sub); }
+.monthly-stats { display: flex; gap: 0; background: var(--bg-input); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+.monthly-stat-item { padding: 8px 12px; text-align: center; border-right: 1px solid var(--border); flex: 1; }
+.monthly-stat-item:last-child { border-right: none; }
+.monthly-stat-label { font-size: 0.55rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.monthly-stat-value { font-size: 0.82rem; font-weight: 800; color: var(--profit); margin-top: 2px; font-family: 'Sora', sans-serif; }
+.monthly-stat-value.total { color: var(--accent); }
+.chart-year-selector { display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-input); padding: 4px 6px; border-radius: 30px; width: fit-content; }
+.year-btn { background: transparent; border: none; color: var(--text-sub); padding: 4px 12px; border-radius: 24px; font-size: 0.68rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
+.year-btn.active { background: var(--profit); color: #000; }
+.chart-wrapper-monthly { height: 380px; position: relative; width: 100%; }
+@media (min-width: 480px) { .chart-wrapper-monthly { height: 440px; } }
+@media (min-width: 768px) { .chart-wrapper-monthly { height: 500px; } }
+
+.charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+@media (min-width: 600px) { .charts-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
+.charts-grid .card { margin-bottom: 0; }
+.platform-legend { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 0.65rem; }
+
+/* ====== GANTT ====== */
+.gantt-notification {
+background: var(--bg-card);
+border-radius: 20px;
+padding: 14px 16px;
+margin-bottom: 14px;
+border-left: 4px solid var(--accent);
 border: 1px solid var(--border);
-border-radius: 8px;
-padding: 5px 4px;
-min-height: 50px;
-font-size:0.7rem;
-background: var(--bg-input);
-cursor:default;
-transition: background 0.15s, border-color 0.15s;
-position:relative;
+border-left: 4px solid var(--accent);
+animation: fadeUp 0.45s ease 0.08s both;
 }
-.cal-day:hover { background: var(--bg-card); }
-.cal-day.today { border-color:var(--accent) !important; }
-.cal-day.today .day-num { color:var(--accent); font-weight:800; }
-.cal-day.other-month { opacity:0.3; }
-.day-num { font-size:0.72rem; font-weight:600; color:var(--text-main); }
-.cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.gantt-timeline { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; margin-top: 10px; }
+.timeline-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px; background: var(--bg-input); border-radius: 12px; }
+.timeline-item.expired { border-left: 3px solid #ef4444; background: rgba(239,68,68,0.08); }
+.timeline-item.expiring-today { border-left: 3px solid var(--accent); background: rgba(250,204,21,0.06); }
+.timeline-item.expiring-soon { border-left: 3px solid #f59e0b; background: rgba(245,158,11,0.06); }
+
+/* ====== MODAL ====== */
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 3000; justify-content: center; align-items: flex-end; backdrop-filter: blur(6px); }
+@media (min-width: 600px) { .modal { align-items: center; } }
+.modal-content {
+background: var(--bg-card);
+padding: 22px 18px;
+border-radius: 24px 24px 0 0;
+width: 100%;
+max-width: 540px;
+border: 1px solid var(--border);
+border-bottom: none;
+max-height: 88vh;
+overflow-y: auto;
+animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+@media (min-width: 600px) {
+.modal-content { border-radius: 24px; border-bottom: 1px solid var(--border); animation: fadeUp 0.3s ease; }
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-content h3 { margin-bottom: 14px; color: var(--accent); font-size: 1rem; font-weight: 700; }
+.modal-content label { display: block; font-size: 0.7rem; color: var(--text-sub); margin-bottom: 4px; margin-top: 12px; font-weight: 600; }
+.modal-content input, .modal-content select, .modal-content textarea {
+width: 100%;
+background: var(--bg-input);
+border: 1px solid var(--border);
+padding: 9px 12px;
+border-radius: 12px;
+color: var(--text-main);
+font-size: 0.82rem;
+font-family: 'Plus Jakarta Sans', sans-serif;
+}
 
 /* ====== TOAST ====== */
-#toast {
+.toast-message {
 position: fixed;
-bottom: 90px; left:50%; transform:translateX(-50%) translateY(20px);
-background: var(--bg-card);
-border: 1px solid var(--border);
-color: var(--text-main);
-padding: 12px 20px;
-border-radius: 20px;
-font-size: 0.78rem;
+bottom: 24px;
+left: 50%;
+transform: translateX(-50%);
+background: #1e293b;
+color: #4ade80;
+border: 1px solid rgba(74,222,128,0.4);
+padding: 11px 22px;
+border-radius: 40px;
+z-index: 9999;
+animation: toastIn 0.3s ease;
 font-weight: 600;
-z-index: 10000;
-opacity:0; transition: all 0.3s cubic-bezier(0.22,1,0.36,1);
-max-width: 320px; text-align:center;
-box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+font-size: 0.8rem;
+max-width: 90vw;
+text-align: center;
+box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+backdrop-filter: blur(10px);
 }
-#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-#toast.error { border-color:rgba(244,63,94,0.4); background:rgba(244,63,94,0.1); color:#f43f5e; }
+@keyframes toastIn { from { transform: translateX(-50%) translateY(20px); opacity:0; } to { transform: translateX(-50%) translateY(0); opacity:1; } }
+
+/* ====== FOOTER ====== */
+.footer { text-align: center; margin-top: 24px; padding: 20px 16px; border-top: 1px solid var(--border); }
+.footer p { font-size: 0.8rem; margin-bottom: 4px; }
 
 /* ====== PWA BANNER ====== */
 .pwa-banner {
-display:none; flex-wrap:wrap; gap:10px;
-align-items:center; padding:12px 16px;
-background: var(--bg-card);
-border:1px solid rgba(167,139,250,0.3);
-border-radius:16px; margin-bottom:12px;
+background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(124,58,237,0.08));
+border: 1px solid rgba(168,85,247,0.35);
+border-radius: 16px;
+padding: 11px 14px;
+margin-bottom: 12px;
+display: none;
+align-items: center;
+gap: 10px;
+flex-wrap: wrap;
 }
-.pwa-banner.show { display:flex; animation:slideDown 0.3s ease; }
-.pwa-banner button {
-background:var(--purple); border:none; color:#fff;
-padding:7px 14px; border-radius:12px;
-cursor:pointer; font-size:0.7rem; font-weight:700;
-font-family:'Space Grotesk',sans-serif;
+.pwa-banner.show { display: flex; }
+.pwa-banner button { background: #a855f7; color: white; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: 700; font-size: 0.72rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* ====== MOBILE SPECIFIC ====== */
+@media (max-width: 480px) {
+body { padding: 10px; }
+.app-title h1 { font-size: 1.05rem; }
+.owner-badge { font-size: 0.68rem; padding: 5px 10px; }
+.stat-value-bdt { font-size: 1.3rem; }
+.crypto-price-usd { font-size: 0.88rem; }
+.header-stats .stat { padding: 6px 8px; font-size: 0.6rem; }
+.action-btn { padding: 7px 10px; font-size: 0.65rem; }
 }
-
-/* ====== ALERT BANNERS ====== */
-.alert-banner { border-radius:14px; padding:10px 14px; margin-bottom:8px; font-size:0.72rem; font-weight:600; display:none; }
-.alert-danger { background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; }
-.alert-warning { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:#f59e0b; }
-
-/* ====== FOOTER ====== */
-.footer {
-text-align:center;
-padding:24px 16px;
-margin-top:10px;
-border-top: 1px solid var(--border);
-font-size:0.72rem;
-color:var(--text-sub);
-line-height:1.8;
-}
-
-/* ====== VISITOR COUNTER ====== */
-#visitorCounter {
-position:fixed; bottom:16px; right:16px;
-background:var(--bg-card);
-border:1px solid var(--border);
-border-radius:20px;
-padding:6px 12px;
-font-size:0.62rem;
-color:var(--text-sub);
-z-index:999;
-display:flex; align-items:center; gap:5px;
-box-shadow:0 4px 16px var(--shadow);
-backdrop-filter:blur(10px);
-}
-
-/* ====== WAIT MONEY ====== */
-.wait-money-total {
-background: rgba(245,200,66,0.06);
-border: 1px solid rgba(245,200,66,0.2);
-border-radius:14px; padding:12px;
-font-size:0.8rem; margin-bottom:10px;
-}
-
-/* ====== ADMIN LOGIN ====== */
-#adminLoginSection, #adminPanel {
-background: var(--bg-card);
-border:1px solid var(--border);
-border-radius:18px; padding:14px 16px;
-margin-bottom:14px;
-}
-
-/* ====== HISTORY ITEMS ====== */
-.history-item {
-display:flex; align-items:center; gap:10px;
-padding:10px 12px;
-background:var(--bg-input);
-border-radius:12px;
-margin-bottom:6px;
-border:1px solid var(--border);
-font-size:0.72rem;
-}
-
-/* ====== MORE BUTTON ====== */
-.more-btn-wrap { text-align:center; margin-top:6px; }
 
 /* ====== SCROLLBAR ====== */
-::-webkit-scrollbar { width:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-
-/* ====== RESPONSIVE ====== */
-@media(max-width:380px) {
-.stat-value-bdt { font-size:1.1rem; }
-.crypto-price { font-size:0.82rem; }
-.card { padding:14px 12px; }
-}
-
-/* ====== DESKTOP LAYOUT IMPROVEMENTS ====== */
-@media (min-width: 1200px) {
-.crypto-grid {
-gap: 20px;
-}
-
-.stats-grid {
-gap: 20px;
-}
-
-.card, .ai-card, .app-header, .currency-bar {
-width: 100%;
-}
-
-.action-buttons {
-flex-wrap: wrap;
-gap: 12px;
-}
-
-.action-btn {
-padding: 10px 20px;
-font-size: 0.75rem;
-}
-
-.stat-value-bdt {
-font-size: 1.5rem;
-}
-}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 </style>
+
 </head>
 <body>
 <div class="container">
 
 <!-- PWA INSTALL BANNER -->
+
 <div class="pwa-banner" id="pwaBanner">
 <i class="fas fa-mobile-alt" style="color:#a855f7; font-size:1.2rem;"></i>
 <div style="flex:1;">
@@ -906,50 +722,48 @@ font-size: 1.5rem;
 </div>
 
 <!-- SMART ALERT BANNERS -->
+
 <div class="alert-banner alert-danger" id="alertExpired"></div>
 <div class="alert-banner alert-warning" id="alertExpiringSoon"></div>
 
 <!-- HEADER -->
+
 <div class="app-header">
 <div class="header-top">
 <div class="app-title">
-<div class="app-title-icon">💰</div>
-<div>
-<h1>Wealth Tracker</h1>
-<p>Ultra Pro · Real-time Portfolio</p>
+<i class="fas fa-chart-line" style="font-size: 2rem; color: #facc15;"></i>
+<h1>Wealth Tracker Ultra Pro</h1>
 </div>
-</div>
-<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
 <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-<i class="fas fa-moon"></i>
+<i class="fas fa-moon"></i> Dark Mode
 </button>
 <div class="owner-badge">
-<i class="fas fa-crown"></i> TASLIM RONY
+<i class="fas fa-crown"></i> OWNER <strong>TASLIM RONY</strong>
+<i class="fas fa-check-circle" style="color:#10b981;"></i>
 </div>
 </div>
 </div>
-
-<div class="bismillah-section">
-<div class="bismillah-arabic">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
-<div class="bismillah-bangla">বিসমিল্লাহির রাহমানির রাহিম</div>
-<div class="salaam-text" style="margin-top:8px;">
-<i class="fas fa-hands-praying"></i>
-আসসালামু আলাইকুম, <span style="color:var(--accent);">Taslim Rony</span> ভাই &amp; <span style="color:#f9a8d4;">Ajwa Jannat Dua</span> আপু 🌙💍
-</div>
-</div>
-
 <div class="header-stats">
-<div class="stat"><i class="fas fa-database" style="color:#a78bfa;"></i> <strong>Firebase</strong> Sync</div>
-<div class="stat"><i class="fas fa-satellite-dish" style="color:var(--profit);"></i> <strong>Live</strong> FX</div>
-<div class="stat"><i class="fas fa-robot" style="color:var(--purple);"></i> <strong>AI</strong> Brain</div>
-<div class="stat"><i class="fas fa-shield-alt" style="color:var(--accent);"></i> <strong>Secure</strong></div>
-<div class="stat"><i class="fas fa-coins" style="color:var(--crypto);"></i> <strong>Binance</strong> API</div>
+<div class="stat"><i class="fas fa-database"></i> <strong>Firebase Cloud</strong> Sync</div>
+<div class="stat"><i class="fas fa-chart-line"></i> <strong>Real-time</strong> Portfolio</div>
+<div class="stat"><i class="fas fa-shield-alt"></i> <strong>Secure</strong> Data</div>
+<div class="stat"><i class="fas fa-robot"></i> <strong>AI</strong> Prediction</div>
+<div class="stat"><i class="fas fa-satellite-dish" style="color:#4ade80;"></i> <strong>Live</strong> FX Rates</div>
 </div>
-
-<div class="version-tag" style="margin-top:10px;">v15.1 · Zakat · Wahed · Crypto Sell (FIFO) · AI Engine v2 · Gap-Based Portfolio</div>
+<div style="margin-top:12px; text-align:center; padding:8px 0; border-top:1px solid rgba(250,204,21,0.15);">
+<div style="font-size:0.7rem; color:#94a3b8; letter-spacing:0.5px; margin-bottom:3px;">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<div style="font-size:0.6rem; color:#64748b;">বিসমিল্লাহির রাহমানির রাহিম</div>
+</div>
+<div class="salaam-text">
+<i class="fas fa-hands-praying" style="color:#facc15;"></i>
+আসসালামু আলাইকুম, <span style="color:#facc15;">Taslim Rony</span> ভাই &amp; <span style="color:#f9a8d4;">Ajwa Jannat Dua</span> আপু! 🌙💍
+</div>
+<div class="version-tag"><i class="fas fa-code-branch"></i> v14.1 | Live Exchange Rates (Auto) + AI + Alerts + Calendar + Dark/Light + Multi-Currency + PWA + SOL</div>
 </div>
 
 <!-- MULTI-CURRENCY BAR (Live Rates) -->
+
 <div class="currency-bar">
 <span style="font-size:0.75rem; color:var(--text-sub);"><i class="fas fa-globe"></i> Display Currency:</span>
 <button class="currency-btn active" onclick="setCurrency('BDT')" id="cur-BDT">🇧🇩 BDT</button>
@@ -965,6 +779,7 @@ font-size: 1.5rem;
 <div id="liveRateChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; padding:8px 14px; background:var(--bg-card); border-radius:12px; border:1px solid var(--border); font-size:0.7rem;"></div>
 
 <!-- PORTFOLIO P&L TICKER -->
+
 <div id="plTickerWrap" style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; position:relative; cursor:default;">
 <div style="display:flex; align-items:stretch; gap:0;">
 <div style="background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(250,204,21,0.08)); padding:0 14px; font-size:0.68rem; font-weight:800; color:var(--accent); white-space:nowrap; border-right:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; gap:6px; letter-spacing:0.5px;">
@@ -979,12 +794,14 @@ font-size: 1.5rem;
 </div>
 
 <!-- EXPIRY GANTT -->
+
 <div class="gantt-notification">
 <div style="margin-bottom:10px;"><i class="fas fa-calendar-alt"></i> <strong>📅 Project Expiry Tracker</strong> <span style="font-size:0.7rem;">🔴 Expired | 🟡 Today | 🟠 Soon</span></div>
 <div id="timelineContainer" class="gantt-timeline">Loading...</div>
 </div>
 
 <!-- ADMIN BAR -->
+
 <div class="admin-bar">
 <div id="authDisplay" class="admin-status"><i class="fas fa-lock"></i> Not logged in</div>
 <div id="loginWidget">
@@ -999,21 +816,22 @@ font-size: 1.5rem;
 </div>
 
 <!-- ACTION BUTTONS -->
+
 <div class="action-buttons">
-<button onclick="toggleAddForm()" id="addInvBtn" class="action-btn" style="background:linear-gradient(135deg,var(--accent),#f59e0b);color:#000;border-color:var(--accent);font-weight:700;"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
-<button onclick="openRentalModal()" class="action-btn" style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;border-color:#06b6d4;"><i class="fas fa-home"></i> Rental Income</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
 <button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
 </div>
 
 <!-- AI PREDICTION CARD -->
+
 <div class="ai-card" id="aiPredictionCard" style="display:none;">
 
 <!-- Header -->
+
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
 <div style="display:flex;align-items:center;gap:12px;">
 <div style="position:relative;width:46px;height:46px;flex-shrink:0;">
@@ -1027,7 +845,7 @@ font-size: 1.5rem;
 </div>
 </div>
 <div>
-<div style="font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;color:#c084fc;letter-spacing:-0.3px;">AI Portfolio Analyst</div>
+<div style="font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;color:#c084fc;letter-spacing:-0.3px;">AI Portfolio Analyst</div>
 <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
 <span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;animation:aiPulse 1.5s ease-in-out infinite;"></span>
 <span style="font-size:0.6rem;color:#6b7280;font-weight:600;">LIVE · Real Data · Gap-Based AI Brain</span>
@@ -1035,7 +853,7 @@ font-size: 1.5rem;
 </div>
 </div>
 <div style="display:flex;gap:8px;align-items:center;">
-<button onclick="runAIPrediction()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:6px 12px;border-radius:8px;font-size:0.65rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;">
+<button onclick="runAIPrediction()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:6px 12px;border-radius:8px;font-size:0.65rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
 <i class="fas fa-sync-alt"></i> Refresh
 </button>
 <button onclick="document.getElementById('aiPredictionCard').style.display='none'"
@@ -1044,28 +862,33 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 </div>
 
 <!-- Score Bar -->
+
 <div id="aiScoreBar" style="margin-bottom:14px;"></div>
 
 <!-- Portfolio Category Breakdown (new) -->
+
 <div id="aiCategoryBreakdown" style="margin-bottom:12px;"></div>
 
 <!-- Main Grid -->
+
 <div id="aiGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
 
 <!-- Insight Box -->
+
 <div id="aiInsight" style="margin-top:12px;"></div>
 
 <!-- Invest Amount Simulator -->
+
 <div style="margin-top:12px;background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.25);border-radius:14px;padding:14px;">
 <div style="font-size:0.62rem;color:#a78bfa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">🎯 Smart Invest Simulator</div>
 <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
 <div style="flex:1;min-width:140px;">
 <label style="font-size:0.6rem;color:#7c3aed;font-weight:600;">আমি invest করতে চাই (BDT)</label>
 <input type="number" id="aiInvestAmount" placeholder="যেমন: ১০,০০০" step="500"
-style="width:100%;margin-top:4px;background:rgba(0,0,0,0.3);border:1px solid rgba(168,85,247,0.3);padding:8px 12px;border-radius:10px;color:#e9d5ff;font-family:'Space Grotesk',sans-serif;font-size:0.82rem;"
+style="width:100%;margin-top:4px;background:rgba(0,0,0,0.3);border:1px solid rgba(168,85,247,0.3);padding:8px 12px;border-radius:10px;color:#e9d5ff;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;"
 oninput="updateInvestSimulator()">
 </div>
-<button onclick="updateInvestSimulator()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:9px 16px;border-radius:10px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;">
+<button onclick="updateInvestSimulator()" style="background:linear-gradient(135deg,#a855f7,#7c3aed);border:none;color:white;padding:9px 16px;border-radius:10px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
 <i class="fas fa-calculator"></i> Calculate
 </button>
 </div>
@@ -1073,79 +896,96 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- Suggestion Box -->
+
 <div id="aiSuggestionBox" style="margin-top:10px;"></div>
 
 <!-- Footer -->
+
 <div style="margin-top:12px;text-align:center;font-size:0.58rem;color:#4b5563;border-top:1px solid rgba(168,85,247,0.15);padding-top:8px;">
 <i class="fas fa-info-circle"></i> Real portfolio data ও GAP analysis এর উপর ভিত্তি করে। বাস্তব result ভিন্ন হতে পারে।
 </div>
 </div>
 
-<!-- CRYPTO CARDS (MODIFIED: Added Current Value) -->
+<!-- CRYPTO CARDS -->
+
 <div class="crypto-grid">
 <div class="crypto-card btc-card">
-<div class="crypto-symbol"><i class="fab fa-bitcoin"></i> BTC <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Bitcoin</span></div>
-<div class="crypto-price"><span id="btcUsd">$0.00</span></div>
-<div style="font-size:0.65rem;color:rgba(247,147,26,0.8);margin-top:3px;" id="btcBdt">0.00 BDT</div>
-<div id="btc24hPL" class="crypto-change"></div>
-<div class="crypto-holding">
-<span id="btcQty">0</span> BTC · <span id="btcValueBdt">0 BDT</span>
-</div>
-<div id="btcPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
-<!-- NEW: Current Value Line -->
-<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
-<span style="color:var(--text-sub);">Current Value:</span>
-<span id="btcCurrentValueUsd">$0.00</span> | <span id="btcCurrentValueBdt">0.00 BDT</span>
+<div style="color:#f7931a; font-weight:bold;"><i class="fab fa-bitcoin"></i> BTC</div>
+<div class="crypto-price-usd"><span id="btcUsd">$0.00</span> <span id="btc24hPL" class="crypto-pl-chip"></span></div>
+<div class="crypto-price-bdt" id="btcBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="btcQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="btcValueUsd">$0.00</span> | <span class="value-bdt" id="btcValueBdt">0.00 BDT</span></div>
+<div id="btcPurchaseInfo" class="purchase-info"></div>
 </div>
 </div>
 <div class="crypto-card eth-card">
-<div class="crypto-symbol"><i class="fab fa-ethereum"></i> ETH <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Ethereum</span></div>
-<div class="crypto-price"><span id="ethUsd">$0.00</span></div>
-<div style="font-size:0.65rem;color:rgba(98,126,234,0.9);margin-top:3px;" id="ethBdt">0.00 BDT</div>
-<div id="eth24hPL" class="crypto-change"></div>
-<div class="crypto-holding">
-<span id="ethQty">0</span> ETH · <span id="ethValueBdt">0 BDT</span>
-</div>
-<div id="ethPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
-<!-- NEW: Current Value Line -->
-<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
-<span style="color:var(--text-sub);">Current Value:</span>
-<span id="ethCurrentValueUsd">$0.00</span> | <span id="ethCurrentValueBdt">0.00 BDT</span>
+<div style="color:#627eea; font-weight:bold;"><i class="fab fa-ethereum"></i> ETH</div>
+<div class="crypto-price-usd"><span id="ethUsd">$0.00</span> <span id="eth24hPL" class="crypto-pl-chip"></span></div>
+<div class="crypto-price-bdt" id="ethBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="ethQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="ethValueUsd">$0.00</span> | <span class="value-bdt" id="ethValueBdt">0.00 BDT</span></div>
+<div id="ethPurchaseInfo" class="purchase-info"></div>
 </div>
 </div>
 <div class="crypto-card bnb-card">
-<div class="crypto-symbol"><i class="fas fa-coins"></i> BNB <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">BNB Chain</span></div>
-<div class="crypto-price"><span id="bnbUsd">$0.00</span></div>
-<div style="font-size:0.65rem;color:rgba(243,186,47,0.9);margin-top:3px;" id="bnbBdt">0.00 BDT</div>
-<div id="bnb24hPL" class="crypto-change"></div>
-<div class="crypto-holding">
-<span id="bnbQty">0</span> BNB · <span id="bnbValueBdt">0 BDT</span>
-</div>
-<div id="bnbPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
-<!-- NEW: Current Value Line -->
-<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
-<span style="color:var(--text-sub);">Current Value:</span>
-<span id="bnbCurrentValueUsd">$0.00</span> | <span id="bnbCurrentValueBdt">0.00 BDT</span>
+<div style="color:#f3ba2f; font-weight:bold;"><i class="fas fa-coins"></i> BNB</div>
+<div class="crypto-price-usd"><span id="bnbUsd">$0.00</span> <span id="bnb24hPL" class="crypto-pl-chip"></span></div>
+<div class="crypto-price-bdt" id="bnbBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="bnbQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="bnbValueUsd">$0.00</span> | <span class="value-bdt" id="bnbValueBdt">0.00 BDT</span></div>
+<div id="bnbPurchaseInfo" class="purchase-info"></div>
 </div>
 </div>
 <div class="crypto-card sol-card">
-<div class="crypto-symbol"><i class="fas fa-sun"></i> SOL <span style="font-size:0.58rem;opacity:0.6;font-weight:400;">Solana</span></div>
-<div class="crypto-price"><span id="solUsd">$0.00</span></div>
-<div style="font-size:0.65rem;color:rgba(153,69,255,0.9);margin-top:3px;" id="solBdt">0.00 BDT</div>
-<div id="sol24hPL" class="crypto-change"></div>
-<div class="crypto-holding">
-<span id="solQty">0</span> SOL · <span id="solValueBdt">0 BDT</span>
-</div>
-<div id="solPurchaseInfo" style="margin-top:6px;font-size:0.6rem;color:rgba(255,255,255,0.35);"></div>
-<!-- NEW: Current Value Line -->
-<div style="margin-top:8px; font-size:0.65rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px;">
-<span style="color:var(--text-sub);">Current Value:</span>
-<span id="solCurrentValueUsd">$0.00</span> | <span id="solCurrentValueBdt">0.00 BDT</span>
+<div style="color:#9945ff; font-weight:bold;"><i class="fas fa-sun"></i> SOL</div>
+<div class="crypto-price-usd"><span id="solUsd">$0.00</span> <span id="sol24hPL" class="crypto-pl-chip"></span></div>
+<div class="crypto-price-bdt" id="solBdt">0.00 BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Quantity:</span><span id="solQty">0</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd" id="solValueUsd">$0.00</span> | <span class="value-bdt" id="solValueBdt">0.00 BDT</span></div>
+<div id="solPurchaseInfo" class="purchase-info"></div>
 </div>
 </div>
 </div>
 
+<!-- CRYPTO AI ANALYSIS -->
+
+<div id="cryptoAiSection" style="background:linear-gradient(145deg,#0a0f1c,#0f0520,#0a0f1c); border-radius:22px; padding:16px; margin-bottom:14px; border:1px solid rgba(250,204,21,0.2); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+<div style="display:flex; align-items:center; gap:10px;">
+<div style="position:relative; width:36px; height:36px; flex-shrink:0;">
+<div style="position:absolute;inset:0;border-radius:10px;background:linear-gradient(135deg,#f7931a,#f59e0b);box-shadow:0 4px 14px rgba(247,147,26,0.5);animation:aiPulse 2s ease-in-out infinite;"></div>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1rem;">₿</div>
+</div>
+<div>
+<div style="font-family:'Sora',sans-serif; font-size:0.9rem; font-weight:800; color:#fbbf24;">Crypto AI Signal</div>
+<div style="font-size:0.58rem; color:#6b7280; margin-top:1px;">Buy / Hold / Sell · Based on 24h & 7d data</div>
+</div>
+</div>
+<div style="display:flex; gap:8px; align-items:center;">
+<button onclick="runCryptoAnalysis()" style="background:linear-gradient(135deg,#f7931a,#f59e0b);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 2px 10px rgba(247,147,26,0.4);">
+<i class="fas fa-sync-alt"></i> Analyze Now
+</button>
+<button onclick="toggleCryptoAi()" id="cryptoAiToggleBtn" style="background:rgba(100,116,139,0.15);border:1px solid rgba(100,116,139,0.35);color:#94a3b8;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;" title="Collapse">
+<i class="fas fa-chevron-up" id="cryptoAiChevron"></i>
+</button>
+</div>
+</div>
+<div id="cryptoAiBody">
+<div id="cryptoAnalysisGrid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+<div style="grid-column:span 2; text-align:center; padding:20px; color:#4b5563; font-size:0.75rem;">
+👆 "Analyze Now" চাপুন — BTC, ETH, BNB, SOL এর signal দেখুন
+</div>
+</div>
+<div id="cryptoAnalysisSummary" style="margin-top:10px;"></div>
+</div>
+</div>
+
 <!-- DASHBOARD STATS -->
+
 <div class="dashboard-grid">
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-chart-line"></i> Fixed</div>
@@ -1172,18 +1012,15 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- ADD INVESTMENT FORM -->
+
 <div id="formCard" class="card" style="display:none;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-<h3 style="margin-bottom:0;"><i class="fas fa-plus-circle" style="color:var(--accent);"></i> Add New Investment</h3>
-<button onclick="document.getElementById('formCard').style.display='none'" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:0.85rem;flex-shrink:0;">✕</button>
-</div>
+<h3><i class="fas fa-plus-circle"></i> Add New Investment</h3>
 <div class="form-row">
 <div class="input-group">
 <label>Platform</label>
 <select id="platform">
 <option>Binance</option><option>Wegro</option><option>Biniyog</option>
 <option>iFarmer</option><option>Islami Bank</option>
-<option>Mutual Fund</option><option>Real Estate</option>
 <option value="WAIT_MONEY">⏳ WAIT MONEY</option><option>Other</option>
 </select>
 </div>
@@ -1200,8 +1037,6 @@ oninput="updateInvestSimulator()">
 <option value="Business">Shop/Business</option>
 <option value="Gold">Gold</option>
 <option value="WAHED">Wahed Invest</option>
-<option value="RENTAL">Rental Income (Real Estate)</option>
-<option value="MUTUAL_FUND">Mutual Fund</option>
 <option value="LOAN_GIVEN">Loan Given (ধার দিয়েছি)</option>
 <option value="LOAN_TAKEN">Loan Taken (ধার নিয়েছি)</option>
 <option value="BANK_DEPOSIT">Bank Deposit</option>
@@ -1253,6 +1088,7 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- MONTHLY PROFIT CHART -->
+
 <div class="monthly-chart-modern">
 <div class="monthly-chart-header">
 <div class="monthly-chart-title">
@@ -1281,6 +1117,7 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- PLATFORM DISTRIBUTION CHART -->
+
 <div class="charts-grid">
 <div class="card">
 <h3><i class="fas fa-chart-pie"></i> Platforms Distribution (Active Only)</h3>
@@ -1289,7 +1126,7 @@ oninput="updateInvestSimulator()">
 <canvas id="platformChart" width="180" height="180" style="width:180px; height:180px;"></canvas>
 <div id="platformChartCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
 <div style="font-size:0.58rem;color:var(--text-sub);">Total</div>
-<div id="platformChartTotal" style="font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:800;color:var(--accent);"></div>
+<div id="platformChartTotal" style="font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:800;color:var(--accent);"></div>
 </div>
 </div>
 <div id="platformLegend" class="platform-legend" style="flex:1; justify-content:flex-start; flex-direction:column; gap:7px;"></div>
@@ -1298,9 +1135,11 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- ACTIVE PORTFOLIO -->
+
 <div class="card"><h2><i class="fas fa-briefcase"></i> Active Portfolio by Platform</h2><div id="activePortfolio"></div></div>
 
 <!-- WAIT MONEY -->
+
 <div class="card" id="waitMoneyCard" style="display:none;">
 <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:15px;">
 <h2><i class="fas fa-clock" style="color:#f59e0b;"></i> ⏳ Wait Money (Pending)</h2>
@@ -1310,59 +1149,78 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- COMPLETED -->
+
 <div class="card"><h2><i class="fas fa-check-circle"></i> Completed Projects</h2><div id="completedPortfolio"></div></div>
 
 <!-- HISTORY -->
+
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
+<!-- WITHDRAWAL LOG CHART -->
+
+<div class="card" id="withdrawalLogCard">
+<h2><i class="fas fa-chart-bar" style="color:#10b981;"></i> Withdrawal Log Chart</h2>
+<p style="font-size:0.68rem; color:var(--text-sub); margin-bottom:12px;">প্রতি মাসে কত টাকা তুলেছেন</p>
+<div style="height:200px; position:relative;">
+<canvas id="withdrawalLogChart" style="width:100%; height:200px;"></canvas>
+</div>
+</div>
+
+<!-- MONTHLY BUDGET TRACKER -->
+
+<div class="card" id="budgetCard">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+<h2><i class="fas fa-wallet" style="color:#06b6d4;"></i> Monthly Budget Tracker</h2>
+<button onclick="openBudgetModal()" style="background:linear-gradient(135deg,#06b6d4,#0891b2);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-plus"></i> এই মাসের বাজেট
+</button>
+</div>
+<div id="budgetDisplay">
+<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.75rem;">
+এখনো বাজেট add করা হয়নি — "এই মাসের বাজেট" চাপুন
+</div>
+</div>
 </div>
 
 <!-- REMINDER SECTION REMOVED -->
 
-<!-- CALENDAR MODAL -->
-<div id="calendarModal" class="modal">
-<div class="modal-content" style="max-width:720px;">
-<!-- Header -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<!-- ZAKAT CALCULATOR -->
+
+<div class="card" id="zakatCard">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
 <div style="display:flex;align-items:center;gap:10px;">
-<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#0891b2);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(6,182,212,0.4);">
-<i class="fas fa-calendar-alt" style="color:white;font-size:1rem;"></i>
+<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(245,158,11,0.4);">
+<span style="font-size:1.1rem;">☽</span>
 </div>
 <div>
-<div style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:800;color:#06b6d4;">Investment Calendar</div>
-<div style="font-size:0.58rem;color:#6b7280;margin-top:1px;">🟢 Start · 🔴 End · 📌 Click date for details</div>
+<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#f59e0b;">যাকাত হিসাব</div>
+<div style="font-size:0.6rem;color:#6b7280;margin-top:1px;">নিসাব: ৮৫ গ্রাম স্বর্ণ · হার: ২.৫%</div>
 </div>
 </div>
-<button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
+<button onclick="openZakatModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+<i class="fas fa-calculator"></i> যাকাত হিসাব করুন
+</button>
 </div>
-
-<!-- Month Summary Stats -->
-<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
-
-<!-- Navigation -->
-<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
-<button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
-<div style="text-align:center;">
-<div id="calTitle" style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
-</div>
-<button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+<div id="zakatDisplay"></div>
 </div>
 
-<div class="calendar-grid" id="calDayHeaders"></div>
-<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
+<div class="footer">
+<p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
+<p style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Together building wealth, together building life 🌙</p>
+<p style="font-weight:bold; font-size:0.9rem; color:var(--accent); margin-top:6px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua's Dua always 🤲</p>
+<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v15.1 | P&L Ticker + Visitor Counter + AI Brain v2</p>
+</div>
 
-<!-- Day Detail Panel -->
-<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-<div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:#06b6d4;"></div>
-<button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
-</div>
-<div id="calDetailBody"></div>
-</div>
+<!-- VISITOR COUNTER (fixed bottom-right) -->
+
+<div id="visitorCounter" style="position:fixed; bottom:16px; right:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:0.65rem; color:var(--text-sub); z-index:999; display:flex; align-items:center; gap:6px; box-shadow:0 4px 16px var(--shadow); backdrop-filter:blur(10px);">
+<i class="fas fa-eye" style="color:var(--accent); font-size:0.7rem;"></i>
+<span id="visitorCountText">...</span>
 </div>
 </div>
 
-<!-- MODALS (Edit, MMPDA, Partial, MSSA, TopUp, Rental, Crypto Sell, Wahed) -->
+<!-- MODALS -->
+
 <div id="editModal" class="modal">
 <div class="modal-content">
 <h3>✏️ Edit Investment</h3>
@@ -1395,6 +1253,8 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
+<!-- PARTIAL WITHDRAW MODAL -->
+
 <div id="partialModal" class="modal">
 <div class="modal-content">
 <h3>💸 Partial Withdraw</h3>
@@ -1414,6 +1274,8 @@ oninput="updateInvestSimulator()">
 </small>
 </div>
 </div>
+
+<!-- MSSA INSTALLMENT MODAL -->
 
 <div id="mssaModal" class="modal">
 <div class="modal-content">
@@ -1443,6 +1305,8 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
+<!-- TOP-UP MODAL (Wait Money / Bank Deposit) -->
+
 <div id="topUpModal" class="modal">
 <div class="modal-content">
 <h3>➕ আরো টাকা যোগ করুন</h3>
@@ -1468,35 +1332,41 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
-<div id="rentalModal" class="modal">
+<!-- BUDGET MODAL -->
+
+<div id="budgetModal" class="modal">
 <div class="modal-content">
-<h3><i class="fas fa-home" style="color:#06b6d4;"></i> Rental Income Withdrawal</h3>
-<label>Select Real Estate Investment:</label>
-<select id="rentalSelect" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);" onchange="updateRentalInfo()">
-<option value="">-- Select Property --</option>
-</select>
-<div id="rentalInfo" style="margin-top:10px;background:var(--bg-input);border-radius:10px;padding:10px;font-size:0.75rem;display:none;"></div>
-<label style="margin-top:12px;">Rental Amount Received (BDT):</label>
-<input type="number" id="rentalAmount" step="any" placeholder="এই মাসে কত ভাড়া পেয়েছেন">
-<label style="margin-top:10px;">Month/Period:</label>
-<input type="text" id="rentalPeriod" placeholder="যেমন: May 2026, Q1 2026">
-<label style="margin-top:10px;">Note (optional):</label>
-<input type="text" id="rentalNote" placeholder="যেমন: ভাড়াটিয়ার নাম, flat no...">
-<div id="rentalPreview" style="margin-top:10px;"></div>
+<h3><i class="fas fa-wallet" style="color:#06b6d4;"></i> এই মাসের বাজেট</h3>
+<div id="budgetMonthLabel" style="font-size:0.8rem;color:var(--text-sub);margin-bottom:12px;"></div>
+<label>মোট Income (BDT):</label>
+<input type="number" id="budgetIncome" step="any" placeholder="এই মাসে মোট আয়">
+<label>মোট Expense (BDT):</label>
+<input type="number" id="budgetExpense" step="any" placeholder="এই মাসে মোট খরচ">
+<label>Investment করেছি (BDT):</label>
+<input type="number" id="budgetInvested" step="any" placeholder="এই মাসে invest করা">
+<label>Note (optional):</label>
+<input type="text" id="budgetNote" placeholder="যেমন: ঈদের মাস, বোনাস পেয়েছি...">
+<div id="budgetCalc" style="margin-top:10px; background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:10px; padding:10px; font-size:0.78rem; display:none;">
+<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-sub);">Savings:</span><strong id="budgetSavings" style="color:#4ade80;"></strong></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;"><span style="color:var(--text-sub);">Savings Rate:</span><strong id="budgetRate" style="color:#06b6d4;"></strong></div>
+</div>
 <div style="display:flex;gap:8px;margin-top:15px;">
-<button onclick="confirmRentalWithdraw()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#06b6d4,#0891b2);">
-<i class="fas fa-money-bill-wave"></i> Confirm Income
-</button>
-<button onclick="closeRentalModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+<button onclick="saveBudget()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#06b6d4,#0891b2);">💾 Save</button>
+<button onclick="closeBudgetModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
 </div>
 </div>
+
+<!-- REMINDER MODAL REMOVED -->
+
+<!-- CRYPTO SELL MODAL -->
 
 <div id="cryptoSellModal" class="modal">
 <div class="modal-content">
 <h3 style="color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</h3>
 <p style="font-size:0.72rem;color:var(--text-sub);margin-bottom:12px;">FIFO — পুরনো entry থেকে আগে বাদ যাবে। Sell amount USD এ দিন।</p>
 
+```
 <label>Coin:</label>
 <select id="sellCoin" onchange="updateSellCoinInfo()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);margin-bottom:10px;">
 <option value="BTC">₿ BTC</option>
@@ -1521,8 +1391,60 @@ oninput="updateInvestSimulator()">
 <button onclick="executeCryptoSell()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;">💰 Sell করুন</button>
 <button onclick="closeCryptoSellModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
+```
+
 </div>
 </div>
+
+<!-- ZAKAT MODAL -->
+
+<div id="zakatModal" class="modal">
+<div class="modal-content">
+<h3 style="color:#f59e0b;">☽ যাকাত হিসাব — <span id="zakatYearTitle"></span></h3>
+<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:12px;margin-bottom:14px;font-size:0.72rem;color:var(--text-sub);line-height:1.7;">
+<b style="color:#f59e0b;">নিসাব:</b> ৮৫ গ্রাম স্বর্ণের বাজার মূল্য · <b style="color:#f59e0b;">হার:</b> মোট সম্পদের ২.৫%<br>
+শর্ত: সম্পদ নিসাবের বেশি হলে এবং এক চন্দ্রবছর (৩৫৪ দিন) ধরে থাকলে যাকাত ফরজ।
+</div>
+
+```
+<label>স্বর্ণের বর্তমান দাম (BDT/গ্রাম):</label>
+<input type="number" id="goldPricePerGram" placeholder="যেমন: 9500" step="1" oninput="updateZakatPreview()">
+<div style="font-size:0.62rem;color:#6b7280;margin-top:2px;">বাংলাদেশ জুয়েলার্স সমিতির দাম দিন</div>
+
+<label style="margin-top:10px;">যাকাতযোগ্য সম্পদ (BDT) — auto calculated:</label>
+<div id="zakatableBreakdown" style="background:var(--bg-input);border-radius:12px;padding:12px;margin-bottom:10px;font-size:0.72rem;"></div>
+
+<label>অতিরিক্ত সম্পদ (নগদ, অন্যান্য) BDT:</label>
+<input type="number" id="zakatExtraAssets" placeholder="নগদ টাকা, অন্য সম্পদ" step="1" value="0" oninput="updateZakatPreview()">
+
+<label style="margin-top:10px;">ঋণ / দায় (BDT) — বাদ যাবে:</label>
+<input type="number" id="zakatLiabilities" placeholder="যা পরিশোধ করতে হবে" step="1" value="0" oninput="updateZakatPreview()">
+
+<div id="zakatPreview" style="margin-top:12px;"></div>
+
+<label style="margin-top:12px;">বছর:</label>
+<select id="zakatYear" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);">
+<option value="2026">2026</option>
+<option value="2025">2025</option>
+<option value="2024">2024</option>
+</select>
+
+<label style="margin-top:10px;">যাকাত দিয়েছেন? (পরে update করুন)</label>
+<div style="display:flex;gap:8px;">
+<input type="number" id="zakatPaid" placeholder="কত BDT দিয়েছেন" step="1" style="flex:1;">
+<input type="date" id="zakatPaidDate" style="flex:1;">
+</div>
+
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveZakat()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;">💾 Save করুন</button>
+<button onclick="closeZakatModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
+```
+
+</div>
+</div>
+
+<!-- WAHED UPDATE MODAL -->
 
 <div id="wahedModal" class="modal">
 <div class="modal-content">
@@ -1540,17 +1462,50 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
-<div class="footer">
-<p><i class="fas fa-crown"></i> <strong style="color:var(--accent);">TASLIM RONY</strong> | CEO &nbsp;💍&nbsp; <strong style="color:#f9a8d4;">AJWA JANNAT DUA</strong> | Co-CEO</p>
-<p style="font-size:0.8rem; color:var(--text-sub); margin-top:4px;">Together building wealth, together building life 🌙</p>
-<p style="font-weight:bold; font-size:0.9rem; color:var(--accent); margin-top:6px;"><i class="fas fa-hand-sparkles"></i> With Ajwa Jannat Dua's Dua always 🤲</p>
-<p style="font-size:0.7rem; color:var(--text-sub); margin-top:6px;">v15.1 | P&L Ticker + Visitor Counter + AI Brain v2</p>
+<!-- CALENDAR MODAL -->
+
+<div id="calendarModal" class="modal">
+<div class="modal-content" style="max-width:720px;">
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+<div style="display:flex;align-items:center;gap:10px;">
+<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#06b6d4,#0891b2);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(6,182,212,0.4);">
+<i class="fas fa-calendar-alt" style="color:white;font-size:1rem;"></i>
+</div>
+<div>
+<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#06b6d4;">Investment Calendar</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:1px;">🟢 Start · 🔴 End · 📌 Click date for details</div>
+</div>
+</div>
+<button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
 </div>
 
-<!-- VISITOR COUNTER (fixed bottom-right) -->
-<div id="visitorCounter" style="position:fixed; bottom:16px; right:16px; background:var(--bg-card); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:0.65rem; color:var(--text-sub); z-index:999; display:flex; align-items:center; gap:6px; box-shadow:0 4px 16px var(--shadow); backdrop-filter:blur(10px);">
-<i class="fas fa-eye" style="color:var(--accent); font-size:0.7rem;"></i>
-<span id="visitorCountText">...</span>
+```
+<!-- Month Summary Stats -->
+<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
+
+<!-- Navigation -->
+<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
+<button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
+<div style="text-align:center;">
+<div id="calTitle" style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
+</div>
+<button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+</div>
+
+<div class="calendar-grid" id="calDayHeaders"></div>
+<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
+
+<!-- Day Detail Panel -->
+<div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+<div id="calDetailTitle" style="font-weight:700;font-size:0.85rem;color:#06b6d4;"></div>
+<button onclick="document.getElementById('calDayDetail').style.display='none'" style="background:none;border:none;color:var(--text-sub);cursor:pointer;font-size:1rem;">✕</button>
+</div>
+<div id="calDetailBody"></div>
+</div>
+```
+
 </div>
 </div>
 
@@ -1584,6 +1539,7 @@ let status = document.getElementById('rateStatus');
 if(spinner) spinner.className = 'fas fa-sync-alt fa-spin';
 if(status) status.textContent = 'Fetching live rates...';
 try {
+// Use exchangerate-api (free, no key needed for basic)
 let res = await fetch('https://open.er-api.com/v6/latest/USD');
 let data = await res.json();
 if(data && data.rates) {
@@ -1600,6 +1556,7 @@ if(status) status.textContent = `Live • Updated ${ratesLastUpdated.toLocaleTim
 renderStats();
 }
 } catch(e) {
+// Fallback: try another free API
 try {
 let res2 = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=BDT,EUR,GBP,SAR');
 let data2 = await res2.json();
@@ -1669,7 +1626,8 @@ html.setAttribute('data-theme', next);
 localStorage.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
-setTimeout(() => { renderPlatformChart(); renderMonthlyChart(); }, 100);
+// Re-render charts for new theme
+setTimeout(() => { renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); }, 100);
 }
 function loadTheme() {
 let saved = localStorage.getItem('theme') || 'dark';
@@ -1756,6 +1714,7 @@ const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
 let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
 if(cryptoPercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
 else if(cryptoPercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
+// Note: loan given increases caution but not risk level itself
 
 // ── Portfolio Health Score (0-100) ──
 let healthScore = 100;
@@ -1777,6 +1736,7 @@ active.forEach(inv=>{ if(inv.isCrypto&&cryptoPrices[inv.type]&&inv.purchasePrice
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let platMap = {};
 history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
+// fallback: use active investment amounts if no history
 if(Object.keys(platMap).length === 0) {
 active.forEach(inv => {
 if(!isWaitMoney(inv)) platMap[inv.platform] = (platMap[inv.platform]||0) + (inv.amountBDT||0);
@@ -1796,6 +1756,7 @@ const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).so
 // 🧠 AI ENGINE v2 — Clean Architecture (Gap-Based Core Brain)
 // ══════════════════════════════════════════════════════════════
 
+// PART 5 — Data Structure
 function getPortfolioData() {
 const total = Math.max(currentValue, 1);
 return {
@@ -1811,12 +1772,14 @@ values: { crypto:cryptoValue, farming:farmValue, business:businessValue, safe:sa
 };
 }
 
+// PART 1 — calculateGaps (only positive gaps = underweight categories)
 function calculateGaps(current, target) {
 let gaps = {};
 for(let key in target) gaps[key] = Math.max(0, target[key] - current[key]);
 return gaps;
 }
 
+// PART 2 — Platform Mapping
 const platformMap = {
 crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRate:0.11 },
 farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
@@ -1826,19 +1789,21 @@ safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
 
 const TARGET = { crypto:15, farming:35, business:25, safe:25 };
 
+// PART 1 — getAIPlan (core brain — proportional gap allocation)
 function getAIPlan(data, investAmount) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
 const totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
-if(totalGap === 0) return null;
+if(totalGap === 0) return null; // balanced
 
 const baseAmount = investAmount || (data.idleMoney * 0.8) || 10000;
 let result = [];
 
+// Sort by gap size (biggest gap first)
 Object.entries(gaps)
 .sort((a,b) => b[1]-a[1])
 .forEach(([key, gap]) => {
 if(gap === 0) return;
-if(key === 'safe' && baseAmount < 50000) return;
+if(key === 'safe' && baseAmount < 50000) return; // MMPDA needs 50k+
 let pct = Math.round((gap / totalGap) * 100);
 let amt = Math.round(baseAmount * pct / 100);
 if(amt < 300) return;
@@ -1857,11 +1822,13 @@ reason: `এখন ${curPct.toFixed(0)}% → target ${TARGET[key]}% (gap ${gap.t
 });
 });
 
+// Normalize pct to 100%
 const totPct = result.reduce((s,r)=>s+r.pct, 0);
 result.forEach(r => { r.pct = Math.round(r.pct/totPct*100); r.amount = Math.round(baseAmount*r.pct/100); });
 return result;
 }
 
+// PART 6 — generateInsight
 function generateInsight(data) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
 let sorted = Object.entries(gaps).sort((a,b)=>b[1]-a[1]);
@@ -1872,6 +1839,7 @@ let pm = platformMap[key];
 lines.push(`${pm.icon} <b>${pm.names[0]}</b> ${gap.toFixed(0)}% underweight — আরো invest করুন`);
 }
 });
+// Over-allocated warning
 Object.entries(data.currentAllocation).forEach(([key, cur]) => {
 let over = cur - TARGET[key];
 if(over > 10) lines.push(`⚠️ <b>${platformMap[key].names[0]}</b> ${over.toFixed(0)}% over target`);
@@ -1879,6 +1847,7 @@ if(over > 10) lines.push(`⚠️ <b>${platformMap[key].names[0]}</b> ${over.toFi
 return lines;
 }
 
+// splitCrypto — internal crypto distribution
 function splitCrypto(cryptoAmount) {
 return [
 { name:'BTC', pct:40, amount:Math.round(cryptoAmount*0.40), color:'#f7931a', icon:'₿' },
@@ -1888,14 +1857,17 @@ return [
 ];
 }
 
+// ── Run the engine ──
 const PORT_DATA = getPortfolioData();
 const PORT = { total:PORT_DATA.totalPortfolio, idle:waitMoney, ...PORT_DATA.values };
 const CURR = PORT_DATA.currentAllocation;
 const GAP = calculateGaps(CURR, TARGET);
 
+// Store globally for simulator
 window._AI_BRAIN = {
 getAIPlan, getPortfolioData, calculateGaps, generateInsight, splitCrypto,
 platformMap, TARGET, PORT, CURR, GAP,
+// Legacy aliases for simulator compatibility
 advancedAI: (amount) => getAIPlan(PORT_DATA, amount) || [],
 NAME_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.names.join(' / ')])),
 COLOR_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.color])),
@@ -1904,6 +1876,7 @@ RETURN_MAP:Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.retu
 };
 if(PORT.idle > 50000) window._AI_BRAIN.boostMsg = `⚡ ${formatNumber(PORT.idle)} BDT idle — এখনই invest করুন!`;
 
+// ── AI Suggestion (from same engine) ──
 const suggestPlan = getAIPlan(PORT_DATA, waitMoney > 1000 ? waitMoney : Math.round(PORT.total*0.1));
 const topOption = suggestPlan?.[0] || { name:'iFarmer / Wegro', icon:'🌱', annualReturn:0.19, pct:40, gap:10, current:0, target:35 };
 
@@ -1929,11 +1902,12 @@ suggestionDetail= topAmt > 0
 suggestionIcon = topOption.icon;
 }
 
+// ── Health Score Bar ──
 scoreBar.innerHTML = `
 <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
 <span style="font-size:0.68rem; color:#a78bfa; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Portfolio Health Score</span>
-<span style="font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:800; color:${healthColor};">${healthScore}/100 — ${healthLabel}</span>
+<span style="font-family:'Sora',sans-serif; font-size:1.1rem; font-weight:800; color:${healthColor};">${healthScore}/100 — ${healthLabel}</span>
 </div>
 <div style="background:rgba(0,0,0,0.3); border-radius:10px; height:8px; overflow:hidden;">
 <div style="background:linear-gradient(90deg,${healthColor},${healthColor}aa); width:${healthScore}%; height:100%; border-radius:10px; transition:width 1s ease; box-shadow:0 0 8px ${healthColor}66;"></div>
@@ -1945,6 +1919,7 @@ scoreBar.innerHTML = `
 </div>
 </div>`;
 
+// ── Main Metrics Grid ──
 grid.innerHTML = `
 <div class="ai-metric">
 <div class="ai-metric-label">📅 Monthly</div>
@@ -1977,6 +1952,7 @@ grid.innerHTML = `
 <div class="ai-metric-sub">${bestPlatformLabel}</div>
 </div>`;
 
+// ── Category Breakdown Panel ──
 let catBreakdown = document.getElementById('aiCategoryBreakdown');
 if(catBreakdown) {
 const cats = [
@@ -1999,7 +1975,7 @@ return `<div style="background:rgba(255,255,255,0.03);border-radius:10px;padding
 <span style="color:${c.color};font-weight:700;font-size:0.72rem;">${c.icon} ${c.label}</span>
 <span style="font-size:0.58rem;color:${statusColor};font-weight:600;">${status}</span>
 </div>
-<div style="font-size:0.9rem;font-weight:800;color:#e2e8f0;font-family:'Outfit',sans-serif;">${cur.toFixed(0)}%</div>
+<div style="font-size:0.9rem;font-weight:800;color:#e2e8f0;font-family:'Sora',sans-serif;">${cur.toFixed(0)}%</div>
 <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;margin:4px 0;overflow:hidden;position:relative;">
 <div style="background:${c.color};width:${Math.min(cur,100)}%;height:100%;border-radius:4px;opacity:0.8;"></div>
 <div style="position:absolute;top:0;height:100%;left:${tgt}%;width:2px;background:rgba(255,255,255,0.4);"></div>
@@ -2012,6 +1988,7 @@ ${PORT.idle>1000 ? `<div style="margin-top:8px;background:rgba(245,158,11,0.1);b
 </div>`;
 }
 
+// ── Insight Box (generateInsight from AI Engine v2) ──
 let insightLines = generateInsight(PORT_DATA);
 if(activeCount > 0) insightLines.unshift(`<b>${activeCount}</b> টি active investment চলছে।`);
 if(totalActualProfit > 0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
@@ -2027,6 +2004,7 @@ insightEl.innerHTML = `
 ${insightLines.map(l=>`<div style="font-size:0.72rem;color:#d8b4fe;line-height:1.6;display:flex;gap:6px;margin-bottom:5px;"><span style="color:#7c3aed;flex-shrink:0;">▸</span><span>${l}</span></div>`).join('')}
 </div>`;
 
+// ── Suggestion Box ──
 suggestionBox.innerHTML = `
 <div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1));border:1px solid rgba(168,85,247,0.45);border-radius:14px;padding:14px;">
 <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -2063,6 +2041,7 @@ let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
 let daysInPrev = new Date(calYear, calMonth, 0).getDate();
 let today = new Date(); today.setHours(0,0,0,0);
 
+// Build event map
 let eventsMap = {};
 investments.forEach(inv => {
 [[inv.start,'start'],[inv.end,'end']].forEach(([dateField, eType]) => {
@@ -2074,6 +2053,7 @@ eventsMap[d].push({ inv, eventType:eType });
 });
 });
 
+// Month summary stats
 let monthInvested = 0, monthExpiring = 0, monthStarting = 0;
 Object.entries(eventsMap).forEach(([d, evs]) => {
 if(d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)) {
@@ -2091,7 +2071,7 @@ summaryEl.innerHTML = [
 { label:'Amount Starting', val:formatNumber(monthInvested)+' BDT', color:'#facc15', icon:'💵' },
 ].map(s=>`<div style="background:var(--bg-input);border-radius:10px;padding:8px 10px;text-align:center;border:1px solid var(--border);">
 <div style="font-size:0.75rem;">${s.icon}</div>
-<div style="font-family:'Outfit',sans-serif;font-size:0.88rem;font-weight:800;color:${s.color};">${s.val}</div>
+<div style="font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:800;color:${s.color};">${s.val}</div>
 <div style="font-size:0.58rem;color:var(--text-sub);margin-top:1px;">${s.label}</div>
 </div>`).join('');
 }
@@ -2164,6 +2144,7 @@ let color = isStart ? '#4ade80' : '#f87171';
 let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
 let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
 
+// Current crypto value
 let cryptoInfo = '';
 if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
@@ -2177,6 +2158,7 @@ cryptoInfo = `
 </div>`;
 }
 
+// Duration
 let duration = '';
 if(inv.start && inv.end) {
 let s = new Date(inv.start), e = new Date(inv.end);
@@ -2188,6 +2170,7 @@ let diffLabel = diffDays===0 ? '<span style="color:#facc15;font-weight:700;">⚡
 : diffDays>0 ? `<span style="color:#06b6d4;">📆 ${diffDays} days from now</span>`
 : `<span style="color:#94a3b8;">⏳ ${Math.abs(diffDays)} days ago</span>`;
 
+// Progress bar if active investment with start & end
 let progressBar = '';
 if(inv.start && inv.end && inv.status==='active') {
 let s = new Date(inv.start).getTime(), e = new Date(inv.end).getTime(), n = Date.now();
@@ -2255,6 +2238,8 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 }
 }
 
+// ====== NET WORTH CHART ======
+// ====== STATS ======
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
@@ -2275,17 +2260,24 @@ let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).redu
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
 document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
 
+// ── Total profit since inception (all sources) ──
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
+// 1. Realized profit: from withdrawal history
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0);
+
+// 2. Unrealized crypto P&L: current value - cost basis
 let cryptoUnrealized = 0;
 investments.filter(i=>i.status==='active'&&i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice).forEach(inv=>{
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
 let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
 cryptoUnrealized += curVal - costVal;
 });
+
+// 3. Non-crypto accrued profit: actualProfit field on each investment
 let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
+
 let totalProfit = realizedProfit + cryptoUnrealized + nonCryptoProfit;
 let pos = totalProfit >= 0;
 let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
@@ -2293,7 +2285,7 @@ let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
 profitEl.innerHTML = `
 <div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.25)':'rgba(248,113,113,0.25)'};border-radius:10px;padding:8px 10px;">
 <div style="font-size:0.58rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">📊 শুরু থেকে মোট লাভ</div>
-<div style="font-size:0.95rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};font-family:'Outfit',sans-serif;">${pos?'+':''}${formatNumber(totalProfit)} BDT</div>
+<div style="font-size:0.95rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};font-family:'Sora',sans-serif;">${pos?'+':''}${formatNumber(totalProfit)} BDT</div>
 <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;">
 <span style="font-size:0.58rem;color:#6b7280;">${pos?'+':''}${pct.toFixed(1)}% return</span>
 ${realizedProfit>0?`<span style="font-size:0.58rem;color:#94a3b8;">✅ Realized: ${formatNumber(realizedProfit)}</span>`:''}
@@ -2312,15 +2304,22 @@ function updateWeeklyActiveUI() { let el=document.getElementById('weeklyPLContai
 function computeTotalPortfolio24hChange() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto24hPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto24hPrices[inv.type]; } else if(!inv.isCrypto&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
 function updateTotalPortfolio24hUI() { let el=document.getElementById('total24hPLContainer'); if(!el) return; let d=computeTotalPortfolio24hChange(); if(!d){ el.innerHTML='<div class="pl-indicator">24h Change: --</div>'; return; } let s=d.isPositive?'+':''; el.innerHTML=`<div class="pl-indicator ${d.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-chart-line"></i> <strong>24h P&L:</strong> ${s}${formatNumber(d.bdt)} BDT (${s}${d.percent.toFixed(2)}%)</div>`; }
 
+// ====== MONTHLY CHART ======
 function renderMonthlyChart() {
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let monthlyMap = {};
+
+// STEP 1: Build proper data structure { month, invested, profit }
+let monthlyMap = {}; // key: "YYYY-M"
+
+// Profit from withdrawal history
 history.forEach(h => {
 let dt = new Date(h.date);
 let key = `${dt.getFullYear()}-${dt.getMonth()}`;
 if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
 monthlyMap[key].profit += (h.profit||0);
 });
+
+// Invested from investments start date
 investments.forEach(inv => {
 if(!inv.start) return;
 let dt = new Date(inv.start);
@@ -2328,6 +2327,8 @@ let key = `${dt.getFullYear()}-${dt.getMonth()}`;
 if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
 monthlyMap[key].invested += (inv.amountBDT||0);
 });
+
+// Demo data if no real data
 if(Object.keys(monthlyMap).length === 0) {
 const demo = [
 {year:2024,month:0,invested:20000,profit:3500},{year:2024,month:1,invested:25000,profit:5200},
@@ -2343,9 +2344,11 @@ const demo = [
 ];
 demo.forEach(d => { monthlyMap[`${d.year}-${d.month}`] = d; });
 }
+
 let years = [...new Set(Object.values(monthlyMap).map(d=>d.year))].sort();
 let latestYear = years[years.length-1] || new Date().getFullYear();
 if(!years.includes(currentYear)) currentYear = latestYear;
+
 let yearSel = document.getElementById('yearSelector');
 if(yearSel) {
 yearSel.innerHTML = '';
@@ -2367,43 +2370,85 @@ renderMonthlyChartForYear(currentYear, monthlyMap);
 
 function renderMonthlyChartForYear(year, monthlyMap) {
 const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// STEP 1: Build 12-month arrays, 0 for missing (STEP 7: no null)
 let monthlyData = monthNames.map((m, i) => {
 let key = `${year}-${i}`;
 let data = monthlyMap[key] || { invested:0, profit:0 };
 return { month:m, invested: data.invested||0, profit: data.profit||0 };
 });
+
 let investedArr = monthlyData.map(d => d.invested);
 let profitArr = monthlyData.map(d => d.profit);
+
+// STEP 4: Monthly avg — only months with data
+let monthsWithProfit = monthlyData.filter(d => d.profit > 0);
+let monthsWithInvest = monthlyData.filter(d => d.invested > 0);
 let totalProfit = profitArr.reduce((a,b)=>a+b, 0);
 let totalInvested = investedArr.reduce((a,b)=>a+b, 0);
-let monthsWithProfit = monthlyData.filter(d => d.profit > 0);
 let avgProfit = monthsWithProfit.length > 0 ? totalProfit / monthsWithProfit.length : 0;
+
+// STEP 5: Best month
 let bestMonth = monthlyData.reduce((max,m) => m.profit > max.profit ? m : max, monthlyData[0]);
+
 document.getElementById('totalProfitYear').innerHTML = formatNumber(totalProfit) + ' BDT';
-document.getElementById('bestMonthValue').innerHTML = formatNumber(bestMonth.profit) + ' BDT' + (bestMonth.profit > 0 ? ` (${bestMonth.month})` : '');
+document.getElementById('bestMonthValue').innerHTML = formatNumber(bestMonth.profit) + ' BDT' + (bestMonth.profit>0 ? ` (${bestMonth.month})` : '');
 document.getElementById('avgMonthValue').innerHTML = formatNumber(avgProfit) + ' BDT';
+
 let isDark = document.documentElement.getAttribute('data-theme')==='dark';
 let ctx = document.getElementById('monthlyProfitChart').getContext('2d');
 if(monthlyChart) monthlyChart.destroy();
+
+// STEP 2: Chart config
 monthlyChart = new Chart(ctx, {
 type: 'bar',
 data: {
 labels: monthNames,
 datasets: [
-{ label: '💚 Invested', data: investedArr, backgroundColor: 'rgba(74,222,128,0.82)', borderRadius: 8, barThickness: 18, order: 2 },
-{ label: '🔴 Return/Profit', data: profitArr, backgroundColor: profitArr.map((p,i) => p===bestMonth.profit&&p>0 ? '#ef4444' : 'rgba(248,113,113,0.78)'), borderRadius: 8, barThickness: 18, order: 1 }
+{
+label: '💚 Invested',
+data: investedArr,
+backgroundColor: 'rgba(74,222,128,0.82)',
+borderRadius: 8,
+barThickness: 18, // STEP 2: mobile মোটা bar
+order: 2
+},
+{
+label: '🔴 Return/Profit',
+data: profitArr,
+backgroundColor: profitArr.map((p,i) => p===bestMonth.profit&&p>0 ? '#ef4444' : 'rgba(248,113,113,0.78)'),
+borderRadius: 8,
+barThickness: 18, // STEP 2: mobile মোটা bar
+order: 1
+}
 ]
 },
 options: {
-responsive: true, maintainAspectRatio: false,
+responsive: true,
+maintainAspectRatio: false, // STEP 3: full height fill
 plugins: {
-legend: { display: true, position: 'top', labels: { color: isDark?'#94a3b8':'#64748b', font: { size:11, family:"'Space Grotesk',sans-serif" }, boxWidth: 12, padding: 12, usePointStyle: true, pointStyle: 'rect' } },
+legend: {
+display: true,
+position: 'top',
+labels: {
+color: isDark?'#94a3b8':'#64748b',
+font: { size:11, family:"'Plus Jakarta Sans',sans-serif" },
+boxWidth: 12, padding: 12,
+usePointStyle: true, pointStyle: 'rect'
+}
+},
+// STEP 6: Tooltips with profit %
 tooltip: {
-backgroundColor: isDark?'#1e293b':'#fff', titleColor: '#facc15', bodyColor: isDark?'#e2e8f0':'#1e293b', borderColor: isDark?'#334155':'#cbd5e1', borderWidth: 1,
+backgroundColor: isDark?'#1e293b':'#fff',
+titleColor: '#facc15',
+bodyColor: isDark?'#e2e8f0':'#1e293b',
+borderColor: isDark?'#334155':'#cbd5e1',
+borderWidth: 1,
 callbacks: {
 label: (ctx) => {
 if(ctx.raw === 0) return ` ${ctx.dataset.label.replace(/[^\w ]/g,'').trim()}: 0 BDT`;
 let val = formatNumber(ctx.raw);
+// Bonus: profit % of invested
 if(ctx.datasetIndex === 1) {
 let inv = investedArr[ctx.dataIndex];
 let pct = inv > 0 ? ((ctx.raw/inv)*100).toFixed(1) : null;
@@ -2421,14 +2466,21 @@ return [];
 }
 },
 scales: {
-y: { grid: { color: isDark?'rgba(148,163,184,0.08)':'rgba(100,116,139,0.08)' }, ticks: { color: isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10} } },
-x: { grid: { display: false }, ticks: { color: isDark?'#94a3b8':'#64748b', font:{size:10, weight:'500'} } }
+y: {
+grid: { color: isDark?'rgba(148,163,184,0.08)':'rgba(100,116,139,0.08)' },
+ticks: { color: isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10} }
+},
+x: {
+grid: { display: false },
+ticks: { color: isDark?'#94a3b8':'#64748b', font:{size:10, weight:'500'} }
+}
 },
 layout: { padding: { top:8, bottom:4 } }
 }
 });
 }
 
+// ====== RENDER WAIT MONEY ======
 function renderWaitMoney() {
 let list = investments.filter(i => isWaitMoney(i) && i.status === 'active');
 let container = document.getElementById('waitMoneyList');
@@ -2437,10 +2489,12 @@ let totalsEl = document.getElementById('waitMoneyTotals');
 if (!container) return;
 if (list.length === 0) { card.style.display = 'none'; return; }
 card.style.display = 'block';
+
 let totalBDT = list.reduce((s, i) => s + (i.amountBDT || 0), 0);
 let totalUSD = totalBDT / usdToBdt;
 let totalExpectedProfit = list.reduce((s, i) => s + (i.expectedProfit || 0), 0);
 let count = list.length;
+
 if (totalsEl) {
 totalsEl.innerHTML = `
 <div style="background:rgba(245,158,11,0.12); border:1px solid #f59e0b; border-radius:12px; padding:10px 16px; text-align:center;">
@@ -2460,6 +2514,7 @@ totalsEl.innerHTML = `
 </div>
 `;
 }
+
 container.innerHTML = list.map(inv => `
 <div class="platform-box wait">
 <div class="platform-header">
@@ -2482,6 +2537,7 @@ ${isAdmin ? `
 `).join('');
 }
 
+// ====== RENDER PORTFOLIO ======
 function buildInvItemHtml(inv) {
 let investedDisplay = inv.isCrypto
 ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}`
@@ -2521,6 +2577,7 @@ moreEl.style.display = hidden ? 'block' : 'none';
 btnEl.innerHTML = hidden
 ? `<i class="fas fa-chevron-up"></i> কম দেখুন`
 : `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
+// Save open state so re-renders don't reset it
 if(hidden) window._openPlatforms = window._openPlatforms || new Set(), window._openPlatforms.add(platKey);
 else if(window._openPlatforms) window._openPlatforms.delete(platKey);
 }
@@ -2543,7 +2600,7 @@ if(inv.status==='active'&&!isWaitMoney(inv)){ if(!activeMap[inv.platform]) activ
 else if(inv.status!=='active'){ if(!completedMap[inv.platform]) completedMap[inv.platform]=[]; completedMap[inv.platform].push(inv); }
 });
 
-const SHOW_FIRST = 2;
+const SHOW_FIRST = 2; // প্রথম কতটা দেখাবে
 let activeHtml = '';
 
 for(let plat of Object.keys(activeMap).sort()) {
@@ -2562,15 +2619,17 @@ activeHtml += `<div class="platform-box">
 <span>${formatNumber(platTotal)} BDT (${pct}%) &nbsp;<span style="font-size:0.65rem;color:var(--text-sub);">${items.length} item${items.length>1?'s':''}</span></span>
 </div>`;
 
+// প্রথম ২টা সবসময় দেখাবে
 visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
 
+// বাকিগুলো লুকানো থাকবে
 if(hasMore) {
 activeHtml += `
 <div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
 ${hiddenItems.map(inv => buildInvItemHtml(inv)).join('')}
 </div>
 <button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
-style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Space Grotesk',sans-serif;font-weight:600;transition:all 0.2s;">
+style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;transition:all 0.2s;">
 <i class="fas fa-chevron-down"></i> আরো ${hiddenItems.length} টি দেখুন
 </button>`;
 }
@@ -2580,6 +2639,7 @@ activeHtml += `</div>`;
 
 if(!Object.keys(activeMap).length) activeHtml = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No active investments</div>';
 
+// Completed — same More/Less logic
 let completedHtml = '';
 for(let plat of Object.keys(completedMap).sort()) {
 let items = completedMap[plat];
@@ -2603,7 +2663,7 @@ completedHtml += `
 ${hiddenItems.map(inv => `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`).join('')}
 </div>
 <button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
-style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Space Grotesk',sans-serif;font-weight:600;">
+style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">
 <i class="fas fa-chevron-down"></i> আরো ${hiddenItems.length} টি দেখুন
 </button>`;
 }
@@ -2617,6 +2677,7 @@ document.getElementById('completedPortfolio').innerHTML = completedHtml;
 restorePlatformMoreState();
 }
 
+// ====== CRYPTO PRICES ======
 async function updateCryptoPrices() {
 try {
 let [priceRes, change24Res] = await Promise.all([
@@ -2641,6 +2702,7 @@ let el=document.getElementById(coin.toLowerCase()+'24hPL');
 if(el) el.innerHTML=`<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% 24h</span>`;
 }
 }
+// 7d klines
 for(let coin of ['BTC','ETH','BNB','SOL']){
 try{
 let now=Date.now(), ago=now-(7*24*60*60*1000);
@@ -2649,27 +2711,21 @@ let kd=await kr.json();
 if(kd&&kd[0]&&kd[0][4]){ let p7=parseFloat(kd[0][4]); if(p7>0) crypto7dPrices[coin]=p7; }
 }catch(e){}
 }
+// Update UI
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let qty=investments.filter(i=>i.type===coin&&i.status==='active').reduce((s,i)=>s+i.amount,0);
-let cUSD=qty*cryptoPrices[coin];
-let cBDT=cUSD*usdToBdt;
-
-// Update basic info
+let cUSD=qty*cryptoPrices[coin], cBDT=cUSD*usdToBdt;
 document.getElementById(coin.toLowerCase()+'Usd').innerHTML=`$${formatNumber(cryptoPrices[coin])}`;
 document.getElementById(coin.toLowerCase()+'Bdt').innerHTML=`${formatNumber(cryptoPrices[coin]*usdToBdt)} BDT`;
 document.getElementById(coin.toLowerCase()+'Qty').innerHTML=qty.toFixed(6);
+document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML=`$${formatNumber(cUSD)}`;
 document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML=`${formatNumber(cBDT)} BDT`;
-
-// NEW: Update Current Value in the added lines
-let currentValUsd = cUSD;
-let currentValBdt = cBDT;
-document.getElementById(coin.toLowerCase()+'CurrentValueUsd').innerHTML = `$${formatNumber(currentValUsd)}`;
-document.getElementById(coin.toLowerCase()+'CurrentValueBdt').innerHTML = `${formatNumber(currentValBdt)} BDT`;
 }
 updateCryptoPurchaseInfo();
 renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 renderPLTicker();
+// Auto check alerts on price update
 checkAlerts();
 } catch(e) { console.error('Crypto price fetch error:', e); }
 }
@@ -2680,16 +2736,158 @@ let tQty=0, tCost=0;
 investments.forEach(inv=>{ if(inv.isCrypto&&inv.type===coin&&inv.status==='active'&&inv.purchasePrice&&inv.amount){ tQty+=inv.amount; tCost+=inv.amount*inv.purchasePrice; } });
 let avg=tQty>0?tCost/tQty:0;
 let div=document.getElementById(coin.toLowerCase()+'PurchaseInfo');
-if(div) div.innerHTML=tQty>0?`<div><span>📈 Avg Price:</span><span style="color:#f59e0b; font-weight:600;">$${formatNumber(avg)}</span></div><div><span>💵 Invested:</span><span><span style="color:#10b981; font-weight:700;">$${formatNumber(tCost)}</span> <span style="color:#64748b;">|</span> <span style="color:#facc15; font-weight:700;">${formatNumber(tCost*usdToBdt)} BDT</span></span></div>`:'<div style="color:var(--text-sub); font-size:0.62rem;">No active holdings</div>';
+if(div) div.innerHTML=tQty>0?`<div class="row"><span>📈 Avg Price:</span><span style="color:#f59e0b; font-weight:600;">$${formatNumber(avg)}</span></div><div class="row"><span>💵 Invested:</span><span><span style="color:#10b981; font-weight:700;">$${formatNumber(tCost)}</span> <span style="color:#64748b;">|</span> <span style="color:#facc15; font-weight:700;">${formatNumber(tCost*usdToBdt)} BDT</span></span></div>`:'<div class="row" style="color:var(--text-sub); font-size:0.62rem;">No active holdings</div>';
 });
 }
 
+// ====== CRYPTO AI ANALYSIS ======
+function runCryptoAnalysis() {
+const coins = [
+{ id: 'BTC', name: 'Bitcoin', color: '#f7931a', icon: '₿', borderClass: 'btc-card' },
+{ id: 'ETH', name: 'Ethereum', color: '#627eea', icon: 'Ξ', borderClass: 'eth-card' },
+{ id: 'BNB', name: 'BNB', color: '#f3ba2f', icon: '◈', borderClass: 'bnb-card' },
+{ id: 'SOL', name: 'Solana', color: '#9945ff', icon: '◎', borderClass: 'sol-card' },
+];
+
+let grid = document.getElementById('cryptoAnalysisGrid');
+let summary = document.getElementById('cryptoAnalysisSummary');
+grid.innerHTML = coins.map(c => `<div style="background:rgba(255,255,255,0.03);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,0.06);"><div style="color:${c.color};font-weight:800;font-size:0.85rem;margin-bottom:8px;">${c.icon} ${c.id} <span style="font-size:0.65rem;color:#6b7280;">Analyzing...</span></div><div style="font-size:0.65rem;color:#4b5563;animation:pulse 1s infinite;">⏳ Loading data...</div></div>`).join('');
+
+let results = [];
+
+coins.forEach(coin => {
+let current = cryptoPrices[coin.id] || 0;
+let prev24h = crypto24hPrices[coin.id] || 0;
+let prev7d = crypto7dPrices[coin.id] || 0;
+
+// Change calculations
+let change24h = prev24h > 0 ? ((current - prev24h) / prev24h) * 100 : 0;
+let change7d = prev7d > 0 ? ((current - prev7d) / prev7d) * 100 : 0;
+
+// RSI-like score (simplified momentum)
+let momentum = (change24h * 0.6) + (change7d * 0.4);
+
+// User's avg purchase price
+let userHoldings = investments.filter(i => i.type === coin.id && i.status === 'active' && i.purchasePrice);
+let totalQty = userHoldings.reduce((s,i) => s + i.amount, 0);
+let totalCost = userHoldings.reduce((s,i) => s + i.amount * i.purchasePrice, 0);
+let avgBuy = totalQty > 0 ? totalCost / totalQty : 0;
+let pnlPct = avgBuy > 0 ? ((current - avgBuy) / avgBuy) * 100 : null;
+
+// Signal Logic
+let signal, signalColor, signalBg, signalIcon, advice;
+
+if(current === 0) {
+signal = 'NO DATA'; signalColor = '#6b7280'; signalBg = 'rgba(107,114,128,0.12)'; signalIcon = '—';
+advice = 'Price data unavailable. Price fetch করুন।';
+} else if(momentum <= -8) {
+signal = 'STRONG BUY'; signalColor = '#4ade80'; signalBg = 'rgba(74,222,128,0.12)'; signalIcon = '🔥';
+advice = `দাম ${Math.abs(change24h).toFixed(1)}% কমেছে — এটি কেনার সুযোগ হতে পারে।`;
+} else if(momentum <= -3) {
+signal = 'BUY'; signalColor = '#86efac'; signalBg = 'rgba(134,239,172,0.1)'; signalIcon = '📈';
+advice = `দাম সামান্য কমেছে — accumulate করার ভালো সময়।`;
+} else if(momentum >= 15) {
+signal = 'TAKE PROFIT'; signalColor = '#f87171'; signalBg = 'rgba(248,113,113,0.12)'; signalIcon = '💰';
+advice = `দাম ${change24h.toFixed(1)}% বেড়েছে — কিছু profit নেওয়া বিবেচনা করুন।`;
+} else if(momentum >= 8) {
+signal = 'HOLD / WATCH'; signalColor = '#f59e0b'; signalBg = 'rgba(245,158,11,0.1)'; signalIcon = '⏳';
+advice = `দাম বাড়ছে — hold করুন, আরো বাড়তে পারে।`;
+} else {
+signal = 'HOLD'; signalColor = '#94a3b8'; signalBg = 'rgba(148,163,184,0.08)'; signalIcon = '⚖️';
+advice = `বাজার stable — এখন wait করুন।`;
+}
+
+// If user has holdings and is at loss > 15%, add extra advice
+if(pnlPct !== null && pnlPct < -15) {
+advice += ` ⚠️ আপনার avg buy $${formatNumber(avgBuy)} — এখন ${pnlPct.toFixed(1)}% loss এ আছেন।`;
+} else if(pnlPct !== null && pnlPct > 30) {
+advice += ` 🎯 আপনি ${pnlPct.toFixed(1)}% profit এ আছেন — কিছু sell করা বিবেচনা করুন।`;
+}
+
+results.push({ coin, current, change24h, change7d, momentum, signal, signalColor, signalBg, signalIcon, advice, avgBuy, pnlPct, totalQty });
+});
+
+// Render grid
+grid.innerHTML = results.map(r => `
+<div style="background:rgba(255,255,255,0.03); border-radius:14px; padding:12px; border:1px solid ${r.signalColor}33; position:relative; overflow:hidden;">
+<div style="position:absolute;top:0;left:0;right:0;height:2px;background:${r.signalColor};opacity:0.6;"></div>
+<!-- Coin Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+<span style="color:${r.coin.color}; font-weight:800; font-size:0.85rem;">${r.coin.icon} ${r.coin.id}</span>
+<span style="background:${r.signalBg}; color:${r.signalColor}; border:1px solid ${r.signalColor}44; padding:3px 8px; border-radius:20px; font-size:0.6rem; font-weight:800;">${r.signalIcon} ${r.signal}</span>
+</div>
+<!-- Price -->
+<div style="font-family:'Sora',sans-serif; font-size:0.95rem; font-weight:800; color:#e2e8f0; margin-bottom:4px;">
+$${formatNumber(r.current)}
+</div>
+<!-- Changes -->
+<div style="display:flex; gap:8px; margin-bottom:8px;">
+<span style="font-size:0.62rem; color:${r.change24h>=0?'#4ade80':'#f87171'}; background:${r.change24h>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'}; padding:2px 7px; border-radius:10px;">
+${r.change24h>=0?'▲':'▼'} ${Math.abs(r.change24h).toFixed(2)}% 24h
+</span>
+<span style="font-size:0.62rem; color:${r.change7d>=0?'#4ade80':'#f87171'}; background:${r.change7d>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'}; padding:2px 7px; border-radius:10px;">
+${r.change7d>=0?'▲':'▼'} ${Math.abs(r.change7d).toFixed(2)}% 7d
+</span>
+</div>
+<!-- User Holdings -->
+${r.totalQty > 0 ? `
+<div style="background:rgba(0,0,0,0.2); border-radius:8px; padding:5px 8px; margin-bottom:6px; font-size:0.62rem;">
+<span style="color:#94a3b8;">আপনার:</span>
+<span style="color:#facc15; font-weight:700; margin-left:4px;">${r.totalQty.toFixed(4)} ${r.coin.id}</span>
+${r.pnlPct !== null ? `<span style="margin-left:6px; color:${r.pnlPct>=0?'#4ade80':'#f87171'}; font-weight:700;">${r.pnlPct>=0?'+':''}${r.pnlPct.toFixed(1)}%</span>` : ''}
+</div>
+` : ''}
+<!-- Advice -->
+<div style="font-size:0.65rem; color:#94a3b8; line-height:1.4;">${r.advice}</div>
+</div>
+`).join('');
+
+// Summary
+let buySignals = results.filter(r => r.signal.includes('BUY'));
+let sellSignals = results.filter(r => r.signal.includes('PROFIT'));
+let bestBuy = results.filter(r => r.current > 0).sort((a,b) => a.momentum - b.momentum)[0];
+
+summary.innerHTML = `
+<div style="background:rgba(250,204,21,0.06); border:1px solid rgba(250,204,21,0.2); border-radius:12px; padding:12px;">
+<div style="font-size:0.62rem; color:#f59e0b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">📊 AI Summary</div>
+<div style="font-size:0.72rem; color:#d1d5db; line-height:1.6;">
+${buySignals.length > 0 ? `<div>🟢 <b>${buySignals.map(r=>r.coin.id).join(', ')}</b> — কেনার সুযোগ থাকতে পারে</div>` : ''}
+${sellSignals.length > 0 ? `<div>🔴 <b>${sellSignals.map(r=>r.coin.id).join(', ')}</b> — কিছু profit নেওয়া বিবেচনা করুন</div>` : ''}
+${bestBuy ? `<div>⭐ সবচেয়ে ভালো দেখাচ্ছে: <b style="color:#facc15;">${bestBuy.coin.id}</b> (momentum: ${bestBuy.momentum.toFixed(1)})</div>` : ''}
+<div style="margin-top:6px; font-size:0.6rem; color:#4b5563;">⚠️ এটি শুধু 24h ও 7d price movement এর উপর ভিত্তি করে। Investment সিদ্ধান্ত নিজে নিন।</div>
+</div>
+</div>`;
+}
+
+window.runCryptoAnalysis = runCryptoAnalysis;
+
+// ====== CRYPTO AI COLLAPSE/EXPAND ======
+let cryptoAiCollapsed = false;
+function toggleCryptoAi() {
+cryptoAiCollapsed = !cryptoAiCollapsed;
+let body = document.getElementById('cryptoAiBody');
+let chevron = document.getElementById('cryptoAiChevron');
+let btn = document.getElementById('cryptoAiToggleBtn');
+if(cryptoAiCollapsed) {
+body.style.display = 'none';
+chevron.className = 'fas fa-chevron-down';
+btn.title = 'Expand';
+} else {
+body.style.display = 'block';
+chevron.className = 'fas fa-chevron-up';
+btn.title = 'Collapse';
+}
+}
+window.toggleCryptoAi = toggleCryptoAi;
+
+// ====== INVEST SIMULATOR ======
 function updateInvestSimulator() {
 let budget = parseFloat(document.getElementById('aiInvestAmount')?.value) || 0;
 let resultEl = document.getElementById('investSimulatorResult');
 if(!resultEl) return;
 if(budget <= 0) { resultEl.innerHTML=''; return; }
 
+// ── Build live portfolio data directly (no closure dependency) ──
 let activeNow = investments.filter(i=>i.status==='active');
 let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
 let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
@@ -2713,6 +2911,7 @@ business: { name:'Biniyog', color:'#a855f7', icon:'💼', rate:0.15 },
 safe: { name:'MMPDA + MSSA', color:'#10b981', icon:'🏦', rate:0.08 },
 };
 
+// Gap-based allocation
 let gaps = {};
 Object.keys(TARGET_SIM).forEach(k => { gaps[k] = Math.max(0, TARGET_SIM[k] - liveAlloc[k]); });
 let totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
@@ -2734,6 +2933,7 @@ current: liveAlloc[key], target: TARGET_SIM[key],
 reason: `এখন ${liveAlloc[key].toFixed(0)}% → target ${TARGET_SIM[key]}% (gap ${gap.toFixed(0)}%)`
 });
 });
+// Normalize
 let totPct = plan.reduce((s,r)=>s+r.pct, 0);
 plan.forEach(r=>{ r.pct=Math.round(r.pct/totPct*100); r.amount=Math.round(budget*r.pct/100); });
 }
@@ -2743,6 +2943,7 @@ color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0,
 current:liveAlloc.farming, target:35, reason:'Portfolio balanced — farming is best default' }];
 }
 
+// splitCrypto
 function simSplitCrypto(amt) {
 return [
 { name:'BTC', pct:40, amount:Math.round(amt*0.40), color:'#f7931a', icon:'₿' },
@@ -2819,9 +3020,10 @@ ${idleNow>50000?`<div style="margin-top:6px;font-size:0.65rem;color:#f59e0b;font
 }
 window.updateInvestSimulator = updateInvestSimulator;
 
+// ====== EMAIL REPORT (EmailJS) ======
 const EMAILJS_SERVICE = 'service_wealth';
 const EMAILJS_TEMPLATE = 'template_wealth';
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // EmailJS public key
 const REPORT_EMAIL = 'ronygp123@gmail.com';
 
 function loadEmailJS(callback) {
@@ -2913,6 +3115,7 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .then(() => showToast('✅ Email পাঠানো হয়েছে! ' + REPORT_EMAIL))
 .catch(err => {
 console.error('EmailJS error:', err);
+// Fallback: download HTML report
 showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
 setTimeout(exportPDF, 1000);
 });
@@ -2984,6 +3187,7 @@ callbacks: { label: (c) => ` ${c.label}: ${formatNumber(c.raw)} BDT (${pData[c.d
 }
 }
 });
+// Improved legend with bars
 if(legendEl) {
 legendEl.innerHTML = pData.map((p, i) => `
 <div style="display:flex; align-items:center; gap:8px; width:100%;">
@@ -2996,12 +3200,14 @@ legendEl.innerHTML = pData.map((p, i) => `
 }
 }
 
+// ====== PORTFOLIO P&L TICKER ======
 function renderPLTicker() {
 let el = document.getElementById('plTickerInner');
 if(!el) return;
 let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) return;
 
+// ── Crypto P&L (real Binance prices) ──
 let crypto24hBDT = 0, crypto7dBDT = 0;
 active.forEach(inv => {
 if(!inv.isCrypto || !cryptoPrices[inv.type]) return;
@@ -3010,6 +3216,7 @@ if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices
 if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
 });
 
+// ── Non-crypto P&L (annual rate based, proper 365-day calc) ──
 const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
 let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
 active.forEach(inv => {
@@ -3022,16 +3229,20 @@ nonCrypto7d += (amt * rate) / 365 * 7;
 nonCrypto30d += (amt * rate) / 365 * 30;
 });
 
+// ── REAL 1Y P&L: from actual withdrawal history + crypto unrealized gain ──
+// Step 1: Sum all actual profits from history in last 365 days
 let oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1);
 let historyAll = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let realProfitLast1Y = historyAll.reduce((s,h) => {
 if(new Date(h.date) >= oneYearAgo) return s + (h.profit||0);
 return s;
 }, 0);
+// Step 2: Add actual profit recorded in investments (last 365 days)
 let invProfitLast1Y = investments.filter(i => {
 if(!i.start) return false;
 return new Date(i.start) >= oneYearAgo;
 }).reduce((s,i) => s + (i.actualProfit||0), 0);
+// Step 3: Add crypto unrealized P&L (current vs purchase)
 let cryptoUnrealizedBDT = 0;
 active.forEach(inv => {
 if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice && inv.start) {
@@ -3040,6 +3251,7 @@ cryptoUnrealizedBDT += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount
 }
 }
 });
+// Step 4: Add estimated non-crypto return for holdings older than 1y
 let nonCrypto1yOldHoldings = 0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
@@ -3067,14 +3279,15 @@ ${extra}
 </span>`;
 }
 
+// Crypto chips: total invested $ → current total $ (±BDT)
 let cryptoChips = '';
 const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
 ['BTC','ETH','BNB','SOL'].forEach(coin => {
 let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
 let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
-let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
-let currentValUSD = totalQty * cryptoPrices[coin];
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0); // আমার ক্রয়মূল্য
+let currentValUSD = totalQty * cryptoPrices[coin]; // বর্তমান মূল্য
 let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
@@ -3089,8 +3302,9 @@ cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padd
 let divider = `<span style="padding:8px 14px;border-right:1px solid var(--border);color:var(--border);font-size:0.7rem;white-space:nowrap;">·····</span>`;
 let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1Y ✦', pl1y) + divider + cryptoChips;
 
-el.innerHTML = items + items;
+el.innerHTML = items + items; // double for seamless loop
 
+// Speed & hover pause
 let wrap = document.getElementById('plTickerWrap');
 if(wrap) {
 wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
@@ -3098,8 +3312,9 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderPLTicker(); updateCryptoPrices(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); renderPLTicker(); updateCryptoPrices(); }
 
+// ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
 if(!isAdmin) return showToast("Admin login required", true);
 let platform = document.getElementById('platform').value;
@@ -3144,6 +3359,7 @@ function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); l
 async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
 function closeEditModal() { document.getElementById('editModal').style.display='none'; }
 
+// ====== MMPDA ======
 function openMmpdaModal() {
 if(!isAdmin) return showToast("Admin required", true);
 let list=investments.filter(i=>i.type&&i.type.toUpperCase()==='MMPDA'&&i.status==='active');
@@ -3180,6 +3396,7 @@ renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} 
 }
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display='none'; }
 
+// ====== PARTIAL WITHDRAW ======
 let partialInvId = null;
 function openPartialModal(id) {
 if(!isAdmin) return showToast("Admin required", true);
@@ -3221,6 +3438,7 @@ if(withdrawAmt > inv.amountBDT) return showToast(`সর্বোচ্চ ${for
 
 let remaining = inv.amountBDT - withdrawAmt;
 
+// Save to history
 let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
 history.push({
 platform: inv.platform,
@@ -3233,11 +3451,13 @@ note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 
 if(remaining <= 0) {
+// Fully withdrawn — mark complete
 inv.status = 'completed';
 inv.amountBDT = 0;
 inv.amountUSD = 0;
 inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
 } else {
+// Update remaining amount
 inv.amountBDT = remaining;
 inv.amountUSD = remaining / usdToBdt;
 inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
@@ -3262,6 +3482,7 @@ document.getElementById('partialModal').style.display = 'none';
 partialInvId = null;
 }
 
+// ====== MSSA INSTALLMENT ======
 let mssaInvId = null;
 function openMssaModal(id) {
 if(!isAdmin) return showToast("Admin required", true);
@@ -3284,6 +3505,7 @@ document.getElementById('mssaInfo').innerHTML = `
 document.getElementById('mssaMonthly').value = inv.monthlyInstallment || '';
 document.getElementById('mssaMonths').value = 1;
 document.getElementById('mssaCalc').style.display = 'none';
+// Live calc on input
 ['mssaMonthly','mssaMonths'].forEach(id => {
 document.getElementById(id).oninput = () => {
 let monthly = parseFloat(document.getElementById('mssaMonthly').value) || 0;
@@ -3327,6 +3549,7 @@ showToast(`✅ ${months} মাস × ${formatNumber(monthly)} = ${formatNumber(
 }
 function closeMssaModal() { document.getElementById('mssaModal').style.display = 'none'; mssaInvId = null; }
 
+// ====== TOP-UP (Wait Money / Bank) ======
 let topUpInvId = null;
 function openTopUpModal(id) {
 if(!isAdmin) return showToast("Admin required", true);
@@ -3379,6 +3602,7 @@ showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতু�
 }
 function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
 
+// ====== UTILITIES ======
 function exportToCSV() {
 if(!isAdmin) return showToast("Admin required", true);
 const headers=['ID','Platform','Type','Amount','Amount BDT','Amount USD','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date','Note','Person'];
@@ -3388,6 +3612,7 @@ const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
 const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=`wealth_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
 showToast("✅ CSV Exported!");
 }
+// ====== AUTH ======
 async function adminLogin(pass, isAuto=false) {
 if(pass!==ADMIN_PASSWORD){ if(!isAuto) showToast("Wrong password!", true); return false; }
 isAdmin=true; localStorage.setItem(STORAGE_KEY,"true"); updateUI();
@@ -3396,18 +3621,9 @@ if(!isAuto) showToast("✅ Admin logged in!");
 renderAll(); return true;
 }
 function adminLogout() { isAdmin=false; localStorage.removeItem(STORAGE_KEY); updateUI(); showToast("Logged out"); renderAll(); }
-function toggleAddForm() {
-if(!isAdmin) return showToast("Admin login required", true);
-let form = document.getElementById('formCard');
-let isHidden = form.style.display === 'none' || form.style.display === '';
-form.style.display = isHidden ? 'block' : 'none';
-if(isHidden) form.scrollIntoView({ behavior:'smooth', block:'start' });
-}
-window.toggleAddForm = toggleAddForm;
-
 function updateUI() {
 let form=document.getElementById('formCard'), login=document.getElementById('loginWidget'), logout=document.getElementById('logoutWidget'), auth=document.getElementById('authDisplay');
-if(isAdmin){ login.style.display='none'; logout.style.display='block'; auth.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; }
+if(isAdmin){ form.style.display='block'; login.style.display='none'; logout.style.display='block'; auth.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; }
 else { form.style.display='none'; login.style.display='flex'; logout.style.display='none'; auth.innerHTML='<i class="fas fa-lock"></i> Read-only Mode'; }
 }
 async function loadData() {
@@ -3416,6 +3632,7 @@ try { let snap=await db.collection("investments").get(); investments=[]; snap.fo
 catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
 }
 function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
+// ====== EXPOSE GLOBALS ======
 window.openEdit=openEdit; window.saveEdit=saveEdit; window.closeEditModal=closeEditModal;
 window.markComplete=markComplete; window.deleteInv=deleteInv;
 window.confirmMmpda=confirmMmpda; window.closeMmpdaModal=closeMmpdaModal;
@@ -3429,37 +3646,46 @@ window.openMssaModal=openMssaModal; window.confirmMssaInstallment=confirmMssaIns
 window.openTopUpModal=openTopUpModal; window.confirmTopUp=confirmTopUp; window.closeTopUpModal=closeTopUpModal;
 window.togglePlatformMore=togglePlatformMore;
 
+// ====== INIT — localStorage first for instant iOS load ======
 loadTheme();
 loadCurrency();
 document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
 
+// Load from localStorage immediately (works offline + instant on iOS home screen)
 let backup = localStorage.getItem("investments_backup");
 investments = backup ? JSON.parse(backup) : [];
 renderAll();
 
+// Check saved admin login
 checkSavedLogin();
 
+// Fetch live rates
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 
+// Crypto prices every 5 seconds
 setInterval(updateCryptoPrices, 5000);
 setInterval(renderPLTicker, 5000);
 
+// Event listeners
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
 
+// Firebase loads after UI is ready (non-blocking)
 setTimeout(() => {
 try {
 if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
+// Only sync if we have network
 if(navigator.onLine) loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 }, 500);
 
+// ====== VISITOR COUNTER ======
 (function() {
 const VISIT_KEY = 'wt_total_visits';
 const SESSION_KEY = 'wt_last_visit_date';
@@ -3475,107 +3701,603 @@ let el = document.getElementById('visitorCountText');
 if(el) el.innerHTML = `<span style="color:var(--accent);font-weight:700;">${total.toLocaleString()}</span> visits`;
 })();
 
+// ====== iOS STANDALONE DETECTION ======
+// When opened from home screen, show a subtle "App Mode" badge
 (function() {
 let isStandalone = window.navigator.standalone === true
 || window.matchMedia('(display-mode: standalone)').matches;
 if(isStandalone) {
+// Add safe area padding for iPhone notch
 document.body.style.paddingTop = 'env(safe-area-inset-top)';
 document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 }
 })();
 
+// Auto alert check on load
 setTimeout(checkAlerts, 2000);
+setTimeout(renderBudgetDisplay, 500);
+setTimeout(renderZakatDisplay, 600);
 
-function openRentalModal() {
-if(!isAdmin) return showToast("Admin required", true);
-let list = investments.filter(i =>
-i.status==='active' && (i.type==='RENTAL' || i.platform==='Real Estate' || i.type==='Real Estate')
-);
-let sel = document.getElementById('rentalSelect');
-sel.innerHTML = '<option value="">-- Select Property --</option>';
-if(!list.length) {
-sel.innerHTML += '<option disabled>কোনো Real Estate investment নেই</option>';
-} else {
-list.forEach(inv => {
-let o = document.createElement('option');
-o.value = inv.id;
-o.textContent = `${inv.person||inv.platform} — ${formatNumber(inv.amountBDT)} BDT`;
-sel.appendChild(o);
+// ====== WITHDRAWAL LOG CHART ======
+let withdrawalLogChart = null;
+function renderWithdrawalLogChart() {
+let canvas = document.getElementById('withdrawalLogChart');
+if(!canvas) return;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+if(history.length === 0) {
+document.getElementById('withdrawalLogCard').style.display = 'none';
+return;
+}
+document.getElementById('withdrawalLogCard').style.display = 'block';
+let monthMap = {};
+history.forEach(h => {
+let dt = new Date(h.date);
+let key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}`;
+monthMap[key] = (monthMap[key]||0) + (h.amount||0);
+});
+let sorted = Object.keys(monthMap).sort();
+let labels = sorted.map(k => { let [y,m]=k.split('-'); return `${m}/${y.slice(2)}`; });
+let values = sorted.map(k => monthMap[k]);
+let isDark = document.documentElement.getAttribute('data-theme')==='dark';
+if(withdrawalLogChart) withdrawalLogChart.destroy();
+withdrawalLogChart = new Chart(canvas.getContext('2d'), {
+type: 'bar',
+data: {
+labels,
+datasets: [{ label: 'Withdrawn (BDT)', data: values, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 8, hoverBackgroundColor: '#10b981' }]
+},
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: { legend:{display:false}, tooltip:{ backgroundColor:isDark?'#1e293b':'#fff', titleColor:'#10b981', bodyColor:isDark?'#e2e8f0':'#1e293b', callbacks:{ label: c => ` ${formatNumber(c.raw)} BDT` } } },
+scales: {
+y: { grid:{color:isDark?'rgba(148,163,184,0.1)':'rgba(100,116,139,0.1)'}, ticks:{color:isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10}} },
+x: { grid:{display:false}, ticks:{color:isDark?'#94a3b8':'#64748b', font:{size:10}} }
+}
+}
 });
 }
-document.getElementById('rentalAmount').value = '';
-document.getElementById('rentalPeriod').value = new Date().toLocaleString('default',{month:'long',year:'numeric'});
-document.getElementById('rentalNote').value = '';
-document.getElementById('rentalInfo').style.display = 'none';
-document.getElementById('rentalPreview').innerHTML = '';
-document.getElementById('rentalModal').style.display = 'flex';
+
+// ====== MONTHLY BUDGET TRACKER ======
+function openBudgetModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let now = new Date();
+let label = now.toLocaleString('default',{month:'long',year:'numeric'});
+document.getElementById('budgetMonthLabel').textContent = `📅 ${label}`;
+let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
+let saved = JSON.parse(localStorage.getItem(key)||'{}');
+document.getElementById('budgetIncome').value = saved.income||'';
+document.getElementById('budgetExpense').value = saved.expense||'';
+document.getElementById('budgetInvested').value = saved.invested||'';
+document.getElementById('budgetNote').value = saved.note||'';
+document.getElementById('budgetCalc').style.display = 'none';
+['budgetIncome','budgetExpense','budgetInvested'].forEach(id => {
+document.getElementById(id).oninput = updateBudgetCalc;
+});
+document.getElementById('budgetModal').style.display = 'flex';
+}
+function updateBudgetCalc() {
+let inc = parseFloat(document.getElementById('budgetIncome').value)||0;
+let exp = parseFloat(document.getElementById('budgetExpense').value)||0;
+let inv = parseFloat(document.getElementById('budgetInvested').value)||0;
+if(inc > 0) {
+let savings = inc - exp - inv;
+let rate = ((savings/inc)*100).toFixed(1);
+document.getElementById('budgetSavings').textContent = formatNumber(savings)+' BDT';
+document.getElementById('budgetRate').textContent = rate+'%';
+document.getElementById('budgetCalc').style.display = 'block';
+}
+}
+function saveBudget() {
+let now = new Date();
+let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
+let data = {
+income: parseFloat(document.getElementById('budgetIncome').value)||0,
+expense: parseFloat(document.getElementById('budgetExpense').value)||0,
+invested: parseFloat(document.getElementById('budgetInvested').value)||0,
+note: document.getElementById('budgetNote').value,
+month: now.getMonth(), year: now.getFullYear(),
+label: now.toLocaleString('default',{month:'long',year:'numeric'})
+};
+// Save last 12 months
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+all = all.filter(b => !(b.month===data.month && b.year===data.year));
+all.push(data);
+if(all.length > 12) all = all.slice(-12);
+localStorage.setItem('budget_all', JSON.stringify(all));
+localStorage.setItem(key, JSON.stringify(data));
+closeBudgetModal();
+renderBudgetDisplay();
+showToast('✅ বাজেট save হয়েছে!');
+}
+function closeBudgetModal() { document.getElementById('budgetModal').style.display='none'; }
+function renderBudgetDisplay() {
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+let el = document.getElementById('budgetDisplay');
+if(!el) return;
+if(all.length === 0) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);font-size:0.75rem;">এখনো বাজেট add করা হয়নি</div>'; return; }
+let sorted = [...all].sort((a,b)=>b.year-a.year||b.month-a.month);
+el.innerHTML = sorted.map(b => {
+let savings = b.income - b.expense - b.invested;
+let rate = b.income>0?((savings/b.income)*100).toFixed(1):0;
+let savColor = savings>=0?'#4ade80':'#f87171';
+return `<div style="background:var(--bg-input);border-radius:14px;padding:12px;margin-bottom:10px;border-left:3px solid #06b6d4;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-weight:700;font-size:0.85rem;color:#06b6d4;">${b.label}</span>
+<span style="font-size:0.7rem;color:${savColor};font-weight:700;">${savings>=0?'+':''}${formatNumber(savings)} BDT saved</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:0.68rem;">
+<div style="background:rgba(74,222,128,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Income</div>
+<div style="color:#4ade80;font-weight:700;">${formatNumber(b.income)}</div>
+</div>
+<div style="background:rgba(248,113,113,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Expense</div>
+<div style="color:#f87171;font-weight:700;">${formatNumber(b.expense)}</div>
+</div>
+<div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px;text-align:center;">
+<div style="color:var(--text-sub);">Invested</div>
+<div style="color:var(--accent);font-weight:700;">${formatNumber(b.invested)}</div>
+</div>
+</div>
+<div style="margin-top:8px;">
+<div style="background:var(--bg-dark);border-radius:6px;height:6px;overflow:hidden;">
+<div style="background:#06b6d4;height:100%;width:${Math.max(0,Math.min(100,rate))}%;border-radius:6px;"></div>
+</div>
+<div style="font-size:0.6rem;color:var(--text-sub);margin-top:3px;">Savings rate: ${rate}%${b.note?` · ${b.note}`:''}</div>
+</div>
+${isAdmin?`<button onclick="deleteBudget(${b.year},${b.month})" style="margin-top:6px;background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.62rem;">🗑 Delete</button>`:''}
+</div>`;
+}).join('');
+}
+function deleteBudget(year, month) {
+let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+all = all.filter(b=>!(b.year===year&&b.month===month));
+localStorage.setItem('budget_all', JSON.stringify(all));
+localStorage.removeItem(`budget_${year}_${month}`);
+renderBudgetDisplay();
+}
+window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
+
+// ====== INVESTMENT REMINDERS ======
+// REMINDER FUNCTIONS REMOVED
+
+// ====== ZAKAT CALCULATOR ======
+const ZAKAT_NISAB_GOLD_GRAMS = 85; // নিসাব: ৮৫ গ্রাম স্বর্ণ
+const ZAKAT_RATE = 0.025; // ২.৫%
+
+function getZakatableWealth() {
+// সরাসরি CURRENT PORTFOLIO VALUE ব্যবহার করি — stat card এর মতোই
+let total = calcCurrent().bdt;
+
+// Breakdown শুধু context এর জন্য
+let active = investments.filter(i => i.status === 'active');
+let breakdown = [];
+
+let cryptoTotal = active.filter(i=>i.isCrypto&&cryptoPrices[i.type])
+.reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt, 0);
+if(cryptoTotal > 0) breakdown.push({label:'Crypto (live Binance)', amount:cryptoTotal, icon:'₿'});
+
+let nonCryptoTotal = active.filter(i=>!i.isCrypto&&i.type!=='LOAN_TAKEN')
+.reduce((s,i)=>s+(i.amountBDT||0), 0);
+if(nonCryptoTotal > 0) breakdown.push({label:'Other Investments', amount:nonCryptoTotal, icon:'📊'});
+
+return { breakdown, total };
 }
 
-function updateRentalInfo() {
-let id = document.getElementById('rentalSelect').value;
-let infoEl = document.getElementById('rentalInfo');
-if(!id) { infoEl.style.display='none'; return; }
+function openZakatModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let yr = new Date().getFullYear();
+document.getElementById('zakatYearTitle').textContent = yr;
+document.getElementById('zakatYear').value = yr;
+document.getElementById('zakatPaidDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('zakatPaid').value = '';
+document.getElementById('zakatExtraAssets').value = '0';
+document.getElementById('zakatLiabilities').value = '0';
+
+// Load saved gold price
+let saved = JSON.parse(localStorage.getItem('zakat_settings')||'{}');
+document.getElementById('goldPricePerGram').value = saved.goldPrice || '';
+
+// Auto-fill breakdown
+let { breakdown, total } = getZakatableWealth();
+let breakEl = document.getElementById('zakatableBreakdown');
+breakEl.innerHTML = `
+${breakdown.map(b=>`<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+<span style="color:var(--text-sub);">${b.icon} ${b.label}</span>
+<span style="font-weight:700;color:#facc15;">${formatNumber(b.amount)} BDT</span>
+</div>`).join('')}
+<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;">
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:0.88rem;">
+<span style="color:#f59e0b;">📊 Current Portfolio Value</span>
+<span style="color:#f59e0b;">${formatNumber(total)} BDT</span>
+</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:3px;">Stat card "CURRENT PORTFOLIO VALUE" এর মতো হিসাব</div>
+</div>`;
+
+document.getElementById('zakatModal').style.display = 'flex';
+updateZakatPreview();
+}
+
+function updateZakatPreview() {
+let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
+let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
+let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
+let el = document.getElementById('zakatPreview');
+
+let { total: portfolioTotal } = getZakatableWealth();
+let totalWealth = portfolioTotal + extraAssets - liabilities;
+let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
+let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
+let eligible = totalWealth >= nisabValue;
+
+if(!goldPrice) { el.innerHTML='<div style="color:#6b7280;font-size:0.72rem;">স্বর্ণের দাম দিন নিসাব হিসাব করতে।</div>'; return; }
+
+el.innerHTML = `
+<div style="background:${eligible?'rgba(245,158,11,0.08)':'rgba(100,116,139,0.08)'};border:1px solid ${eligible?'rgba(245,158,11,0.3)':'rgba(100,116,139,0.2)'};border-radius:14px;padding:14px;">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.7rem;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
+<div style="color:#6b7280;font-size:0.58rem;">নিসাব (৮৫ গ্রাম)</div>
+<div style="color:#f59e0b;font-weight:800;font-size:0.85rem;">${formatNumber(nisabValue)} BDT</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
+<div style="color:#6b7280;font-size:0.58rem;">আপনার সম্পদ</div>
+<div style="color:#facc15;font-weight:800;font-size:0.85rem;">${formatNumber(totalWealth)} BDT</div>
+</div>
+</div>
+<div style="text-align:center;margin-bottom:10px;">
+<div style="font-size:0.65rem;color:#6b7280;margin-bottom:4px;">${eligible?'✅ নিসাব পূর্ণ হয়েছে — যাকাত ফরজ':'❌ নিসাব পূর্ণ হয়নি — যাকাত ফরজ নয়'}</div>
+${eligible?`<div style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:900;color:#f59e0b;">${formatNumber(zakatDue)} BDT</div>
+<div style="font-size:0.65rem;color:#6b7280;">= ${formatNumber(zakatDue/usdToBdt)} USD · ${formatNumber(zakatDue/12)} BDT/month</div>`
+:`<div style="font-size:0.8rem;color:#6b7280;">আরো ${formatNumber(nisabValue-totalWealth)} BDT হলে যাকাত দিতে হবে</div>`}
+</div>
+${eligible?`<div style="background:rgba(245,158,11,0.1);border-radius:8px;padding:8px;font-size:0.65rem;color:#92400e;line-height:1.6;">
+<b>📖 নিয়ম:</b> এই ${zakatDue>0?formatNumber(zakatDue)+' BDT':''} যাকাত গরীব, মিসকিন, ঋণগ্রস্ত — এই খাতে দিতে পারবেন। রমজানের আগে দেওয়া উত্তম।
+</div>`:''}
+</div>`;
+}
+
+function saveZakat() {
+let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
+let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
+let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
+let year = parseInt(document.getElementById('zakatYear').value);
+let paid = parseFloat(document.getElementById('zakatPaid').value) || 0;
+let paidDate = document.getElementById('zakatPaidDate').value;
+if(!goldPrice) return showToast("স্বর্ণের দাম দিন", true);
+
+let { total: portfolioTotal, breakdown } = getZakatableWealth();
+let totalWealth = portfolioTotal + extraAssets - liabilities;
+let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
+let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
+
+// Save settings
+localStorage.setItem('zakat_settings', JSON.stringify({ goldPrice }));
+
+// Save year record
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+records = records.filter(r => r.year !== year);
+records.push({ year, goldPrice, totalWealth, nisabValue, zakatDue, paid, paidDate, savedAt: new Date().toISOString() });
+records.sort((a,b) => b.year-a.year);
+localStorage.setItem('zakat_records', JSON.stringify(records));
+
+closeZakatModal();
+renderZakatDisplay();
+showToast(`✅ ${year} সালের যাকাত হিসাব save হয়েছে!`);
+}
+
+function closeZakatModal() { document.getElementById('zakatModal').style.display='none'; }
+
+function renderZakatDisplay() {
+let el = document.getElementById('zakatDisplay');
+if(!el) return;
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+
+if(!records.length) {
+el.innerHTML=`<div style="text-align:center;padding:16px;color:var(--text-sub);font-size:0.75rem;">
+যাকাত হিসাব এখনো করা হয়নি। "যাকাত হিসাব করুন" চাপুন।
+</div>`;
+return;
+}
+
+el.innerHTML = records.map(r => {
+let remaining = r.zakatDue - (r.paid||0);
+let paidPct = r.zakatDue>0 ? Math.min(100,(r.paid||0)/r.zakatDue*100) : 0;
+let eligible = r.totalWealth >= r.nisabValue;
+return `<div style="background:var(--bg-input);border-radius:14px;padding:14px;margin-bottom:10px;border-left:4px solid ${eligible?'#f59e0b':'#6b7280'};">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+<div>
+<span style="font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:800;color:#f59e0b;">${r.year} সাল</span>
+<span style="font-size:0.6rem;color:#6b7280;margin-left:8px;">${eligible?'✅ ফরজ':'—'}</span>
+</div>
+${isAdmin?`<button onclick="editZakat(${r.year})" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.62rem;">✏️ Update</button>`:''}
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:10px;">
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">সম্পদ</div>
+<div style="color:#facc15;font-weight:800;">${formatNumber(r.totalWealth)} ৳</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">যাকাত (২.৫%)</div>
+<div style="color:#f59e0b;font-weight:800;">${formatNumber(r.zakatDue)} ৳</div>
+</div>
+<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
+<div style="color:#6b7280;">দিয়েছেন</div>
+<div style="color:${r.paid>=r.zakatDue?'#4ade80':'#f87171'};font-weight:800;">${formatNumber(r.paid||0)} ৳</div>
+</div>
+</div>
+${r.zakatDue>0?`<div style="margin-bottom:6px;">
+<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#6b7280;margin-bottom:3px;">
+<span>পরিশোধ</span>
+<span>${paidPct.toFixed(0)}%${remaining>0?' · বাকি: '+formatNumber(remaining)+' ৳':' ✅ পরিশোধ সম্পন্ন'}</span>
+</div>
+<div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;">
+<div style="background:${paidPct>=100?'#4ade80':'#f59e0b'};width:${paidPct}%;height:100%;border-radius:4px;"></div>
+</div>
+</div>`:''}
+${r.paidDate?`<div style="font-size:0.6rem;color:#6b7280;">📅 Paid: ${r.paidDate}</div>`:''}
+</div>`;
+}).join('');
+}
+
+function editZakat(year) {
+let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
+let r = records.find(rec=>rec.year===year);
+if(!r) return;
+document.getElementById('zakatYearTitle').textContent = year;
+document.getElementById('zakatYear').value = year;
+document.getElementById('goldPricePerGram').value = r.goldPrice||'';
+document.getElementById('zakatExtraAssets').value = '0';
+document.getElementById('zakatLiabilities').value = '0';
+document.getElementById('zakatPaid').value = r.paid||'';
+document.getElementById('zakatPaidDate').value = r.paidDate||new Date().toISOString().slice(0,10);
+let { breakdown, total } = getZakatableWealth();
+let breakEl = document.getElementById('zakatableBreakdown');
+breakEl.innerHTML = `<div style="color:var(--text-sub);font-size:0.68rem;">Saved wealth: <b style="color:#facc15;">${formatNumber(r.totalWealth)} BDT</b> (${year})</div>`;
+document.getElementById('zakatModal').style.display = 'flex';
+updateZakatPreview();
+}
+
+window.openZakatModal=openZakatModal; window.closeZakatModal=closeZakatModal;
+window.saveZakat=saveZakat; window.updateZakatPreview=updateZakatPreview; window.editZakat=editZakat;
+function openCryptoSellModal() {
+if(!isAdmin) return showToast("Admin required", true);
+document.getElementById('sellAmountUSD').value = '';
+document.getElementById('sellPriceUSD').value = '';
+document.getElementById('sellPreview').innerHTML = '';
+document.getElementById('cryptoSellModal').style.display = 'flex';
+updateSellCoinInfo();
+}
+
+function updateSellCoinInfo() {
+let coin = document.getElementById('sellCoin').value;
+// Show live price hint
+let hint = document.getElementById('livePriceHint');
+if(hint && cryptoPrices[coin]) hint.textContent = `Live: $${formatNumber(cryptoPrices[coin])}`;
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO sort
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+let totalCostUSD = entries.reduce((s,i)=>s+i.amount*(i.purchasePrice||0),0);
+let currentUSD = cryptoPrices[coin] ? totalQty * cryptoPrices[coin] : 0;
+let el = document.getElementById('sellCoinInfo');
+if(!entries.length) {
+el.innerHTML = `<span style="color:#f87171;">কোনো active ${coin} investment নেই।</span>`;
+return;
+}
+el.innerHTML = `
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Total Qty:</span> <b style="color:#f7931a;">${totalQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Cost:</span> <b>$${formatNumber(totalCostUSD)}</b></div>
+<div><span style="color:#6b7280;">Live Price:</span> <b style="color:#facc15;">$${formatNumber(cryptoPrices[coin]||0)}</b></div>
+<div><span style="color:#6b7280;">Current Val:</span> <b>$${formatNumber(currentUSD)}</b></div>
+</div>
+<div style="font-size:0.62rem;color:#6b7280;border-top:1px solid var(--border);padding-top:6px;">
+📋 FIFO Entries (পুরনো আগে):
+${entries.map((e,i)=>`<div style="margin-top:3px;">
+${i+1}. <b>${e.amount.toFixed(6)} ${coin}</b> @ $${formatNumber(e.purchasePrice)} — ${e.start}
+</div>`).join('')}
+</div>`;
+updateSellPreview();
+}
+
+function updateSellPreview() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+let el = document.getElementById('sellPreview');
+if(!sellUSD || !sellPrice) { el.innerHTML=''; return; }
+
+let sellQty = sellUSD / sellPrice;
+
+// FIFO simulation
+let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
+let totalQty = entries.reduce((s,i)=>s+i.amount,0);
+
+if(sellQty > totalQty) {
+el.innerHTML = `<div style="color:#f87171;font-size:0.72rem;">⚠️ আপনার কাছে মাত্র ${totalQty.toFixed(6)} ${coin} আছে — এত বেশি sell করতে পারবেন না।</div>`;
+return;
+}
+
+// Calculate FIFO cost basis
+let remaining = sellQty;
+let costBasis = 0;
+let affectedEntries = [];
+for(let e of entries) {
+if(remaining <= 0) break;
+let take = Math.min(remaining, e.amount);
+costBasis += take * (e.purchasePrice||0);
+affectedEntries.push({ id:e.id, take, original:e.amount, remaining:e.amount-take, start:e.start, purchasePrice:e.purchasePrice });
+remaining -= take;
+}
+
+let revenueBDT = sellUSD * usdToBdt;
+let costBDT = costBasis * usdToBdt;
+let profitBDT = revenueBDT - costBDT;
+let pos = profitBDT >= 0;
+
+el.innerHTML = `
+<div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:12px;padding:12px;">
+<div style="font-size:0.65rem;color:#6b7280;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📊 Sell Preview (FIFO)</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem;margin-bottom:8px;">
+<div><span style="color:#6b7280;">Sell Qty:</span> <b style="color:#f7931a;">${sellQty.toFixed(6)} ${coin}</b></div>
+<div><span style="color:#6b7280;">Sell Price:</span> <b>$${formatNumber(sellPrice)}</b></div>
+<div><span style="color:#6b7280;">Revenue:</span> <b>$${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT</b></div>
+<div><span style="color:#6b7280;">Cost Basis:</span> <b>$${formatNumber(costBasis)} = ${formatNumber(costBDT)} BDT</b></div>
+</div>
+<div style="font-size:0.88rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};">
+${pos?'✅':'❌'} ${pos?'Profit':'Loss'}: ${pos?'+':''}${formatNumber(profitBDT)} BDT
+</div>
+<div style="font-size:0.62rem;color:#6b7280;margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;">
+FIFO — এই entry গুলো থেকে বাদ যাবে:
+${affectedEntries.map(e=>`<div>• ${e.take.toFixed(6)} ${coin} from ${e.start} (@ $${formatNumber(e.purchasePrice)})</div>`).join('')}
+</div>
+</div>`;
+}
+
+async function executeCryptoSell() {
+let coin = document.getElementById('sellCoin').value;
+let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
+let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
+if(!sellUSD || !sellPrice) return showToast("Sell amount ও price দিন", true);
+if(!confirm(`${coin} sell করবেন $${sellUSD} @ $${sellPrice}?`)) return;
+
+let sellQty = sellUSD / sellPrice; // কত quantity sell হবে
+let entries = investments
+.filter(i=>i.type===coin && i.status==='active' && i.isCrypto)
+.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO — পুরনো আগে
+let totalQty = entries.reduce((s,i)=>s+i.amount, 0);
+
+if(sellQty > totalQty + 0.000001)
+return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
+
+let remaining = sellQty;
+let costBasis = 0; // কত দামে কিনেছিলেন
+let today = new Date().toISOString().slice(0,10);
+let log = []; // কোন entry থেকে কত গেল
+
+for(let inv of entries) {
+if(remaining <= 0.000001) break;
+let take = Math.min(remaining, inv.amount);
+let takeCost = take * (inv.purchasePrice||0);
+costBasis += takeCost;
+remaining -= take;
+
+let leftQty = inv.amount - take;
+
+log.push({
+start: inv.start,
+purchasePrice: inv.purchasePrice,
+soldQty: take,
+leftQty,
+full: leftQty < 0.000001
+});
+
+if(leftQty < 0.000001) {
+// পুরো entry sell হয়ে গেছে
+inv.status = 'completed';
+inv.actualProfit = (take * sellPrice - takeCost) * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({
+status: 'completed', actualProfit: inv.actualProfit
+});
+} else {
+// Partial sell — remaining qty এর cost basis ঠিক রাখা
+// amountBDT = remaining qty × purchase price × BDT rate (cost basis, Binance এর সাথে match)
+inv.amount = leftQty;
+inv.amountUSD = leftQty * (inv.purchasePrice||0); // purchase price দিয়ে cost basis
+inv.amountBDT = inv.amountUSD * usdToBdt;
+if(db) await db.collection("investments").doc(inv.id).update({
+amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
+});
+}
+}
+
+// Withdrawal history তে log
+let revenueBDT = sellUSD * usdToBdt;
+let profitBDT = (sellUSD - costBasis) * usdToBdt;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({
+platform: 'Binance', type: coin,
+amount: revenueBDT, profit: profitBDT,
+sellQty: sellQty, sellPriceUSD: sellPrice,
+date: today,
+note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+
+closeCryptoSellModal();
+renderAll();
+
+// Detailed toast
+let logText = log.map(l=>
+l.full
+? `✅ ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — fully sold`
+: `📊 ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — ${l.soldQty.toFixed(6)} sold, ${l.leftQty.toFixed(6)} remaining`
+).join('\n');
+
+showToast(
+`💰 ${sellQty.toFixed(6)} ${coin} sold!\n` +
+`Revenue: $${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT\n` +
+`${profitBDT>=0?'✅ Profit':'❌ Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`
+);
+}
+
+function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
+window.openCryptoSellModal=openCryptoSellModal; window.closeCryptoSellModal=closeCryptoSellModal;
+window.updateSellCoinInfo=updateSellCoinInfo; window.updateSellPreview=updateSellPreview; window.executeCryptoSell=executeCryptoSell;
+let _wahedEditId = null;
+function openWahedUpdate(id) {
+if(!isAdmin) return showToast("Admin required", true);
 let inv = investments.find(i=>i.id===id);
 if(!inv) return;
-let monthlyEst = inv.amountBDT * 0.007;
-infoEl.style.display = 'block';
-infoEl.innerHTML = `
-<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-<span style="color:var(--text-sub);">Property:</span>
-<strong>${inv.person||inv.platform}</strong>
-</div>
-<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-<span style="color:var(--text-sub);">Property Value:</span>
-<strong style="color:var(--accent);">${formatNumber(inv.amountBDT)} BDT</strong>
-</div>
-<div style="display:flex;justify-content:space-between;">
-<span style="color:var(--text-sub);">Est. Monthly Rental:</span>
-<strong style="color:#06b6d4;">~${formatNumber(monthlyEst)} BDT</strong>
-</div>
-${inv.note?`<div style="margin-top:4px;font-size:0.65rem;color:#a78bfa;">📝 ${inv.note}</div>`:''}`;
-document.getElementById('rentalAmount').oninput = function() {
-let v = parseFloat(this.value)||0;
-let prev = document.getElementById('rentalPreview');
-if(v > 0) {
-let annual = v * 12;
-let yld = inv.amountBDT > 0 ? (annual/inv.amountBDT*100).toFixed(2) : 0;
-prev.innerHTML = `<div style="background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:10px;padding:10px;margin-top:8px;">
-<div style="font-size:0.7rem;color:#06b6d4;font-weight:700;">📊 Preview</div>
-<div style="font-size:0.9rem;font-weight:800;color:#4ade80;margin-top:4px;">+${formatNumber(v)} BDT</div>
-<div style="font-size:0.62rem;color:#6b7280;margin-top:3px;">Annual: ~${formatNumber(annual)} BDT · Yield: ${yld}%</div>
+_wahedEditId = id;
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
+document.getElementById('wahedInfo').innerHTML = `
+<div><b style="color:#10b981;">Wahed Invest</b> — ${inv.platform}</div>
+<div style="margin-top:4px;">💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b></div>
+<div>📊 Last value: <b>${formatNumber(curVal)} BDT</b>
+<span style="color:${pnl>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>
 </div>`;
-} else prev.innerHTML = '';
+document.getElementById('wahedCurrentVal').value = curVal;
+document.getElementById('wahedNote').value = '';
+document.getElementById('wahedPLPreview').innerHTML = '';
+document.getElementById('wahedModal').style.display = 'flex';
+
+// Live preview on input
+document.getElementById('wahedCurrentVal').oninput = function() {
+let v = parseFloat(this.value)||0;
+let p = v - inv.amountBDT;
+let pct = inv.amountBDT > 0 ? (p/inv.amountBDT*100).toFixed(1) : 0;
+document.getElementById('wahedPLPreview').innerHTML = v > 0
+? `<div style="background:${p>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${p>=0?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:8px;padding:8px 10px;">
+<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}${formatNumber(p)} BDT (${p>=0?'+':''}${pct}%)</span>
+<span style="color:#6b7280;font-size:0.65rem;margin-left:8px;">vs invested</span>
+</div>` : '';
 };
 }
 
-async function confirmRentalWithdraw() {
-let id = document.getElementById('rentalSelect').value;
-let amount = parseFloat(document.getElementById('rentalAmount').value);
-let period = document.getElementById('rentalPeriod').value;
-let note = document.getElementById('rentalNote').value;
-if(!id) return showToast("Property select করুন", true);
-if(!amount || amount<=0) return showToast("Amount দিন", true);
-let inv = investments.find(i=>i.id===id);
+async function saveWahedUpdate() {
+let val = parseFloat(document.getElementById('wahedCurrentVal').value);
+let note = document.getElementById('wahedNote').value;
+if(!val || val <= 0) return showToast("সঠিক মূল্য দিন", true);
+let inv = investments.find(i=>i.id===_wahedEditId);
 if(!inv) return;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-history.push({
-platform: inv.platform||'Real Estate', type:'Rental Income',
-amount, profit: amount,
-date: new Date().toISOString().slice(0,10),
-note: `${period}${note?' · '+note:''} | ${inv.person||''}`
-});
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-inv.actualProfit = (inv.actualProfit||0) + amount;
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit});
+let pnl = val - inv.amountBDT;
+inv.currentValue = val;
+inv.actualProfit = pnl;
+if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
 localStorage.setItem("investments_backup", JSON.stringify(investments));
-closeRentalModal();
+closeWahedModal();
 renderAll();
-showToast(`✅ Rental Income: +${formatNumber(amount)} BDT recorded!`);
+showToast(`✅ Wahed updated! ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`);
 }
-function closeRentalModal() { document.getElementById('rentalModal').style.display='none'; }
-window.openRentalModal=openRentalModal; window.closeRentalModal=closeRentalModal;
-window.updateRentalInfo=updateRentalInfo; window.confirmRentalWithdraw=confirmRentalWithdraw;
 
+function closeWahedModal() { document.getElementById('wahedModal').style.display='none'; _wahedEditId=null; }
+window.openWahedUpdate=openWahedUpdate; window.saveWahedUpdate=saveWahedUpdate; window.closeWahedModal=closeWahedModal;
+
+// ====== EXPORT PDF ======
 function exportPDF() {
 if(!isAdmin) return showToast("Admin required", true);
 let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt;
@@ -3608,6 +4330,7 @@ thead{background:#f1f5f9;} th{padding:8px;text-align:left;font-size:11px;color:#
 tr:nth-child(even){background:#f8fafc;}
 .footer{margin-top:20px;text-align:center;font-size:10px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:12px;}
 </style></head><body>
+
 <div class="bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
 <div class="header">
 <h1>💰 Wealth Tracker Report</h1>
@@ -3636,218 +4359,6 @@ URL.revokeObjectURL(url);
 showToast('✅ PDF Report downloaded!');
 }
 window.exportPDF = exportPDF;
-
-function openCryptoSellModal() {
-if(!isAdmin) return showToast("Admin required", true);
-document.getElementById('sellAmountUSD').value = '';
-document.getElementById('sellPriceUSD').value = '';
-document.getElementById('sellPreview').innerHTML = '';
-document.getElementById('cryptoSellModal').style.display = 'flex';
-updateSellCoinInfo();
-}
-
-function updateSellCoinInfo() {
-let coin = document.getElementById('sellCoin').value;
-let hint = document.getElementById('livePriceHint');
-if(hint && cryptoPrices[coin]) hint.textContent = `Live: $${formatNumber(cryptoPrices[coin])}`;
-let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start));
-let totalQty = entries.reduce((s,i)=>s+i.amount,0);
-let totalCostUSD = entries.reduce((s,i)=>s+i.amount*(i.purchasePrice||0),0);
-let currentUSD = cryptoPrices[coin] ? totalQty * cryptoPrices[coin] : 0;
-let el = document.getElementById('sellCoinInfo');
-if(!entries.length) {
-el.innerHTML = `<span style="color:#f87171;">কোনো active ${coin} investment নেই।</span>`;
-return;
-}
-el.innerHTML = `
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;">
-<div><span style="color:#6b7280;">Total Qty:</span> <b style="color:#f7931a;">${totalQty.toFixed(6)} ${coin}</b></div>
-<div><span style="color:#6b7280;">Cost:</span> <b>$${formatNumber(totalCostUSD)}</b></div>
-<div><span style="color:#6b7280;">Live Price:</span> <b style="color:#facc15;">$${formatNumber(cryptoPrices[coin]||0)}</b></div>
-<div><span style="color:#6b7280;">Current Val:</span> <b>$${formatNumber(currentUSD)}</b></div>
-</div>
-<div style="font-size:0.62rem;color:#6b7280;border-top:1px solid var(--border);padding-top:6px;">
-📋 FIFO Entries (পুরনো আগে):
-${entries.map((e,i)=>`<div style="margin-top:3px;">
-${i+1}. <b>${e.amount.toFixed(6)} ${coin}</b> @ $${formatNumber(e.purchasePrice)} — ${e.start}
-</div>`).join('')}
-</div>`;
-updateSellPreview();
-}
-
-function updateSellPreview() {
-let coin = document.getElementById('sellCoin').value;
-let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
-let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
-let el = document.getElementById('sellPreview');
-if(!sellUSD || !sellPrice) { el.innerHTML=''; return; }
-let sellQty = sellUSD / sellPrice;
-let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start));
-let totalQty = entries.reduce((s,i)=>s+i.amount,0);
-if(sellQty > totalQty) {
-el.innerHTML = `<div style="color:#f87171;font-size:0.72rem;">⚠️ আপনার কাছে মাত্র ${totalQty.toFixed(6)} ${coin} আছে — এত বেশি sell করতে পারবেন না।</div>`;
-return;
-}
-let remaining = sellQty;
-let costBasis = 0;
-let affectedEntries = [];
-for(let e of entries) {
-if(remaining <= 0) break;
-let take = Math.min(remaining, e.amount);
-costBasis += take * (e.purchasePrice||0);
-affectedEntries.push({ id:e.id, take, original:e.amount, remaining:e.amount-take, start:e.start, purchasePrice:e.purchasePrice });
-remaining -= take;
-}
-let revenueBDT = sellUSD * usdToBdt;
-let costBDT = costBasis * usdToBdt;
-let profitBDT = revenueBDT - costBDT;
-let pos = profitBDT >= 0;
-el.innerHTML = `
-<div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:12px;padding:12px;">
-<div style="font-size:0.65rem;color:#6b7280;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📊 Sell Preview (FIFO)</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.7rem;margin-bottom:8px;">
-<div><span style="color:#6b7280;">Sell Qty:</span> <b style="color:#f7931a;">${sellQty.toFixed(6)} ${coin}</b></div>
-<div><span style="color:#6b7280;">Sell Price:</span> <b>$${formatNumber(sellPrice)}</b></div>
-<div><span style="color:#6b7280;">Revenue:</span> <b>$${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT</b></div>
-<div><span style="color:#6b7280;">Cost Basis:</span> <b>$${formatNumber(costBasis)} = ${formatNumber(costBDT)} BDT</b></div>
-</div>
-<div style="font-size:0.88rem;font-weight:800;color:${pos?'#4ade80':'#f87171'};">
-${pos?'✅':'❌'} ${pos?'Profit':'Loss'}: ${pos?'+':''}${formatNumber(profitBDT)} BDT
-</div>
-<div style="font-size:0.62rem;color:#6b7280;margin-top:6px;border-top:1px solid rgba(255,255,255,0.06);padding-top:6px;">
-FIFO — এই entry গুলো থেকে বাদ যাবে:
-${affectedEntries.map(e=>`<div>• ${e.take.toFixed(6)} ${coin} from ${e.start} (@ $${formatNumber(e.purchasePrice)})</div>`).join('')}
-</div>
-</div>`;
-}
-
-async function executeCryptoSell() {
-let coin = document.getElementById('sellCoin').value;
-let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
-let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
-if(!sellUSD || !sellPrice) return showToast("Sell amount ও price দিন", true);
-if(!confirm(`${coin} sell করবেন $${sellUSD} @ $${sellPrice}?`)) return;
-let sellQty = sellUSD / sellPrice;
-let entries = investments
-.filter(i=>i.type===coin && i.status==='active' && i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start));
-let totalQty = entries.reduce((s,i)=>s+i.amount, 0);
-if(sellQty > totalQty + 0.000001)
-return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
-let remaining = sellQty;
-let costBasis = 0;
-let today = new Date().toISOString().slice(0,10);
-let log = [];
-for(let inv of entries) {
-if(remaining <= 0.000001) break;
-let take = Math.min(remaining, inv.amount);
-let takeCost = take * (inv.purchasePrice||0);
-costBasis += takeCost;
-remaining -= take;
-let leftQty = inv.amount - take;
-log.push({
-start: inv.start,
-purchasePrice: inv.purchasePrice,
-soldQty: take,
-leftQty,
-full: leftQty < 0.000001
-});
-if(leftQty < 0.000001) {
-inv.status = 'completed';
-inv.actualProfit = (take * sellPrice - takeCost) * usdToBdt;
-if(db) await db.collection("investments").doc(inv.id).update({
-status: 'completed', actualProfit: inv.actualProfit
-});
-} else {
-inv.amount = leftQty;
-inv.amountUSD = leftQty * (inv.purchasePrice||0);
-inv.amountBDT = inv.amountUSD * usdToBdt;
-if(db) await db.collection("investments").doc(inv.id).update({
-amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
-});
-}
-}
-let revenueBDT = sellUSD * usdToBdt;
-let profitBDT = (sellUSD - costBasis) * usdToBdt;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-history.push({
-platform: 'Binance', type: coin,
-amount: revenueBDT, profit: profitBDT,
-sellQty: sellQty, sellPriceUSD: sellPrice,
-date: today,
-note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
-});
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-localStorage.setItem("investments_backup", JSON.stringify(investments));
-closeCryptoSellModal();
-renderAll();
-let logText = log.map(l=>
-l.full
-? `✅ ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — fully sold`
-: `📊 ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — ${l.soldQty.toFixed(6)} sold, ${l.leftQty.toFixed(6)} remaining`
-).join('\n');
-showToast(
-`💰 ${sellQty.toFixed(6)} ${coin} sold!\n` +
-`Revenue: $${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT\n` +
-`${profitBDT>=0?'✅ Profit':'❌ Loss'}: ${profitBDT>=0?'+':''}${formatNumber(profitBDT)} BDT`
-);
-}
-
-function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
-window.openCryptoSellModal=openCryptoSellModal; window.closeCryptoSellModal=closeCryptoSellModal;
-window.updateSellCoinInfo=updateSellCoinInfo; window.updateSellPreview=updateSellPreview; window.executeCryptoSell=executeCryptoSell;
-
-let _wahedEditId = null;
-function openWahedUpdate(id) {
-if(!isAdmin) return showToast("Admin required", true);
-let inv = investments.find(i=>i.id===id);
-if(!inv) return;
-_wahedEditId = id;
-let curVal = inv.currentValue || inv.amountBDT;
-let pnl = curVal - inv.amountBDT;
-document.getElementById('wahedInfo').innerHTML = `
-<div><b style="color:#10b981;">Wahed Invest</b> — ${inv.platform}</div>
-<div style="margin-top:4px;">💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b></div>
-<div>📊 Last value: <b>${formatNumber(curVal)} BDT</b>
-<span style="color:${pnl>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>
-</div>`;
-document.getElementById('wahedCurrentVal').value = curVal;
-document.getElementById('wahedNote').value = '';
-document.getElementById('wahedPLPreview').innerHTML = '';
-document.getElementById('wahedModal').style.display = 'flex';
-document.getElementById('wahedCurrentVal').oninput = function() {
-let v = parseFloat(this.value)||0;
-let p = v - inv.amountBDT;
-let pct = inv.amountBDT > 0 ? (p/inv.amountBDT*100).toFixed(1) : 0;
-document.getElementById('wahedPLPreview').innerHTML = v > 0
-? `<div style="background:${p>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${p>=0?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:8px;padding:8px 10px;">
-<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}${formatNumber(p)} BDT (${p>=0?'+':''}${pct}%)</span>
-<span style="color:#6b7280;font-size:0.65rem;margin-left:8px;">vs invested</span>
-</div>` : '';
-};
-}
-
-async function saveWahedUpdate() {
-let val = parseFloat(document.getElementById('wahedCurrentVal').value);
-let note = document.getElementById('wahedNote').value;
-if(!val || val <= 0) return showToast("সঠিক মূল্য দিন", true);
-let inv = investments.find(i=>i.id===_wahedEditId);
-if(!inv) return;
-let pnl = val - inv.amountBDT;
-inv.currentValue = val;
-inv.actualProfit = pnl;
-if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
-localStorage.setItem("investments_backup", JSON.stringify(investments));
-closeWahedModal();
-renderAll();
-showToast(`✅ Wahed updated! ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`);
-}
-
-function closeWahedModal() { document.getElementById('wahedModal').style.display='none'; _wahedEditId=null; }
-window.openWahedUpdate=openWahedUpdate; window.saveWahedUpdate=saveWahedUpdate; window.closeWahedModal=closeWahedModal;
 </script>
 </body>
 </html>
