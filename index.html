@@ -568,30 +568,6 @@ box-shadow: 0 8px 24px var(--shadow);
 @media (min-width: 768px) { .chart-wrapper { height: 380px; } }
 #netWorthChart { width: 100% !important; height: 100% !important; touch-action: pan-x pan-y; }
 
-.monthly-chart-modern {
-background: var(--bg-card);
-border-radius: 22px;
-padding: 16px 14px;
-margin-bottom: 14px;
-border: 1px solid rgba(74,222,128,0.2);
-box-shadow: 0 8px 24px var(--shadow);
-}
-.monthly-chart-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(74,222,128,0.15); gap: 10px; }
-.monthly-chart-title h3 { font-size: 0.82rem; font-weight: 700; color: var(--profit); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
-.monthly-chart-title p { font-size: 0.62rem; color: var(--text-sub); }
-.monthly-stats { display: flex; gap: 0; background: var(--bg-input); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
-.monthly-stat-item { padding: 8px 12px; text-align: center; border-right: 1px solid var(--border); flex: 1; }
-.monthly-stat-item:last-child { border-right: none; }
-.monthly-stat-label { font-size: 0.55rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
-.monthly-stat-value { font-size: 0.82rem; font-weight: 800; color: var(--profit); margin-top: 2px; font-family: 'Sora', sans-serif; }
-.monthly-stat-value.total { color: var(--accent); }
-.chart-year-selector { display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-input); padding: 4px 6px; border-radius: 30px; width: fit-content; }
-.year-btn { background: transparent; border: none; color: var(--text-sub); padding: 4px 12px; border-radius: 24px; font-size: 0.68rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif; }
-.year-btn.active { background: var(--profit); color: #000; }
-.chart-wrapper-monthly { height: 380px; position: relative; width: 100%; }
-@media (min-width: 480px) { .chart-wrapper-monthly { height: 440px; } }
-@media (min-width: 768px) { .chart-wrapper-monthly { height: 500px; } }
-
 .charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
 @media (min-width: 600px) { .charts-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
 .charts-grid .card { margin-bottom: 0; }
@@ -1054,35 +1030,6 @@ oninput="updateInvestSimulator()">
 <button class="btn-save" id="saveBtn">Save Investment</button>
 </div>
 
-<!-- MONTHLY PROFIT CHART -->
-
-<div class="monthly-chart-modern">
-<div class="monthly-chart-header">
-<div class="monthly-chart-title">
-<h3><i class="fas fa-chart-line"></i> Monthly Profit Realized</h3>
-<p>Track your earnings month by month | Interactive chart</p>
-</div>
-<div class="monthly-stats">
-<div class="monthly-stat-item">
-<div class="monthly-stat-label">Total Profit</div>
-<div class="monthly-stat-value total" id="totalProfitYear">0</div>
-</div>
-<div class="monthly-stat-item">
-<div class="monthly-stat-label">Best Month</div>
-<div class="monthly-stat-value" id="bestMonthValue">0</div>
-</div>
-<div class="monthly-stat-item">
-<div class="monthly-stat-label">Monthly Avg</div>
-<div class="monthly-stat-value" id="avgMonthValue">0</div>
-</div>
-</div>
-</div>
-<div class="chart-year-selector" id="yearSelector"></div>
-<div class="chart-wrapper-monthly">
-<canvas id="monthlyProfitChart" style="width:100%;height:100%;display:block;"></canvas>
-</div>
-</div>
-
 <!-- PLATFORM DISTRIBUTION CHART -->
 
 <div class="charts-grid">
@@ -1455,8 +1402,8 @@ let db = null, isAdmin = false, investments = [], usdToBdt = 122.5;
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
-let growthChart = null, platformChart = null, monthlyChart = null;
-let currentTimeRange = "all", editId = null, currentYear = new Date().getFullYear();
+let growthChart = null, platformChart = null;
+let currentTimeRange = "all", editId = null;
 let activeCurrency = "BDT";
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let deferredPrompt = null;
@@ -1476,7 +1423,6 @@ let status = document.getElementById('rateStatus');
 if(spinner) spinner.className = 'fas fa-sync-alt fa-spin';
 if(status) status.textContent = 'Fetching live rates...';
 try {
-// Use exchangerate-api (free, no key needed for basic)
 let res = await fetch('https://open.er-api.com/v6/latest/USD');
 let data = await res.json();
 if(data && data.rates) {
@@ -1493,7 +1439,6 @@ if(status) status.textContent = `Live • Updated ${ratesLastUpdated.toLocaleTim
 renderStats();
 }
 } catch(e) {
-// Fallback: try another free API
 try {
 let res2 = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=BDT,EUR,GBP,SAR');
 let data2 = await res2.json();
@@ -1563,8 +1508,7 @@ html.setAttribute('data-theme', next);
 localStorage.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
-// Re-render charts for new theme
-setTimeout(() => { renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); }, 100);
+setTimeout(() => { renderPlatformChart(); renderWithdrawalLogChart(); }, 100);
 }
 function loadTheme() {
 let saved = localStorage.getItem('theme') || 'dark';
@@ -1651,7 +1595,6 @@ const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
 let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
 if(cryptoPercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
 else if(cryptoPercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
-// Note: loan given increases caution but not risk level itself
 
 // ── Portfolio Health Score (0-100) ──
 let healthScore = 100;
@@ -1673,7 +1616,6 @@ active.forEach(inv=>{ if(inv.isCrypto&&cryptoPrices[inv.type]&&inv.purchasePrice
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let platMap = {};
 history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
-// fallback: use active investment amounts if no history
 if(Object.keys(platMap).length === 0) {
 active.forEach(inv => {
 if(!isWaitMoney(inv)) platMap[inv.platform] = (platMap[inv.platform]||0) + (inv.amountBDT||0);
@@ -1693,7 +1635,6 @@ const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).so
 // 🧠 AI ENGINE v2 — Clean Architecture (Gap-Based Core Brain)
 // ══════════════════════════════════════════════════════════════
 
-// PART 5 — Data Structure
 function getPortfolioData() {
 const total = Math.max(currentValue, 1);
 return {
@@ -1709,14 +1650,12 @@ values: { crypto:cryptoValue, farming:farmValue, business:businessValue, safe:sa
 };
 }
 
-// PART 1 — calculateGaps (only positive gaps = underweight categories)
 function calculateGaps(current, target) {
 let gaps = {};
 for(let key in target) gaps[key] = Math.max(0, target[key] - current[key]);
 return gaps;
 }
 
-// PART 2 — Platform Mapping
 const platformMap = {
 crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRate:0.11 },
 farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
@@ -1726,21 +1665,17 @@ safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
 
 const TARGET = { crypto:15, farming:35, business:25, safe:25 };
 
-// PART 1 — getAIPlan (core brain — proportional gap allocation)
 function getAIPlan(data, investAmount) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
 const totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
-if(totalGap === 0) return null; // balanced
-
+if(totalGap === 0) return null;
 const baseAmount = investAmount || (data.idleMoney * 0.8) || 10000;
 let result = [];
-
-// Sort by gap size (biggest gap first)
 Object.entries(gaps)
 .sort((a,b) => b[1]-a[1])
 .forEach(([key, gap]) => {
 if(gap === 0) return;
-if(key === 'safe' && baseAmount < 50000) return; // MMPDA needs 50k+
+if(key === 'safe' && baseAmount < 50000) return;
 let pct = Math.round((gap / totalGap) * 100);
 let amt = Math.round(baseAmount * pct / 100);
 if(amt < 300) return;
@@ -1758,14 +1693,11 @@ target: TARGET[key],
 reason: `এখন ${curPct.toFixed(0)}% → target ${TARGET[key]}% (gap ${gap.toFixed(0)}%)`
 });
 });
-
-// Normalize pct to 100%
 const totPct = result.reduce((s,r)=>s+r.pct, 0);
 result.forEach(r => { r.pct = Math.round(r.pct/totPct*100); r.amount = Math.round(baseAmount*r.pct/100); });
 return result;
 }
 
-// PART 6 — generateInsight
 function generateInsight(data) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
 let sorted = Object.entries(gaps).sort((a,b)=>b[1]-a[1]);
@@ -1776,7 +1708,6 @@ let pm = platformMap[key];
 lines.push(`${pm.icon} <b>${pm.names[0]}</b> ${gap.toFixed(0)}% underweight — আরো invest করুন`);
 }
 });
-// Over-allocated warning
 Object.entries(data.currentAllocation).forEach(([key, cur]) => {
 let over = cur - TARGET[key];
 if(over > 10) lines.push(`⚠️ <b>${platformMap[key].names[0]}</b> ${over.toFixed(0)}% over target`);
@@ -1784,7 +1715,6 @@ if(over > 10) lines.push(`⚠️ <b>${platformMap[key].names[0]}</b> ${over.toFi
 return lines;
 }
 
-// splitCrypto — internal crypto distribution
 function splitCrypto(cryptoAmount) {
 return [
 { name:'BTC', pct:40, amount:Math.round(cryptoAmount*0.40), color:'#f7931a', icon:'₿' },
@@ -1794,17 +1724,14 @@ return [
 ];
 }
 
-// ── Run the engine ──
 const PORT_DATA = getPortfolioData();
 const PORT = { total:PORT_DATA.totalPortfolio, idle:waitMoney, ...PORT_DATA.values };
 const CURR = PORT_DATA.currentAllocation;
 const GAP = calculateGaps(CURR, TARGET);
 
-// Store globally for simulator
 window._AI_BRAIN = {
 getAIPlan, getPortfolioData, calculateGaps, generateInsight, splitCrypto,
 platformMap, TARGET, PORT, CURR, GAP,
-// Legacy aliases for simulator compatibility
 advancedAI: (amount) => getAIPlan(PORT_DATA, amount) || [],
 NAME_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.names.join(' / ')])),
 COLOR_MAP: Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.color])),
@@ -1813,7 +1740,6 @@ RETURN_MAP:Object.fromEntries(Object.entries(platformMap).map(([k,v])=>[k,v.retu
 };
 if(PORT.idle > 50000) window._AI_BRAIN.boostMsg = `⚡ ${formatNumber(PORT.idle)} BDT idle — এখনই invest করুন!`;
 
-// ── AI Suggestion (from same engine) ──
 const suggestPlan = getAIPlan(PORT_DATA, waitMoney > 1000 ? waitMoney : Math.round(PORT.total*0.1));
 const topOption = suggestPlan?.[0] || { name:'iFarmer / Wegro', icon:'🌱', annualReturn:0.19, pct:40, gap:10, current:0, target:35 };
 
@@ -1839,7 +1765,6 @@ suggestionDetail= topAmt > 0
 suggestionIcon = topOption.icon;
 }
 
-// ── Health Score Bar ──
 scoreBar.innerHTML = `
 <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.2); border-radius:14px; padding:12px 14px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -1856,7 +1781,6 @@ scoreBar.innerHTML = `
 </div>
 </div>`;
 
-// ── Main Metrics Grid ──
 grid.innerHTML = `
 <div class="ai-metric">
 <div class="ai-metric-label">📅 Monthly</div>
@@ -1889,7 +1813,6 @@ grid.innerHTML = `
 <div class="ai-metric-sub">${bestPlatformLabel}</div>
 </div>`;
 
-// ── Category Breakdown Panel ──
 let catBreakdown = document.getElementById('aiCategoryBreakdown');
 if(catBreakdown) {
 const cats = [
@@ -1925,7 +1848,6 @@ ${PORT.idle>1000 ? `<div style="margin-top:8px;background:rgba(245,158,11,0.1);b
 </div>`;
 }
 
-// ── Insight Box (generateInsight from AI Engine v2) ──
 let insightLines = generateInsight(PORT_DATA);
 if(activeCount > 0) insightLines.unshift(`<b>${activeCount}</b> টি active investment চলছে।`);
 if(totalActualProfit > 0) insightLines.push(`মোট profit: <b style="color:#4ade80;">+${formatNumber(totalActualProfit)} BDT</b> — আলহামদুলিল্লাহ! 🤲`);
@@ -1941,7 +1863,6 @@ insightEl.innerHTML = `
 ${insightLines.map(l=>`<div style="font-size:0.72rem;color:#d8b4fe;line-height:1.6;display:flex;gap:6px;margin-bottom:5px;"><span style="color:#7c3aed;flex-shrink:0;">▸</span><span>${l}</span></div>`).join('')}
 </div>`;
 
-// ── Suggestion Box ──
 suggestionBox.innerHTML = `
 <div style="background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(124,58,237,0.1));border:1px solid rgba(168,85,247,0.45);border-radius:14px;padding:14px;">
 <div style="display:flex;align-items:flex-start;gap:12px;">
@@ -1978,7 +1899,6 @@ let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
 let daysInPrev = new Date(calYear, calMonth, 0).getDate();
 let today = new Date(); today.setHours(0,0,0,0);
 
-// Build event map
 let eventsMap = {};
 investments.forEach(inv => {
 [[inv.start,'start'],[inv.end,'end']].forEach(([dateField, eType]) => {
@@ -1990,7 +1910,6 @@ eventsMap[d].push({ inv, eventType:eType });
 });
 });
 
-// Month summary stats
 let monthInvested = 0, monthExpiring = 0, monthStarting = 0;
 Object.entries(eventsMap).forEach(([d, evs]) => {
 if(d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)) {
@@ -2081,7 +2000,6 @@ let color = isStart ? '#4ade80' : '#f87171';
 let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
 let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
 
-// Current crypto value
 let cryptoInfo = '';
 if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
@@ -2095,7 +2013,6 @@ cryptoInfo = `
 </div>`;
 }
 
-// Duration
 let duration = '';
 if(inv.start && inv.end) {
 let s = new Date(inv.start), e = new Date(inv.end);
@@ -2107,7 +2024,6 @@ let diffLabel = diffDays===0 ? '<span style="color:#facc15;font-weight:700;">⚡
 : diffDays>0 ? `<span style="color:#06b6d4;">📆 ${diffDays} days from now</span>`
 : `<span style="color:#94a3b8;">⏳ ${Math.abs(diffDays)} days ago</span>`;
 
-// Progress bar if active investment with start & end
 let progressBar = '';
 if(inv.start && inv.end && inv.status==='active') {
 let s = new Date(inv.start).getTime(), e = new Date(inv.end).getTime(), n = Date.now();
@@ -2175,7 +2091,6 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 }
 }
 
-// ====== NET WORTH CHART ======
 // ====== STATS ======
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
@@ -2197,28 +2112,20 @@ let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).redu
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
 document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
 
-// ── Total profit since inception (all sources) ──
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
-// 1. Realized profit: from withdrawal history
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0);
-
-// 2. Unrealized crypto P&L: current value - cost basis
 let cryptoUnrealized = 0;
 investments.filter(i=>i.status==='active'&&i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice).forEach(inv=>{
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
 let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
 cryptoUnrealized += curVal - costVal;
 });
-
-// 3. Non-crypto accrued profit: actualProfit field on each investment
 let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
-
 let totalProfit = realizedProfit + cryptoUnrealized + nonCryptoProfit;
 let pos = totalProfit >= 0;
 let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
-
 profitEl.innerHTML = `
 <div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.25)':'rgba(248,113,113,0.25)'};border-radius:10px;padding:8px 10px;">
 <div style="font-size:0.58rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">📊 শুরু থেকে মোট লাভ</div>
@@ -2230,8 +2137,6 @@ ${cryptoUnrealized!==0?`<span style="font-size:0.58rem;color:#f7931a;">₿ Crypt
 </div>
 </div>`;
 }
-
-let prog = Math.min((p.bdt/300000)*100, 100);
 updateTotalPortfolio24hUI();
 updateWeeklyActiveUI();
 }
@@ -2240,182 +2145,6 @@ function computeWeeklyActivePL() { let cur=0,prev=0; investments.forEach(inv=>{ 
 function updateWeeklyActiveUI() { let el=document.getElementById('weeklyPLContainer'); if(!el) return; let d=computeWeeklyActivePL(); if(!d){ el.innerHTML='<div class="pl-indicator">7d Change: --</div>'; return; } let s=d.isPositive?'+':''; el.innerHTML=`<div class="pl-indicator ${d.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-calendar-week"></i> <strong>7d P&L:</strong> ${s}${formatNumber(d.bdt)} BDT (${s}${d.percent.toFixed(2)}%)</div>`; }
 function computeTotalPortfolio24hChange() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto24hPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto24hPrices[inv.type]; } else if(!inv.isCrypto&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
 function updateTotalPortfolio24hUI() { let el=document.getElementById('total24hPLContainer'); if(!el) return; let d=computeTotalPortfolio24hChange(); if(!d){ el.innerHTML='<div class="pl-indicator">24h Change: --</div>'; return; } let s=d.isPositive?'+':''; el.innerHTML=`<div class="pl-indicator ${d.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-chart-line"></i> <strong>24h P&L:</strong> ${s}${formatNumber(d.bdt)} BDT (${s}${d.percent.toFixed(2)}%)</div>`; }
-
-// ====== MONTHLY CHART ======
-function renderMonthlyChart() {
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-
-// STEP 1: Build proper data structure { month, invested, profit }
-let monthlyMap = {}; // key: "YYYY-M"
-
-// Profit from withdrawal history
-history.forEach(h => {
-let dt = new Date(h.date);
-let key = `${dt.getFullYear()}-${dt.getMonth()}`;
-if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
-monthlyMap[key].profit += (h.profit||0);
-});
-
-// Invested from investments start date
-investments.forEach(inv => {
-if(!inv.start) return;
-let dt = new Date(inv.start);
-let key = `${dt.getFullYear()}-${dt.getMonth()}`;
-if(!monthlyMap[key]) monthlyMap[key] = { year:dt.getFullYear(), month:dt.getMonth(), invested:0, profit:0 };
-monthlyMap[key].invested += (inv.amountBDT||0);
-});
-
-// Demo data if no real data
-if(Object.keys(monthlyMap).length === 0) {
-const demo = [
-{year:2024,month:0,invested:20000,profit:3500},{year:2024,month:1,invested:25000,profit:5200},
-{year:2024,month:2,invested:18000,profit:4800},{year:2024,month:3,invested:30000,profit:7200},
-{year:2024,month:4,invested:22000,profit:6100},{year:2024,month:5,invested:35000,profit:9800},
-{year:2024,month:6,invested:28000,profit:7500},{year:2024,month:7,invested:40000,profit:11200},
-{year:2024,month:8,invested:32000,profit:8900},{year:2024,month:9,invested:45000,profit:13400},
-{year:2024,month:10,invested:38000,profit:10600},{year:2024,month:11,invested:50000,profit:14800},
-{year:2025,month:0,invested:30000,profit:8200},{year:2025,month:1,invested:25000,profit:6800},
-{year:2025,month:2,invested:42000,profit:11500},{year:2025,month:3,invested:35000,profit:9400},
-{year:2026,month:0,invested:28000,profit:7600},{year:2026,month:1,invested:32000,profit:8900},
-{year:2026,month:2,invested:50000,profit:29800},{year:2026,month:3,invested:25000,profit:0},
-];
-demo.forEach(d => { monthlyMap[`${d.year}-${d.month}`] = d; });
-}
-
-let years = [...new Set(Object.values(monthlyMap).map(d=>d.year))].sort();
-let latestYear = years[years.length-1] || new Date().getFullYear();
-if(!years.includes(currentYear)) currentYear = latestYear;
-
-let yearSel = document.getElementById('yearSelector');
-if(yearSel) {
-yearSel.innerHTML = '';
-years.forEach(y => {
-let btn = document.createElement('button');
-btn.className = 'year-btn' + (y===currentYear?' active':'');
-btn.textContent = y;
-btn.onclick = () => {
-document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-currentYear = y;
-renderMonthlyChartForYear(y, monthlyMap);
-};
-yearSel.appendChild(btn);
-});
-}
-renderMonthlyChartForYear(currentYear, monthlyMap);
-}
-
-function renderMonthlyChartForYear(year, monthlyMap) {
-const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-// STEP 1: Build 12-month arrays, 0 for missing (STEP 7: no null)
-let monthlyData = monthNames.map((m, i) => {
-let key = `${year}-${i}`;
-let data = monthlyMap[key] || { invested:0, profit:0 };
-return { month:m, invested: data.invested||0, profit: data.profit||0 };
-});
-
-let investedArr = monthlyData.map(d => d.invested);
-let profitArr = monthlyData.map(d => d.profit);
-
-// STEP 4: Monthly avg — only months with data
-let monthsWithProfit = monthlyData.filter(d => d.profit > 0);
-let monthsWithInvest = monthlyData.filter(d => d.invested > 0);
-let totalProfit = profitArr.reduce((a,b)=>a+b, 0);
-let totalInvested = investedArr.reduce((a,b)=>a+b, 0);
-let avgProfit = monthsWithProfit.length > 0 ? totalProfit / monthsWithProfit.length : 0;
-
-// STEP 5: Best month
-let bestMonth = monthlyData.reduce((max,m) => m.profit > max.profit ? m : max, monthlyData[0]);
-
-document.getElementById('totalProfitYear').innerHTML = formatNumber(totalProfit) + ' BDT';
-document.getElementById('bestMonthValue').innerHTML = formatNumber(bestMonth.profit) + ' BDT' + (bestMonth.profit>0 ? ` (${bestMonth.month})` : '');
-document.getElementById('avgMonthValue').innerHTML = formatNumber(avgProfit) + ' BDT';
-
-let isDark = document.documentElement.getAttribute('data-theme')==='dark';
-let ctx = document.getElementById('monthlyProfitChart').getContext('2d');
-if(monthlyChart) monthlyChart.destroy();
-
-// STEP 2: Chart config
-monthlyChart = new Chart(ctx, {
-type: 'bar',
-data: {
-labels: monthNames,
-datasets: [
-{
-label: '💚 Invested',
-data: investedArr,
-backgroundColor: 'rgba(74,222,128,0.82)',
-borderRadius: 8,
-barThickness: 18, // STEP 2: mobile মোটা bar
-order: 2
-},
-{
-label: '🔴 Return/Profit',
-data: profitArr,
-backgroundColor: profitArr.map((p,i) => p===bestMonth.profit&&p>0 ? '#ef4444' : 'rgba(248,113,113,0.78)'),
-borderRadius: 8,
-barThickness: 18, // STEP 2: mobile মোটা bar
-order: 1
-}
-]
-},
-options: {
-responsive: true,
-maintainAspectRatio: false, // STEP 3: full height fill
-plugins: {
-legend: {
-display: true,
-position: 'top',
-labels: {
-color: isDark?'#94a3b8':'#64748b',
-font: { size:11, family:"'Plus Jakarta Sans',sans-serif" },
-boxWidth: 12, padding: 12,
-usePointStyle: true, pointStyle: 'rect'
-}
-},
-// STEP 6: Tooltips with profit %
-tooltip: {
-backgroundColor: isDark?'#1e293b':'#fff',
-titleColor: '#facc15',
-bodyColor: isDark?'#e2e8f0':'#1e293b',
-borderColor: isDark?'#334155':'#cbd5e1',
-borderWidth: 1,
-callbacks: {
-label: (ctx) => {
-if(ctx.raw === 0) return ` ${ctx.dataset.label.replace(/[^\w ]/g,'').trim()}: 0 BDT`;
-let val = formatNumber(ctx.raw);
-// Bonus: profit % of invested
-if(ctx.datasetIndex === 1) {
-let inv = investedArr[ctx.dataIndex];
-let pct = inv > 0 ? ((ctx.raw/inv)*100).toFixed(1) : null;
-return ` Return: ${val} BDT${pct ? ` (${pct}%)` : ''}`;
-}
-return ` Invested: ${val} BDT`;
-},
-afterBody: (ctxArr) => {
-let profitCtx = ctxArr.find(c=>c.datasetIndex===1);
-if(profitCtx && profitCtx.raw===bestMonth.profit && bestMonth.profit>0)
-return ['🏆 Best month!'];
-return [];
-}
-}
-}
-},
-scales: {
-y: {
-grid: { color: isDark?'rgba(148,163,184,0.08)':'rgba(100,116,139,0.08)' },
-ticks: { color: isDark?'#94a3b8':'#64748b', callback:v=>formatNumber(v), font:{size:10} }
-},
-x: {
-grid: { display: false },
-ticks: { color: isDark?'#94a3b8':'#64748b', font:{size:10, weight:'500'} }
-}
-},
-layout: { padding: { top:8, bottom:4 } }
-}
-});
-}
 
 // ====== RENDER WAIT MONEY ======
 function renderWaitMoney() {
@@ -2514,7 +2243,6 @@ moreEl.style.display = hidden ? 'block' : 'none';
 btnEl.innerHTML = hidden
 ? `<i class="fas fa-chevron-up"></i> কম দেখুন`
 : `<i class="fas fa-chevron-down"></i> আরো ${moreEl.dataset.count} টি দেখুন`;
-// Save open state so re-renders don't reset it
 if(hidden) window._openPlatforms = window._openPlatforms || new Set(), window._openPlatforms.add(platKey);
 else if(window._openPlatforms) window._openPlatforms.delete(platKey);
 }
@@ -2537,7 +2265,7 @@ if(inv.status==='active'&&!isWaitMoney(inv)){ if(!activeMap[inv.platform]) activ
 else if(inv.status!=='active'){ if(!completedMap[inv.platform]) completedMap[inv.platform]=[]; completedMap[inv.platform].push(inv); }
 });
 
-const SHOW_FIRST = 2; // প্রথম কতটা দেখাবে
+const SHOW_FIRST = 2;
 let activeHtml = '';
 
 for(let plat of Object.keys(activeMap).sort()) {
@@ -2556,10 +2284,8 @@ activeHtml += `<div class="platform-box">
 <span>${formatNumber(platTotal)} BDT (${pct}%) &nbsp;<span style="font-size:0.65rem;color:var(--text-sub);">${items.length} item${items.length>1?'s':''}</span></span>
 </div>`;
 
-// প্রথম ২টা সবসময় দেখাবে
 visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
 
-// বাকিগুলো লুকানো থাকবে
 if(hasMore) {
 activeHtml += `
 <div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
@@ -2576,7 +2302,6 @@ activeHtml += `</div>`;
 
 if(!Object.keys(activeMap).length) activeHtml = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No active investments</div>';
 
-// Completed — same More/Less logic
 let completedHtml = '';
 for(let plat of Object.keys(completedMap).sort()) {
 let items = completedMap[plat];
@@ -2639,7 +2364,6 @@ let el=document.getElementById(coin.toLowerCase()+'24hPL');
 if(el) el.innerHTML=`<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% 24h</span>`;
 }
 }
-// 7d klines
 for(let coin of ['BTC','ETH','BNB','SOL']){
 try{
 let now=Date.now(), ago=now-(7*24*60*60*1000);
@@ -2648,7 +2372,6 @@ let kd=await kr.json();
 if(kd&&kd[0]&&kd[0][4]){ let p7=parseFloat(kd[0][4]); if(p7>0) crypto7dPrices[coin]=p7; }
 }catch(e){}
 }
-// Update UI
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let qty=investments.filter(i=>i.type===coin&&i.status==='active').reduce((s,i)=>s+i.amount,0);
 let cUSD=qty*cryptoPrices[coin], cBDT=cUSD*usdToBdt;
@@ -2662,7 +2385,6 @@ updateCryptoPurchaseInfo();
 renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 renderPLTicker();
-// Auto check alerts on price update
 checkAlerts();
 } catch(e) { console.error('Crypto price fetch error:', e); }
 }
@@ -2684,7 +2406,6 @@ let resultEl = document.getElementById('investSimulatorResult');
 if(!resultEl) return;
 if(budget <= 0) { resultEl.innerHTML=''; return; }
 
-// ── Build live portfolio data directly (no closure dependency) ──
 let activeNow = investments.filter(i=>i.status==='active');
 let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
 let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
@@ -2708,7 +2429,6 @@ business: { name:'Biniyog', color:'#a855f7', icon:'💼', rate:0.15 },
 safe: { name:'MMPDA + MSSA', color:'#10b981', icon:'🏦', rate:0.08 },
 };
 
-// Gap-based allocation
 let gaps = {};
 Object.keys(TARGET_SIM).forEach(k => { gaps[k] = Math.max(0, TARGET_SIM[k] - liveAlloc[k]); });
 let totalGap = Object.values(gaps).reduce((a,b)=>a+b, 0);
@@ -2730,7 +2450,6 @@ current: liveAlloc[key], target: TARGET_SIM[key],
 reason: `এখন ${liveAlloc[key].toFixed(0)}% → target ${TARGET_SIM[key]}% (gap ${gap.toFixed(0)}%)`
 });
 });
-// Normalize
 let totPct = plan.reduce((s,r)=>s+r.pct, 0);
 plan.forEach(r=>{ r.pct=Math.round(r.pct/totPct*100); r.amount=Math.round(budget*r.pct/100); });
 }
@@ -2740,7 +2459,6 @@ color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0,
 current:liveAlloc.farming, target:35, reason:'Portfolio balanced — farming is best default' }];
 }
 
-// splitCrypto
 function simSplitCrypto(amt) {
 return [
 { name:'BTC', pct:40, amount:Math.round(amt*0.40), color:'#f7931a', icon:'₿' },
@@ -2817,10 +2535,10 @@ ${idleNow>50000?`<div style="margin-top:6px;font-size:0.65rem;color:#f59e0b;font
 }
 window.updateInvestSimulator = updateInvestSimulator;
 
-// ====== EMAIL REPORT (EmailJS) ======
+// ====== EMAIL REPORT ======
 const EMAILJS_SERVICE = 'service_wealth';
 const EMAILJS_TEMPLATE = 'template_wealth';
-const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // EmailJS public key
+const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
 const REPORT_EMAIL = 'ronygp123@gmail.com';
 
 function loadEmailJS(callback) {
@@ -2912,7 +2630,6 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .then(() => showToast('✅ Email পাঠানো হয়েছে! ' + REPORT_EMAIL))
 .catch(err => {
 console.error('EmailJS error:', err);
-// Fallback: download HTML report
 showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
 setTimeout(exportPDF, 1000);
 });
@@ -2984,7 +2701,6 @@ callbacks: { label: (c) => ` ${c.label}: ${formatNumber(c.raw)} BDT (${pData[c.d
 }
 }
 });
-// Improved legend with bars
 if(legendEl) {
 legendEl.innerHTML = pData.map((p, i) => `
 <div style="display:flex; align-items:center; gap:8px; width:100%;">
@@ -3004,7 +2720,6 @@ if(!el) return;
 let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) return;
 
-// ── Crypto P&L (real Binance prices) ──
 let crypto24hBDT = 0, crypto7dBDT = 0;
 active.forEach(inv => {
 if(!inv.isCrypto || !cryptoPrices[inv.type]) return;
@@ -3013,7 +2728,6 @@ if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices
 if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
 });
 
-// ── Non-crypto P&L (annual rate based, proper 365-day calc) ──
 const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
 let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
 active.forEach(inv => {
@@ -3026,20 +2740,16 @@ nonCrypto7d += (amt * rate) / 365 * 7;
 nonCrypto30d += (amt * rate) / 365 * 30;
 });
 
-// ── REAL 1Y P&L: from actual withdrawal history + crypto unrealized gain ──
-// Step 1: Sum all actual profits from history in last 365 days
 let oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1);
 let historyAll = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
 let realProfitLast1Y = historyAll.reduce((s,h) => {
 if(new Date(h.date) >= oneYearAgo) return s + (h.profit||0);
 return s;
 }, 0);
-// Step 2: Add actual profit recorded in investments (last 365 days)
 let invProfitLast1Y = investments.filter(i => {
 if(!i.start) return false;
 return new Date(i.start) >= oneYearAgo;
 }).reduce((s,i) => s + (i.actualProfit||0), 0);
-// Step 3: Add crypto unrealized P&L (current vs purchase)
 let cryptoUnrealizedBDT = 0;
 active.forEach(inv => {
 if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice && inv.start) {
@@ -3048,7 +2758,6 @@ cryptoUnrealizedBDT += (cryptoPrices[inv.type] - inv.purchasePrice) * inv.amount
 }
 }
 });
-// Step 4: Add estimated non-crypto return for holdings older than 1y
 let nonCrypto1yOldHoldings = 0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
@@ -3076,15 +2785,14 @@ ${extra}
 </span>`;
 }
 
-// Crypto chips: total invested $ → current total $ (±BDT)
 let cryptoChips = '';
 const coinColors = { BTC:'#f7931a', ETH:'#627eea', BNB:'#f3ba2f', SOL:'#9945ff' };
 ['BTC','ETH','BNB','SOL'].forEach(coin => {
 let invs = active.filter(i => i.type===coin && i.isCrypto && i.purchasePrice && i.amount);
 if(invs.length===0 || !cryptoPrices[coin]) return;
 let totalQty = invs.reduce((s,i) => s + (i.amount||0), 0);
-let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0); // আমার ক্রয়মূল্য
-let currentValUSD = totalQty * cryptoPrices[coin]; // বর্তমান মূল্য
+let totalCostUSD = invs.reduce((s,i) => s + (i.amount||0) * (i.purchasePrice||0), 0);
+let currentValUSD = totalQty * cryptoPrices[coin];
 let plBDT = (currentValUSD - totalCostUSD) * usdToBdt;
 let pos = plBDT >= 0;
 let color = pos ? '#4ade80' : '#f87171';
@@ -3099,9 +2807,8 @@ cryptoChips += `<span style="display:inline-flex;align-items:center;gap:6px;padd
 let divider = `<span style="padding:8px 14px;border-right:1px solid var(--border);color:var(--border);font-size:0.7rem;white-space:nowrap;">·····</span>`;
 let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1Y ✦', pl1y) + divider + cryptoChips;
 
-el.innerHTML = items + items; // double for seamless loop
+el.innerHTML = items + items;
 
-// Speed & hover pause
 let wrap = document.getElementById('plTickerWrap');
 if(wrap) {
 wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
@@ -3109,7 +2816,7 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderMonthlyChart(); renderWithdrawalLogChart(); renderPLTicker(); updateCryptoPrices(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); updateCryptoPrices(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
@@ -3235,7 +2942,6 @@ if(withdrawAmt > inv.amountBDT) return showToast(`সর্বোচ্চ ${for
 
 let remaining = inv.amountBDT - withdrawAmt;
 
-// Save to history
 let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
 history.push({
 platform: inv.platform,
@@ -3248,13 +2954,11 @@ note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 
 if(remaining <= 0) {
-// Fully withdrawn — mark complete
 inv.status = 'completed';
 inv.amountBDT = 0;
 inv.amountUSD = 0;
 inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
 } else {
-// Update remaining amount
 inv.amountBDT = remaining;
 inv.amountUSD = remaining / usdToBdt;
 inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
@@ -3302,7 +3006,6 @@ document.getElementById('mssaInfo').innerHTML = `
 document.getElementById('mssaMonthly').value = inv.monthlyInstallment || '';
 document.getElementById('mssaMonths').value = 1;
 document.getElementById('mssaCalc').style.display = 'none';
-// Live calc on input
 ['mssaMonthly','mssaMonths'].forEach(id => {
 document.getElementById(id).oninput = () => {
 let monthly = parseFloat(document.getElementById('mssaMonthly').value) || 0;
@@ -3399,16 +3102,6 @@ showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতু�
 }
 function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
 
-// ====== UTILITIES ======
-function exportToCSV() {
-if(!isAdmin) return showToast("Admin required", true);
-const headers=['ID','Platform','Type','Amount','Amount BDT','Amount USD','Is Crypto','Purchase Price','Expected Profit','Actual Profit','Status','Start Date','End Date','Note','Person'];
-const rows=investments.map(inv=>[inv.id,inv.platform,inv.type,inv.amount,inv.amountBDT,inv.amountUSD,inv.isCrypto?'Yes':'No',inv.purchasePrice||'',inv.expectedProfit||0,inv.actualProfit||0,inv.status,inv.start,inv.end||'',inv.note||'',inv.person||'']);
-const csv=[headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
-const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=`wealth_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
-showToast("✅ CSV Exported!");
-}
 // ====== AUTH ======
 async function adminLogin(pass, isAuto=false) {
 if(pass!==ADMIN_PASSWORD){ if(!isAuto) showToast("Wrong password!", true); return false; }
@@ -3429,6 +3122,7 @@ try { let snap=await db.collection("investments").get(); investments=[]; snap.fo
 catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
 }
 function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
+
 // ====== EXPOSE GLOBALS ======
 window.openEdit=openEdit; window.saveEdit=saveEdit; window.closeEditModal=closeEditModal;
 window.markComplete=markComplete; window.deleteInv=deleteInv;
@@ -3448,41 +3142,32 @@ loadTheme();
 loadCurrency();
 document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
 
-// Load from localStorage immediately (works offline + instant on iOS home screen)
 let backup = localStorage.getItem("investments_backup");
 investments = backup ? JSON.parse(backup) : [];
 renderAll();
 
-// Check saved admin login
 checkSavedLogin();
 
-// Fetch live rates
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
-
-// Crypto prices every 5 seconds
 setInterval(updateCryptoPrices, 5000);
 setInterval(renderPLTicker, 5000);
 
-// Event listeners
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
 
-// Firebase loads after UI is ready (non-blocking)
 setTimeout(() => {
 try {
 if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
-// Only sync if we have network
 if(navigator.onLine) loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 }, 500);
 
-// ====== VISITOR COUNTER ======
 (function() {
 const VISIT_KEY = 'wt_total_visits';
 const SESSION_KEY = 'wt_last_visit_date';
@@ -3498,19 +3183,15 @@ let el = document.getElementById('visitorCountText');
 if(el) el.innerHTML = `<span style="color:var(--accent);font-weight:700;">${total.toLocaleString()}</span> visits`;
 })();
 
-// ====== iOS STANDALONE DETECTION ======
-// When opened from home screen, show a subtle "App Mode" badge
 (function() {
 let isStandalone = window.navigator.standalone === true
 || window.matchMedia('(display-mode: standalone)').matches;
 if(isStandalone) {
-// Add safe area padding for iPhone notch
 document.body.style.paddingTop = 'env(safe-area-inset-top)';
 document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 }
 })();
 
-// Auto alert check on load
 setTimeout(checkAlerts, 2000);
 setTimeout(renderBudgetDisplay, 500);
 setTimeout(renderZakatDisplay, 600);
@@ -3595,7 +3276,6 @@ note: document.getElementById('budgetNote').value,
 month: now.getMonth(), year: now.getFullYear(),
 label: now.toLocaleString('default',{month:'long',year:'numeric'})
 };
-// Save last 12 months
 let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
 all = all.filter(b => !(b.month===data.month && b.year===data.year));
 all.push(data);
@@ -3655,29 +3335,20 @@ renderBudgetDisplay();
 }
 window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
 
-// ====== INVESTMENT REMINDERS ======
-// REMINDER FUNCTIONS REMOVED
-
 // ====== ZAKAT CALCULATOR ======
-const ZAKAT_NISAB_GOLD_GRAMS = 85; // নিসাব: ৮৫ গ্রাম স্বর্ণ
-const ZAKAT_RATE = 0.025; // ২.৫%
+const ZAKAT_NISAB_GOLD_GRAMS = 85;
+const ZAKAT_RATE = 0.025;
 
 function getZakatableWealth() {
-// সরাসরি CURRENT PORTFOLIO VALUE ব্যবহার করি — stat card এর মতোই
 let total = calcCurrent().bdt;
-
-// Breakdown শুধু context এর জন্য
 let active = investments.filter(i => i.status === 'active');
 let breakdown = [];
-
 let cryptoTotal = active.filter(i=>i.isCrypto&&cryptoPrices[i.type])
 .reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt, 0);
 if(cryptoTotal > 0) breakdown.push({label:'Crypto (live Binance)', amount:cryptoTotal, icon:'₿'});
-
 let nonCryptoTotal = active.filter(i=>!i.isCrypto&&i.type!=='LOAN_TAKEN')
 .reduce((s,i)=>s+(i.amountBDT||0), 0);
 if(nonCryptoTotal > 0) breakdown.push({label:'Other Investments', amount:nonCryptoTotal, icon:'📊'});
-
 return { breakdown, total };
 }
 
@@ -3690,12 +3361,8 @@ document.getElementById('zakatPaidDate').value = new Date().toISOString().slice(
 document.getElementById('zakatPaid').value = '';
 document.getElementById('zakatExtraAssets').value = '0';
 document.getElementById('zakatLiabilities').value = '0';
-
-// Load saved gold price
 let saved = JSON.parse(localStorage.getItem('zakat_settings')||'{}');
 document.getElementById('goldPricePerGram').value = saved.goldPrice || '';
-
-// Auto-fill breakdown
 let { breakdown, total } = getZakatableWealth();
 let breakEl = document.getElementById('zakatableBreakdown');
 breakEl.innerHTML = `
@@ -3710,7 +3377,6 @@ ${breakdown.map(b=>`<div style="display:flex;justify-content:space-between;margi
 </div>
 <div style="font-size:0.58rem;color:#6b7280;margin-top:3px;">Stat card "CURRENT PORTFOLIO VALUE" এর মতো হিসাব</div>
 </div>`;
-
 document.getElementById('zakatModal').style.display = 'flex';
 updateZakatPreview();
 }
@@ -3720,15 +3386,12 @@ let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) ||
 let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
 let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
 let el = document.getElementById('zakatPreview');
-
 let { total: portfolioTotal } = getZakatableWealth();
 let totalWealth = portfolioTotal + extraAssets - liabilities;
 let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
 let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
 let eligible = totalWealth >= nisabValue;
-
 if(!goldPrice) { el.innerHTML='<div style="color:#6b7280;font-size:0.72rem;">স্বর্ণের দাম দিন নিসাব হিসাব করতে।</div>'; return; }
-
 el.innerHTML = `
 <div style="background:${eligible?'rgba(245,158,11,0.08)':'rgba(100,116,139,0.08)'};border:1px solid ${eligible?'rgba(245,158,11,0.3)':'rgba(100,116,139,0.2)'};border-radius:14px;padding:14px;">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.7rem;">
@@ -3761,22 +3424,16 @@ let year = parseInt(document.getElementById('zakatYear').value);
 let paid = parseFloat(document.getElementById('zakatPaid').value) || 0;
 let paidDate = document.getElementById('zakatPaidDate').value;
 if(!goldPrice) return showToast("স্বর্ণের দাম দিন", true);
-
 let { total: portfolioTotal, breakdown } = getZakatableWealth();
 let totalWealth = portfolioTotal + extraAssets - liabilities;
 let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
 let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
-
-// Save settings
 localStorage.setItem('zakat_settings', JSON.stringify({ goldPrice }));
-
-// Save year record
 let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
 records = records.filter(r => r.year !== year);
 records.push({ year, goldPrice, totalWealth, nisabValue, zakatDue, paid, paidDate, savedAt: new Date().toISOString() });
 records.sort((a,b) => b.year-a.year);
 localStorage.setItem('zakat_records', JSON.stringify(records));
-
 closeZakatModal();
 renderZakatDisplay();
 showToast(`✅ ${year} সালের যাকাত হিসাব save হয়েছে!`);
@@ -3788,14 +3445,12 @@ function renderZakatDisplay() {
 let el = document.getElementById('zakatDisplay');
 if(!el) return;
 let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
-
 if(!records.length) {
 el.innerHTML=`<div style="text-align:center;padding:16px;color:var(--text-sub);font-size:0.75rem;">
 যাকাত হিসাব এখনো করা হয়নি। "যাকাত হিসাব করুন" চাপুন।
 </div>`;
 return;
 }
-
 el.innerHTML = records.map(r => {
 let remaining = r.zakatDue - (r.paid||0);
 let paidPct = r.zakatDue>0 ? Math.min(100,(r.paid||0)/r.zakatDue*100) : 0;
@@ -3867,11 +3522,8 @@ updateSellCoinInfo();
 
 function updateSellCoinInfo() {
 let coin = document.getElementById('sellCoin').value;
-// Show live price hint
-let hint = document.getElementById('livePriceHint');
-if(hint && cryptoPrices[coin]) hint.textContent = `Live: $${formatNumber(cryptoPrices[coin])}`;
 let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO sort
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
 let totalQty = entries.reduce((s,i)=>s+i.amount,0);
 let totalCostUSD = entries.reduce((s,i)=>s+i.amount*(i.purchasePrice||0),0);
 let currentUSD = cryptoPrices[coin] ? totalQty * cryptoPrices[coin] : 0;
@@ -3902,20 +3554,14 @@ let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
 let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
 let el = document.getElementById('sellPreview');
 if(!sellUSD || !sellPrice) { el.innerHTML=''; return; }
-
 let sellQty = sellUSD / sellPrice;
-
-// FIFO simulation
 let entries = investments.filter(i=>i.type===coin&&i.status==='active'&&i.isCrypto)
 .sort((a,b)=>new Date(a.start)-new Date(b.start));
 let totalQty = entries.reduce((s,i)=>s+i.amount,0);
-
 if(sellQty > totalQty) {
 el.innerHTML = `<div style="color:#f87171;font-size:0.72rem;">⚠️ আপনার কাছে মাত্র ${totalQty.toFixed(6)} ${coin} আছে — এত বেশি sell করতে পারবেন না।</div>`;
 return;
 }
-
-// Calculate FIFO cost basis
 let remaining = sellQty;
 let costBasis = 0;
 let affectedEntries = [];
@@ -3926,12 +3572,10 @@ costBasis += take * (e.purchasePrice||0);
 affectedEntries.push({ id:e.id, take, original:e.amount, remaining:e.amount-take, start:e.start, purchasePrice:e.purchasePrice });
 remaining -= take;
 }
-
 let revenueBDT = sellUSD * usdToBdt;
 let costBDT = costBasis * usdToBdt;
 let profitBDT = revenueBDT - costBDT;
 let pos = profitBDT >= 0;
-
 el.innerHTML = `
 <div style="background:${pos?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)'};border:1px solid ${pos?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:12px;padding:12px;">
 <div style="font-size:0.65rem;color:#6b7280;font-weight:700;text-transform:uppercase;margin-bottom:8px;">📊 Sell Preview (FIFO)</div>
@@ -3957,30 +3601,24 @@ let sellUSD = parseFloat(document.getElementById('sellAmountUSD').value) || 0;
 let sellPrice = parseFloat(document.getElementById('sellPriceUSD').value) || cryptoPrices[coin] || 0;
 if(!sellUSD || !sellPrice) return showToast("Sell amount ও price দিন", true);
 if(!confirm(`${coin} sell করবেন $${sellUSD} @ $${sellPrice}?`)) return;
-
-let sellQty = sellUSD / sellPrice; // কত quantity sell হবে
+let sellQty = sellUSD / sellPrice;
 let entries = investments
 .filter(i=>i.type===coin && i.status==='active' && i.isCrypto)
-.sort((a,b)=>new Date(a.start)-new Date(b.start)); // FIFO — পুরনো আগে
+.sort((a,b)=>new Date(a.start)-new Date(b.start));
 let totalQty = entries.reduce((s,i)=>s+i.amount, 0);
-
 if(sellQty > totalQty + 0.000001)
 return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
-
 let remaining = sellQty;
-let costBasis = 0; // কত দামে কিনেছিলেন
+let costBasis = 0;
 let today = new Date().toISOString().slice(0,10);
-let log = []; // কোন entry থেকে কত গেল
-
+let log = [];
 for(let inv of entries) {
 if(remaining <= 0.000001) break;
 let take = Math.min(remaining, inv.amount);
 let takeCost = take * (inv.purchasePrice||0);
 costBasis += takeCost;
 remaining -= take;
-
 let leftQty = inv.amount - take;
-
 log.push({
 start: inv.start,
 purchasePrice: inv.purchasePrice,
@@ -3988,27 +3626,21 @@ soldQty: take,
 leftQty,
 full: leftQty < 0.000001
 });
-
 if(leftQty < 0.000001) {
-// পুরো entry sell হয়ে গেছে
 inv.status = 'completed';
 inv.actualProfit = (take * sellPrice - takeCost) * usdToBdt;
 if(db) await db.collection("investments").doc(inv.id).update({
 status: 'completed', actualProfit: inv.actualProfit
 });
 } else {
-// Partial sell — remaining qty এর cost basis ঠিক রাখা
-// amountBDT = remaining qty × purchase price × BDT rate (cost basis, Binance এর সাথে match)
 inv.amount = leftQty;
-inv.amountUSD = leftQty * (inv.purchasePrice||0); // purchase price দিয়ে cost basis
+inv.amountUSD = leftQty * (inv.purchasePrice||0);
 inv.amountBDT = inv.amountUSD * usdToBdt;
 if(db) await db.collection("investments").doc(inv.id).update({
 amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
 });
 }
 }
-
-// Withdrawal history তে log
 let revenueBDT = sellUSD * usdToBdt;
 let profitBDT = (sellUSD - costBasis) * usdToBdt;
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
@@ -4021,17 +3653,8 @@ note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: 
 });
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 localStorage.setItem("investments_backup", JSON.stringify(investments));
-
 closeCryptoSellModal();
 renderAll();
-
-// Detailed toast
-let logText = log.map(l=>
-l.full
-? `✅ ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — fully sold`
-: `📊 ${l.start} entry (@ $${formatNumber(l.purchasePrice)}) — ${l.soldQty.toFixed(6)} sold, ${l.leftQty.toFixed(6)} remaining`
-).join('\n');
-
 showToast(
 `💰 ${sellQty.toFixed(6)} ${coin} sold!\n` +
 `Revenue: $${formatNumber(sellUSD)} = ${formatNumber(revenueBDT)} BDT\n` +
@@ -4060,8 +3683,6 @@ document.getElementById('wahedCurrentVal').value = curVal;
 document.getElementById('wahedNote').value = '';
 document.getElementById('wahedPLPreview').innerHTML = '';
 document.getElementById('wahedModal').style.display = 'flex';
-
-// Live preview on input
 document.getElementById('wahedCurrentVal').oninput = function() {
 let v = parseFloat(this.value)||0;
 let p = v - inv.amountBDT;
@@ -4139,7 +3760,7 @@ tr:nth-child(even){background:#f8fafc;}
 <div class="stat-box"><div class="label">P&L</div><div class="value" style="color:${pl>=0?'#16a34a':'#dc2626'};">${pl>=0?'+':''}${formatNumber(pl)} BDT</div></div>
 <div class="stat-box"><div class="label">USD Rate</div><div class="value" style="font-size:14px;">${formatNumber(usdToBdt)} BDT</div></div>
 </div>
-<table>
+<td>
 <thead><tr><th>Platform</th><th>Type</th><th>Amount (BDT)</th><th>Status</th><th>Profit (BDT)</th><th>Start</th></tr></thead>
 <tbody>${rows}</tbody>
 </table>
