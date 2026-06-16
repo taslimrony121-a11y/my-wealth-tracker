@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -797,6 +795,7 @@ body { padding: 10px; }
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
+<button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
 <button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
@@ -975,6 +974,7 @@ oninput="updateInvestSimulator()">
 <option value="BNB">BNB (Crypto)</option>
 <option value="SOL">SOL (Crypto)</option>
 <option value="MMPDA">MMPDA</option>
+<option value="Rental">Rental</option>
 <option value="Agriculture">Agriculture</option>
 <option value="MSSA">MSSA Installment</option>
 <option value="Business">Shop/Business</option>
@@ -1094,26 +1094,6 @@ oninput="updateInvestSimulator()">
 এখনো বাজেট add করা হয়নি — "এই মাসের বাজেট" চাপুন
 </div>
 </div>
-</div>
-
-<!-- ZAKAT CALCULATOR -->
-
-<div class="card" id="zakatCard">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-<div style="display:flex;align-items:center;gap:10px;">
-<div style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(245,158,11,0.4);">
-<span style="font-size:1.1rem;">☽</span>
-</div>
-<div>
-<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#f59e0b;">যাকাত হিসাব</div>
-<div style="font-size:0.6rem;color:#6b7280;margin-top:1px;">নিসাব: ৮৫ গ্রাম স্বর্ণ · হার: ২.৫%</div>
-</div>
-</div>
-<button onclick="openZakatModal()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-<i class="fas fa-calculator"></i> যাকাত হিসাব করুন
-</button>
-</div>
-<div id="zakatDisplay"></div>
 </div>
 
 <div class="footer">
@@ -1275,70 +1255,31 @@ oninput="updateInvestSimulator()">
 <div class="modal-content">
 <h3 style="color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</h3>
 <p style="font-size:0.72rem;color:var(--text-sub);margin-bottom:12px;">FIFO — পুরনো entry থেকে আগে বাদ যাবে। Sell amount USD এ দিন।</p>
-
-```
-
 <label>Coin:</label>
 <select id="sellCoin" onchange="updateSellCoinInfo()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);margin-bottom:10px;">
-
 <option value="BTC">₿ BTC</option>
 <option value="ETH">Ξ ETH</option>
 <option value="BNB">◈ BNB</option>
 <option value="SOL">◎ SOL</option>
-</select><!-- Coin holdings info --><div id="sellCoinInfo" style="background:var(--bg-input);border-radius:10px;padding:10px;margin-bottom:12px;font-size:0.72rem;"></div><label>Sell Amount (USD $):</label>
+</select>
+<!-- Coin holdings info -->
+<div id="sellCoinInfo" style="background:var(--bg-input);border-radius:10px;padding:10px;margin-bottom:12px;font-size:0.72rem;"></div>
+<label>Sell Amount (USD $):</label>
 <input type="number" id="sellAmountUSD" step="0.01" placeholder="যেমন: 10" oninput="updateSellPreview()">
-
 <label style="margin-top:10px;">Sell Price per coin (USD) — optional:</label>
 <input type="number" id="sellPriceUSD" step="0.01" placeholder="ফাঁকা রাখলে Binance live price নেবে" oninput="updateSellPreview()">
-
-<!-- Preview --><div id="sellPreview" style="margin-top:10px;"></div><div style="display:flex;gap:8px;margin-top:15px;">
+<!-- Preview -->
+<div id="sellPreview" style="margin-top:10px;"></div>
+<div style="display:flex;gap:8px;margin-top:15px;">
 <button onclick="executeCryptoSell()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;">💰 Sell করুন</button>
 <button onclick="closeCryptoSellModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
-```</div>
-</div><!-- ZAKAT MODAL --><div id="zakatModal" class="modal">
-<div class="modal-content">
-<h3 style="color:#f59e0b;">☽ যাকাত হিসাব — <span id="zakatYearTitle"></span></h3>
-<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:12px;margin-bottom:14px;font-size:0.72rem;color:var(--text-sub);line-height:1.7;">
-<b style="color:#f59e0b;">নিসাব:</b> ৮৫ গ্রাম স্বর্ণের বাজার মূল্য · <b style="color:#f59e0b;">হার:</b> মোট সম্পদের ২.৫%<br>
-শর্ত: সম্পদ নিসাবের বেশি হলে এবং এক চন্দ্রবছর (৩৫৪ দিন) ধরে থাকলে যাকাত ফরজ।
-</div>```
-<label>স্বর্ণের বর্তমান দাম (BDT/গ্রাম):</label>
-<input type="number" id="goldPricePerGram" placeholder="যেমন: 9500" step="1" oninput="updateZakatPreview()">
-<div style="font-size:0.62rem;color:#6b7280;margin-top:2px;">বাংলাদেশ জুয়েলার্স সমিতির দাম দিন</div>
-
-<label style="margin-top:10px;">যাকাতযোগ্য সম্পদ (BDT) — auto calculated:</label>
-<div id="zakatableBreakdown" style="background:var(--bg-input);border-radius:12px;padding:12px;margin-bottom:10px;font-size:0.72rem;"></div>
-
-<label>অতিরিক্ত সম্পদ (নগদ, অন্যান্য) BDT:</label>
-<input type="number" id="zakatExtraAssets" placeholder="নগদ টাকা, অন্য সম্পদ" step="1" value="0" oninput="updateZakatPreview()">
-
-<label style="margin-top:10px;">ঋণ / দায় (BDT) — বাদ যাবে:</label>
-<input type="number" id="zakatLiabilities" placeholder="যা পরিশোধ করতে হবে" step="1" value="0" oninput="updateZakatPreview()">
-
-<div id="zakatPreview" style="margin-top:12px;"></div>
-
-<label style="margin-top:12px;">বছর:</label>
-<select id="zakatYear" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text-main);">
-<option value="2026">2026</option>
-<option value="2025">2025</option>
-<option value="2024">2024</option>
-</select>
-
-<label style="margin-top:10px;">যাকাত দিয়েছেন? (পরে update করুন)</label>
-<div style="display:flex;gap:8px;">
-<input type="number" id="zakatPaid" placeholder="কত BDT দিয়েছেন" step="1" style="flex:1;">
-<input type="date" id="zakatPaidDate" style="flex:1;">
+</div>
 </div>
 
-<div style="display:flex;gap:8px;margin-top:15px;">
-<button onclick="saveZakat()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;">💾 Save করুন</button>
-<button onclick="closeZakatModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
-</div>
-```
+<!-- WAHED UPDATE MODAL -->
 
-</div>
-</div><!-- WAHED UPDATE MODAL --><div id="wahedModal" class="modal">
+<div id="wahedModal" class="modal">
 <div class="modal-content">
 <h3>📊 Wahed — Current Value Update</h3>
 <div id="wahedInfo" style="font-size:0.78rem;color:var(--text-sub);margin-bottom:12px;background:var(--bg-input);padding:10px;border-radius:10px;"></div>
@@ -1352,7 +1293,11 @@ oninput="updateInvestSimulator()">
 <button onclick="closeWahedModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
 </div>
-</div><!-- CALENDAR MODAL --><div id="calendarModal" class="modal">
+</div>
+
+<!-- CALENDAR MODAL -->
+
+<div id="calendarModal" class="modal">
 <div class="modal-content" style="max-width:720px;">
 <!-- Header -->
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1366,10 +1311,9 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 <button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
-</div>```
+</div>
 <!-- Month Summary Stats -->
 <div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
-
 <!-- Navigation -->
 <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
 <button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
@@ -1378,10 +1322,8 @@ oninput="updateInvestSimulator()">
 </div>
 <button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
 </div>
-
 <div class="calendar-grid" id="calDayHeaders"></div>
 <div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
-
 <!-- Day Detail Panel -->
 <div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1390,10 +1332,10 @@ oninput="updateInvestSimulator()">
 </div>
 <div id="calDetailBody"></div>
 </div>
-```
-
 </div>
-</div><script>
+</div>
+
+<script>
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
 
@@ -3194,7 +3136,6 @@ document.body.style.paddingBottom = 'env(safe-area-inset-bottom)';
 
 setTimeout(checkAlerts, 2000);
 setTimeout(renderBudgetDisplay, 500);
-setTimeout(renderZakatDisplay, 600);
 
 // ====== WITHDRAWAL LOG CHART ======
 let withdrawalLogChart = null;
@@ -3335,182 +3276,6 @@ renderBudgetDisplay();
 }
 window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
 
-// ====== ZAKAT CALCULATOR ======
-const ZAKAT_NISAB_GOLD_GRAMS = 85;
-const ZAKAT_RATE = 0.025;
-
-function getZakatableWealth() {
-let total = calcCurrent().bdt;
-let active = investments.filter(i => i.status === 'active');
-let breakdown = [];
-let cryptoTotal = active.filter(i=>i.isCrypto&&cryptoPrices[i.type])
-.reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt, 0);
-if(cryptoTotal > 0) breakdown.push({label:'Crypto (live Binance)', amount:cryptoTotal, icon:'₿'});
-let nonCryptoTotal = active.filter(i=>!i.isCrypto&&i.type!=='LOAN_TAKEN')
-.reduce((s,i)=>s+(i.amountBDT||0), 0);
-if(nonCryptoTotal > 0) breakdown.push({label:'Other Investments', amount:nonCryptoTotal, icon:'📊'});
-return { breakdown, total };
-}
-
-function openZakatModal() {
-if(!isAdmin) return showToast("Admin required", true);
-let yr = new Date().getFullYear();
-document.getElementById('zakatYearTitle').textContent = yr;
-document.getElementById('zakatYear').value = yr;
-document.getElementById('zakatPaidDate').value = new Date().toISOString().slice(0,10);
-document.getElementById('zakatPaid').value = '';
-document.getElementById('zakatExtraAssets').value = '0';
-document.getElementById('zakatLiabilities').value = '0';
-let saved = JSON.parse(localStorage.getItem('zakat_settings')||'{}');
-document.getElementById('goldPricePerGram').value = saved.goldPrice || '';
-let { breakdown, total } = getZakatableWealth();
-let breakEl = document.getElementById('zakatableBreakdown');
-breakEl.innerHTML = `
-${breakdown.map(b=>`<div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-<span style="color:var(--text-sub);">${b.icon} ${b.label}</span>
-<span style="font-weight:700;color:#facc15;">${formatNumber(b.amount)} BDT</span>
-</div>`).join('')}
-<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;">
-<div style="display:flex;justify-content:space-between;font-weight:800;font-size:0.88rem;">
-<span style="color:#f59e0b;">📊 Current Portfolio Value</span>
-<span style="color:#f59e0b;">${formatNumber(total)} BDT</span>
-</div>
-<div style="font-size:0.58rem;color:#6b7280;margin-top:3px;">Stat card "CURRENT PORTFOLIO VALUE" এর মতো হিসাব</div>
-</div>`;
-document.getElementById('zakatModal').style.display = 'flex';
-updateZakatPreview();
-}
-
-function updateZakatPreview() {
-let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
-let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
-let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
-let el = document.getElementById('zakatPreview');
-let { total: portfolioTotal } = getZakatableWealth();
-let totalWealth = portfolioTotal + extraAssets - liabilities;
-let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
-let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
-let eligible = totalWealth >= nisabValue;
-if(!goldPrice) { el.innerHTML='<div style="color:#6b7280;font-size:0.72rem;">স্বর্ণের দাম দিন নিসাব হিসাব করতে।</div>'; return; }
-el.innerHTML = `
-<div style="background:${eligible?'rgba(245,158,11,0.08)':'rgba(100,116,139,0.08)'};border:1px solid ${eligible?'rgba(245,158,11,0.3)':'rgba(100,116,139,0.2)'};border-radius:14px;padding:14px;">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.7rem;">
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
-<div style="color:#6b7280;font-size:0.58rem;">নিসাব (৮৫ গ্রাম)</div>
-<div style="color:#f59e0b;font-weight:800;font-size:0.85rem;">${formatNumber(nisabValue)} BDT</div>
-</div>
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:8px;text-align:center;">
-<div style="color:#6b7280;font-size:0.58rem;">আপনার সম্পদ</div>
-<div style="color:#facc15;font-weight:800;font-size:0.85rem;">${formatNumber(totalWealth)} BDT</div>
-</div>
-</div>
-<div style="text-align:center;margin-bottom:10px;">
-<div style="font-size:0.65rem;color:#6b7280;margin-bottom:4px;">${eligible?'✅ নিসাব পূর্ণ হয়েছে — যাকাত ফরজ':'❌ নিসাব পূর্ণ হয়নি — যাকাত ফরজ নয়'}</div>
-${eligible?`<div style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:900;color:#f59e0b;">${formatNumber(zakatDue)} BDT</div>
-<div style="font-size:0.65rem;color:#6b7280;">= ${formatNumber(zakatDue/usdToBdt)} USD · ${formatNumber(zakatDue/12)} BDT/month</div>`
-:`<div style="font-size:0.8rem;color:#6b7280;">আরো ${formatNumber(nisabValue-totalWealth)} BDT হলে যাকাত দিতে হবে</div>`}
-</div>
-${eligible?`<div style="background:rgba(245,158,11,0.1);border-radius:8px;padding:8px;font-size:0.65rem;color:#92400e;line-height:1.6;">
-<b>📖 নিয়ম:</b> এই ${zakatDue>0?formatNumber(zakatDue)+' BDT':''} যাকাত গরীব, মিসকিন, ঋণগ্রস্ত — এই খাতে দিতে পারবেন। রমজানের আগে দেওয়া উত্তম।
-</div>`:''}
-</div>`;
-}
-
-function saveZakat() {
-let goldPrice = parseFloat(document.getElementById('goldPricePerGram').value) || 0;
-let extraAssets = parseFloat(document.getElementById('zakatExtraAssets').value) || 0;
-let liabilities = parseFloat(document.getElementById('zakatLiabilities').value) || 0;
-let year = parseInt(document.getElementById('zakatYear').value);
-let paid = parseFloat(document.getElementById('zakatPaid').value) || 0;
-let paidDate = document.getElementById('zakatPaidDate').value;
-if(!goldPrice) return showToast("স্বর্ণের দাম দিন", true);
-let { total: portfolioTotal, breakdown } = getZakatableWealth();
-let totalWealth = portfolioTotal + extraAssets - liabilities;
-let nisabValue = goldPrice * ZAKAT_NISAB_GOLD_GRAMS;
-let zakatDue = totalWealth >= nisabValue ? totalWealth * ZAKAT_RATE : 0;
-localStorage.setItem('zakat_settings', JSON.stringify({ goldPrice }));
-let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
-records = records.filter(r => r.year !== year);
-records.push({ year, goldPrice, totalWealth, nisabValue, zakatDue, paid, paidDate, savedAt: new Date().toISOString() });
-records.sort((a,b) => b.year-a.year);
-localStorage.setItem('zakat_records', JSON.stringify(records));
-closeZakatModal();
-renderZakatDisplay();
-showToast(`✅ ${year} সালের যাকাত হিসাব save হয়েছে!`);
-}
-
-function closeZakatModal() { document.getElementById('zakatModal').style.display='none'; }
-
-function renderZakatDisplay() {
-let el = document.getElementById('zakatDisplay');
-if(!el) return;
-let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
-if(!records.length) {
-el.innerHTML=`<div style="text-align:center;padding:16px;color:var(--text-sub);font-size:0.75rem;">
-যাকাত হিসাব এখনো করা হয়নি। "যাকাত হিসাব করুন" চাপুন।
-</div>`;
-return;
-}
-el.innerHTML = records.map(r => {
-let remaining = r.zakatDue - (r.paid||0);
-let paidPct = r.zakatDue>0 ? Math.min(100,(r.paid||0)/r.zakatDue*100) : 0;
-let eligible = r.totalWealth >= r.nisabValue;
-return `<div style="background:var(--bg-input);border-radius:14px;padding:14px;margin-bottom:10px;border-left:4px solid ${eligible?'#f59e0b':'#6b7280'};">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
-<div>
-<span style="font-family:'Sora',sans-serif;font-size:0.9rem;font-weight:800;color:#f59e0b;">${r.year} সাল</span>
-<span style="font-size:0.6rem;color:#6b7280;margin-left:8px;">${eligible?'✅ ফরজ':'—'}</span>
-</div>
-${isAdmin?`<button onclick="editZakat(${r.year})" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#f59e0b;padding:3px 10px;border-radius:8px;cursor:pointer;font-size:0.62rem;">✏️ Update</button>`:''}
-</div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:10px;">
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
-<div style="color:#6b7280;">সম্পদ</div>
-<div style="color:#facc15;font-weight:800;">${formatNumber(r.totalWealth)} ৳</div>
-</div>
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
-<div style="color:#6b7280;">যাকাত (২.৫%)</div>
-<div style="color:#f59e0b;font-weight:800;">${formatNumber(r.zakatDue)} ৳</div>
-</div>
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:7px;text-align:center;">
-<div style="color:#6b7280;">দিয়েছেন</div>
-<div style="color:${r.paid>=r.zakatDue?'#4ade80':'#f87171'};font-weight:800;">${formatNumber(r.paid||0)} ৳</div>
-</div>
-</div>
-${r.zakatDue>0?`<div style="margin-bottom:6px;">
-<div style="display:flex;justify-content:space-between;font-size:0.6rem;color:#6b7280;margin-bottom:3px;">
-<span>পরিশোধ</span>
-<span>${paidPct.toFixed(0)}%${remaining>0?' · বাকি: '+formatNumber(remaining)+' ৳':' ✅ পরিশোধ সম্পন্ন'}</span>
-</div>
-<div style="background:rgba(255,255,255,0.05);border-radius:4px;height:6px;overflow:hidden;">
-<div style="background:${paidPct>=100?'#4ade80':'#f59e0b'};width:${paidPct}%;height:100%;border-radius:4px;"></div>
-</div>
-</div>`:''}
-${r.paidDate?`<div style="font-size:0.6rem;color:#6b7280;">📅 Paid: ${r.paidDate}</div>`:''}
-</div>`;
-}).join('');
-}
-
-function editZakat(year) {
-let records = JSON.parse(localStorage.getItem('zakat_records')||'[]');
-let r = records.find(rec=>rec.year===year);
-if(!r) return;
-document.getElementById('zakatYearTitle').textContent = year;
-document.getElementById('zakatYear').value = year;
-document.getElementById('goldPricePerGram').value = r.goldPrice||'';
-document.getElementById('zakatExtraAssets').value = '0';
-document.getElementById('zakatLiabilities').value = '0';
-document.getElementById('zakatPaid').value = r.paid||'';
-document.getElementById('zakatPaidDate').value = r.paidDate||new Date().toISOString().slice(0,10);
-let { breakdown, total } = getZakatableWealth();
-let breakEl = document.getElementById('zakatableBreakdown');
-breakEl.innerHTML = `<div style="color:var(--text-sub);font-size:0.68rem;">Saved wealth: <b style="color:#facc15;">${formatNumber(r.totalWealth)} BDT</b> (${year})</div>`;
-document.getElementById('zakatModal').style.display = 'flex';
-updateZakatPreview();
-}
-
-window.openZakatModal=openZakatModal; window.closeZakatModal=closeZakatModal;
-window.saveZakat=saveZakat; window.updateZakatPreview=updateZakatPreview; window.editZakat=editZakat;
 function openCryptoSellModal() {
 if(!isAdmin) return showToast("Admin required", true);
 document.getElementById('sellAmountUSD').value = '';
@@ -3760,7 +3525,7 @@ tr:nth-child(even){background:#f8fafc;}
 <div class="stat-box"><div class="label">P&L</div><div class="value" style="color:${pl>=0?'#16a34a':'#dc2626'};">${pl>=0?'+':''}${formatNumber(pl)} BDT</div></div>
 <div class="stat-box"><div class="label">USD Rate</div><div class="value" style="font-size:14px;">${formatNumber(usdToBdt)} BDT</div></div>
 </div>
-<td>
+<table>
 <thead><tr><th>Platform</th><th>Type</th><th>Amount (BDT)</th><th>Status</th><th>Profit (BDT)</th><th>Start</th></tr></thead>
 <tbody>${rows}</tbody>
 </table>
