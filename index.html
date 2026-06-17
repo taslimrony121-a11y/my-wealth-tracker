@@ -929,6 +929,40 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
+<!-- STOCK CARDS (eToro) -->
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;margin-bottom:6px;">
+<div style="font-size:0.68rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;"><i class="fas fa-chart-line"></i> eToro স্টক</div>
+<button onclick="openDividendModal()" style="background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;padding:5px 10px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-coins"></i> Add Dividend</button>
+</div>
+<div class="crypto-grid" id="stockCardsGrid"></div>
+<div style="margin-top:8px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:10px 12px;">
+<div style="font-size:0.62rem;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;"><i class="fas fa-history"></i> Dividend History</div>
+<div id="dividendHistoryList"></div>
+</div>
+<div style="margin-top:6px;font-size:0.58rem;color:#6b7280;text-align:center;">
+<i class="fas fa-info-circle"></i> AAPL/NVDA দাম Stooq থেকে লাইভ আসার চেষ্টা করে (প্রতি ৫ মিনিটে); fail হলে বা Aramco-র জন্য ম্যানুয়ালি দাম বসান।
+</div>
+
+<!-- DIVIDEND MODAL -->
+<div id="dividendModal" class="modal">
+<div class="modal-content">
+<h3>💵 Add Dividend</h3>
+<label>Stock</label>
+<select id="dividendStockSelect" style="width:100%;padding:8px;"></select>
+<label>Amount (USD)</label>
+<input type="number" id="dividendAmount" step="any" placeholder="e.g. 2.50">
+<label>Date</label>
+<input type="date" id="dividendDate">
+<label>Note (optional)</label>
+<textarea id="dividendNote" rows="2" placeholder="e.g. Q2 dividend"></textarea>
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="addDividend()" class="btn-save" style="flex:1;">Save</button>
+<button onclick="closeDividendModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Cancel</button>
+</div>
+</div>
+</div>
+
 <!-- DASHBOARD STATS -->
 
 <div class="dashboard-grid">
@@ -964,7 +998,7 @@ oninput="updateInvestSimulator()">
 <div class="input-group">
 <label>Platform</label>
 <select id="platform">
-<option>Binance</option><option>Wegro</option><option>Biniyog</option>
+<option>Binance</option><option>eToro</option><option>Wegro</option><option>Biniyog</option>
 <option>iFarmer</option><option>Islami Bank</option>
 <option>Real Estate</option><option>Mutual Fund</option>
 <option value="WAIT_MONEY">⏳ WAIT MONEY</option><option>Other</option>
@@ -977,6 +1011,9 @@ oninput="updateInvestSimulator()">
 <option value="ETH">ETH (Crypto)</option>
 <option value="BNB">BNB (Crypto)</option>
 <option value="SOL">SOL (Crypto)</option>
+<option value="AAPL">Apple - AAPL (Stock)</option>
+<option value="NVDA">NVIDIA - NVDA (Stock)</option>
+<option value="ARAMCO">Saudi Aramco (Stock)</option>
 <option value="MMPDA">MMPDA</option>
 <option value="Rental">Rental</option>
 <option value="Real Estate">Real Estate</option>
@@ -992,12 +1029,12 @@ oninput="updateInvestSimulator()">
 </select>
 </div>
 <div class="input-group">
-<label id="amountLabel">Quantity / Amount (BDT)</label>
+<label id="amountLabel">Quantity / Shares / Amount (BDT)</label>
 <input type="number" id="amount" step="any" placeholder="0.00">
 </div>
 <div class="input-group">
 <label>Purchase Price (USD)</label>
-<input type="number" id="purchasePrice" step="any" placeholder="For crypto only">
+<input type="number" id="purchasePrice" step="any" placeholder="For crypto / stock (per share)">
 </div>
 </div>
 <div class="form-row">
@@ -1083,22 +1120,6 @@ oninput="updateInvestSimulator()">
 <p style="font-size:0.68rem; color:var(--text-sub); margin-bottom:12px;">প্রতি মাসে কত টাকা তুলেছেন</p>
 <div style="height:200px; position:relative;">
 <canvas id="withdrawalLogChart" style="width:100%; height:200px;"></canvas>
-</div>
-</div>
-
-<!-- MONTHLY BUDGET TRACKER -->
-
-<div class="card" id="budgetCard">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
-<h2><i class="fas fa-wallet" style="color:#06b6d4;"></i> Monthly Budget Tracker</h2>
-<button onclick="openBudgetModal()" style="background:linear-gradient(135deg,#06b6d4,#0891b2);border:none;color:#fff;padding:7px 14px;border-radius:20px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
-<i class="fas fa-plus"></i> এই মাসের বাজেট
-</button>
-</div>
-<div id="budgetDisplay">
-<div style="text-align:center; padding:20px; color:var(--text-sub); font-size:0.75rem;">
-এখনো বাজেট add করা হয়নি — "এই মাসের বাজেট" চাপুন
-</div>
 </div>
 </div>
 
@@ -1372,6 +1393,17 @@ let db = null, isAdmin = false, investments = [], usdToBdt = 122.5;
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
+
+// ====== STOCK (eToro) STATE ======
+const STOCK_SYMS = ['AAPL','NVDA','ARAMCO'];
+const STOCK_STOOQ_TICKER = { AAPL:'aapl.us', NVDA:'nvda.us' }; // ARAMCO: no free live source found, manual price only
+let stockPrices = JSON.parse(localStorage.getItem('stock_prices_cache')||'{}');
+STOCK_SYMS.forEach(s=>{ if(!(s in stockPrices)) stockPrices[s]=0; });
+let stock24hPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
+let stock7dPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
+let stockPriceSource = JSON.parse(localStorage.getItem('stock_price_source')||'{}');
+let dividends = JSON.parse(localStorage.getItem('dividends')||'[]');
+function getLivePrice(type) { if(cryptoPrices[type]!==undefined) return cryptoPrices[type]; if(stockPrices[type]!==undefined) return stockPrices[type]; return null; }
 let growthChart = null, platformChart = null;
 let currentTimeRange = "all", editId = null;
 let activeCurrency = "BDT";
@@ -1535,6 +1567,7 @@ const totalInvested = active.reduce((s,i) => s+(i.amountBDT||0), 0);
 const totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0);
 const currentValue = totalInvested + totalActualProfit;
 const cryptoValue = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+const stockValue = active.filter(i=>i.isStock&&stockPrices[i.type]).reduce((s,i)=>s+i.amount*stockPrices[i.type]*usdToBdt,0);
 const loanGiven = active.filter(i=>i.type==='LOAN_GIVEN').reduce((s,i)=>s+(i.amountBDT||0),0);
 const waitMoney = investments.filter(i=>isWaitMoney(i)&&i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0);
 const activeCount = active.length;
@@ -1562,14 +1595,16 @@ let goalPct = Math.min((currentValue/GOAL)*100, 100);
 
 // ── Risk ──
 const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
+const stockPercent = currentValue>0 ? (stockValue/currentValue)*100 : 0;
+const volatilePercent = cryptoPercent + stockPercent;
 let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
-if(cryptoPercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
-else if(cryptoPercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
+if(volatilePercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
+else if(volatilePercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
 
 // ── Portfolio Health Score (0-100) ──
 let healthScore = 100;
-if(cryptoPercent>60) healthScore -= 25;
-else if(cryptoPercent>40) healthScore -= 10;
+if(volatilePercent>60) healthScore -= 25;
+else if(volatilePercent>40) healthScore -= 10;
 if(loanGiven>0) healthScore -= 15;
 if(waitMoney>10000) healthScore -= 10;
 if(totalActualProfit>0) healthScore += 10;
@@ -1578,9 +1613,12 @@ healthScore = Math.max(20, Math.min(100, healthScore));
 let healthLabel = healthScore>=80?'Excellent 💪':healthScore>=60?'Good 👍':healthScore>=40?'Fair ⚠️':'Needs Attention 🚨';
 let healthColor = healthScore>=80?'#4ade80':healthScore>=60?'#a3e635':healthScore>=40?'#f59e0b':'#f87171';
 
-// ── Crypto P&L ──
+// ── Crypto / Stock P&L ──
 let cryptoPL = 0;
 active.forEach(inv=>{ if(inv.isCrypto&&cryptoPrices[inv.type]&&inv.purchasePrice) cryptoPL+=(cryptoPrices[inv.type]-inv.purchasePrice)*inv.amount*usdToBdt; });
+let stockPL = 0;
+active.forEach(inv=>{ if(inv.isStock&&stockPrices[inv.type]&&inv.purchasePrice) stockPL+=(stockPrices[inv.type]-inv.purchasePrice)*inv.amount*usdToBdt; });
+let dividendTotalForAI = dividends.reduce((s,d)=>s+(d.amountBDT||0),0);
 
 // ── Best Platform ──
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
@@ -1612,11 +1650,12 @@ idleMoney: waitMoney,
 totalPortfolio: total,
 currentAllocation: {
 crypto: (cryptoValue / total) * 100,
+stocks: (stockValue / total) * 100,
 farming: (farmValue / total) * 100,
 business: (businessValue / total) * 100,
 safe: (safeValue / total) * 100,
 },
-values: { crypto:cryptoValue, farming:farmValue, business:businessValue, safe:safeValue }
+values: { crypto:cryptoValue, stocks:stockValue, farming:farmValue, business:businessValue, safe:safeValue }
 };
 }
 
@@ -1628,12 +1667,13 @@ return gaps;
 
 const platformMap = {
 crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRate:0.11 },
+stocks: { names:['AAPL','NVDA','ARAMCO'], color:'#3b82f6', icon:'📈', returnRate:0.10 },
 farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
 business: { names:['Biniyog'], color:'#a855f7', icon:'💼', returnRate:0.15 },
 safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
 };
 
-const TARGET = { crypto:15, farming:35, business:25, safe:25 };
+const TARGET = { crypto:15, stocks:15, farming:25, business:20, safe:25 };
 
 function getAIPlan(data, investAmount) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
@@ -1718,9 +1758,9 @@ if(loanGiven > 0) {
 suggestionText = `${formatNumber(loanGiven)} BDT ধার দেওয়া আছে — recovery নিশ্চিত করুন`;
 suggestionDetail= `Loan recover হলে ${topOption.name} এ invest করুন`;
 suggestionIcon = '⚠️';
-} else if(CURR.crypto > 50) {
-suggestionText = `Crypto ${CURR.crypto.toFixed(0)}% বেশি (target 15%) — farming/safe এ shift করুন`;
-suggestionDetail= `Target: Crypto 15%, Farming 35%, Business 25%, Safe 25%`;
+} else if(CURR.crypto > 50 || CURR.stocks > 50) {
+suggestionText = `Crypto+Stock ${(CURR.crypto+CURR.stocks).toFixed(0)}% বেশি (combined target 30%) — farming/safe এ shift করুন`;
+suggestionDetail= `Target: Crypto 15%, Stocks 15%, Farming 25%, Business 20%, Safe 25%`;
 suggestionIcon = '⚖️';
 } else if(!suggestPlan) {
 suggestionText = '✅ Portfolio balanced! সব category target এ আছে।';
@@ -1773,9 +1813,14 @@ grid.innerHTML = `
 <div class="ai-metric-sub">BDT · unrealized</div>
 </div>
 <div class="ai-metric">
+<div class="ai-metric-label">📈 Stock P&L</div>
+<div class="ai-metric-value" style="color:${stockPL>=0?'#4ade80':'#f87171'};">${stockPL>=0?'+':''}${formatNumber(stockPL)}</div>
+<div class="ai-metric-sub">BDT · unrealized${dividendTotalForAI>0?` · +${formatNumber(dividendTotalForAI)} div`:''}</div>
+</div>
+<div class="ai-metric">
 <div class="ai-metric-label">⚡ Risk Level</div>
 <div class="ai-metric-value" style="color:${riskColor};">${riskEmoji} ${risk}</div>
-<div class="ai-metric-sub">Crypto: ${cryptoPercent.toFixed(0)}% of total</div>
+<div class="ai-metric-sub">Crypto: ${cryptoPercent.toFixed(0)}% · Stocks: ${stockPercent.toFixed(0)}%</div>
 </div>
 <div class="ai-metric">
 <div class="ai-metric-label">🏆 Best Platform</div>
@@ -1787,6 +1832,7 @@ let catBreakdown = document.getElementById('aiCategoryBreakdown');
 if(catBreakdown) {
 const cats = [
 { key:'crypto', label:'Crypto', icon:'₿', color:'#f7931a' },
+{ key:'stocks', label:'Stocks', icon:'📈', color:'#3b82f6' },
 { key:'farming', label:'Farming', icon:'🌱', color:'#4ade80' },
 { key:'business', label:'Business', icon:'💼', color:'#a855f7' },
 { key:'safe', label:'Safe', icon:'🏦', color:'#10b981' },
@@ -1825,6 +1871,8 @@ else insightLines.push(`এখনো profit শুরু হয়নি — str
 if(loanGiven > 0) insightLines.push(`<b>${formatNumber(loanGiven)} BDT</b> ধার দেওয়া আছে — recovery track রাখুন।`);
 if(waitMoney > 1000) insightLines.push(`<b>${formatNumber(waitMoney)} BDT</b> idle — invest করলে growth বাড়বে।`);
 if(cryptoPercent > 0) insightLines.push(`Crypto unrealized P&L: <b style="color:${cryptoPL>=0?'#4ade80':'#f87171'};">${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)} BDT</b>`);
+if(stockPercent > 0) insightLines.push(`Stock (eToro) unrealized P&L: <b style="color:${stockPL>=0?'#4ade80':'#f87171'};">${stockPL>=0?'+':''}${formatNumber(stockPL)} BDT</b>`);
+if(dividendTotalForAI > 0) insightLines.push(`মোট dividend পেয়েছেন: <b style="color:#06b6d4;">+${formatNumber(dividendTotalForAI)} BDT</b>`);
 if(bestPlatform !== 'N/A') insightLines.push(`সেরা platform: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
 
 insightEl.innerHTML = `
@@ -1971,14 +2019,15 @@ let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
 let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
 
 let cryptoInfo = '';
-if(inv.isCrypto && cryptoPrices[inv.type] && inv.purchasePrice) {
-let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
+if((inv.isCrypto||inv.isStock) && getLivePrice(inv.type) && inv.purchasePrice) {
+let lp = getLivePrice(inv.type);
+let curVal = inv.amount * lp * usdToBdt;
 let costVal = inv.amount * inv.purchasePrice * usdToBdt;
 let pl = curVal - costVal;
 cryptoInfo = `
 <div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px 8px;margin-top:4px;font-size:0.62rem;">
-<span style="color:#facc15;">₿ Live:</span>
-<span style="color:#e2e8f0;margin-left:4px;">${inv.amount} ${inv.type} @ $${formatNumber(cryptoPrices[inv.type])}</span>
+<span style="color:#facc15;">${inv.isStock?'📈 Live:':'₿ Live:'}</span>
+<span style="color:#e2e8f0;margin-left:4px;">${inv.amount} ${inv.type} @ $${formatNumber(lp)}</span>
 <span style="color:${pl>=0?'#4ade80':'#f87171'};font-weight:700;margin-left:6px;">${pl>=0?'+':''}${formatNumber(pl)} BDT</span>
 </div>`;
 }
@@ -2022,7 +2071,7 @@ ${duration}
 <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
 <div style="color:#6b7280;">💵 Invested</div>
 <div style="color:#e2e8f0;font-weight:700;">${formatNumber(inv.amountBDT)} BDT</div>
-${inv.isCrypto?`<div style="color:#94a3b8;font-size:0.58rem;">${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}</div>`:''}
+${(inv.isCrypto||inv.isStock)?`<div style="color:#94a3b8;font-size:0.58rem;">${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}</div>`:''}
 </div>
 <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
 <div style="color:#6b7280;">✅ Profit</div>
@@ -2085,15 +2134,22 @@ document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeB
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0);
+let dividendTotalBDT = dividends.reduce((s,d)=>s+(d.amountBDT||0),0);
+let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0) + dividendTotalBDT;
 let cryptoUnrealized = 0;
 investments.filter(i=>i.status==='active'&&i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice).forEach(inv=>{
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
 let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
 cryptoUnrealized += curVal - costVal;
 });
-let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
-let totalProfit = realizedProfit + cryptoUnrealized + nonCryptoProfit;
+let stockUnrealized = 0;
+investments.filter(i=>i.status==='active'&&i.isStock&&stockPrices[i.type]&&i.purchasePrice).forEach(inv=>{
+let curVal = inv.amount * stockPrices[inv.type] * usdToBdt;
+let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
+stockUnrealized += curVal - costVal;
+});
+let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!i.isStock&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
+let totalProfit = realizedProfit + cryptoUnrealized + stockUnrealized + nonCryptoProfit;
 let pos = totalProfit >= 0;
 let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
 profitEl.innerHTML = `
@@ -2104,6 +2160,8 @@ profitEl.innerHTML = `
 <span style="font-size:0.58rem;color:#6b7280;">${pos?'+':''}${pct.toFixed(1)}% return</span>
 ${realizedProfit>0?`<span style="font-size:0.58rem;color:#94a3b8;">✅ Realized: ${formatNumber(realizedProfit)}</span>`:''}
 ${cryptoUnrealized!==0?`<span style="font-size:0.58rem;color:#f7931a;">₿ Crypto: ${cryptoUnrealized>=0?'+':''}${formatNumber(cryptoUnrealized)}</span>`:''}
+${stockUnrealized!==0?`<span style="font-size:0.58rem;color:#3b82f6;">📈 Stocks: ${stockUnrealized>=0?'+':''}${formatNumber(stockUnrealized)}</span>`:''}
+${dividendTotalBDT>0?`<span style="font-size:0.58rem;color:#06b6d4;">💵 Dividends: +${formatNumber(dividendTotalBDT)}</span>`:''}
 </div>
 </div>`;
 }
@@ -2111,9 +2169,9 @@ updateTotalPortfolio24hUI();
 updateWeeklyActiveUI();
 }
 
-function computeWeeklyActivePL() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto7dPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto7dPrices[inv.type]; } else if(!inv.isCrypto&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
+function computeWeeklyActivePL() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto7dPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto7dPrices[inv.type]; } else if(inv.isStock&&stockPrices[inv.type]&&stock7dPrices[inv.type]){ cur+=inv.amount*stockPrices[inv.type]; prev+=inv.amount*stock7dPrices[inv.type]; } else if(!inv.isCrypto&&!inv.isStock&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
 function updateWeeklyActiveUI() { let el=document.getElementById('weeklyPLContainer'); if(!el) return; let d=computeWeeklyActivePL(); if(!d){ el.innerHTML='<div class="pl-indicator">7d Change: --</div>'; return; } let s=d.isPositive?'+':''; el.innerHTML=`<div class="pl-indicator ${d.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-calendar-week"></i> <strong>7d P&L:</strong> ${s}${formatNumber(d.bdt)} BDT (${s}${d.percent.toFixed(2)}%)</div>`; }
-function computeTotalPortfolio24hChange() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto24hPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto24hPrices[inv.type]; } else if(!inv.isCrypto&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
+function computeTotalPortfolio24hChange() { let cur=0,prev=0; investments.forEach(inv=>{ if(inv.status!=='active'||isWaitMoney(inv)) return; if(inv.isCrypto&&cryptoPrices[inv.type]&&crypto24hPrices[inv.type]){ cur+=inv.amount*cryptoPrices[inv.type]; prev+=inv.amount*crypto24hPrices[inv.type]; } else if(inv.isStock&&stockPrices[inv.type]&&stock24hPrices[inv.type]){ cur+=inv.amount*stockPrices[inv.type]; prev+=inv.amount*stock24hPrices[inv.type]; } else if(!inv.isCrypto&&!inv.isStock&&inv.amountUSD){ cur+=inv.amountUSD; prev+=inv.amountUSD; } }); if(prev===0) return null; let ch=cur-prev; return { percent:(ch/prev)*100, bdt:ch*usdToBdt, usd:ch, isPositive:ch>=0 }; }
 function updateTotalPortfolio24hUI() { let el=document.getElementById('total24hPLContainer'); if(!el) return; let d=computeTotalPortfolio24hChange(); if(!d){ el.innerHTML='<div class="pl-indicator">24h Change: --</div>'; return; } let s=d.isPositive?'+':''; el.innerHTML=`<div class="pl-indicator ${d.isPositive?'pl-positive':'pl-negative'}"><i class="fas fa-chart-line"></i> <strong>24h P&L:</strong> ${s}${formatNumber(d.bdt)} BDT (${s}${d.percent.toFixed(2)}%)</div>`; }
 
 // ====== RENDER WAIT MONEY ======
@@ -2175,12 +2233,13 @@ ${isAdmin ? `
 
 // ====== RENDER PORTFOLIO ======
 function buildInvItemHtml(inv) {
-let investedDisplay = inv.isCrypto
+let investedDisplay = (inv.isCrypto||inv.isStock)
 ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}`
 : `${formatNumber(inv.amountBDT)} BDT`;
 let currentDisplay = '';
-if(inv.isCrypto && cryptoPrices[inv.type]) {
-let cUSD = inv.amount * cryptoPrices[inv.type];
+if((inv.isCrypto||inv.isStock) && getLivePrice(inv.type)) {
+let lp = getLivePrice(inv.type);
+let cUSD = inv.amount * lp;
 let cBDT = cUSD * usdToBdt;
 let pnl = cBDT - (inv.amount*(inv.purchasePrice||0)*usdToBdt);
 currentDisplay = `<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`;
@@ -2286,13 +2345,13 @@ completedHtml += `<div class="platform-box completed">
 </div>`;
 
 visibleItems.forEach(inv => {
-completedHtml += `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+completedHtml += `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${(inv.isCrypto||inv.isStock)?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 });
 
 if(hiddenItems.length > 0) {
 completedHtml += `
 <div id="more-${platKey}" style="display:none;" data-count="${hiddenItems.length}">
-${hiddenItems.map(inv => `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${inv.isCrypto?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`).join('')}
+${hiddenItems.map(inv => `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-completed">DONE</span></div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒</span>'}</div></div><span class="investment-details">💰 ${(inv.isCrypto||inv.isStock)?`${inv.amount} ${inv.type}`:`${formatNumber(inv.amountBDT)} BDT`} | Profit: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`).join('')}
 </div>
 <button id="morebtn-${platKey}" onclick="togglePlatformMore('${platKey}')"
 style="width:100%;margin-top:10px;background:var(--bg-input);border:1px dashed var(--border);color:var(--text-sub);padding:8px;border-radius:10px;cursor:pointer;font-size:0.72rem;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;">
@@ -2359,6 +2418,153 @@ checkAlerts();
 } catch(e) { console.error('Crypto price fetch error:', e); }
 }
 
+// ====== STOCK PRICES (eToro / US Equities via Stooq) ======
+async function updateStockPrices() {
+try {
+let usSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s]);
+if(usSymbols.length) {
+let tickers = usSymbols.map(s=>STOCK_STOOQ_TICKER[s]).join(',');
+let res = await fetch(`https://stooq.com/q/l/?s=${tickers}&f=sd2t2ohlcv&h&e=csv`);
+let text = await res.text();
+let lines = text.trim().split('\n');
+for(let i=1;i<lines.length;i++){
+let cols = lines[i].split(',');
+let sym = (cols[0]||'').toUpperCase();
+let stockKey = usSymbols.find(s=>STOCK_STOOQ_TICKER[s].toUpperCase()===sym);
+let open = parseFloat(cols[3]), close = parseFloat(cols[6]);
+if(stockKey && close && !isNaN(close)) {
+stockPrices[stockKey] = close;
+stockPriceSource[stockKey] = 'live';
+if(open && !isNaN(open) && open>0) {
+let ch = ((close-open)/open)*100;
+let el = document.getElementById(stockKey.toLowerCase()+'24hPL');
+if(el) el.innerHTML = `<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% today</span>`;
+stock24hPrices[stockKey] = open;
+}
+}
+}
+}
+} catch(e) { console.error('Stock live price fetch failed (CORS/network) — use manual price entry:', e); }
+// best-effort 7-day history, never blocks live price above
+for(let sym of STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s])) {
+try {
+let t = STOCK_STOOQ_TICKER[sym];
+let d2 = new Date(), d1 = new Date(d2.getTime()-12*24*60*60*1000);
+let fmt = d=>d.toISOString().slice(0,10).replace(/-/g,'');
+let hr = await fetch(`https://stooq.com/q/d/l/?s=${t}&d1=${fmt(d1)}&d2=${fmt(d2)}&i=d`);
+let htxt = await hr.text();
+let hl = htxt.trim().split('\n');
+if(hl.length>1) {
+let first = hl[1].split(',');
+let p7 = parseFloat(first[4]);
+if(p7>0) stock7dPrices[sym]=p7;
+}
+} catch(e) {}
+}
+localStorage.setItem('stock_prices_cache', JSON.stringify(stockPrices));
+localStorage.setItem('stock_price_source', JSON.stringify(stockPriceSource));
+renderStockCards();
+updateStockPurchaseInfo();
+renderStats(); updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
+}
+
+const STOCK_META = {
+AAPL:{name:'Apple', icon:'fab fa-apple', color:'#a3a3a3'},
+NVDA:{name:'NVIDIA', icon:'fas fa-microchip', color:'#76b900'},
+ARAMCO:{name:'Saudi Aramco', icon:'fas fa-oil-can', color:'#00a651'}
+};
+
+function renderStockCards() {
+let grid = document.getElementById('stockCardsGrid');
+if(!grid) return;
+grid.innerHTML = STOCK_SYMS.map(sym=>{
+let meta = STOCK_META[sym];
+let qty = investments.filter(i=>i.type===sym&&i.status==='active').reduce((s,i)=>s+i.amount,0);
+let price = stockPrices[sym]||0;
+let valUsd = qty*price, valBdt = valUsd*usdToBdt;
+let source = stockPriceSource[sym]||'manual';
+let divTotalUsd = dividends.filter(d=>d.symbol===sym).reduce((s,d)=>s+(d.amountUSD||0),0);
+return `
+<div class="crypto-card" style="border-top-color:${meta.color};">
+<div style="color:${meta.color}; font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="${meta.icon}"></i> ${sym} <span style="font-size:0.52rem;font-weight:700;color:${source==='live'?'#4ade80':'#f59e0b'};">${source==='live'?'🟢 Live':'✏️ Manual'}</span></div>
+<div class="crypto-price-usd"><span>$${formatNumber(price)}</span> <span id="${sym.toLowerCase()}24hPL" class="crypto-pl-chip"></span></div>
+<div class="crypto-price-bdt">${formatNumber(price*usdToBdt)} BDT</div>
+<div class="crypto-details">
+<div class="row"><span>📊 Shares:</span><span>${qty}</span></div>
+<div class="row"><span>💰 Current Value:</span><span class="value-usd">$${formatNumber(valUsd)}</span> | <span class="value-bdt">${formatNumber(valBdt)} BDT</span></div>
+<div id="${sym.toLowerCase()}PurchaseInfo" class="purchase-info"></div>
+${divTotalUsd>0?`<div class="row"><span style="color:#4ade80;">💵 Dividends:</span><span style="color:#4ade80;font-weight:700;">$${formatNumber(divTotalUsd)} (${formatNumber(divTotalUsd*usdToBdt)} BDT)</span></div>`:''}
+<div style="margin-top:8px;display:flex;gap:4px;">
+<input type="number" id="manualPrice_${sym}" placeholder="Manual price $" step="any" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 8px;color:#e2e8f0;font-size:0.65rem;">
+<button onclick="setManualStockPrice('${sym}')" style="background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.3);border-radius:8px;padding:5px 8px;font-size:0.62rem;cursor:pointer;">Set</button>
+</div>
+</div>
+</div>`;
+}).join('');
+}
+
+function setManualStockPrice(sym) {
+let input = document.getElementById('manualPrice_'+sym);
+let val = parseFloat(input.value);
+if(!val || val<=0) return showToast('সঠিক দাম দিন', true);
+stockPrices[sym] = val;
+stockPriceSource[sym] = 'manual';
+localStorage.setItem('stock_prices_cache', JSON.stringify(stockPrices));
+localStorage.setItem('stock_price_source', JSON.stringify(stockPriceSource));
+renderStockCards();
+updateStockPurchaseInfo();
+renderStats();
+showToast(`✅ ${sym} price set to $${formatNumber(val)} (manual)`);
+}
+
+function updateStockPurchaseInfo() {
+STOCK_SYMS.forEach(sym=>{
+let tQty=0, tCost=0;
+investments.forEach(inv=>{ if(inv.isStock&&inv.type===sym&&inv.status==='active'&&inv.purchasePrice&&inv.amount){ tQty+=inv.amount; tCost+=inv.amount*inv.purchasePrice; } });
+let avg = tQty>0?tCost/tQty:0;
+let curVal = tQty*(stockPrices[sym]||0);
+let pl = curVal - tCost;
+let div = document.getElementById(sym.toLowerCase()+'PurchaseInfo');
+if(div) div.innerHTML = tQty>0?`<div class="row"><span>📈 Avg Price:</span><span style="color:#f59e0b; font-weight:600;">$${formatNumber(avg)}</span></div><div class="row"><span>💵 Invested:</span><span><span style="color:#10b981; font-weight:700;">$${formatNumber(tCost)}</span> <span style="color:#64748b;">|</span> <span style="color:#facc15; font-weight:700;">${formatNumber(tCost*usdToBdt)} BDT</span></span></div><div class="row"><span>${pl>=0?'📈':'📉'} Unrealized:</span><span style="color:${pl>=0?'#4ade80':'#f87171'}; font-weight:700;">${pl>=0?'+':''}$${formatNumber(pl)}</span></div>`:'<div class="row" style="color:var(--text-sub); font-size:0.62rem;">No active holdings</div>';
+});
+}
+
+// ====== DIVIDENDS ======
+function openDividendModal() {
+document.getElementById('dividendStockSelect').innerHTML = `<option value="">-- নির্বাচন করুন --</option>` + STOCK_SYMS.map(s=>`<option value="${s}">${s} - ${STOCK_META[s].name}</option>`).join('');
+document.getElementById('dividendDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('dividendModal').style.display='flex';
+}
+function closeDividendModal() { document.getElementById('dividendModal').style.display='none'; }
+function addDividend() {
+let symbol = document.getElementById('dividendStockSelect').value;
+let amountUSD = parseFloat(document.getElementById('dividendAmount').value);
+let date = document.getElementById('dividendDate').value || new Date().toISOString().slice(0,10);
+let note = document.getElementById('dividendNote').value||'';
+if(!symbol || !amountUSD) return showToast('স্টক এবং পরিমাণ দিন', true);
+dividends.push({ id:Date.now().toString(), symbol, amountUSD, amountBDT:amountUSD*usdToBdt, date, note });
+localStorage.setItem('dividends', JSON.stringify(dividends));
+closeDividendModal();
+renderStockCards(); renderDividendHistory(); renderStats();
+showToast(`✅ ${symbol} dividend added: $${formatNumber(amountUSD)}`);
+document.getElementById('dividendAmount').value='';
+document.getElementById('dividendNote').value='';
+}
+function deleteDividend(id) {
+if(!confirm('Delete this dividend record?')) return;
+dividends = dividends.filter(d=>d.id!==id);
+localStorage.setItem('dividends', JSON.stringify(dividends));
+renderStockCards(); renderDividendHistory(); renderStats();
+}
+function renderDividendHistory() {
+let el = document.getElementById('dividendHistoryList');
+if(!el) return;
+if(!dividends.length) { el.innerHTML = '<div style="color:#6b7280;font-size:0.65rem;text-align:center;padding:8px;">এখনও কোনো dividend যুক্ত করা হয়নি</div>'; return; }
+let totalUsd = dividends.reduce((s,d)=>s+d.amountUSD,0);
+el.innerHTML = `<div style="text-align:center;margin-bottom:8px;font-size:0.72rem;color:#4ade80;font-weight:700;">Total: $${formatNumber(totalUsd)} (${formatNumber(totalUsd*usdToBdt)} BDT)</div>` +
+dividends.slice().reverse().map(d=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);padding:6px 0;font-size:0.65rem;"><span><b>${d.symbol}</b> · ${d.date}${d.note?' · '+d.note:''}</span><span style="color:#4ade80;font-weight:700;">+$${formatNumber(d.amountUSD)} <i class="fas fa-times" style="color:#f87171;cursor:pointer;margin-left:6px;" onclick="deleteDividend('${d.id}')"></i></span></div>`).join('');
+}
+
 function updateCryptoPurchaseInfo() {
 ['BTC','ETH','BNB','SOL'].forEach(coin=>{
 let tQty=0, tCost=0;
@@ -2379,6 +2585,7 @@ if(budget <= 0) { resultEl.innerHTML=''; return; }
 let activeNow = investments.filter(i=>i.status==='active');
 let totalNow = activeNow.reduce((s,i)=>s+(i.amountBDT||0),0);
 let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
+let stocksNow = activeNow.filter(i=>i.isStock&&stockPrices[i.type]).reduce((s,i)=>s+i.amount*stockPrices[i.type]*usdToBdt,0);
 let farmNow = activeNow.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 let bizNow = activeNow.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
 let safeNow = activeNow.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
@@ -2387,13 +2594,15 @@ let total = Math.max(totalNow, 1);
 
 const liveAlloc = {
 crypto: (cryptoNow / total) * 100,
+stocks: (stocksNow / total) * 100,
 farming: (farmNow / total) * 100,
 business: (bizNow / total) * 100,
 safe: (safeNow / total) * 100,
 };
-const TARGET_SIM = { crypto:15, farming:35, business:25, safe:25 };
+const TARGET_SIM = { crypto:15, stocks:15, farming:25, business:20, safe:25 };
 const pMap = {
 crypto: { name:'BTC / ETH / BNB / SOL', color:'#f7931a', icon:'₿', rate:0.11 },
+stocks: { name:'AAPL / NVDA / Aramco (eToro)', color:'#3b82f6', icon:'📈', rate:0.10 },
 farming: { name:'iFarmer / Wegro', color:'#4ade80', icon:'🌱', rate:0.19 },
 business: { name:'Biniyog', color:'#a855f7', icon:'💼', rate:0.15 },
 safe: { name:'MMPDA + MSSA', color:'#10b981', icon:'🏦', rate:0.08 },
@@ -2426,7 +2635,7 @@ plan.forEach(r=>{ r.pct=Math.round(r.pct/totPct*100); r.amount=Math.round(budget
 if(!plan.length) {
 plan = [{ key:'farming', name:'iFarmer / Wegro', pct:100, amount:budget,
 color:'#4ade80', icon:'🌱', annualReturn:0.19, gap:0,
-current:liveAlloc.farming, target:35, reason:'Portfolio balanced — farming is best default' }];
+current:liveAlloc.farming, target:25, reason:'Portfolio balanced — farming is best default' }];
 }
 
 function simSplitCrypto(amt) {
@@ -2443,6 +2652,7 @@ let estMonthly = estAnnual / 12;
 
 const catInfo = [
 { key:'crypto', label:'₿ Crypto', color:'#f7931a' },
+{ key:'stocks', label:'📈 Stocks', color:'#3b82f6' },
 { key:'farming', label:'🌱 Farming', color:'#4ade80' },
 { key:'business', label:'💼 Business', color:'#a855f7' },
 { key:'safe', label:'🏦 Safe', color:'#10b981' },
@@ -2786,7 +2996,7 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); updateCryptoPrices(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
@@ -2794,13 +3004,14 @@ if(!isAdmin) return showToast("Admin login required", true);
 let platform = document.getElementById('platform').value;
 let type = document.getElementById('type').value;
 let isCrypto = ['BTC','ETH','BNB','SOL'].includes(type);
+let isStock = STOCK_SYMS.includes(type);
 let isWahed = type === 'WAHED';
 let amount = parseFloat(document.getElementById('amount').value);
-let purchasePrice = isCrypto ? parseFloat(document.getElementById('purchasePrice').value) : null;
+let purchasePrice = (isCrypto||isStock) ? parseFloat(document.getElementById('purchasePrice').value) : null;
 if(!amount || !document.getElementById('startDate').value) return showToast("Fill required fields", true);
 let amountBDT, amountUSD;
-if(isCrypto) {
-if(!purchasePrice) return showToast("Crypto needs purchase price", true);
+if(isCrypto||isStock) {
+if(!purchasePrice) return showToast(isStock?"Stock needs purchase price (per share, USD)":"Crypto needs purchase price", true);
 amountUSD = amount * purchasePrice;
 amountBDT = amountUSD * usdToBdt;
 } else {
@@ -2809,7 +3020,7 @@ amountUSD = amount / usdToBdt;
 }
 let inv = {
 id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
-isCrypto, isWahed, purchasePrice,
+isCrypto, isStock, isWahed, purchasePrice,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
 actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
 status: document.getElementById('status').value,
@@ -3193,6 +3404,7 @@ checkSavedLogin();
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 setInterval(updateCryptoPrices, 5000);
+setInterval(updateStockPrices, 5 * 60 * 1000);
 setInterval(renderPLTicker, 5000);
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
