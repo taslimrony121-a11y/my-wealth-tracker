@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
@@ -796,6 +798,7 @@ body { padding: 10px; }
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
+<button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
 <button class="action-btn" onclick="openCalendar()" style="border-color:#06b6d4;color:#06b6d4;"><i class="fas fa-calendar-alt"></i> Calendar</button>
 <button class="action-btn" onclick="runAIPrediction()" style="border-color:#a855f7;color:#a855f7;"><i class="fas fa-robot"></i> AI Predict</button>
@@ -963,6 +966,7 @@ oninput="updateInvestSimulator()">
 <select id="platform">
 <option>Binance</option><option>Wegro</option><option>Biniyog</option>
 <option>iFarmer</option><option>Islami Bank</option>
+<option>Real Estate</option><option>Mutual Fund</option>
 <option value="WAIT_MONEY">⏳ WAIT MONEY</option><option>Other</option>
 </select>
 </div>
@@ -975,6 +979,8 @@ oninput="updateInvestSimulator()">
 <option value="SOL">SOL (Crypto)</option>
 <option value="MMPDA">MMPDA</option>
 <option value="Rental">Rental</option>
+<option value="Real Estate">Real Estate</option>
+<option value="Mutual Fund">Mutual Fund</option>
 <option value="Agriculture">Agriculture</option>
 <option value="MSSA">MSSA Installment</option>
 <option value="Business">Shop/Business</option>
@@ -1142,6 +1148,28 @@ oninput="updateInvestSimulator()">
 <button onclick="closeMmpdaModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:8px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
 <small style="display:block;margin-top:12px;color:var(--text-sub);text-align:center;"><i class="fas fa-info-circle"></i> Formula: (Principal × Rate%) ÷ 12</small>
+</div>
+</div>
+
+<!-- RENTAL INCOME MODAL -->
+
+<div id="rentalModal" class="modal">
+<div class="modal-content">
+<h3><i class="fas fa-home" style="color:#06b6d4;"></i> Rental Income Withdrawal</h3>
+<label>SELECT REAL ESTATE INVESTMENT:</label>
+<select id="rentalSelect" style="width:100%;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-size:0.85rem;">
+<option value="">-- Select Property --</option>
+</select>
+<label>RENTAL AMOUNT RECEIVED (BDT):</label>
+<input type="number" id="rentalAmount" placeholder="এই মাসে কত ভাড়া পেয়েছেন" style="width:100%;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-size:0.85rem;box-sizing:border-box;">
+<label>MONTH/PERIOD:</label>
+<input type="text" id="rentalPeriod" style="width:100%;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-size:0.85rem;box-sizing:border-box;">
+<label>NOTE (OPTIONAL):</label>
+<input type="text" id="rentalNote" placeholder="যেমন: ভাড়াটিয়ার নাম, flat no..." style="width:100%;padding:10px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;color:var(--text-main);font-size:0.85rem;box-sizing:border-box;">
+<div style="display:flex;gap:10px;margin-top:20px;">
+<button onclick="confirmRentalIncome()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#06b6d4,#0891b2);"><i class="fas fa-camera"></i> Confirm Income</button>
+<button onclick="closeRentalModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:8px;cursor:pointer;flex:0.3;">Cancel</button>
+</div>
 </div>
 </div>
 
@@ -2842,6 +2870,75 @@ renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} 
 }
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display='none'; }
 
+// ====== RENTAL INCOME ======
+function openRentalModal() {
+if(!isAdmin) return showToast("Admin required", true);
+let list = investments.filter(i => i.type && (i.type.toLowerCase()==='rental' || i.type.toLowerCase()==='real estate' || i.type.toLowerCase().includes('property')) && i.status==='active');
+if(!list.length) return showToast("No active Rental/Real Estate investment found! Please add one first.", true);
+let sel = document.getElementById('rentalSelect');
+sel.innerHTML = '<option value="">-- Select Property --</option>';
+list.forEach(inv => {
+let o = document.createElement('option');
+o.value = inv.id;
+o.textContent = `${inv.platform || inv.type} - ${formatNumber(inv.amountBDT)} BDT`;
+sel.appendChild(o);
+});
+let now = new Date();
+let months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+document.getElementById('rentalPeriod').value = months[now.getMonth()] + ' ' + now.getFullYear();
+document.getElementById('rentalAmount').value = '';
+document.getElementById('rentalNote').value = '';
+document.getElementById('rentalModal').style.display = 'flex';
+}
+function confirmRentalIncome() {
+if(!isAdmin) return showToast("Admin required", true);
+let id = document.getElementById('rentalSelect').value;
+if(!id) return showToast("Please select a property", true);
+let inv = investments.find(i => i.id===id);
+if(!inv) return showToast("Investment not found", true);
+let amount = parseFloat(document.getElementById('rentalAmount').value);
+if(isNaN(amount) || amount <= 0) return showToast("Enter a valid rental amount", true);
+let period = document.getElementById('rentalPeriod').value.trim() || new Date().toISOString().slice(0,7);
+let note = document.getElementById('rentalNote').value.trim();
+if(!confirm(`Confirm receiving ${formatNumber(amount)} BDT rental income from ${inv.platform || inv.type}?`)) return;
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+history.push({
+platform: inv.platform || inv.type,
+type: "Rental Income",
+amount: amount,
+profit: amount,
+date: new Date().toISOString().slice(0,10),
+note: (note ? note + ' | ' : '') + 'Period: ' + period
+});
+localStorage.setItem("withdraw_history", JSON.stringify(history));
+inv.actualProfit = (inv.actualProfit||0) + amount;
+if(db && isAdmin) db.collection("investments").doc(inv.id).update({actualProfit: inv.actualProfit}).catch(console.error);
+localStorage.setItem("investments_backup", JSON.stringify(investments));
+renderAll();
+closeRentalModal();
+showToast(`✅ Rental income of ${formatNumber(amount)} BDT recorded successfully!`);
+}
+function closeRentalModal() { document.getElementById('rentalModal').style.display='none'; }
+
+// ====== ADD INVESTMENT TOGGLE ======
+function scrollToAddInvestment() {
+if(!isAdmin) return showToast("Admin login required to add investments", true);
+let form = document.getElementById('formCard');
+let btn = document.getElementById('addInvestmentBtn');
+if(form.style.display === 'none' || form.style.display === '') {
+form.style.display = 'block';
+btn.innerHTML = '<i class="fas fa-times-circle"></i> Hide Form';
+btn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+btn.style.borderColor = '#ef4444';
+setTimeout(() => { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+} else {
+form.style.display = 'none';
+btn.innerHTML = '<i class="fas fa-plus-circle"></i> Add Investment';
+btn.style.background = 'linear-gradient(135deg,#a855f7,#6d28d9)';
+btn.style.borderColor = '#a855f7';
+}
+}
+
 // ====== PARTIAL WITHDRAW ======
 let partialInvId = null;
 function openPartialModal(id) {
@@ -3056,7 +3153,10 @@ function adminLogout() { isAdmin=false; localStorage.removeItem(STORAGE_KEY); up
 function updateUI() {
 let form=document.getElementById('formCard'), login=document.getElementById('loginWidget'), logout=document.getElementById('logoutWidget'), auth=document.getElementById('authDisplay');
 if(isAdmin){ form.style.display='block'; login.style.display='none'; logout.style.display='block'; auth.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; }
-else { form.style.display='none'; login.style.display='flex'; logout.style.display='none'; auth.innerHTML='<i class="fas fa-lock"></i> Read-only Mode'; }
+else { form.style.display='none'; login.style.display='flex'; logout.style.display='none'; auth.innerHTML='<i class="fas fa-lock"></i> Read-only Mode';
+let btn=document.getElementById('addInvestmentBtn');
+if(btn){ btn.innerHTML='<i class="fas fa-plus-circle"></i> Add Investment'; btn.style.background='linear-gradient(135deg,#a855f7,#6d28d9)'; btn.style.borderColor='#a855f7'; }
+}
 }
 async function loadData() {
 if(!db) return;
@@ -3099,6 +3199,7 @@ document.getElementById('loginBtn').addEventListener('click', () => adminLogin(d
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 document.getElementById('saveBtn').addEventListener('click', addInvestment);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
+document.getElementById('rentalBtn').addEventListener('click', openRentalModal);
 
 setTimeout(() => {
 try {
