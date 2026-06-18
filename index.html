@@ -567,6 +567,8 @@ box-shadow: 0 8px 24px var(--shadow);
 .chart-wrapper { height: 260px; position: relative; width: 100%; }
 @media (min-width: 768px) { .chart-wrapper { height: 380px; } }
 #netWorthChart { width: 100% !important; height: 100% !important; touch-action: pan-x pan-y; }
+.nw-period-btn { background:rgba(255,255,255,0.06); color:#94a3b8; border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:4px 10px; font-size:0.62rem; font-weight:700; cursor:pointer; font-family:'Sora',sans-serif; transition:all 0.2s; }
+.nw-period-btn.nw-active { background:rgba(241,245,249,0.12); color:#f1f5f9; border-color:rgba(255,255,255,0.2); }
 
 .charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
 @media (min-width: 600px) { .charts-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); } }
@@ -1001,6 +1003,28 @@ oninput="updateInvestSimulator()">
 <div class="stat-value-bdt"><span id="activeAmount">0</span> BDT</div>
 <div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div>
 <div id="weeklyPLContainer" style="margin-top:8px;"></div>
+</div>
+</div>
+
+<!-- NET WORTH LIVE GRAPH -->
+<div class="card" style="padding:16px 14px 12px;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+<div>
+<div style="font-size:0.6rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Asset Net Worth</div>
+<div id="nwGraphDate" style="font-size:0.62rem;color:#94a3b8;"></div>
+<div id="nwGraphValue" style="font-size:1.6rem;font-weight:800;color:#f1f5f9;font-family:'Sora',sans-serif;margin-top:2px;">৳0</div>
+<div id="nwGraphChange" style="font-size:0.65rem;font-weight:700;margin-top:1px;"></div>
+</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+<button onclick="setNwPeriod(7)" id="nwBtn7" class="nw-period-btn nw-active">7D</button>
+<button onclick="setNwPeriod(30)" id="nwBtn30" class="nw-period-btn">30D</button>
+<button onclick="setNwPeriod(90)" id="nwBtn90" class="nw-period-btn">90D</button>
+<button onclick="setNwPeriod(365)" id="nwBtn365" class="nw-period-btn">1Y</button>
+<button onclick="setNwPeriod('all')" id="nwBtnall" class="nw-period-btn">All</button>
+</div>
+</div>
+<div style="position:relative;height:140px;margin-top:8px;">
+<canvas id="netWorthChart"></canvas>
 </div>
 </div>
 
@@ -2429,6 +2453,7 @@ renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 renderPLTicker();
 checkAlerts();
+tickNwGraph();
 } catch(e) { console.error('Crypto price fetch error:', e); }
 }
 
@@ -2531,6 +2556,7 @@ localStorage.setItem('stock_price_source', JSON.stringify(stockPriceSource));
 renderStockCards();
 updateStockPurchaseInfo();
 renderStats(); updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
+tickNwGraph();
 }
 
 const STOCK_META = {
@@ -3061,7 +3087,176 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); }
+// ══════════════════════════════════════════════
+// NET WORTH LIVE GRAPH
+// ══════════════════════════════════════════════
+let nwChart = null;
+let nwPeriod = 7;
+const NW_KEY = 'nw_history_v2';
+
+function getNwHistory() {
+try { return JSON.parse(localStorage.getItem(NW_KEY)||'[]'); } catch(e) { return []; }
+}
+function saveNwSnapshot(valueBDT) {
+if(!valueBDT || valueBDT <= 0) return;
+let history = getNwHistory();
+let today = new Date().toISOString().slice(0,10);
+let last = history[history.length-1];
+// update today's entry or push new
+if(last && last.date === today) {
+last.v = Math.round(valueBDT);
+} else {
+history.push({ date: today, v: Math.round(valueBDT) });
+}
+// keep max 400 days
+if(history.length > 400) history = history.slice(-400);
+localStorage.setItem(NW_KEY, JSON.stringify(history));
+}
+
+function computeLiveNetWorthBDT() {
+let active = investments.filter(i=>i.status==='active');
+let val = 0;
+active.forEach(inv=>{
+if(inv.isCrypto && cryptoPrices[inv.type]) {
+val += inv.amount * cryptoPrices[inv.type] * usdToBdt;
+} else if(inv.isStock && stockPrices[inv.type]) {
+val += inv.amount * stockPrices[inv.type] * usdToBdt;
+} else {
+val += inv.amountBDT || 0;
+}
+});
+return val;
+}
+
+function setNwPeriod(p) {
+nwPeriod = p;
+document.querySelectorAll('.nw-period-btn').forEach(b=>b.classList.remove('nw-active'));
+document.getElementById('nwBtn'+(p==='all'?'all':p)).classList.add('nw-active');
+renderNwGraph();
+}
+
+function renderNwGraph() {
+let history = getNwHistory();
+if(!history.length) return;
+
+// filter by period
+let filtered = history;
+if(nwPeriod !== 'all') {
+let cutoff = new Date();
+cutoff.setDate(cutoff.getDate() - nwPeriod);
+let cutStr = cutoff.toISOString().slice(0,10);
+filtered = history.filter(h=>h.date >= cutStr);
+}
+if(!filtered.length) filtered = history.slice(-2);
+
+// ensure today's live value is always the last point
+let today = new Date().toISOString().slice(0,10);
+let liveVal = Math.round(computeLiveNetWorthBDT());
+if(filtered.length && filtered[filtered.length-1].date === today) {
+filtered[filtered.length-1].v = liveVal;
+} else {
+filtered = [...filtered, { date:today, v:liveVal }];
+}
+
+let labels = filtered.map(h=>{
+let d = new Date(h.date);
+return `${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+});
+let values = filtered.map(h=>h.v);
+
+// header update
+let first = values[0], last2 = values[values.length-1];
+let change = last2 - first, changePct = first>0?(change/first*100):0;
+let pos = change >= 0;
+document.getElementById('nwGraphDate').textContent = new Date().toISOString().slice(0,10);
+document.getElementById('nwGraphValue').textContent = '৳'+formatNumber(last2);
+document.getElementById('nwGraphChange').innerHTML = `<span style="color:${pos?'#4ade80':'#f87171'};">${pos?'▲':'▼'} ${Math.abs(changePct).toFixed(2)}% (${pos?'+':''}${formatNumber(change)} BDT)</span>`;
+
+let lineColor = pos ? '#f59e0b' : '#f87171';
+let fillColorTop = pos ? 'rgba(245,158,11,0.25)' : 'rgba(248,113,113,0.2)';
+let fillColorBot = pos ? 'rgba(245,158,11,0.0)' : 'rgba(248,113,113,0.0)';
+
+let canvas = document.getElementById('netWorthChart');
+if(!canvas) return;
+let ctx = canvas.getContext('2d');
+
+// gradient fill
+let grad = ctx.createLinearGradient(0,0,0,140);
+grad.addColorStop(0, fillColorTop);
+grad.addColorStop(1, fillColorBot);
+
+if(nwChart) { nwChart.destroy(); nwChart = null; }
+
+nwChart = new Chart(ctx, {
+type:'line',
+data:{
+labels,
+datasets:[{
+data: values,
+borderColor: lineColor,
+borderWidth: 2,
+fill: true,
+backgroundColor: grad,
+pointRadius: filtered.length <= 14 ? 3 : 0,
+pointBackgroundColor: lineColor,
+pointBorderWidth: 0,
+tension: 0.4,
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+animation:{ duration:400 },
+plugins:{
+legend:{ display:false },
+tooltip:{
+mode:'index',
+intersect:false,
+backgroundColor:'rgba(15,23,42,0.92)',
+titleColor:'#94a3b8',
+bodyColor:'#f1f5f9',
+borderColor:'rgba(255,255,255,0.1)',
+borderWidth:1,
+callbacks:{
+title: ctx2=>ctx2[0].label,
+label: ctx2=>'৳'+formatNumber(ctx2.parsed.y),
+}
+}
+},
+scales:{
+x:{
+grid:{ display:false },
+ticks:{
+color:'#6b7280',
+font:{ size:10 },
+maxTicksLimit: Math.min(filtered.length, 7),
+maxRotation:0,
+}
+},
+y:{
+position:'left',
+grid:{ color:'rgba(255,255,255,0.05)' },
+ticks:{
+color:'#6b7280',
+font:{ size:10 },
+maxTicksLimit:4,
+callback: v=>formatNumber(Math.round(v))
+},
+}
+},
+interaction:{ mode:'nearest', axis:'x', intersect:false }
+}
+});
+}
+
+function tickNwGraph() {
+let live = computeLiveNetWorthBDT();
+if(live <= 0) return;
+saveNwSnapshot(live);
+renderNwGraph();
+}
+
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
