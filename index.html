@@ -935,13 +935,27 @@ oninput="updateInvestSimulator()">
 <div style="font-size:0.68rem;color:#60a5fa;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;"><i class="fas fa-chart-line"></i> eToro স্টক</div>
 <button onclick="openDividendModal()" style="background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);border-radius:8px;padding:5px 10px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-coins"></i> Add Dividend</button>
 </div>
+
+<div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:10px 12px;margin-bottom:10px;">
+<div onclick="document.getElementById('apiKeyBox').style.display=document.getElementById('apiKeyBox').style.display==='none'?'block':'none';" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+<span style="font-size:0.62rem;color:#60a5fa;font-weight:700;"><i class="fas fa-key"></i> লাইভ প্রাইস API Key (ঐচ্ছিক, না দিলে manual entry চলবে)</span>
+<i class="fas fa-chevron-down" style="color:#60a5fa;font-size:0.6rem;"></i>
+</div>
+<div id="apiKeyBox" style="display:none;margin-top:8px;">
+<div style="font-size:0.58rem;color:#94a3b8;margin-bottom:6px;">AAPL/NVDA-র জন্য <a href="https://twelvedata.com/" target="_blank" style="color:#60a5fa;">Twelve Data</a> থেকে ফ্রি key নিন · Aramco-র জন্য <a href="https://www.sahmk.sa/en/developers" target="_blank" style="color:#60a5fa;">SAHMK</a> থেকে ফ্রি key নিন</div>
+<input type="text" id="tdApiKeyInput" placeholder="Twelve Data API key" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 8px;color:#e2e8f0;font-size:0.65rem;margin-bottom:6px;">
+<input type="text" id="sahmkApiKeyInput" placeholder="SAHMK API key" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 8px;color:#e2e8f0;font-size:0.65rem;margin-bottom:6px;">
+<button onclick="saveApiKeys()" style="background:rgba(59,130,246,0.18);color:#60a5fa;border:1px solid rgba(59,130,246,0.4);border-radius:8px;padding:6px 12px;font-size:0.62rem;font-weight:700;cursor:pointer;width:100%;">Save Keys & Refresh</button>
+</div>
+</div>
+
 <div class="crypto-grid" id="stockCardsGrid"></div>
 <div style="margin-top:8px;background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:10px 12px;">
 <div style="font-size:0.62rem;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;"><i class="fas fa-history"></i> Dividend History</div>
 <div id="dividendHistoryList"></div>
 </div>
 <div style="margin-top:6px;font-size:0.58rem;color:#6b7280;text-align:center;">
-<i class="fas fa-info-circle"></i> AAPL/NVDA দাম Stooq থেকে লাইভ আসার চেষ্টা করে (প্রতি ৫ মিনিটে); fail হলে বা Aramco-র জন্য ম্যানুয়ালি দাম বসান।
+<i class="fas fa-info-circle"></i> API key দিলে Twelve Data (AAPL/NVDA) ও SAHMK (Aramco) থেকে লাইভ দাম আসবে। key না থাকলে/fail হলে Stooq চেষ্টা করে অথবা ম্যানুয়ালি দাম বসান।
 </div>
 
 <!-- DIVIDEND MODAL -->
@@ -2418,10 +2432,61 @@ checkAlerts();
 } catch(e) { console.error('Crypto price fetch error:', e); }
 }
 
-// ====== STOCK PRICES (eToro / US Equities via Stooq) ======
+// ====== STOCK PRICES (eToro / US Equities + Saudi Aramco) ======
+function saveApiKeys() {
+let td = document.getElementById('tdApiKeyInput').value.trim();
+let sahmk = document.getElementById('sahmkApiKeyInput').value.trim();
+if(td) localStorage.setItem('twelvedata_api_key', td);
+if(sahmk) localStorage.setItem('sahmk_api_key', sahmk);
+showToast('✅ API key সেভ হয়েছে — দাম আপডেট হচ্ছে...');
+updateStockPrices();
+}
 async function updateStockPrices() {
+let tdKey = localStorage.getItem('twelvedata_api_key')||'';
+let sahmkKey = localStorage.getItem('sahmk_api_key')||'';
+if(document.getElementById('tdApiKeyInput') && tdKey) document.getElementById('tdApiKeyInput').value = tdKey;
+if(document.getElementById('sahmkApiKeyInput') && sahmkKey) document.getElementById('sahmkApiKeyInput').value = sahmkKey;
+let usHandled = [];
+if(tdKey) {
 try {
-let usSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s]);
+let tdSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s]);
+let res0 = await fetch(`https://api.twelvedata.com/quote?symbol=${tdSymbols.join(',')}&apikey=${tdKey}`);
+let data0 = await res0.json();
+tdSymbols.forEach(sym=>{
+let q = tdSymbols.length>1 ? data0[sym] : data0;
+if(q && q.close && !isNaN(parseFloat(q.close))) {
+stockPrices[sym] = parseFloat(q.close);
+stockPriceSource[sym] = 'live';
+usHandled.push(sym);
+if(q.percent_change !== undefined) {
+let ch0 = parseFloat(q.percent_change);
+let el0 = document.getElementById(sym.toLowerCase()+'24hPL');
+if(el0 && !isNaN(ch0)) el0.innerHTML = `<span style="color:${ch0>=0?'#4ade80':'#f87171'};">${ch0>=0?'+':''}${ch0.toFixed(2)}% today</span>`;
+if(q.previous_close) stock24hPrices[sym] = parseFloat(q.previous_close);
+}
+}
+});
+} catch(e0) { console.error('Twelve Data fetch failed:', e0); }
+}
+if(sahmkKey) {
+try {
+let resS = await fetch('https://app.sahmk.sa/api/v1/quote/2222/', { headers: { 'X-API-Key': sahmkKey } });
+let dataS = await resS.json();
+if(dataS && dataS.price) {
+let sarRate = currencyRates.SAR || 3.75;
+stockPrices.ARAMCO = dataS.price / sarRate;
+stockPriceSource.ARAMCO = 'live';
+if(dataS.change_percent !== undefined) {
+let chS = parseFloat(dataS.change_percent);
+let elS = document.getElementById('aramco24hPL');
+if(elS && !isNaN(chS)) elS.innerHTML = `<span style="color:${chS>=0?'#4ade80':'#f87171'};">${chS>=0?'+':''}${chS.toFixed(2)}% today</span>`;
+if(chS) stock24hPrices.ARAMCO = stockPrices.ARAMCO/(1+chS/100);
+}
+}
+} catch(eS) { console.error('SAHMK fetch failed:', eS); }
+}
+try {
+let usSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s] && !usHandled.includes(s));
 if(usSymbols.length) {
 let tickers = usSymbols.map(s=>STOCK_STOOQ_TICKER[s]).join(',');
 let res = await fetch(`https://stooq.com/q/l/?s=${tickers}&f=sd2t2ohlcv&h&e=csv`);
