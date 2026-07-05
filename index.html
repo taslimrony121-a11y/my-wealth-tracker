@@ -799,6 +799,7 @@ body { padding: 10px; }
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
+<button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-piggy-bank"></i> Wahed Top-up</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
@@ -1044,7 +1045,7 @@ oninput="updateInvestSimulator()">
 </div>
 <div class="input-group">
 <label>Asset Type</label>
-<select id="type" onchange="onTypeChange()">
+<select id="type">
 <option value="BTC">BTC (Crypto)</option>
 <option value="ETH">ETH (Crypto)</option>
 <option value="BNB">BNB (Crypto)</option>
@@ -1370,7 +1371,7 @@ oninput="updateInvestSimulator()">
 <div class="modal-content">
 <h3>📊 Wahed — Current Value Update</h3>
 <div id="wahedInfo" style="font-size:0.78rem;color:var(--text-sub);margin-bottom:12px;background:var(--bg-input);padding:10px;border-radius:10px;"></div>
-<label>বর্তমান মূল্য (USD):</label>
+<label>বর্তমান মূল্য (BDT):</label>
 <input type="number" id="wahedCurrentVal" step="any" placeholder="Wahed app থেকে দেখুন">
 <div id="wahedPLPreview" style="margin-top:8px;font-size:0.78rem;"></div>
 <label style="margin-top:10px;">Note (optional):</label>
@@ -1397,32 +1398,12 @@ oninput="updateInvestSimulator()">
 <label>কোন Wahed account:</label>
 <select id="wahedTopupSelect" style="width:100%;padding:8px;" onchange="updateWahedActionInfo()"></select>
 <div id="wahedActionInfo" style="font-size:0.62rem;color:#94a3b8;margin-top:6px;"></div>
-<label style="margin-top:8px;" id="wahedAmountLabel">কত ডলার যুক্ত করবেন (USD):</label>
+<label style="margin-top:8px;" id="wahedAmountLabel">কত টাকা যুক্ত করবেন (BDT):</label>
 <input type="number" id="wahedTopupAmount" step="any" placeholder="যেমন: 5000">
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button id="wahedConfirmBtn" onclick="confirmWahedAction()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);">💾 যুক্ত করুন</button>
 <button onclick="closeWahedTopupModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
-</div>
-</div>
-
-<!-- EXPORT PDF PERIOD MODAL -->
-
-<div id="exportPdfModal" class="modal">
-<div class="modal-content">
-<h3><i class="fas fa-file-pdf" style="color:#ef4444;"></i> Report Period বাছাই করুন</h3>
-<div style="font-size:0.68rem;color:#94a3b8;margin-bottom:14px;">কোন সময়ের investment নিয়ে রিপোর্ট বানাতে চান?</div>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-<button onclick="generateExportPDF(1)" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;">১ মাস</button>
-<button onclick="generateExportPDF(2)" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;">২ মাস</button>
-<button onclick="generateExportPDF(3)" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;">৩ মাস</button>
-<button onclick="generateExportPDF(6)" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;">৬ মাস</button>
-</div>
-<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-<button onclick="generateExportPDF(12)" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;">১ বছর</button>
-<button onclick="generateExportPDF('all')" class="nw-period-btn" style="flex:1;padding:10px;font-size:0.75rem;background:rgba(250,204,21,0.15);color:#facc15;border-color:rgba(250,204,21,0.35);">📋 সব (All)</button>
-</div>
-<button onclick="closeExportPdfModal()" style="width:100%;background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:10px;cursor:pointer;">Cancel</button>
 </div>
 </div>
 
@@ -1472,7 +1453,6 @@ const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", auth
 
 // ====== GLOBAL STATE ======
 let db = null, isAdmin = false, investments = [], usdToBdt = 122.5;
-let plTickerStartTs = Date.now();
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
@@ -1642,7 +1622,7 @@ let grid = document.getElementById('aiGrid');
 let insightEl = document.getElementById('aiInsight');
 let suggestionBox = document.getElementById('aiSuggestionBox');
 let scoreBar = document.getElementById('aiScoreBar');
-let active = investments.filter(i => i.status === 'active' && !isWaitMoney(i));
+let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) { showToast("কোনো active investment নেই।", true); return; }
 
 // ── Data Collect ──
@@ -2318,7 +2298,6 @@ ${isAdmin ? `
 function buildInvItemHtml(inv) {
 let investedDisplay = (inv.isCrypto||inv.isStock)
 ? `${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}`
-: inv.isWahed ? `$${formatNumber(inv.amountUSD)} (${formatNumber(inv.amountUSD*usdToBdt)} BDT)`
 : `${formatNumber(inv.amountBDT)} BDT`;
 let currentDisplay = '';
 if((inv.isCrypto||inv.isStock) && getLivePrice(inv.type)) {
@@ -2328,10 +2307,10 @@ let cBDT = cUSD * usdToBdt;
 let pnl = cBDT - (inv.amount*(inv.purchasePrice||0)*usdToBdt);
 currentDisplay = `<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">📊 Current: $${formatNumber(cUSD)} (${formatNumber(cBDT)} BDT) | ${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>`;
 } else if(inv.isWahed || inv.type==='WAHED') {
-let curValUSD = getWahedCurrentUSD(inv);
-let pnlUSD = curValUSD - inv.amountUSD;
-currentDisplay = `<span class="investment-details" style="color:${pnlUSD>=0?'#4ade80':'#f87171'};">
-📊 Current: $${formatNumber(curValUSD)} (${formatNumber(curValUSD*usdToBdt)} BDT) ${pnlUSD!==0?`| ${pnlUSD>=0?'+':''}$${formatNumber(pnlUSD)}`:''}
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
+currentDisplay = `<span class="investment-details" style="color:${pnl>=0?'#4ade80':'#f87171'};">
+📊 Current: ${formatNumber(curVal)} BDT ${pnl!==0?`| ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`:''}
 </span>`;
 }
 else if(inv.type==="LOAN_GIVEN") currentDisplay=`<span class="investment-details" style="color:#4ade80;">💸 To Receive: ${formatNumber(inv.amountBDT)} BDT</span>`;
@@ -2610,28 +2589,21 @@ NVDA:{name:'NVIDIA', icon:'fas fa-microchip', color:'#76b900'},
 ARAMCO:{name:'Saudi Aramco', icon:'fas fa-oil-can', color:'#00a651'}
 };
 
-function getWahedCurrentUSD(inv) {
-if(inv.currentValueUSD) return inv.currentValueUSD;
-if(inv.currentValue) return inv.currentValue / usdToBdt; // migrate older BDT-tracked entries
-return inv.amountUSD || 0;
-}
 function renderWahedCard() {
 let list = investments.filter(i=>i.type==='WAHED'&&i.status==='active');
-let totalInvestedUSD = list.reduce((s,i)=>s+(i.amountUSD||0),0);
-let totalCurrentUSD = list.reduce((s,i)=>s+getWahedCurrentUSD(i),0);
-let totalInvested = totalInvestedUSD * usdToBdt;
-let totalCurrent = totalCurrentUSD * usdToBdt;
+let totalInvested = list.reduce((s,i)=>s+(i.amountBDT||0),0);
+let totalCurrent = list.reduce((s,i)=>s+(i.currentValue||i.amountBDT||0),0);
 let pnl = totalCurrent - totalInvested;
 let pct = totalInvested>0 ? (pnl/totalInvested*100) : 0;
 let hasAny = list.length>0;
 return `
 <div class="crypto-card" style="border-top-color:#10b981;">
-<div style="color:#10b981; font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fas fa-landmark"></i> Wahed Invest</div>
-<div class="crypto-price-usd"><span>$${formatNumber(totalCurrentUSD)} USD</span></div>
-<div class="crypto-price-bdt">${formatNumber(totalCurrent)} BDT</div>
+<div style="color:#10b981; font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fas fa-piggy-bank"></i> Wahed Invest</div>
+<div class="crypto-price-usd"><span>${formatNumber(totalCurrent)} BDT</span></div>
+<div class="crypto-price-bdt">$${formatNumber(totalCurrent/usdToBdt)} USD</div>
 <div class="crypto-details">
-<div class="row"><span>💵 Invested:</span><span class="value-usd">$${formatNumber(totalInvestedUSD)}</span></div>
-<div class="row"><span>📈 Return:</span><span style="color:${pnl>=0?'#4ade80':'#f87171'};font-weight:700;">${pnl>=0?'+':''}$${formatNumber(totalCurrentUSD-totalInvestedUSD)} (${pnl>=0?'+':''}${pct.toFixed(1)}%)</span></div>
+<div class="row"><span>💵 Invested:</span><span class="value-bdt">${formatNumber(totalInvested)} BDT</span></div>
+<div class="row"><span>📈 Return:</span><span style="color:${pnl>=0?'#4ade80':'#f87171'};font-weight:700;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT (${pnl>=0?'+':''}${pct.toFixed(1)}%)</span></div>
 <div style="margin-top:8px;display:flex;gap:4px;">
 <button onclick="${hasAny?`openWahedUpdate('${list[0].id}')`:`showToast('আগে Wahed entry তৈরি করুন', true)`}" style="flex:1;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-edit"></i> Update Value</button>
 <button onclick="openWahedTopupModal()" style="flex:1;background:rgba(250,204,21,0.12);color:#facc15;border:1px solid rgba(250,204,21,0.3);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-exchange-alt"></i> Add/Withdraw</button>
@@ -2977,7 +2949,7 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .catch(err => {
 console.error('EmailJS error:', err);
 showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
-setTimeout(()=>generateExportPDF('all'), 1000);
+setTimeout(exportPDF, 1000);
 });
 });
 }
@@ -3155,15 +3127,6 @@ let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1
 
 el.innerHTML = items + items;
 
-// Resume the scroll animation from where it currently is instead of restarting
-// it at 0% — otherwise every 5s refresh snaps the ticker back to the start.
-const TICKER_DURATION = 20; // seconds, must match the tickerScroll keyframe duration
-let elapsed = ((Date.now() - plTickerStartTs) / 1000) % TICKER_DURATION;
-el.style.animation = 'none';
-void el.offsetWidth; // force reflow so the animation reset takes effect
-el.style.animation = `tickerScroll ${TICKER_DURATION}s linear infinite`;
-el.style.animationDelay = `-${elapsed}s`;
-
 let wrap = document.getElementById('plTickerWrap');
 if(wrap) {
 wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
@@ -3195,30 +3158,6 @@ history.push({ date: today, v: Math.round(valueBDT) });
 // keep max 400 days
 if(history.length > 400) history = history.slice(-400);
 localStorage.setItem(NW_KEY, JSON.stringify(history));
-// also sync to Firestore so history survives cache clears / different devices —
-// localStorage alone resets to a single point whenever the browser data is wiped
-// or the chart is opened on a device/browser that never built up local history.
-if(db) {
-db.collection("meta").doc("nwHistory").set({ history }).catch(e=>console.warn("NW cloud save failed:", e));
-}
-}
-function mergeNwHistory(cloud, local) {
-let map = {};
-cloud.forEach(h=>{ map[h.date] = h.v; });
-local.forEach(h=>{ if(!(h.date in map)) map[h.date] = h.v; });
-return Object.keys(map).sort().map(date=>({ date, v: map[date] }));
-}
-async function loadNwHistoryFromCloud() {
-if(!db) return;
-try {
-let doc = await db.collection("meta").doc("nwHistory").get();
-let cloudHistory = doc.exists ? (doc.data().history || []) : [];
-let localHistory = getNwHistory();
-let merged = mergeNwHistory(cloudHistory, localHistory);
-if(merged.length > 400) merged = merged.slice(-400);
-localStorage.setItem(NW_KEY, JSON.stringify(merged));
-renderNwGraph();
-} catch(e) { console.warn("NW history cloud load failed:", e); }
 }
 
 function computeLiveNetWorthBDT() {
@@ -3368,25 +3307,6 @@ renderNwGraph();
 function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); }
 
 // ====== INVESTMENT ACTIONS ======
-function onTypeChange() {
-let type = document.getElementById('type').value;
-let label = document.getElementById('amountLabel');
-let amountInput = document.getElementById('amount');
-if(!label || !amountInput) return;
-let isCrypto = ['BTC','ETH','BNB','SOL'].includes(type);
-let isStock = STOCK_SYMS.includes(type);
-if(type === 'WAHED') {
-label.textContent = 'Amount (USD)';
-amountInput.placeholder = 'যেমন: 500';
-} else if(isCrypto || isStock) {
-label.textContent = 'Quantity / Shares';
-amountInput.placeholder = '0.00';
-} else {
-label.textContent = 'Quantity / Shares / Amount (BDT)';
-amountInput.placeholder = '0.00';
-}
-}
-window.onTypeChange = onTypeChange;
 async function addInvestment() {
 if(!isAdmin) return showToast("Admin login required", true);
 let platform = document.getElementById('platform').value;
@@ -3396,14 +3316,13 @@ let isStock = STOCK_SYMS.includes(type);
 let isWahed = type === 'WAHED';
 let amount = parseFloat(document.getElementById('amount').value);
 let purchasePrice = (isCrypto||isStock) ? parseFloat(document.getElementById('purchasePrice').value) : null;
-if(!amount || !document.getElementById('startDate').value) return showToast("Fill required fields", true);
+if(!amount || !document.getElementById('startDate').value) return showToast("Amount এবং Start Date দিন", true);
 let amountBDT, amountUSD;
 if(isCrypto||isStock) {
-if(!purchasePrice) return showToast(isStock?"Stock needs purchase price (per share, USD)":"Crypto needs purchase price", true);
+if(!purchasePrice) return showToast(isStock?"Stock এর purchase price দিন (USD per share)":"Crypto এর purchase price দিন", true);
 amountUSD = amount * purchasePrice;
 amountBDT = amountUSD * usdToBdt;
 } else if(isWahed) {
-// Wahed is a USD account — the entered amount IS the USD amount, BDT is derived
 amountUSD = amount;
 amountBDT = amountUSD * usdToBdt;
 } else {
@@ -3414,6 +3333,7 @@ let inv = {
 id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
 isCrypto, isStock, isWahed, purchasePrice,
 currentValueUSD: isWahed ? amountUSD : undefined,
+currentValue: isWahed ? amountBDT : undefined,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
 actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
 status: document.getElementById('status').value,
@@ -3422,14 +3342,26 @@ end: document.getElementById('endDate').value,
 note: document.getElementById('investmentNote').value||"",
 person: document.getElementById('personName').value||""
 };
+try {
 investments.push(inv);
 if(db && isAdmin) await db.collection("investments").doc(inv.id).set(inv);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 renderAll();
-showToast(`✅ ${type === 'WAHED' ? 'Wahed Invest' : type} added!`);
+showToast(`✅ ${isWahed ? 'Wahed Invest' : type} সফলভাবে যোগ হয়েছে!`);
+// reset fields
+document.getElementById('amount').value='';
+document.getElementById('purchasePrice').value='';
+document.getElementById('expectedProfit').value='0';
+document.getElementById('actualProfit').value='0';
 document.getElementById('investmentNote').value='';
 document.getElementById('personName').value='';
+document.getElementById('endDate').value='';
+} catch(err) {
+console.error("Save error:", err);
+showToast("❌ সেভ হয়নি: " + err.message, true);
 }
+}
+window.addInvestment = addInvestment;
 
 async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]"); history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
 async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
@@ -3534,7 +3466,6 @@ form.style.display = 'block';
 btn.innerHTML = '<i class="fas fa-times-circle"></i> Hide Form';
 btn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
 btn.style.borderColor = '#ef4444';
-onTypeChange();
 setTimeout(() => { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
 } else {
 form.style.display = 'none';
@@ -3750,7 +3681,7 @@ function closeTopUpModal() { document.getElementById('topUpModal').style.display
 async function adminLogin(pass, isAuto=false) {
 if(pass!==ADMIN_PASSWORD){ if(!isAuto) showToast("Wrong password!", true); return false; }
 isAdmin=true; localStorage.setItem(STORAGE_KEY,"true"); updateUI();
-try { if(typeof firebase!=='undefined'){ if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); await loadData(); await loadNwHistoryFromCloud(); } } catch(e) { console.warn("Firebase not available, using localStorage"); }
+try { if(typeof firebase!=='undefined'){ if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); await loadData(); } } catch(e) { console.warn("Firebase not available, using localStorage"); }
 if(!isAuto) showToast("✅ Admin logged in!");
 renderAll(); return true;
 }
@@ -3812,7 +3743,7 @@ try {
 if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
-if(navigator.onLine) { loadData(); loadNwHistoryFromCloud(); }
+if(navigator.onLine) loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 }, 500);
@@ -4143,43 +4074,41 @@ if(!isAdmin) return showToast("Admin required", true);
 let inv = investments.find(i=>i.id===id);
 if(!inv) return;
 _wahedEditId = id;
-let curValUSD = getWahedCurrentUSD(inv);
-let pnlUSD = curValUSD - inv.amountUSD;
+let curVal = inv.currentValue || inv.amountBDT;
+let pnl = curVal - inv.amountBDT;
 document.getElementById('wahedInfo').innerHTML = `
 <div><b style="color:#10b981;">Wahed Invest</b> — ${inv.platform}</div>
-<div style="margin-top:4px;">💵 Invested: <b>$${formatNumber(inv.amountUSD)} USD</b></div>
-<div>📊 Last value: <b>$${formatNumber(curValUSD)} USD</b>
-<span style="color:${pnlUSD>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnlUSD>=0?'+':''}$${formatNumber(pnlUSD)}</span>
+<div style="margin-top:4px;">💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b></div>
+<div>📊 Last value: <b>${formatNumber(curVal)} BDT</b>
+<span style="color:${pnl>=0?'#4ade80':'#f87171'};margin-left:6px;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT</span>
 </div>`;
-document.getElementById('wahedCurrentVal').value = curValUSD;
+document.getElementById('wahedCurrentVal').value = curVal;
 document.getElementById('wahedNote').value = '';
 document.getElementById('wahedPLPreview').innerHTML = '';
 document.getElementById('wahedModal').style.display = 'flex';
 document.getElementById('wahedCurrentVal').oninput = function() {
 let v = parseFloat(this.value)||0;
-let p = v - inv.amountUSD;
-let pct = inv.amountUSD > 0 ? (p/inv.amountUSD*100).toFixed(1) : 0;
+let p = v - inv.amountBDT;
+let pct = inv.amountBDT > 0 ? (p/inv.amountBDT*100).toFixed(1) : 0;
 document.getElementById('wahedPLPreview').innerHTML = v > 0
 ? `<div style="background:${p>=0?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${p>=0?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:8px;padding:8px 10px;">
-<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}$${formatNumber(p)} (${p>=0?'+':''}${pct}%)</span>
+<span style="color:${p>=0?'#4ade80':'#f87171'};font-weight:700;font-size:0.88rem;">${p>=0?'+':''}${formatNumber(p)} BDT (${p>=0?'+':''}${pct}%)</span>
 <span style="color:#6b7280;font-size:0.65rem;margin-left:8px;">vs invested</span>
 </div>` : '';
 };
 }
 
 async function saveWahedUpdate() {
-let valUSD = parseFloat(document.getElementById('wahedCurrentVal').value);
+let val = parseFloat(document.getElementById('wahedCurrentVal').value);
 let note = document.getElementById('wahedNote').value;
-if(!valUSD || valUSD <= 0) return showToast("সঠিক মূল্য দিন", true);
+if(!val || val <= 0) return showToast("সঠিক মূল্য দিন", true);
 let inv = investments.find(i=>i.id===_wahedEditId);
 if(!inv) return;
-let valBDT = valUSD * usdToBdt;
-let pnl = valBDT - inv.amountBDT;
-inv.currentValueUSD = valUSD;
-inv.currentValue = valBDT;
+let pnl = val - inv.amountBDT;
+inv.currentValue = val;
 inv.actualProfit = pnl;
 if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValueUSD:valUSD, currentValue:valBDT, actualProfit:pnl, note:inv.note });
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 closeWahedModal();
 renderAll();
@@ -4196,7 +4125,7 @@ if(!isAdmin) return showToast("Admin required", true);
 let list = investments.filter(i=>i.type==='WAHED'&&i.status==='active');
 if(!list.length) return showToast("আগে একটা Wahed Invest entry 'Add Investment' দিয়ে তৈরি করুন", true);
 let sel = document.getElementById('wahedTopupSelect');
-sel.innerHTML = list.map(i=>`<option value="${i.id}">${i.platform} — current value $${formatNumber(getWahedCurrentUSD(i))}</option>`).join('');
+sel.innerHTML = list.map(i=>`<option value="${i.id}">${i.platform} — current value ${formatNumber(i.currentValue||i.amountBDT)} BDT</option>`).join('');
 document.getElementById('wahedTopupAmount').value = '';
 setWahedMode('topup');
 document.getElementById('wahedTopupModal').style.display = 'flex';
@@ -4208,13 +4137,13 @@ let label = document.getElementById('wahedAmountLabel'), confirmBtn = document.g
 if(mode==='topup') {
 addBtn.style.background='rgba(16,185,129,0.18)'; addBtn.style.color='#10b981'; addBtn.style.borderColor='rgba(16,185,129,0.4)';
 wdBtn.style.background='rgba(255,255,255,0.04)'; wdBtn.style.color='#94a3b8'; wdBtn.style.borderColor='rgba(255,255,255,0.1)';
-label.textContent = 'কত ডলার যুক্ত করবেন (USD):';
+label.textContent = 'কত টাকা যুক্ত করবেন (BDT):';
 confirmBtn.innerHTML = '💾 যুক্ত করুন';
 confirmBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
 } else {
 wdBtn.style.background='rgba(248,113,113,0.18)'; wdBtn.style.color='#f87171'; wdBtn.style.borderColor='rgba(248,113,113,0.4)';
 addBtn.style.background='rgba(255,255,255,0.04)'; addBtn.style.color='#94a3b8'; addBtn.style.borderColor='rgba(255,255,255,0.1)';
-label.textContent = 'কত ডলার উইথড্র করবেন (USD):';
+label.textContent = 'কত টাকা উইথড্র করবেন (BDT):';
 confirmBtn.innerHTML = '💸 উইথড্র করুন';
 confirmBtn.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
 }
@@ -4225,55 +4154,50 @@ let id = document.getElementById('wahedTopupSelect').value;
 let inv = investments.find(i=>i.id===id);
 let info = document.getElementById('wahedActionInfo');
 if(!inv || !info) return;
-let curValUSD = getWahedCurrentUSD(inv);
-info.innerHTML = `💵 Invested: <b>$${formatNumber(inv.amountUSD)}</b> &nbsp;|&nbsp; 📊 Current Value: <b>$${formatNumber(curValUSD)}</b>`;
+let curVal = inv.currentValue || inv.amountBDT;
+info.innerHTML = `💵 Invested: <b>${formatNumber(inv.amountBDT)} BDT</b> &nbsp;|&nbsp; 📊 Current Value: <b>${formatNumber(curVal)} BDT</b>`;
 }
 function closeWahedTopupModal() { document.getElementById('wahedTopupModal').style.display='none'; }
 
 async function confirmWahedAction() {
 let id = document.getElementById('wahedTopupSelect').value;
-let amtUSD = parseFloat(document.getElementById('wahedTopupAmount').value);
-if(!amtUSD || amtUSD<=0) return showToast("সঠিক পরিমাণ দিন", true);
+let amt = parseFloat(document.getElementById('wahedTopupAmount').value);
+if(!amt || amt<=0) return showToast("সঠিক পরিমাণ দিন", true);
 let inv = investments.find(i=>i.id===id);
 if(!inv) return;
-let amtBDT = amtUSD * usdToBdt;
 
 if(_wahedMode === 'topup') {
-let oldCurValUSD = getWahedCurrentUSD(inv);
-inv.amountUSD = (inv.amountUSD||0) + amtUSD;
-inv.amountBDT = inv.amountUSD * usdToBdt;
-inv.currentValueUSD = oldCurValUSD + amtUSD; // newly added money hasn't moved yet — stays at cost until next "Update Value"
-inv.currentValue = inv.currentValueUSD * usdToBdt;
+let oldCurVal = inv.currentValue || inv.amountBDT;
+inv.amountBDT = (inv.amountBDT||0) + amt;
+inv.currentValue = oldCurVal + amt; // newly added money hasn't moved yet — stays at cost until next "Update Value"
 inv.actualProfit = inv.currentValue - inv.amountBDT;
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountUSD:inv.amountUSD, amountBDT:inv.amountBDT, currentValueUSD:inv.currentValueUSD, currentValue:inv.currentValue, actualProfit:inv.actualProfit }).catch(console.error);
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit }).catch(console.error);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 closeWahedTopupModal();
 renderAll();
-showToast(`✅ $${formatNumber(amtUSD)} যুক্ত হয়েছে — মোট invested $${formatNumber(inv.amountUSD)}`);
+showToast(`✅ ${formatNumber(amt)} BDT যুক্ত হয়েছে — মোট invested ${formatNumber(inv.amountBDT)} BDT`);
 } else {
-let curValUSD = getWahedCurrentUSD(inv);
-if(amtUSD > curValUSD) return showToast(`সর্বোচ্চ $${formatNumber(curValUSD)} তুলতে পারবেন`, true);
+let curVal = inv.currentValue || inv.amountBDT;
+if(amt > curVal) return showToast(`সর্বোচ্চ ${formatNumber(curVal)} BDT তুলতে পারবেন`, true);
 // proportional withdrawal — keeps the average return rate intact for the remaining balance
-let fraction = amtUSD / curValUSD;
-let costRemovedUSD = inv.amountUSD * fraction;
-let realizedProfitUSD = amtUSD - costRemovedUSD;
-inv.amountUSD = inv.amountUSD - costRemovedUSD;
-inv.amountBDT = inv.amountUSD * usdToBdt;
-inv.currentValueUSD = curValUSD - amtUSD;
-inv.currentValue = inv.currentValueUSD * usdToBdt;
+let fraction = amt / curVal;
+let costRemoved = inv.amountBDT * fraction;
+let realizedProfit = amt - costRemoved;
+inv.amountBDT = inv.amountBDT - costRemoved;
+inv.currentValue = curVal - amt;
 inv.actualProfit = inv.currentValue - inv.amountBDT;
 
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-history.push({ platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amtBDT, profit:realizedProfitUSD*usdToBdt, date:new Date().toISOString().slice(0,10), note:`Withdraw $${formatNumber(amtUSD)} — বাকি: $${formatNumber(inv.currentValueUSD)}` });
+history.push({ platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
 localStorage.setItem("withdraw_history", JSON.stringify(history));
 
-if(inv.currentValueUSD <= 0.01 || inv.amountUSD <= 0.01) { inv.status='completed'; inv.amountUSD=0; inv.amountBDT=0; inv.currentValueUSD=0; inv.currentValue=0; }
+if(inv.currentValue <= 0.01 || inv.amountBDT <= 0.01) { inv.status='completed'; inv.amountBDT=0; inv.currentValue=0; }
 
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountUSD:inv.amountUSD, amountBDT:inv.amountBDT, currentValueUSD:inv.currentValueUSD, currentValue:inv.currentValue, actualProfit:inv.actualProfit, status:inv.status }).catch(console.error);
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit, status:inv.status }).catch(console.error);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 closeWahedTopupModal();
 renderAll();
-showToast(`✅ $${formatNumber(amtUSD)} উইথড্র হয়েছে ${realizedProfitUSD!==0?`(${realizedProfitUSD>=0?'+':''}$${formatNumber(realizedProfitUSD)} realized profit)`:''}`);
+showToast(`✅ ${formatNumber(amt)} BDT উইথড্র হয়েছে ${realizedProfit!==0?`(${realizedProfit>=0?'+':''}${formatNumber(realizedProfit)} BDT realized profit)`:''}`);
 }
 }
 window.openWahedTopupModal=openWahedTopupModal; window.closeWahedTopupModal=closeWahedTopupModal;
@@ -4283,32 +4207,12 @@ window.confirmWahedAction=confirmWahedAction; window.setWahedMode=setWahedMode; 
 // ====== EXPORT PDF ======
 function exportPDF() {
 if(!isAdmin) return showToast("Admin required", true);
-document.getElementById('exportPdfModal').style.display = 'flex';
-}
-function closeExportPdfModal() { document.getElementById('exportPdfModal').style.display='none'; }
-
-function filterInvestmentsByPeriod(period) {
-if(period === 'all') return investments;
-let cutoff = new Date();
-cutoff.setMonth(cutoff.getMonth() - period);
-let cutStr = cutoff.toISOString().slice(0,10);
-return investments.filter(inv => inv.start && inv.start >= cutStr);
-}
-function calcPrincipalFor(list) { let t=0; list.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
-function calcCurrentFor(list) { let t=0; list.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
-
-function generateExportPDF(period) {
-if(!isAdmin) return showToast("Admin required", true);
-closeExportPdfModal();
-let list = filterInvestmentsByPeriod(period);
-if(!list.length) return showToast("এই সময়ের মধ্যে কোনো investment পাওয়া যায়নি", true);
-let periodLabel = period==='all' ? 'All Time' : period===12 ? 'Last 1 Year' : `Last ${period} Month${period>1?'s':''}`;
-let p = calcPrincipalFor(list), c = calcCurrentFor(list), pl = c.bdt - p.bdt;
-let active = list.filter(i=>i.status==='active');
-let totalProfit = list.reduce((s,i)=>s+(i.actualProfit||0),0);
+let p = calcPrincipal(), c = calcCurrent(), pl = c.bdt - p.bdt;
+let active = investments.filter(i=>i.status==='active');
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
 let now = new Date();
 let dateStr = now.toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-let rows = list.map(inv=>`
+let rows = investments.map(inv=>`
 <tr style="border-bottom:1px solid #e2e8f0;">
 <td style="padding:6px 8px;font-size:11px;">${inv.platform}</td>
 <td style="padding:6px 8px;font-size:11px;">${inv.type}</td>
@@ -4324,7 +4228,6 @@ body{font-family:Arial,sans-serif;padding:30px;color:#1e293b;background:#fff;}
 .header{background:linear-gradient(135deg,#0f172a,#1e293b);color:#facc15;padding:24px;border-radius:12px;margin-bottom:20px;}
 .header h1{font-size:22px;margin:0 0 4px 0;} .header p{margin:0;font-size:12px;color:#94a3b8;}
 .bismillah{text-align:center;font-size:14px;color:#6b7280;margin-bottom:16px;}
-.period-badge{display:inline-block;background:rgba(250,204,21,0.15);color:#92702a;border:1px solid rgba(250,204,21,0.4);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;margin-bottom:16px;}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
 .stat-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;}
 .stat-box .label{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;}
@@ -4338,7 +4241,6 @@ tr:nth-child(even){background:#f8fafc;}
 <h1>💰 Wealth Tracker Report</h1>
 <p>TASLIM RONY · Generated: ${dateStr}</p>
 </div>
-<div class="period-badge">📅 Period: ${periodLabel}</div>
 <div class="stats">
 <div class="stat-box"><div class="label">Total Invested</div><div class="value">${formatNumber(p.bdt)} BDT</div></div>
 <div class="stat-box"><div class="label">Current Value</div><div class="value">${formatNumber(c.bdt)} BDT</div></div>
@@ -4356,15 +4258,12 @@ tr:nth-child(even){background:#f8fafc;}
 let blob = new Blob([html], {type:'text/html'});
 let url = URL.createObjectURL(blob);
 let a = document.createElement('a');
-let suffix = period==='all' ? 'All' : `${period}Month`;
-a.href=url; a.download=`WealthReport_${suffix}_${now.toISOString().slice(0,10)}.html`;
+a.href=url; a.download=`WealthReport_${now.toISOString().slice(0,10)}.html`;
 document.body.appendChild(a); a.click(); document.body.removeChild(a);
 URL.revokeObjectURL(url);
 showToast('✅ PDF Report downloaded!');
 }
 window.exportPDF = exportPDF;
-window.closeExportPdfModal = closeExportPdfModal;
-window.generateExportPDF = generateExportPDF;
 </script>
 </body>
 </html>
