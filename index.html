@@ -2432,6 +2432,8 @@ restorePlatformMoreState();
 
 // ====== CRYPTO PRICES ======
 async function updateCryptoPrices() {
+// ---- Immediate local render so quantities show before API responds ----
+renderCryptoCardsLocal();
 try {
 let [priceRes, change24Res] = await Promise.all([
 fetch('https://api.binance.com/api/v3/ticker/price'),
@@ -2478,7 +2480,46 @@ updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 renderPLTicker();
 checkAlerts();
 tickNwGraph();
-} catch(e) { console.error('Crypto price fetch error:', e); }
+} catch(e) {
+console.error('Crypto price fetch error:', e);
+// API failed — still show quantities and last-known prices from investments
+renderCryptoCardsLocal();
+}
+}
+
+function renderCryptoCardsLocal() {
+for(let coin of ['BTC','ETH','BNB','SOL']){
+let holdings = investments.filter(i=>i.type===coin&&i.status==='active');
+let qty = holdings.reduce((s,i)=>s+(i.amount||0),0);
+let livePrice = cryptoPrices[coin]; // may be 0 if API not yet loaded
+// fallback: use weighted avg purchase price as a last resort
+let avgPurchase = 0;
+if(qty > 0) {
+let totalCost = holdings.reduce((s,i)=>s+(i.amount||0)*(i.purchasePrice||0),0);
+avgPurchase = totalCost / qty;
+}
+let effectivePrice = livePrice || avgPurchase || 0;
+let cUSD = qty * effectivePrice;
+let cBDT = cUSD * usdToBdt;
+let qtyEl = document.getElementById(coin.toLowerCase()+'Qty');
+let valUsd = document.getElementById(coin.toLowerCase()+'ValueUsd');
+let valBdt = document.getElementById(coin.toLowerCase()+'ValueBdt');
+if(qtyEl) qtyEl.innerHTML = qty > 0 ? qty.toFixed(6) : '0';
+if(valUsd) valUsd.innerHTML = `$${formatNumber(cUSD)}`;
+if(valBdt) valBdt.innerHTML = `${formatNumber(cBDT)} BDT`;
+// price header — show "Manual" label if no live price
+let usdEl = document.getElementById(coin.toLowerCase()+'Usd');
+let bdtEl = document.getElementById(coin.toLowerCase()+'Bdt');
+if(usdEl && !livePrice && avgPurchase > 0) {
+usdEl.innerHTML = `$${formatNumber(avgPurchase)} <span style="font-size:0.55rem;color:#f59e0b;">avg</span>`;
+} else if(usdEl && livePrice) {
+usdEl.innerHTML = `$${formatNumber(livePrice)}`;
+}
+if(bdtEl && effectivePrice > 0) {
+bdtEl.innerHTML = `${formatNumber(effectivePrice*usdToBdt)} BDT`;
+}
+}
+updateCryptoPurchaseInfo();
 }
 
 // ====== STOCK PRICES (eToro / US Equities + Saudi Aramco) ======
@@ -3332,8 +3373,8 @@ amountUSD = amount / usdToBdt;
 let inv = {
 id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
 isCrypto, isStock, isWahed, purchasePrice,
-currentValueUSD: isWahed ? amountUSD : undefined,
-currentValue: isWahed ? amountBDT : undefined,
+currentValueUSD: isWahed ? amountUSD : null,
+currentValue: isWahed ? amountBDT : null,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
 actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
 status: document.getElementById('status').value,
