@@ -3545,7 +3545,18 @@ window.closeSetCapitalModal = closeSetCapitalModal;
 window.confirmSetCapital = confirmSetCapital;
 
 // ====== RETURN POOL (রিটার্ন পুল) ======
-function getReturnPool() { return Math.max(0, parseFloat(localStorage.getItem("returnPool")||"0")); }
+function getReturnPool() {
+let val = Math.max(0, parseFloat(localStorage.getItem("returnPool")||"0"));
+// If never set, estimate from withdraw_history total amounts received
+if(val === 0 && !localStorage.getItem("returnPoolInitialized")) {
+let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+// Total received from all withdrawals — this money went to bank
+// We can't know what was reinvested, so we don't auto-set a non-zero value
+// to avoid inflating the pool. User will build it naturally from now on.
+localStorage.setItem("returnPoolInitialized", "1");
+}
+return val;
+}
 function setReturnPool(val) { localStorage.setItem("returnPool", Math.max(0,val).toString()); }
 async function addToReturnPool(amount) {
 if(!amount || amount <= 0) return;
@@ -3709,7 +3720,30 @@ return val;
 return parseFloat(localStorage.getItem("ownCapitalTotal")||"0");
 }
 function getOwnCapitalLocal() {
-return parseFloat(localStorage.getItem("ownCapitalTotal")||"0");
+let val = parseFloat(localStorage.getItem("ownCapitalTotal")||"0");
+// If never initialized, auto-calculate from existing investments
+if(val === 0 && !localStorage.getItem("ownCapitalInitialized") && investments.length > 0) {
+val = autoCalculateOwnCapital();
+localStorage.setItem("ownCapitalTotal", val.toString());
+localStorage.setItem("ownCapitalInitialized", "1");
+if(db) db.collection("meta").doc("capitalLedger").set({ total: val, updatedAt: new Date().toISOString(), autoCalculated: true }).catch(()=>{});
+}
+return val;
+}
+function autoCalculateOwnCapital() {
+// Own Money = Total Active Deployed - Total Profit Earned So Far
+// Because: (own money + reinvested profit) = total invested → own = total - profit
+let activeDeployed = investments
+.filter(i => i.status === 'active' && !isWaitMoney(i))
+.reduce((s, i) => s + (i.amountBDT||0), 0);
+let totalProfitEarned = investments
+.filter(i => !isWaitMoney(i))
+.reduce((s, i) => s + Math.max(0, i.actualProfit||0), 0);
+// Also count completed investment profits (already received)
+let withdrawnProfit = JSON.parse(localStorage.getItem("withdraw_history")||"[]")
+.reduce((s, h) => s + Math.max(0, h.profit||0), 0);
+let estimated = Math.max(0, activeDeployed - totalProfitEarned - withdrawnProfit);
+return Math.round(estimated);
 }
 
 async function markComplete(id) {
@@ -4090,15 +4124,16 @@ showToast("✅ পুরনো Islami Bank / MSSA entries → Bank / DPS তে 
 }
 
 localStorage.setItem("investments_backup",JSON.stringify(investments));
+getOwnCapitalLocal(); // auto-initialize own capital from historical data if never set
 renderAll();
 }
 catch(e) {
 investments=JSON.parse(localStorage.getItem("investments_backup")||"[]");
-// also migrate local backup
 investments.forEach(inv => {
 if(inv.platform === 'Islami Bank') inv.platform = 'Bank';
 if(inv.type === 'MSSA') inv.type = 'DPS';
 });
+getOwnCapitalLocal(); // also try on fallback
 renderAll();
 }
 }
