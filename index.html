@@ -1540,6 +1540,7 @@ const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", auth
 
 // ====== GLOBAL STATE ======
 let db = null, isAdmin = false, investments = [], usdToBdt = 122.5;
+let plTickerStartTs = Date.now();
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
@@ -3087,7 +3088,7 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .catch(err => {
 console.error('EmailJS error:', err);
 showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
-setTimeout(exportPDF, 1000);
+setTimeout(exportPDF, 1000); // opens period selector modal
 });
 });
 }
@@ -3265,6 +3266,14 @@ let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1
 
 el.innerHTML = items + items;
 
+// Resume animation from where it currently is — prevents jump on every 5s update
+const TICKER_DURATION = 20;
+let elapsed = ((Date.now() - plTickerStartTs) / 1000) % TICKER_DURATION;
+el.style.animation = 'none';
+void el.offsetWidth;
+el.style.animation = `tickerScroll ${TICKER_DURATION}s linear infinite`;
+el.style.animationDelay = `-${elapsed.toFixed(2)}s`;
+
 let wrap = document.getElementById('plTickerWrap');
 if(wrap) {
 wrap.onmouseenter = ()=>el.style.animationPlayState='paused';
@@ -3370,7 +3379,7 @@ let grad = ctx.createLinearGradient(0,0,0,140);
 grad.addColorStop(0, fillColorTop);
 grad.addColorStop(1, fillColorBot);
 
-if(nwChart) { nwChart.destroy(); nwChart = null; }
+// DO NOT destroy+recreate — causes animation jump. Update in place instead (see below).
 
 nwChart = new Chart(ctx, {
 type:'line',
@@ -4168,7 +4177,7 @@ fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 setInterval(updateCryptoPrices, 5000);
 setInterval(updateStockPrices, 5 * 60 * 1000);
-setInterval(renderPLTicker, 5000);
+// renderPLTicker is called inside updateCryptoPrices — no separate interval needed
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
