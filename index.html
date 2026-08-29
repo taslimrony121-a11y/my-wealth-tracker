@@ -758,25 +758,6 @@ body { padding: 10px; }
 
 <!-- PORTFOLIO P&L TICKER -->
 
-<!-- EMERGENCY FUND CARD -->
-<div id="emergencyFundCard" style="display:none;background:var(--bg-card);border:1px solid rgba(244,63,94,0.3);border-radius:16px;padding:16px;margin-bottom:12px;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-<div style="font-size:0.8rem;font-weight:800;color:#f43f5e;display:flex;align-items:center;gap:6px;"><i class="fas fa-shield-alt"></i> Emergency Fund</div>
-<button onclick="openEmergencyFundModal()" style="background:rgba(244,63,94,0.12);color:#f43f5e;border:1px solid rgba(244,63,94,0.3);border-radius:6px;padding:4px 10px;font-size:0.6rem;font-weight:700;cursor:pointer;">+ Add / Withdraw</button>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;">
-<div>
-<div id="efCurrentDisplay" style="font-size:1.5rem;font-weight:900;color:#fff;">০ BDT</div>
-<div id="efTargetDisplay" style="font-size:0.65rem;color:#94a3b8;margin-top:2px;">Target: ০ BDT</div>
-</div>
-<div id="efPctDisplay" style="font-size:1.8rem;font-weight:900;color:#f43f5e;">০%</div>
-</div>
-<div style="background:rgba(255,255,255,0.06);border-radius:20px;height:8px;overflow:hidden;">
-<div id="efProgressBar" style="height:100%;border-radius:20px;background:linear-gradient(90deg,#f43f5e,#fb7185);width:0%;transition:width 0.5s;"></div>
-</div>
-<div id="efStatusMsg" style="font-size:0.6rem;color:#94a3b8;margin-top:6px;"></div>
-</div>
-
 <div id="plTickerWrap" style="background:var(--bg-card); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; overflow:hidden; position:relative; cursor:default;">
 <div style="display:flex; align-items:stretch; gap:0;">
 <div style="background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(250,204,21,0.08)); padding:0 14px; font-size:0.68rem; font-weight:800; color:var(--accent); white-space:nowrap; border-right:1px solid var(--border); flex-shrink:0; display:flex; align-items:center; gap:6px; letter-spacing:0.5px;">
@@ -817,9 +798,8 @@ body { padding: 10px; }
 <div class="action-buttons">
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
-<button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> FDR Monthly</button>
-<button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-mosque"></i> Wahed Top-up</button>
-<button onclick="openEmergencyFundModal()" class="action-btn" style="border-color:#f43f5e;color:#f43f5e;"><i class="fas fa-shield-alt"></i> Emergency Fund</button>
+<button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
+<button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-piggy-bank"></i> Wahed Top-up</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
@@ -1010,17 +990,6 @@ oninput="updateInvestSimulator()">
 <div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div>
 <div class="stat-sub">📌 What you PAID (incl. loans given - loans taken + wait money)</div>
 <div id="totalProfitSinceInception" style="margin-top:8px;"></div>
-<div style="margin-top:8px;padding:10px 12px;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.2);border-radius:8px;">
-<div style="font-size:0.6rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.4px;">💛 নিজের পকেটের পুঁজি (মূল টাকা)</div>
-<div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-<div id="ownCapitalDisplay" style="font-size:1rem;font-weight:800;color:#facc15;flex:1;">0 BDT</div>
-</div>
-<div style="font-size:0.58rem;color:#6b7280;margin-top:3px;">আজ থেকে auto track হচ্ছে 🤖</div>
-<div style="margin-top:8px;padding:7px 10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);border-radius:6px;">
-<div style="font-size:0.58rem;color:#94a3b8;">🔄 রিটার্ন পুলে আছে (ব্যাংকে জমা আছে এমন returns)</div>
-<div id="returnPoolDisplay" style="font-size:0.9rem;font-weight:800;color:#818cf8;margin-top:2px;">0 BDT</div>
-</div>
-</div>
 </div>
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
@@ -1046,7 +1015,6 @@ oninput="updateInvestSimulator()">
 <div id="nwGraphDate" style="font-size:0.62rem;color:#94a3b8;"></div>
 <div id="nwGraphValue" style="font-size:1.6rem;font-weight:800;color:#f1f5f9;font-family:'Sora',sans-serif;margin-top:2px;">৳0</div>
 <div id="nwGraphChange" style="font-size:0.65rem;font-weight:700;margin-top:1px;"></div>
-<div id="nwPeriodNote" style="display:none;font-size:0.58rem;color:#f59e0b;margin-top:4px;padding:4px 8px;background:rgba(245,158,11,0.08);border-radius:6px;"></div>
 </div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
 <button onclick="setNwPeriod(7)" id="nwBtn7" class="nw-period-btn nw-active">7D</button>
@@ -1070,14 +1038,14 @@ oninput="updateInvestSimulator()">
 <label>Platform</label>
 <select id="platform">
 <option>Binance</option><option>eToro</option><option>Wegro</option><option>Biniyog</option>
-<option>iFarmer</option><option>Bank</option>
+<option>iFarmer</option><option>Islami Bank</option>
 <option>Real Estate</option><option>Mutual Fund</option>
 <option value="WAIT_MONEY">⏳ WAIT MONEY</option><option>Other</option>
 </select>
 </div>
 <div class="input-group">
 <label>Asset Type</label>
-<select id="type">
+<select id="type" onchange="onTypeChange()">
 <option value="BTC">BTC (Crypto)</option>
 <option value="ETH">ETH (Crypto)</option>
 <option value="BNB">BNB (Crypto)</option>
@@ -1085,12 +1053,12 @@ oninput="updateInvestSimulator()">
 <option value="AAPL">Apple - AAPL (Stock)</option>
 <option value="NVDA">NVIDIA - NVDA (Stock)</option>
 <option value="ARAMCO">Saudi Aramco (Stock)</option>
-<option value="FDR">FDR</option>
+<option value="MMPDA">MMPDA</option>
 <option value="Rental">Rental</option>
 <option value="Real Estate">Real Estate</option>
 <option value="Mutual Fund">Mutual Fund</option>
 <option value="Agriculture">Agriculture</option>
-<option value="DPS">DPS</option>
+<option value="MSSA">MSSA Installment</option>
 <option value="Business">Shop/Business</option>
 <option value="Gold">Gold</option>
 <option value="WAHED">Wahed Invest</option>
@@ -1101,7 +1069,7 @@ oninput="updateInvestSimulator()">
 </div>
 <div class="input-group">
 <label id="amountLabel">Quantity / Shares / Amount (BDT)</label>
-<input type="number" id="amount" step="any" placeholder="0.00" oninput="updatePoolFormHint()">
+<input type="number" id="amount" step="any" placeholder="0.00">
 </div>
 <div class="input-group">
 <label>Purchase Price (USD)</label>
@@ -1139,13 +1107,6 @@ oninput="updateInvestSimulator()">
 <div class="input-group">
 <label>👤 Person / Bank Name</label>
 <input type="text" id="personName" placeholder="Example: Rahim, DBBL, etc.">
-
-<div id="poolInfoBox" style="margin-top:10px;padding:10px 12px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:8px;display:none;">
-<div style="font-size:0.6rem;color:#818cf8;font-weight:700;margin-bottom:4px;">🤖 AUTO CALCULATION</div>
-<div id="poolCalcHint" style="font-size:0.72rem;color:#e2e8f0;line-height:1.6;"></div>
-</div>
-<input type="hidden" id="ownPocketMoney" value="0">
-<input type="hidden" id="poolBalanceLabel" value="0">
 </div>
 </div>
 <button class="btn-save" id="saveBtn">Save Investment</button>
@@ -1235,8 +1196,8 @@ oninput="updateInvestSimulator()">
 
 <div id="mmpdaModal" class="modal">
 <div class="modal-content">
-<h3><i class="fas fa-hand-holding-usd"></i> FDR Monthly Withdrawal</h3>
-<label>Select FDR Investment:</label>
+<h3><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly Withdrawal</h3>
+<label>Select MMPDA Investment:</label>
 <select id="mmpdaSelect" style="width:100%;padding:8px;"></select>
 <label>Annual Interest Rate (%):</label>
 <input type="number" id="mmpdaRate" step="0.1" value="8" placeholder="e.g., 8">
@@ -1442,55 +1403,6 @@ oninput="updateInvestSimulator()">
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button id="wahedConfirmBtn" onclick="confirmWahedAction()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);">💾 যুক্ত করুন</button>
 <button onclick="closeWahedTopupModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
-</div>
-</div>
-</div>
-
-<!-- EMERGENCY FUND MODAL -->
-<div id="emergencyFundModal" class="modal">
-<div class="modal-content">
-<h3><i class="fas fa-shield-alt" style="color:#f43f5e;"></i> Emergency Fund</h3>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-<div style="background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:8px;padding:10px;text-align:center;">
-<div style="font-size:0.58rem;color:#94a3b8;">বর্তমান</div>
-<div id="efModalCurrent" style="font-size:1rem;font-weight:800;color:#f43f5e;">০ BDT</div>
-</div>
-<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
-<div style="font-size:0.58rem;color:#94a3b8;">Target</div>
-<div id="efModalTarget" style="font-size:1rem;font-weight:800;color:#94a3b8;">০ BDT</div>
-</div>
-</div>
-<label style="font-size:0.72rem;color:#94a3b8;">🎯 Target Amount (BDT)</label>
-<input type="number" id="efTargetInput" placeholder="যেমন: 50000" style="margin-bottom:10px;">
-<div style="display:flex;gap:8px;margin-bottom:8px;">
-<button onclick="setEfMode('add')" id="efAddBtn" style="flex:1;background:rgba(244,63,94,0.15);color:#f43f5e;border:1px solid rgba(244,63,94,0.35);border-radius:8px;padding:8px;font-size:0.72rem;font-weight:700;cursor:pointer;">➕ যোগ করুন</button>
-<button onclick="setEfMode('withdraw')" id="efWithdrawBtn" style="flex:1;background:rgba(255,255,255,0.04);color:#94a3b8;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:0.72rem;font-weight:700;cursor:pointer;">➖ তুলুন</button>
-</div>
-<label id="efAmountLabel" style="font-size:0.72rem;color:#94a3b8;">কত টাকা যোগ করবেন (BDT)</label>
-<input type="number" id="efAmountInput" placeholder="যেমন: 5000" style="margin-bottom:6px;">
-<input type="text" id="efNoteInput" placeholder="Note (ঐচ্ছিক)" style="margin-bottom:14px;">
-<div style="display:flex;gap:8px;">
-<button onclick="confirmEfAction()" id="efConfirmBtn" style="flex:2;background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;">💾 সেভ করুন</button>
-<button onclick="closeEmergencyFundModal()" style="flex:1;background:var(--border);color:var(--text-main);border:none;padding:12px;border-radius:10px;cursor:pointer;">বাতিল</button>
-</div>
-</div>
-</div>
-
-<!-- SET OWN CAPITAL MODAL -->
-<div id="setCapitalModal" class="modal">
-<div class="modal-content">
-<h3>💛 নিজের পকেটের মূল টাকা সেট করুন</h3>
-<div style="font-size:0.68rem;color:#94a3b8;margin-bottom:14px;line-height:1.6;">
-এখন পর্যন্ত তুমি নিজের পকেট থেকে মোট কত টাকা invest করেছ?<br>
-<span style="color:#facc15;">লাভ বাদ দিয়ে</span> — শুধু আসল যা দিয়েছ তা লেখো।<br>
-<span style="color:#6b7280;font-size:0.6rem;">উদাহরণ: ১ লাখ invest করে ৫ হাজার লাভ হলে, শুধু ১,০০,০০০ লিখবে</span>
-</div>
-<label style="font-size:0.72rem;color:#94a3b8;">মোট নিজের টাকা (BDT)</label>
-<input type="number" id="setCapitalInput" step="any" placeholder="যেমন: 150000" style="margin-top:6px;margin-bottom:4px;">
-<div style="font-size:0.62rem;color:#6b7280;margin-bottom:14px;">বর্তমান: <span id="setCapitalCurrentVal">0</span> BDT</div>
-<div style="display:flex;gap:8px;">
-<button onclick="confirmSetCapital()" style="flex:2;background:linear-gradient(135deg,#facc15,#d97706);color:#000;border:none;padding:12px;border-radius:10px;font-weight:800;font-size:0.85rem;cursor:pointer;">✅ সেভ করুন</button>
-<button onclick="closeSetCapitalModal()" style="flex:1;background:var(--border);color:var(--text-main);border:none;padding:12px;border-radius:10px;cursor:pointer;">বাতিল</button>
 </div>
 </div>
 </div>
@@ -1711,12 +1623,12 @@ let grid = document.getElementById('aiGrid');
 let insightEl = document.getElementById('aiInsight');
 let suggestionBox = document.getElementById('aiSuggestionBox');
 let scoreBar = document.getElementById('aiScoreBar');
-let active = investments.filter(i => i.status === 'active' && !isWaitMoney(i));
+let active = investments.filter(i => i.status === 'active');
 if(active.length === 0) { showToast("কোনো active investment নেই।", true); return; }
 
 // ── Data Collect ──
 const totalInvested = active.reduce((s,i) => s+(i.amountBDT||0), 0);
-const totalActualProfit = investments.filter(i=>!isWaitMoney(i)).reduce((s,i) => s+(i.actualProfit||0), 0);
+const totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0);
 const currentValue = totalInvested + totalActualProfit;
 const cryptoValue = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
 const stockValue = active.filter(i=>i.isStock&&stockPrices[i.type]).reduce((s,i)=>s+i.amount*stockPrices[i.type]*usdToBdt,0);
@@ -1788,7 +1700,7 @@ let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit
 // ── Category values ──
 const farmValue = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 const businessValue= active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
-const safeValue = active.filter(i=>(i.type==='FDR'||i.type==='DPS'||i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+const safeValue = active.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
 const platProfits = Object.keys(platMap).map(n=>({name:n,profit:platMap[n]})).sort((a,b)=>b.profit-a.profit);
 
 // ══════════════════════════════════════════════════════════════
@@ -1822,7 +1734,7 @@ crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRa
 stocks: { names:['AAPL','NVDA','ARAMCO'], color:'#3b82f6', icon:'📈', returnRate:0.10 },
 farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
 business: { names:['Biniyog'], color:'#a855f7', icon:'💼', returnRate:0.15 },
-safe: { names:['FDR','DPS','MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
+safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
 };
 
 const TARGET = { crypto:15, stocks:15, farming:25, business:20, safe:25 };
@@ -2283,16 +2195,6 @@ let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).redu
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
 document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
 
-// Own pocket capital
-let ownCap = getOwnCapitalLocal();
-let ownCapEl = document.getElementById('ownCapitalDisplay');
-if(ownCapEl) ownCapEl.innerHTML = `${formatNumber(ownCap)} BDT <span style="font-size:0.6rem;color:#94a3b8;">($${formatNumber(ownCap/usdToBdt)})</span>`;
-let poolEl = document.getElementById('returnPoolDisplay');
-if(poolEl) { let pool = getReturnPool(); poolEl.innerHTML = `${formatNumber(pool)} BDT`; }
-// also refresh pool balance in form if open
-let poolLabel = document.getElementById('poolBalanceLabel');
-if(poolLabel) { poolLabel.textContent = formatNumber(getReturnPool()) + ' BDT'; }
-
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
 let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
@@ -2531,8 +2433,6 @@ restorePlatformMoreState();
 
 // ====== CRYPTO PRICES ======
 async function updateCryptoPrices() {
-// ---- Immediate local render so quantities show before API responds ----
-renderCryptoCardsLocal();
 try {
 let [priceRes, change24Res] = await Promise.all([
 fetch('https://api.binance.com/api/v3/ticker/price'),
@@ -2579,46 +2479,7 @@ updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
 renderPLTicker();
 checkAlerts();
 tickNwGraph();
-} catch(e) {
-console.error('Crypto price fetch error:', e);
-// API failed — still show quantities and last-known prices from investments
-renderCryptoCardsLocal();
-}
-}
-
-function renderCryptoCardsLocal() {
-for(let coin of ['BTC','ETH','BNB','SOL']){
-let holdings = investments.filter(i=>i.type===coin&&i.status==='active');
-let qty = holdings.reduce((s,i)=>s+(i.amount||0),0);
-let livePrice = cryptoPrices[coin]; // may be 0 if API not yet loaded
-// fallback: use weighted avg purchase price as a last resort
-let avgPurchase = 0;
-if(qty > 0) {
-let totalCost = holdings.reduce((s,i)=>s+(i.amount||0)*(i.purchasePrice||0),0);
-avgPurchase = totalCost / qty;
-}
-let effectivePrice = livePrice || avgPurchase || 0;
-let cUSD = qty * effectivePrice;
-let cBDT = cUSD * usdToBdt;
-let qtyEl = document.getElementById(coin.toLowerCase()+'Qty');
-let valUsd = document.getElementById(coin.toLowerCase()+'ValueUsd');
-let valBdt = document.getElementById(coin.toLowerCase()+'ValueBdt');
-if(qtyEl) qtyEl.innerHTML = qty > 0 ? qty.toFixed(6) : '0';
-if(valUsd) valUsd.innerHTML = `$${formatNumber(cUSD)}`;
-if(valBdt) valBdt.innerHTML = `${formatNumber(cBDT)} BDT`;
-// price header — show "Manual" label if no live price
-let usdEl = document.getElementById(coin.toLowerCase()+'Usd');
-let bdtEl = document.getElementById(coin.toLowerCase()+'Bdt');
-if(usdEl && !livePrice && avgPurchase > 0) {
-usdEl.innerHTML = `$${formatNumber(avgPurchase)} <span style="font-size:0.55rem;color:#f59e0b;">avg</span>`;
-} else if(usdEl && livePrice) {
-usdEl.innerHTML = `$${formatNumber(livePrice)}`;
-}
-if(bdtEl && effectivePrice > 0) {
-bdtEl.innerHTML = `${formatNumber(effectivePrice*usdToBdt)} BDT`;
-}
-}
-updateCryptoPurchaseInfo();
+} catch(e) { console.error('Crypto price fetch error:', e); }
 }
 
 // ====== STOCK PRICES (eToro / US Equities + Saudi Aramco) ======
@@ -2729,21 +2590,28 @@ NVDA:{name:'NVIDIA', icon:'fas fa-microchip', color:'#76b900'},
 ARAMCO:{name:'Saudi Aramco', icon:'fas fa-oil-can', color:'#00a651'}
 };
 
+function getWahedCurrentUSD(inv) {
+if(inv.currentValueUSD) return inv.currentValueUSD;
+if(inv.currentValue) return inv.currentValue / usdToBdt;
+return inv.amountUSD || (inv.amountBDT / usdToBdt) || 0;
+}
 function renderWahedCard() {
 let list = investments.filter(i=>i.type==='WAHED'&&i.status==='active');
-let totalInvested = list.reduce((s,i)=>s+(i.amountBDT||0),0);
-let totalCurrent = list.reduce((s,i)=>s+(i.currentValue||i.amountBDT||0),0);
-let pnl = totalCurrent - totalInvested;
-let pct = totalInvested>0 ? (pnl/totalInvested*100) : 0;
+let totalInvestedUSD = list.reduce((s,i)=>s+(i.amountUSD||(i.amountBDT/usdToBdt)||0),0);
+let totalCurrentUSD = list.reduce((s,i)=>s+getWahedCurrentUSD(i),0);
+let totalInvested = totalInvestedUSD * usdToBdt;
+let totalCurrent = totalCurrentUSD * usdToBdt;
+let pnlUSD = totalCurrentUSD - totalInvestedUSD;
+let pct = totalInvestedUSD>0 ? (pnlUSD/totalInvestedUSD*100) : 0;
 let hasAny = list.length>0;
 return `
 <div class="crypto-card" style="border-top-color:#10b981;">
 <div style="color:#10b981; font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fas fa-mosque"></i> Wahed Invest</div>
-<div class="crypto-price-usd"><span>${formatNumber(totalCurrent)} BDT</span></div>
-<div class="crypto-price-bdt">$${formatNumber(totalCurrent/usdToBdt)} USD</div>
+<div class="crypto-price-usd"><span>$${formatNumber(totalCurrentUSD)} USD</span></div>
+<div class="crypto-price-bdt">${formatNumber(totalCurrent)} BDT</div>
 <div class="crypto-details">
-<div class="row"><span>💵 Invested:</span><span class="value-bdt">${formatNumber(totalInvested)} BDT</span></div>
-<div class="row"><span>📈 Return:</span><span style="color:${pnl>=0?'#4ade80':'#f87171'};font-weight:700;">${pnl>=0?'+':''}${formatNumber(pnl)} BDT (${pnl>=0?'+':''}${pct.toFixed(1)}%)</span></div>
+<div class="row"><span>💵 Invested:</span><span class="value-usd">$${formatNumber(totalInvestedUSD)}</span></div>
+<div class="row"><span>📈 Return:</span><span style="color:${pnlUSD>=0?'#4ade80':'#f87171'};font-weight:700;">${pnlUSD>=0?'+':''}$${formatNumber(pnlUSD)} (${pnlUSD>=0?'+':''}${pct.toFixed(1)}%)</span></div>
 <div style="margin-top:8px;display:flex;gap:4px;">
 <button onclick="${hasAny?`openWahedUpdate('${list[0].id}')`:`showToast('আগে Wahed entry তৈরি করুন', true)`}" style="flex:1;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-edit"></i> Update Value</button>
 <button onclick="openWahedTopupModal()" style="flex:1;background:rgba(250,204,21,0.12);color:#facc15;border:1px solid rgba(250,204,21,0.3);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-exchange-alt"></i> Add/Withdraw</button>
@@ -2866,7 +2734,7 @@ let cryptoNow = activeNow.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,
 let stocksNow = activeNow.filter(i=>i.isStock&&stockPrices[i.type]).reduce((s,i)=>s+i.amount*stockPrices[i.type]*usdToBdt,0);
 let farmNow = activeNow.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 let bizNow = activeNow.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
-let safeNow = activeNow.filter(i=>(i.type==='FDR'||i.type==='DPS'||i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let safeNow = activeNow.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
 let idleNow = activeNow.filter(i=>isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
 let total = Math.max(totalNow, 1);
 
@@ -3089,7 +2957,7 @@ emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
 .catch(err => {
 console.error('EmailJS error:', err);
 showToast('⚠️ Email failed — HTML report download হচ্ছে', true);
-setTimeout(exportPDF, 1000); // opens period selector modal
+setTimeout(exportPDF, 1000);
 });
 });
 }
@@ -3186,7 +3054,7 @@ if(crypto24hPrices[inv.type]) crypto24hBDT += cur - inv.amount * crypto24hPrices
 if(crypto7dPrices[inv.type]) crypto7dBDT += cur - inv.amount * crypto7dPrices[inv.type] * usdToBdt;
 });
 
-const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'FDR':0.09,'DPS':0.08,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
+const ANNUAL_RATES = { 'iFarmer':0.20,'Wegro':0.18,'Biniyog':0.15,'MMPDA':0.08,'BANK_DEPOSIT':0.07,'Agriculture':0.18,'Gold':0.10,'Business':0.12,'WAHED':0.12 };
 let nonCrypto24h=0, nonCrypto7d=0, nonCrypto30d=0;
 active.forEach(inv => {
 if(inv.isCrypto) return;
@@ -3267,12 +3135,12 @@ let items = chip('24H', pl24h) + chip('7D', pl7d) + chip('30D', pl30d) + chip('1
 
 el.innerHTML = items + items;
 
-// Resume animation from where it currently is — prevents jump on every 5s update
-const TICKER_DURATION = 20;
-let elapsed = ((Date.now() - plTickerStartTs) / 1000) % TICKER_DURATION;
+// Resume animation from current position — prevents jump every 5s
+const TICKER_DUR = 20;
+let elapsed = ((Date.now() - plTickerStartTs) / 1000) % TICKER_DUR;
 el.style.animation = 'none';
 void el.offsetWidth;
-el.style.animation = `tickerScroll ${TICKER_DURATION}s linear infinite`;
+el.style.animation = `tickerScroll ${TICKER_DUR}s linear infinite`;
 el.style.animationDelay = `-${elapsed.toFixed(2)}s`;
 
 let wrap = document.getElementById('plTickerWrap');
@@ -3344,14 +3212,6 @@ filtered = history.filter(h=>h.date >= cutStr);
 }
 if(!filtered.length) filtered = history.slice(-2);
 
-// Show "insufficient data" note for long periods
-let noteEl = document.getElementById('nwPeriodNote');
-let hasEnoughData = filtered.length >= 2 || nwPeriod === 7 || nwPeriod === 'all';
-if(noteEl) {
-noteEl.style.display = (!hasEnoughData && nwPeriod !== 'all') ? 'block' : 'none';
-noteEl.textContent = `ℹ️ ${nwPeriod}D-এর পুরো data নেই — যা আছে তা দেখাচ্ছে (data দিনে দিনে জমবে)`;
-}
-
 // ensure today's live value is always the last point
 let today = new Date().toISOString().slice(0,10);
 let liveVal = Math.round(computeLiveNetWorthBDT());
@@ -3388,8 +3248,8 @@ let grad = ctx.createLinearGradient(0,0,0,140);
 grad.addColorStop(0, fillColorTop);
 grad.addColorStop(1, fillColorBot);
 
+// Update in place — no destroy/recreate to avoid chart jump on every 5s refresh
 if(nwChart) {
-// Update existing chart in place — no destroy, no jump
 nwChart.data.labels = labels;
 nwChart.data.datasets[0].data = values;
 nwChart.data.datasets[0].borderColor = lineColor;
@@ -3400,7 +3260,6 @@ nwChart.update('none');
 return;
 }
 
-// First time — create chart
 nwChart = new Chart(ctx, {
 type:'line',
 data:{
@@ -3471,9 +3330,27 @@ saveNwSnapshot(live);
 renderNwGraph();
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderEmergencyFund(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); }
 
 // ====== INVESTMENT ACTIONS ======
+function onTypeChange() {
+let type = document.getElementById('type').value;
+let label = document.getElementById('amountLabel');
+let amountInput = document.getElementById('amount');
+if(!label||!amountInput) return;
+if(type==='WAHED') {
+label.textContent='Amount (USD) — Wahed-এ যত ডলার invest করবে';
+amountInput.placeholder='যেমন: 100';
+} else if(['BTC','ETH','BNB','SOL'].includes(type)||STOCK_SYMS.includes(type)) {
+label.textContent='Quantity / Shares';
+amountInput.placeholder='0.00';
+} else {
+label.textContent='Amount (BDT)';
+amountInput.placeholder='0.00';
+}
+}
+window.onTypeChange = onTypeChange;
+
 async function addInvestment() {
 if(!isAdmin) return showToast("Admin login required", true);
 let platform = document.getElementById('platform').value;
@@ -3486,22 +3363,19 @@ let purchasePrice = (isCrypto||isStock) ? parseFloat(document.getElementById('pu
 if(!amount || !document.getElementById('startDate').value) return showToast("Amount এবং Start Date দিন", true);
 let amountBDT, amountUSD;
 if(isCrypto||isStock) {
-if(!purchasePrice) return showToast(isStock?"Stock এর purchase price দিন (USD per share)":"Crypto এর purchase price দিন", true);
+if(!purchasePrice) return showToast(isStock?"Stock-এর purchase price দিন (USD per share)":"Crypto-র purchase price দিন", true);
 amountUSD = amount * purchasePrice;
 amountBDT = amountUSD * usdToBdt;
 } else if(isWahed) {
-amountUSD = amount;
+amountUSD = amount; // amount field = USD for Wahed
 amountBDT = amountUSD * usdToBdt;
 } else {
 amountBDT = amount;
 amountUSD = amount / usdToBdt;
 }
-let ownPocketRaw = parseFloat(document.getElementById('ownPocketMoney').value);
-let ownPocketMoney = (!isNaN(ownPocketRaw) && ownPocketRaw > 0) ? ownPocketRaw : amountBDT;
 let inv = {
 id: Date.now().toString(), platform, type, amount, amountBDT, amountUSD,
 isCrypto, isStock, isWahed, purchasePrice,
-ownPocketMoney: isWaitMoney({platform}) ? 0 : ownPocketMoney,
 currentValueUSD: isWahed ? amountUSD : null,
 currentValue: isWahed ? amountBDT : null,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
@@ -3514,287 +3388,26 @@ person: document.getElementById('personName').value||""
 };
 try {
 investments.push(inv);
-if(db && isAdmin) {
-await db.collection("investments").doc(inv.id).set(inv);
-if(!isWaitMoney(inv)) {
-// Deduct from return pool first, rest is own pocket money
-let { fromPool, fromPocket } = await deductFromReturnPool(amountBDT);
-if(fromPocket > 0) await updateOwnCapitalLedger(fromPocket, 'in');
-inv.ownPocketMoney = fromPocket;
-await db.collection("investments").doc(inv.id).update({ ownPocketMoney: fromPocket });
-let poolPart = fromPool>0 ? ' 🔄 পুল: '+formatNumber(fromPool)+' BDT' : '';
-let pocketPart = fromPocket>0 ? ' 💛 নিজের: '+formatNumber(fromPocket)+' BDT' : '';
-showToast('✅ '+(isWahed?'Wahed Invest':type)+' যোগ হয়েছে!'+poolPart+pocketPart);
-} else {
-showToast(`✅ ${isWahed?'Wahed Invest':type} যোগ হয়েছে!`);
-}
-} else {
-showToast(`✅ ${isWahed?'Wahed Invest':type} যোগ হয়েছে!`);
-}
+if(db && isAdmin) await db.collection("investments").doc(inv.id).set(inv);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 renderAll();
-// reset fields
+showToast(`✅ ${isWahed?'Wahed Invest':type} সফলভাবে যোগ হয়েছে!`);
 document.getElementById('amount').value='';
 document.getElementById('purchasePrice').value='';
 document.getElementById('expectedProfit').value='0';
 document.getElementById('actualProfit').value='0';
 document.getElementById('investmentNote').value='';
 document.getElementById('personName').value='';
-document.getElementById('ownPocketMoney').value='';
 document.getElementById('endDate').value='';
 } catch(err) {
 console.error("Save error:", err);
 showToast("❌ সেভ হয়নি: " + err.message, true);
 }
-}
-window.addInvestment = addInvestment;
-
-function openSetCapitalModal() {
-if(!isAdmin) return showToast("Admin required", true);
-let cur = getOwnCapitalLocal();
-document.getElementById('setCapitalCurrentVal').textContent = formatNumber(cur);
-document.getElementById('setCapitalInput').value = cur > 0 ? cur : '';
-document.getElementById('setCapitalModal').style.display = 'flex';
-}
-function closeSetCapitalModal() { document.getElementById('setCapitalModal').style.display = 'none'; }
-async function confirmSetCapital() {
-let val = parseFloat(document.getElementById('setCapitalInput').value);
-if(isNaN(val) || val < 0) return showToast("সঠিক পরিমাণ দিন", true);
-localStorage.setItem("ownCapitalTotal", val.toString());
-if(db) {
-try { await db.collection("meta").doc("capitalLedger").set({ total: val, updatedAt: new Date().toISOString() }); }
-catch(e) { console.warn("Capital save failed:", e); }
-}
-closeSetCapitalModal();
-renderStats();
-showToast(`✅ নিজের পুঁজি সেট হয়েছে: ${formatNumber(val)} BDT`);
-}
-window.openSetCapitalModal = openSetCapitalModal;
-window.closeSetCapitalModal = closeSetCapitalModal;
-window.confirmSetCapital = confirmSetCapital;
-
-// ====== RETURN POOL (রিটার্ন পুল) ======
-function getReturnPool() {
-let val = Math.max(0, parseFloat(localStorage.getItem("returnPool")||"0"));
-// If never set, estimate from withdraw_history total amounts received
-if(val === 0 && !localStorage.getItem("returnPoolInitialized")) {
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-// Total received from all withdrawals — this money went to bank
-// We can't know what was reinvested, so we don't auto-set a non-zero value
-// to avoid inflating the pool. User will build it naturally from now on.
-localStorage.setItem("returnPoolInitialized", "1");
-}
-return val;
-}
-function setReturnPool(val) { localStorage.setItem("returnPool", Math.max(0,val).toString()); }
-async function addToReturnPool(amount) {
-if(!amount || amount <= 0) return;
-let pool = getReturnPool() + amount;
-setReturnPool(pool);
-if(db) { try { await db.collection("meta").doc("returnPool").set({ total: pool, updatedAt: new Date().toISOString() }); } catch(e){} }
-renderStats();
-}
-async function deductFromReturnPool(amount) {
-let pool = getReturnPool();
-let fromPool = Math.min(pool, amount);
-let fromPocket = amount - fromPool;
-setReturnPool(pool - fromPool);
-if(db) { try { await db.collection("meta").doc("returnPool").set({ total: getReturnPool(), updatedAt: new Date().toISOString() }); } catch(e){} }
-return { fromPool, fromPocket };
-}
-async function loadReturnPool() {
-try {
-if(db) {
-let doc = await db.collection("meta").doc("returnPool").get();
-if(doc.exists) { setReturnPool(doc.data().total||0); return doc.data().total||0; }
-}
-} catch(e) {}
-return getReturnPool();
-}
-function updatePoolFormHint() {
-let amount = parseFloat(document.getElementById('amount').value)||0;
-let pool = getReturnPool();
-let poolUsed = Math.min(pool, amount);
-let pocket = Math.max(0, amount - pool);
-document.getElementById('ownPocketMoney').value = pocket;
-let box = document.getElementById('poolInfoBox');
-let hint = document.getElementById('poolCalcHint');
-if(!box || !hint) return;
-if(amount <= 0 || pool <= 0) { box.style.display='none'; return; }
-box.style.display = 'block';
-if(poolUsed >= amount) {
-hint.innerHTML = `🔄 পুরো <b>${formatNumber(amount)} BDT</b> আগের returns থেকে — তোমার পকেট থেকে কিছু যাচ্ছে না ✅`;
-} else {
-hint.innerHTML = `🔄 আগের returns: <b style="color:#818cf8;">${formatNumber(poolUsed)} BDT</b> &nbsp;+&nbsp; 💛 নিজের পকেট: <b style="color:#facc15;">${formatNumber(pocket)} BDT</b>`;
-}
+document.getElementById('investmentNote').value='';
+document.getElementById('personName').value='';
 }
 
-// ====== EMERGENCY FUND ======
-let efMode = 'add';
-function getEfData() {
-try { return JSON.parse(localStorage.getItem("emergencyFund")||'{"current":0,"target":0,"history":[]}'); }
-catch(e) { return {current:0,target:0,history:[]}; }
-}
-async function saveEfData(data) {
-localStorage.setItem("emergencyFund", JSON.stringify(data));
-if(db) { try { await db.collection("meta").doc("emergencyFund").set(data); } catch(e){} }
-renderEmergencyFund();
-}
-async function loadEfFromCloud() {
-if(!db) return;
-try {
-let doc = await db.collection("meta").doc("emergencyFund").get();
-if(doc.exists) { localStorage.setItem("emergencyFund", JSON.stringify(doc.data())); renderEmergencyFund(); }
-} catch(e) {}
-}
-function renderEmergencyFund() {
-let d = getEfData();
-let card = document.getElementById('emergencyFundCard');
-if(!card) return;
-card.style.display = (d.current > 0 || d.target > 0) ? 'block' : 'none';
-let pct = d.target > 0 ? Math.min(100, (d.current/d.target)*100) : 0;
-document.getElementById('efCurrentDisplay').innerHTML = formatNumber(d.current) + ' BDT';
-document.getElementById('efTargetDisplay').innerHTML = 'Target: ' + formatNumber(d.target) + ' BDT';
-document.getElementById('efPctDisplay').innerHTML = pct.toFixed(0) + '%';
-document.getElementById('efProgressBar').style.width = pct + '%';
-let remaining = d.target - d.current;
-let months = d.target > 0 && d.current < d.target ? Math.ceil(remaining/5000) : 0;
-document.getElementById('efStatusMsg').innerHTML = d.current >= d.target
-? '<span style="color:#4ade80;">✅ লক্ষ্য পূরণ হয়েছে! Emergency Fund সম্পূর্ণ।</span>'
-: remaining > 0 ? `আরো ${formatNumber(remaining)} BDT দরকার` : '';
-}
-function openEmergencyFundModal() {
-if(!isAdmin) return showToast("Admin required", true);
-let d = getEfData();
-document.getElementById('efModalCurrent').textContent = formatNumber(d.current) + ' BDT';
-document.getElementById('efModalTarget').textContent = formatNumber(d.target) + ' BDT';
-document.getElementById('efTargetInput').value = d.target || '';
-document.getElementById('efAmountInput').value = '';
-document.getElementById('efNoteInput').value = '';
-setEfMode('add');
-document.getElementById('emergencyFundModal').style.display = 'flex';
-}
-function closeEmergencyFundModal() { document.getElementById('emergencyFundModal').style.display='none'; }
-function setEfMode(mode) {
-efMode = mode;
-let addBtn = document.getElementById('efAddBtn'), wdBtn = document.getElementById('efWithdrawBtn');
-let label = document.getElementById('efAmountLabel'), confirmBtn = document.getElementById('efConfirmBtn');
-if(mode==='add') {
-addBtn.style.background='rgba(244,63,94,0.2)'; addBtn.style.color='#f43f5e'; addBtn.style.borderColor='rgba(244,63,94,0.4)';
-wdBtn.style.background='rgba(255,255,255,0.04)'; wdBtn.style.color='#94a3b8'; wdBtn.style.borderColor='var(--border)';
-label.textContent='কত টাকা যোগ করবেন (BDT)';
-confirmBtn.style.background='linear-gradient(135deg,#f43f5e,#be123c)';
-} else {
-wdBtn.style.background='rgba(244,63,94,0.2)'; wdBtn.style.color='#f43f5e'; wdBtn.style.borderColor='rgba(244,63,94,0.4)';
-addBtn.style.background='rgba(255,255,255,0.04)'; addBtn.style.color='#94a3b8'; addBtn.style.borderColor='var(--border)';
-label.textContent='কত টাকা তুলবেন (BDT)';
-confirmBtn.style.background='linear-gradient(135deg,#6b7280,#374151)';
-}
-}
-async function confirmEfAction() {
-let d = getEfData();
-let newTarget = parseFloat(document.getElementById('efTargetInput').value);
-if(newTarget > 0) d.target = newTarget;
-let amt = parseFloat(document.getElementById('efAmountInput').value)||0;
-let note = document.getElementById('efNoteInput').value;
-if(amt > 0) {
-if(efMode==='add') {
-d.current += amt;
-d.history = d.history||[];
-d.history.push({type:'add', amount:amt, date:new Date().toISOString().slice(0,10), note});
-showToast(`✅ Emergency Fund-এ ${formatNumber(amt)} BDT যোগ হয়েছে`);
-} else {
-if(amt > d.current) return showToast(`সর্বোচ্চ ${formatNumber(d.current)} BDT তুলতে পারবেন`, true);
-d.current -= amt;
-d.history = d.history||[];
-d.history.push({type:'withdraw', amount:amt, date:new Date().toISOString().slice(0,10), note});
-showToast(`✅ Emergency Fund থেকে ${formatNumber(amt)} BDT তোলা হয়েছে`);
-}
-} else if(newTarget > 0) {
-showToast(`✅ Target ${formatNumber(newTarget)} BDT সেট হয়েছে`);
-}
-await saveEfData(d);
-closeEmergencyFundModal();
-}
-window.openEmergencyFundModal = openEmergencyFundModal;
-window.closeEmergencyFundModal = closeEmergencyFundModal;
-window.setEfMode = setEfMode;
-window.confirmEfAction = confirmEfAction;
-
-// ====== OWN CAPITAL LEDGER ======
-async function updateOwnCapitalLedger(amount, direction) {
-// direction: 'in' (invest) or 'out' (withdraw principal)
-try {
-let ref = db ? db.collection("meta").doc("capitalLedger") : null;
-let current = 0;
-if(ref) {
-let doc = await ref.get();
-current = doc.exists ? (doc.data().total||0) : 0;
-}
-let newTotal = direction==='in' ? current+amount : Math.max(0, current-amount);
-if(ref) await ref.set({ total: newTotal, updatedAt: new Date().toISOString() });
-localStorage.setItem("ownCapitalTotal", newTotal.toString());
-return newTotal;
-} catch(e) { console.warn("Capital ledger update failed:", e); return 0; }
-}
-async function loadOwnCapital() {
-try {
-if(db) {
-let doc = await db.collection("meta").doc("capitalLedger").get();
-let val = doc.exists ? (doc.data().total||0) : 0;
-localStorage.setItem("ownCapitalTotal", val.toString());
-return val;
-}
-} catch(e) {}
-return parseFloat(localStorage.getItem("ownCapitalTotal")||"0");
-}
-function getOwnCapitalLocal() {
-let val = parseFloat(localStorage.getItem("ownCapitalTotal")||"0");
-// If never initialized, auto-calculate from existing investments
-if(val === 0 && !localStorage.getItem("ownCapitalInitialized") && investments.length > 0) {
-val = autoCalculateOwnCapital();
-localStorage.setItem("ownCapitalTotal", val.toString());
-localStorage.setItem("ownCapitalInitialized", "1");
-if(db) db.collection("meta").doc("capitalLedger").set({ total: val, updatedAt: new Date().toISOString(), autoCalculated: true }).catch(()=>{});
-}
-return val;
-}
-function autoCalculateOwnCapital() {
-// Own Money = Total Active Deployed - Total Profit Earned So Far
-// Because: (own money + reinvested profit) = total invested → own = total - profit
-let activeDeployed = investments
-.filter(i => i.status === 'active' && !isWaitMoney(i))
-.reduce((s, i) => s + (i.amountBDT||0), 0);
-let totalProfitEarned = investments
-.filter(i => !isWaitMoney(i))
-.reduce((s, i) => s + Math.max(0, i.actualProfit||0), 0);
-// Also count completed investment profits (already received)
-let withdrawnProfit = JSON.parse(localStorage.getItem("withdraw_history")||"[]")
-.reduce((s, h) => s + Math.max(0, h.profit||0), 0);
-let estimated = Math.max(0, activeDeployed - totalProfitEarned - withdrawnProfit);
-return Math.round(estimated);
-}
-
-async function markComplete(id) {
-if(!isAdmin) return showToast("Admin required", true);
-let inv = investments.find(i=>i.id===id);
-if(!inv || inv.status!=='active') return;
-inv.status = 'completed';
-let totalReceived = (inv.amountBDT||0) + (inv.actualProfit||0);
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
-if(db && isAdmin) {
-await db.collection("investments").doc(inv.id).update({status:'completed'});
-if(!isWaitMoney(inv)) {
-await updateOwnCapitalLedger(inv.ownPocketMoney||inv.amountBDT, 'out');
-await addToReturnPool(totalReceived);
-}
-}
-localStorage.setItem("investments_backup", JSON.stringify(investments));
-renderAll();
-showToast(`✅ ${inv.type} completed! 🔄 ${formatNumber(totalReceived)} BDT পুলে যোগ হয়েছে`);
-}
+async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]"); history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
 async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
 function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv){ editId=id; document.getElementById('editInfo').innerHTML=`<strong>${inv.type}</strong> (${inv.platform})<br><span style="color:var(--text-sub);">Amount: ${formatNumber(inv.amountBDT)} BDT</span>`; document.getElementById('editProfit').value=inv.actualProfit||0; document.getElementById('editNote').value=inv.note||''; document.getElementById('editModal').style.display='flex'; } }
 async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
@@ -3803,10 +3416,10 @@ function closeEditModal() { document.getElementById('editModal').style.display='
 // ====== MMPDA ======
 function openMmpdaModal() {
 if(!isAdmin) return showToast("Admin required", true);
-let list=investments.filter(i=>i.type&&(i.type.toUpperCase()==='FDR'||i.type.toUpperCase()==='MMPDA')&&i.status==='active');
-if(!list.length) return showToast("No active FDR investment found!", true);
+let list=investments.filter(i=>i.type&&i.type.toUpperCase()==='MMPDA'&&i.status==='active');
+if(!list.length) return showToast("No active MMPDA investment found!", true);
 let sel=document.getElementById('mmpdaSelect');
-sel.innerHTML='<option value="">-- Select FDR --</option>';
+sel.innerHTML='<option value="">-- Select MMPDA --</option>';
 list.forEach(inv=>{ let o=document.createElement('option'); o.value=inv.id; o.textContent=`${inv.platform} - ${formatNumber(inv.amountBDT)} BDT`; sel.appendChild(o); });
 document.getElementById('mmpdaRate').value='8';
 document.getElementById('mmpdaProfit').value='';
@@ -3828,7 +3441,7 @@ let profit=parseFloat(document.getElementById('mmpdaProfit').value); let rate=pa
 if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
 if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
 let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
-history.push({ platform:inv.platform, type:"FDR Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
+history.push({ platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
 localStorage.setItem("withdraw_history",JSON.stringify(history));
 inv.actualProfit=(inv.actualProfit||0)+profit;
 if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
@@ -3972,14 +3585,11 @@ inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
 
 if(db && isAdmin) {
 await db.collection("investments").doc(inv.id).update({
-amountBDT: inv.amountBDT, amountUSD: inv.amountUSD,
-actualProfit: inv.actualProfit, status: inv.status
+amountBDT: inv.amountBDT,
+amountUSD: inv.amountUSD,
+actualProfit: inv.actualProfit,
+status: inv.status
 }).catch(console.error);
-let principalWithdrawn = withdrawAmt - withdrawProfit;
-if(!isWaitMoney(inv)) {
-if(principalWithdrawn > 0) await updateOwnCapitalLedger(principalWithdrawn, 'out');
-await addToReturnPool(withdrawAmt); // full amount (principal + profit) goes to pool/bank
-}
 }
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 closePartialModal();
@@ -4130,41 +3740,8 @@ if(btn){ btn.innerHTML='<i class="fas fa-plus-circle"></i> Add Investment'; btn.
 }
 async function loadData() {
 if(!db) return;
-try {
-let snap=await db.collection("investments").get();
-investments=[];
-snap.forEach(doc=>investments.push({id:doc.id,...doc.data()}));
-
-// ── One-time migration: Islami Bank → Bank, MSSA → DPS ──
-let batch = db.batch();
-let needsWrite = false;
-investments.forEach(inv => {
-let changes = {};
-if(inv.platform === 'Islami Bank') { inv.platform = 'Bank'; changes.platform = 'Bank'; }
-if(inv.type === 'MSSA') { inv.type = 'DPS'; changes.type = 'DPS'; }
-if(Object.keys(changes).length > 0) {
-batch.update(db.collection("investments").doc(inv.id), changes);
-needsWrite = true;
-}
-});
-if(needsWrite) {
-await batch.commit();
-showToast("✅ পুরনো Islami Bank / MSSA entries → Bank / DPS তে আপডেট হয়েছে!");
-}
-
-localStorage.setItem("investments_backup",JSON.stringify(investments));
-getOwnCapitalLocal(); // auto-initialize own capital from historical data if never set
-renderAll();
-}
-catch(e) {
-investments=JSON.parse(localStorage.getItem("investments_backup")||"[]");
-investments.forEach(inv => {
-if(inv.platform === 'Islami Bank') inv.platform = 'Bank';
-if(inv.type === 'MSSA') inv.type = 'DPS';
-});
-getOwnCapitalLocal(); // also try on fallback
-renderAll();
-}
+try { let snap=await db.collection("investments").get(); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); }
+catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
 }
 function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
 
@@ -4197,7 +3774,7 @@ fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
 setInterval(updateCryptoPrices, 5000);
 setInterval(updateStockPrices, 5 * 60 * 1000);
-// renderPLTicker is called inside updateCryptoPrices — no separate interval needed
+// renderPLTicker called inside updateCryptoPrices — no separate interval needed
 
 document.getElementById('loginBtn').addEventListener('click', () => adminLogin(document.getElementById('adminPass').value));
 document.getElementById('logoutBtn').addEventListener('click', adminLogout);
@@ -4210,7 +3787,7 @@ try {
 if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
-if(navigator.onLine) { loadData(); loadOwnCapital().then(()=>renderStats()); loadReturnPool().then(()=>renderStats()); loadEfFromCloud(); }
+if(navigator.onLine) loadData();
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 }, 500);
