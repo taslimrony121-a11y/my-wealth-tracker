@@ -576,16 +576,7 @@ box-shadow: 0 8px 24px var(--shadow);
 .platform-legend { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; font-size: 0.65rem; }
 
 /* ====== GANTT ====== */
-.notification-bar { position:fixed; top:0; left:0; right:0; z-index:9999; padding:10px 16px; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:8px; transform:translateY(-100%); transition:transform 0.3s; }
-.notification-bar.show { transform:translateY(0); }
-.notification-bar.warning { background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; }
-.notification-bar.danger { background:linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
-.notification-bar.info { background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; }
-.notification-bar.offline { background:linear-gradient(135deg,#6b7280,#374151); color:#fff; }
-.offline-badge { display:none; position:fixed; bottom:70px; right:12px; background:#374151; color:#fff; font-size:0.6rem; font-weight:700; padding:4px 10px; border-radius:20px; z-index:999; }
-.platform-goal-bar { height:5px; border-radius:10px; background:rgba(255,255,255,0.08); margin-top:6px; overflow:hidden; }
-.platform-goal-bar-fill { height:100%; border-radius:10px; background:linear-gradient(90deg,#a855f7,#6d28d9); transition:width 0.5s; }
-.platform-goal-text { font-size:0.58rem; color:#94a3b8; margin-top:3px; display:flex; justify-content:space-between; }
+.gantt-notification {
 background: var(--bg-card);
 border-radius: 20px;
 padding: 14px 16px;
@@ -806,10 +797,6 @@ body { padding: 10px; }
 <div id="timelineContainer" class="gantt-timeline">Loading...</div>
 </div>
 
-<!-- NOTIFICATION BAR & OFFLINE BADGE -->
-<div id="notificationBar" class="notification-bar"></div>
-<div id="offlineBadge" class="offline-badge">📵 Offline — cached data</div>
-
 <!-- ADMIN BAR -->
 
 <div class="admin-bar">
@@ -832,7 +819,6 @@ body { padding: 10px; }
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> FDR Monthly</button>
 <button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-mosque"></i> Wahed Top-up</button>
-<button onclick="openMonthlyReport()" class="action-btn" style="border-color:#f59e0b;color:#f59e0b;"><i class="fas fa-chart-pie"></i> Monthly Report</button>
 <button onclick="openEmergencyFundModal()" class="action-btn" style="border-color:#f43f5e;color:#f43f5e;"><i class="fas fa-shield-alt"></i> Emergency Fund</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
@@ -922,39 +908,6 @@ oninput="updateInvestSimulator()">
 </div>
 
 <!-- CRYPTO CARDS -->
-
-<!-- CRYPTO CARDS -->
-
-<!-- CLAUDE AI CHAT CARD -->
-<div class="card" style="background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(168,85,247,0.05));border:1px solid rgba(99,102,241,0.25);">
-<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-<div style="width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">🤖</div>
-<div>
-<div style="font-size:0.8rem;font-weight:800;color:#818cf8;">Claude AI Financial Advisor</div>
-<div style="font-size:0.58rem;color:#6b7280;">তোমার real portfolio data দিয়ে সত্যিকারের AI advice</div>
-</div>
-</div>
-<div id="claudeMessages" style="min-height:60px;max-height:300px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;">
-<div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px;font-size:0.72rem;color:#a5b4fc;line-height:1.6;">
-👋 আমি তোমার portfolio data দেখতে পাচ্ছি। যেকোনো প্রশ্ন করো — বাংলায় উত্তর দেব। যেমন:<br>
-• "আমার portfolio কেমন আছে?"<br>
-• "কোথায় আরো invest করা উচিত?"<br>
-• "আমার risk কতটুকু?"
-</div>
-</div>
-<div style="display:flex;gap:8px;">
-<input type="text" id="claudeInput" placeholder="প্রশ্ন লেখো..." style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(99,102,241,0.3);color:#e2e8f0;padding:10px 12px;border-radius:10px;font-size:0.75rem;font-family:'Plus Jakarta Sans',sans-serif;" onkeydown="if(event.key==='Enter')askClaude()">
-<button onclick="askClaude()" id="claudeBtn" style="background:linear-gradient(135deg,#6366f1,#a855f7);border:none;color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.75rem;white-space:nowrap;">
-<i class="fas fa-paper-plane"></i>
-</button>
-</div>
-<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-<button onclick="askClaudeQuick('আমার portfolio এর সামগ্রিক অবস্থা কেমন?')" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:4px 10px;font-size:0.6rem;cursor:pointer;">📊 Portfolio অবস্থা</button>
-<button onclick="askClaudeQuick('আমি কোথায় আরো invest করতে পারি?')" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:4px 10px;font-size:0.6rem;cursor:pointer;">💡 Invest Suggestion</button>
-<button onclick="askClaudeQuick('আমার সবচেয়ে বেশি risk কোথায়?')" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:4px 10px;font-size:0.6rem;cursor:pointer;">⚠️ Risk Analysis</button>
-<button onclick="askClaudeQuick('আগামী ৬ মাসে কত profit আশা করতে পারি?')" style="background:rgba(99,102,241,0.1);color:#818cf8;border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:4px 10px;font-size:0.6rem;cursor:pointer;">📈 Prediction</button>
-</div>
-</div>
 
 <div class="crypto-grid">
 <div class="crypto-card btc-card">
@@ -1238,22 +1191,6 @@ oninput="updateInvestSimulator()">
 
 <div class="card"><h2><i class="fas fa-history"></i> Withdraw History</h2><div id="historyList"></div></div>
 
-<!-- MONTHLY P&L % CHART -->
-<div class="card" id="monthlyPLCard">
-<h2><i class="fas fa-percent" style="color:#f59e0b;"></i> মাসিক লাভ/লস %</h2>
-<div id="monthlyPLEmpty" style="text-align:center;color:var(--text-sub);font-size:0.75rem;padding:20px;display:none;">পর্যাপ্ত history নেই — দিনে দিনে জমবে</div>
-<canvas id="monthlyPLChart" style="width:100%;height:200px;"></canvas>
-</div>
-
-<!-- INFLATION ADJUSTED RETURN -->
-<div class="card" id="inflationCard">
-<h2><i class="fas fa-fire" style="color:#ef4444;"></i> Inflation Adjusted Return</h2>
-<div style="font-size:0.62rem;color:#94a3b8;margin-bottom:10px;">🇧🇩 বাংলাদেশ inflation ধরা হচ্ছে — <span id="inflationRateDisplay" style="color:#f59e0b;font-weight:700;">৯%</span> &nbsp;
-<input type="range" id="inflationSlider" min="5" max="15" value="9" step="0.5" oninput="updateInflationRate(this.value)" style="width:80px;vertical-align:middle;cursor:pointer;accent-color:#f59e0b;">
-</div>
-<div id="inflationList"></div>
-</div>
-
 <!-- WITHDRAWAL LOG CHART -->
 
 <div class="card" id="withdrawalLogCard">
@@ -1506,36 +1443,6 @@ oninput="updateInvestSimulator()">
 <button id="wahedConfirmBtn" onclick="confirmWahedAction()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#10b981,#059669);">💾 যুক্ত করুন</button>
 <button onclick="closeWahedTopupModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
-</div>
-</div>
-
-<!-- MONTHLY REPORT MODAL -->
-<div id="monthlyReportModal" class="modal">
-<div class="modal-content" style="max-height:85vh;overflow-y:auto;">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-<h3 style="margin:0;">📊 মাসিক রিপোর্ট</h3>
-<button onclick="closeMonthlyReport()" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;">✕</button>
-</div>
-<div id="monthlyReportContent"></div>
-<button onclick="closeMonthlyReport()" style="width:100%;margin-top:14px;background:var(--border);color:var(--text-main);border:none;padding:12px;border-radius:10px;cursor:pointer;">বন্ধ করুন</button>
-</div>
-</div>
-
-<!-- PER-PLATFORM GOAL MODAL -->
-<div id="platformGoalModal" class="modal">
-<div class="modal-content">
-<h3>🎯 Platform Goal সেট করুন</h3>
-<div id="pgPlatformName" style="font-size:0.8rem;color:#a855f7;font-weight:700;margin-bottom:10px;"></div>
-<div id="pgCurrentInfo" style="font-size:0.68rem;color:#94a3b8;margin-bottom:14px;background:rgba(255,255,255,0.04);padding:8px;border-radius:8px;"></div>
-<label style="font-size:0.72rem;color:#94a3b8;">🎯 Target Amount (BDT)</label>
-<input type="number" id="pgTargetInput" placeholder="যেমন: 100000" style="margin-bottom:6px;">
-<label style="font-size:0.72rem;color:#94a3b8;margin-top:4px;">📅 Target Date (ঐচ্ছিক)</label>
-<input type="date" id="pgDateInput" style="margin-bottom:14px;">
-<div style="display:flex;gap:8px;">
-<button onclick="savePlatformGoal()" style="flex:2;background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;">✅ সেভ করুন</button>
-<button onclick="clearPlatformGoal()" style="flex:1;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:10px;font-weight:700;cursor:pointer;">🗑 মুছুন</button>
-</div>
-<button onclick="closePlatformGoalModal()" style="width:100%;margin-top:8px;background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:10px;cursor:pointer;">বাতিল</button>
 </div>
 </div>
 
@@ -2564,12 +2471,8 @@ let hasMore = hiddenItems.length > 0;
 activeHtml += `<div class="platform-box">
 <div class="platform-header">
 <span><i class="fas fa-chart-line"></i> ${plat}</span>
-<span style="display:flex;align-items:center;gap:8px;">
 <span>${formatNumber(platTotal)} BDT (${pct}%) &nbsp;<span style="font-size:0.65rem;color:var(--text-sub);">${items.length} item${items.length>1?'s':''}</span></span>
-${isAdmin ? `<button onclick="openPlatformGoalModal('${plat}', ${platTotal})" title="Goal সেট করুন" style="background:rgba(168,85,247,0.15);color:#a855f7;border:1px solid rgba(168,85,247,0.3);border-radius:6px;padding:2px 7px;font-size:0.6rem;font-weight:700;cursor:pointer;">🎯</button>` : ''}
-</span>
-</div>
-${renderPlatformGoalBar(plat, platTotal)}`;
+</div>`;
 
 visibleItems.forEach(inv => { activeHtml += buildInvItemHtml(inv); });
 
@@ -3568,7 +3471,7 @@ saveNwSnapshot(live);
 renderNwGraph();
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderEmergencyFund(); renderMonthlyPLChart(); renderInflationAdjusted(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderEmergencyFund(); }
 
 // ====== INVESTMENT ACTIONS ======
 async function addInvestment() {
@@ -3818,438 +3721,7 @@ window.closeEmergencyFundModal = closeEmergencyFundModal;
 window.setEfMode = setEfMode;
 window.confirmEfAction = confirmEfAction;
 
-// ====== 🤖 CLAUDE AI FINANCIAL ADVISOR ======
-let claudeHistory = [];
-
-function buildPortfolioContext() {
-let active = investments.filter(i=>i.status==='active'&&!isWaitMoney(i));
-let totalInvested = active.reduce((s,i)=>s+(i.amountBDT||0),0);
-let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0),0);
-let currentValue = totalInvested + totalProfit;
-let waitM = investments.filter(i=>isWaitMoney(i)&&i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0);
-let byPlatform = {};
-active.forEach(i=>{ byPlatform[i.platform]=(byPlatform[i.platform]||0)+(i.amountBDT||0); });
-let cryptoPL = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice)
-.reduce((s,i)=>s+(cryptoPrices[i.type]-i.purchasePrice)*i.amount*usdToBdt,0);
-let history = getNwHistory();
-let nwChange = history.length>=2 ? history[history.length-1].v - history[0].v : 0;
-let goals = getPlatformGoals();
-let ef = getEfData();
-let inflation = inflationRate || 9;
-
-return `তুমি Taslim Rony-র personal wealth tracker-এর AI Financial Advisor। তার portfolio-র real data:
-
-📊 PORTFOLIO SUMMARY:
-- মোট invested: ${formatNumber(totalInvested)} BDT ($${(totalInvested/usdToBdt).toFixed(0)})
-- বর্তমান মূল্য: ${formatNumber(currentValue)} BDT
-- মোট profit/loss: ${totalProfit>=0?'+':''}${formatNumber(totalProfit)} BDT (${totalInvested>0?((totalProfit/totalInvested)*100).toFixed(1):0}%)
-- Idle/Wait Money: ${formatNumber(waitM)} BDT
-- Active investments: ${active.length}টি
-- Net Worth change (history): ${nwChange>=0?'+':''}${formatNumber(nwChange)} BDT
-
-🏦 PLATFORM BREAKDOWN:
-${Object.entries(byPlatform).map(([p,v])=>`- ${p}: ${formatNumber(v)} BDT (${totalInvested>0?((v/totalInvested)*100).toFixed(1):0}%)`).join('\n')}
-
-💱 LIVE PRICES:
-- BTC: $${(cryptoPrices.BTC||0).toFixed(0)}, ETH: $${(cryptoPrices.ETH||0).toFixed(0)}, BNB: $${(cryptoPrices.BNB||0).toFixed(0)}
-- Crypto unrealized P&L: ${cryptoPL>=0?'+':''}${formatNumber(cryptoPL)} BDT
-- USD/BDT rate: ${usdToBdt}
-
-🎯 GOALS:
-${Object.entries(goals).length ? Object.entries(goals).map(([p,g])=>`- ${p}: Target ${formatNumber(g.target)} BDT`).join('\n') : '- কোনো platform goal সেট করা নেই'}
-
-🛡️ EMERGENCY FUND: ${formatNumber(ef.current||0)} BDT / Target ${formatNumber(ef.target||0)} BDT
-
-📈 INFLATION: বাংলাদেশে ${inflation}% ধরা হচ্ছে
-
-বাংলায় সংক্ষিপ্ত, practical advice দাও। ইসলামিক finance-এর কথা মাথায় রাখো (সে Wahed-এ invest করে, সুদ-ভিত্তিক investment এড়িয়ে চলে)।`;
-}
-
-async function askClaude() {
-let input = document.getElementById('claudeInput');
-let question = input.value.trim();
-if(!question) return;
-input.value = '';
-await askClaudeQuick(question);
-}
-
-async function askClaudeQuick(question) {
-let messagesEl = document.getElementById('claudeMessages');
-let btn = document.getElementById('claudeBtn');
-if(!messagesEl) return;
-
-// Add user message
-messagesEl.innerHTML += `<div style="background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.25);border-radius:10px;padding:8px 12px;font-size:0.72rem;color:#e9d5ff;align-self:flex-end;max-width:85%;margin-left:auto;">💬 ${question}</div>`;
-messagesEl.scrollTop = messagesEl.scrollHeight;
-
-// Loading indicator
-let loadId = 'cl_'+Date.now();
-messagesEl.innerHTML += `<div id="${loadId}" style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px 12px;font-size:0.72rem;color:#818cf8;">⏳ চিন্তা করছি...</div>`;
-messagesEl.scrollTop = messagesEl.scrollHeight;
-if(btn) { btn.disabled=true; btn.innerHTML='⏳'; }
-
-try {
-claudeHistory.push({ role:'user', content: question });
-if(claudeHistory.length > 10) claudeHistory = claudeHistory.slice(-10);
-
-const response = await fetch('https://api.anthropic.com/v1/messages', {
-method:'POST',
-headers:{ 'Content-Type':'application/json' },
-body: JSON.stringify({
-model: 'claude-sonnet-4-6',
-max_tokens: 1000,
-system: buildPortfolioContext(),
-messages: claudeHistory
-})
-});
-
-const data = await response.json();
-let reply = data.content?.map(c=>c.type==='text'?c.text:'').join('') || 'উত্তর পাওয়া যায়নি।';
-claudeHistory.push({ role:'assistant', content: reply });
-
-// Replace loading with response
-let loadEl = document.getElementById(loadId);
-if(loadEl) loadEl.outerHTML = `<div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:10px;padding:10px 12px;font-size:0.72rem;color:#c7d2fe;line-height:1.7;white-space:pre-wrap;">${reply}</div>`;
-} catch(e) {
-let loadEl = document.getElementById(loadId);
-if(loadEl) loadEl.outerHTML = `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:8px 12px;font-size:0.7rem;color:#fca5a5;">❌ Error: ${e.message}</div>`;
-}
-
-messagesEl.scrollTop = messagesEl.scrollHeight;
-if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i>'; }
-}
-window.askClaude = askClaude;
-window.askClaudeQuick = askClaudeQuick;
-
-// ====== 🔔 PUSH NOTIFICATIONS ======
-async function requestNotificationPermission() {
-if(!('Notification' in window)) return;
-if(Notification.permission === 'default') {
-let p = await Notification.requestPermission();
-if(p === 'granted') showToast('🔔 Notification চালু হয়েছে!');
-}
-}
-function showInAppNotification(msg, type='warning', duration=6000) {
-let bar = document.getElementById('notificationBar');
-if(!bar) return;
-bar.className = `notification-bar ${type} show`;
-bar.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.classList.remove('show')" style="background:none;border:none;color:inherit;cursor:pointer;font-size:1rem;">✕</button>`;
-setTimeout(()=>bar.classList.remove('show'), duration);
-}
-function sendBrowserNotification(title, body, icon='💰') {
-if(Notification.permission !== 'granted') return;
-try { new Notification(title, { body, icon: 'https://taslimrony121-a11y.github.io/my-wealth-tracker/icon-192.png', badge: 'https://taslimrony121-a11y.github.io/my-wealth-tracker/icon-192.png', tag: title }); }
-catch(e) {}
-}
-function checkExpiryNotifications() {
-let today = new Date().toISOString().slice(0,10);
-let soon = new Date(); soon.setDate(soon.getDate()+7);
-let soonStr = soon.toISOString().slice(0,10);
-let expired = [], expiringSoon = [];
-investments.filter(i=>i.status==='active'&&i.end).forEach(inv=>{
-if(inv.end < today) expired.push(inv);
-else if(inv.end <= soonStr) expiringSoon.push(inv);
-});
-if(expired.length > 0) {
-let msg = `🔴 ${expired.length}টি investment মেয়াদ শেষ! (${expired.map(i=>i.platform+'/'+i.type).join(', ')})`;
-showInAppNotification(msg, 'danger', 10000);
-sendBrowserNotification('⚠️ Investment Expired!', expired.map(i=>`${i.platform} - ${i.type}`).join('\n'));
-}
-if(expiringSoon.length > 0) {
-let msg = `⚠️ ${expiringSoon.length}টি investment ৭ দিনের মধ্যে শেষ হবে`;
-setTimeout(()=>showInAppNotification(msg, 'warning', 8000), expired.length?4000:0);
-sendBrowserNotification('📅 Expiring Soon!', expiringSoon.map(i=>`${i.platform} - ${i.type} (${i.end})`).join('\n'));
-}
-}
-
-// ====== 🎯 PER-PLATFORM GOALS ======
-let _pgCurrentPlatform = '';
-function getPlatformGoals() {
-try { return JSON.parse(localStorage.getItem('platformGoals')||'{}'); } catch(e) { return {}; }
-}
-async function savePlatformGoals(goals) {
-localStorage.setItem('platformGoals', JSON.stringify(goals));
-if(db) { try { await db.collection('meta').doc('platformGoals').set({ goals }); } catch(e){} }
-}
-async function loadPlatformGoals() {
-if(!db) return;
-try {
-let doc = await db.collection('meta').doc('platformGoals').get();
-if(doc.exists && doc.data().goals) localStorage.setItem('platformGoals', JSON.stringify(doc.data().goals));
-} catch(e) {}
-}
-function renderPlatformGoalBar(platform, currentBDT) {
-let goals = getPlatformGoals();
-let g = goals[platform];
-if(!g || !g.target) return '';
-let pct = Math.min(100, (currentBDT / g.target)*100);
-let color = pct >= 100 ? '#4ade80' : pct >= 60 ? '#facc15' : '#a855f7';
-let remaining = Math.max(0, g.target - currentBDT);
-let dateInfo = g.date ? ` · 📅 ${g.date}` : '';
-return `<div style="padding:0 0 6px 0;">
-<div class="platform-goal-bar"><div class="platform-goal-bar-fill" style="width:${pct.toFixed(1)}%;background:${color};"></div></div>
-<div class="platform-goal-text">
-<span style="color:${color};">🎯 ${pct.toFixed(0)}% — ${formatNumber(currentBDT)} / ${formatNumber(g.target)} BDT</span>
-<span>${pct>=100 ? '✅ লক্ষ্য পূরণ!' : `আরো ${formatNumber(remaining)} BDT`}${dateInfo}</span>
-</div>
-</div>`;
-}
-function openPlatformGoalModal(platform, currentBDT) {
-if(!isAdmin) return showToast('Admin required', true);
-_pgCurrentPlatform = platform;
-let goals = getPlatformGoals();
-let g = goals[platform] || {};
-document.getElementById('pgPlatformName').textContent = `📌 ${platform}`;
-document.getElementById('pgCurrentInfo').textContent = `বর্তমান invested: ${formatNumber(currentBDT)} BDT`;
-document.getElementById('pgTargetInput').value = g.target || '';
-document.getElementById('pgDateInput').value = g.date || '';
-document.getElementById('platformGoalModal').style.display = 'flex';
-}
-function closePlatformGoalModal() { document.getElementById('platformGoalModal').style.display='none'; }
-async function savePlatformGoal() {
-let target = parseFloat(document.getElementById('pgTargetInput').value);
-if(!target || target <= 0) return showToast('সঠিক target দিন', true);
-let date = document.getElementById('pgDateInput').value;
-let goals = getPlatformGoals();
-goals[_pgCurrentPlatform] = { target, date };
-await savePlatformGoals(goals);
-closePlatformGoalModal();
-renderPortfolioByPlatform();
-showToast(`✅ ${_pgCurrentPlatform} goal: ${formatNumber(target)} BDT সেট!`);
-}
-async function clearPlatformGoal() {
-let goals = getPlatformGoals();
-delete goals[_pgCurrentPlatform];
-await savePlatformGoals(goals);
-closePlatformGoalModal();
-renderPortfolioByPlatform();
-showToast(`🗑 ${_pgCurrentPlatform} goal মুছে গেছে`);
-}
-window.openPlatformGoalModal = openPlatformGoalModal;
-window.closePlatformGoalModal = closePlatformGoalModal;
-window.savePlatformGoal = savePlatformGoal;
-window.clearPlatformGoal = clearPlatformGoal;
-
-// ====== 📵 OFFLINE MODE ======
-function setupOfflineMode() {
-let badge = document.getElementById('offlineBadge');
-let lastOnline = true;
-function updateOnlineStatus() {
-let online = navigator.onLine;
-if(!online && lastOnline) {
-if(badge) badge.style.display = 'block';
-showInAppNotification('📵 Internet নেই — cached data দেখাচ্ছে', 'offline', 99999);
-} else if(online && !lastOnline) {
-if(badge) badge.style.display = 'none';
-document.getElementById('notificationBar').classList.remove('show');
-showInAppNotification('✅ Internet ফিরে এসেছে! Syncing...', 'info', 4000);
-if(db) { loadData(); loadPlatformGoals(); loadEfFromCloud(); }
-}
-lastOnline = online;
-if(!online && badge) badge.style.display = 'block';
-}
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-if(!navigator.onLine && badge) badge.style.display = 'block';
-}
-
-// ====== NOTIFICATION BUTTON in UI ======
-function addNotificationToggleToUI() {
-let logoutW = document.getElementById('logoutWidget');
-if(!logoutW || document.getElementById('notifToggleBtn')) return;
-let btn = document.createElement('button');
-btn.id = 'notifToggleBtn';
-btn.className = 'action-btn';
-btn.style.cssText = 'border-color:#f59e0b;color:#f59e0b;padding:6px 10px;font-size:0.65rem;';
-btn.innerHTML = '<i class="fas fa-bell"></i>';
-btn.title = 'Notification চালু করুন';
-btn.onclick = requestNotificationPermission;
-logoutW.appendChild(btn);
-}
-
-// ====== 📊 MONTHLY P&L % CHART ======
-let monthlyPLChartInst = null;
-function renderMonthlyPLChart() {
-let history = getNwHistory();
-if(history.length < 2) {
-let el = document.getElementById('monthlyPLEmpty');
-let canvas = document.getElementById('monthlyPLChart');
-if(el) el.style.display='block';
-if(canvas) canvas.style.display='none';
-return;
-}
-// Group by month — get first and last value per month
-let monthMap = {};
-history.forEach(h => {
-let m = h.date.slice(0,7); // YYYY-MM
-if(!monthMap[m]) monthMap[m] = { first: h.v, last: h.v };
-else monthMap[m].last = h.v;
-});
-let months = Object.keys(monthMap).sort();
-if(months.length < 2) return;
-// Calculate month-over-month % change
-let labels = [], values = [], colors = [];
-for(let i=1; i<months.length; i++) {
-let prev = monthMap[months[i-1]].last;
-let curr = monthMap[months[i]].last;
-let pct = prev > 0 ? ((curr-prev)/prev*100) : 0;
-let mLabel = new Date(months[i]+'-01').toLocaleDateString('bn-BD',{month:'short',year:'2-digit'});
-labels.push(mLabel);
-values.push(parseFloat(pct.toFixed(2)));
-colors.push(pct >= 0 ? 'rgba(74,222,128,0.8)' : 'rgba(248,113,113,0.8)');
-}
-// Always add current month (month-to-date)
-let today = new Date().toISOString().slice(0,7);
-let lastMonth = months[months.length-1];
-if(lastMonth === today && history.length >= 2) {
-// already included
-} else {
-let live = computeLiveNetWorthBDT ? computeLiveNetWorthBDT() : 0;
-if(live > 0) {
-let prev = monthMap[lastMonth].last;
-let pct = prev > 0 ? ((live-prev)/prev*100) : 0;
-let mLabel = new Date(today+'-01').toLocaleDateString('bn-BD',{month:'short',year:'2-digit'}) + '*';
-labels.push(mLabel);
-values.push(parseFloat(pct.toFixed(2)));
-colors.push(pct >= 0 ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)');
-}
-}
-let canvas = document.getElementById('monthlyPLChart');
-let emptyEl = document.getElementById('monthlyPLEmpty');
-if(!canvas) return;
-if(emptyEl) emptyEl.style.display='none';
-canvas.style.display='block';
-let ctx = canvas.getContext('2d');
-if(monthlyPLChartInst) { monthlyPLChartInst.data.labels=labels; monthlyPLChartInst.data.datasets[0].data=values; monthlyPLChartInst.data.datasets[0].backgroundColor=colors; monthlyPLChartInst.update('none'); return; }
-monthlyPLChartInst = new Chart(ctx, {
-type:'bar',
-data:{ labels, datasets:[{ label:'Monthly Return %', data:values, backgroundColor:colors, borderRadius:6, borderSkipped:false }] },
-options:{ responsive:true, plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label: c => `${c.raw >= 0 ? '+':''}${c.raw}%` } } },
-scales:{
-x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#94a3b8',font:{size:10}} },
-y:{ grid:{color:'rgba(255,255,255,0.06)'}, ticks:{ color:'#94a3b8', font:{size:10}, callback: v => v+'%' }, border:{display:false} }
-},
-animation:{duration:500} }
-});
-}
-
-// ====== 🔥 INFLATION ADJUSTED RETURN ======
-let inflationRate = 9;
-function updateInflationRate(val) {
-inflationRate = parseFloat(val);
-document.getElementById('inflationRateDisplay').textContent = val + '%';
-renderInflationAdjusted();
-}
-function renderInflationAdjusted() {
-let el = document.getElementById('inflationList');
-if(!el) return;
-let active = investments.filter(i=>i.status==='active'&&!isWaitMoney(i));
-if(!active.length) { el.innerHTML='<div style="color:#94a3b8;font-size:0.72rem;text-align:center;padding:10px;">কোনো active investment নেই</div>'; return; }
-// group by type for nominal rate
-let rows = active.map(inv => {
-let nominal = (ANNUAL_RATES[inv.type] || ANNUAL_RATES[inv.platform] || 0.10) * 100;
-let real = nominal - inflationRate;
-let color = real > 0 ? '#4ade80' : real > -3 ? '#f59e0b' : '#f87171';
-let icon = real > 0 ? '✅' : real > -3 ? '⚠️' : '❌';
-return { platform:inv.platform, type:inv.type, nominal, real, color, icon, amountBDT:inv.amountBDT||0 };
-});
-// deduplicate by type
-let seen = new Set();
-let unique = rows.filter(r=>{ let k=r.type; if(seen.has(k)) return false; seen.add(k); return true; })
-.sort((a,b)=>b.real-a.real);
-el.innerHTML = unique.map(r=>`
-<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;margin-bottom:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;">
-<div>
-<div style="font-size:0.75rem;font-weight:700;color:#e2e8f0;">${r.icon} ${r.type}</div>
-<div style="font-size:0.58rem;color:#94a3b8;">${r.platform} · Nominal: ${r.nominal.toFixed(1)}%</div>
-</div>
-<div style="text-align:right;">
-<div style="font-size:0.9rem;font-weight:800;color:${r.color};">${r.real>=0?'+':''}${r.real.toFixed(1)}%</div>
-<div style="font-size:0.55rem;color:#94a3b8;">real return</div>
-</div>
-</div>`).join('');
-// Summary
-let avgNominal = unique.reduce((s,r)=>s+r.nominal,0)/unique.length;
-let avgReal = avgNominal - inflationRate;
-el.innerHTML += `<div style="margin-top:8px;padding:8px 10px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;font-size:0.68rem;">
-<b style="color:#f59e0b;">Portfolio Average:</b> Nominal ${avgNominal.toFixed(1)}% → Real <span style="color:${avgReal>0?'#4ade80':'#f87171'};font-weight:800;">${avgReal>=0?'+':''}${avgReal.toFixed(1)}%</span> after ${inflationRate}% inflation
-</div>`;
-}
-window.updateInflationRate = updateInflationRate;
-
-// ====== 📅 AUTO MONTHLY REPORT ======
-function getMonthlyReportData(year, month) {
-let prefix = `${year}-${String(month).padStart(2,'0')}`;
-let history = getNwHistory();
-let monthHistory = history.filter(h=>h.date.startsWith(prefix));
-let prevHistory = history.filter(h=>h.date < prefix+'-01');
-let startVal = prevHistory.length ? prevHistory[prevHistory.length-1].v : (monthHistory.length ? monthHistory[0].v : 0);
-let endVal = monthHistory.length ? monthHistory[monthHistory.length-1].v : startVal;
-let change = endVal - startVal;
-let changePct = startVal > 0 ? (change/startVal*100) : 0;
-// Withdrawals this month
-let withdrawals = JSON.parse(localStorage.getItem("withdraw_history")||"[]")
-.filter(w=>w.date&&w.date.startsWith(prefix));
-let totalWithdrawn = withdrawals.reduce((s,w)=>s+(w.amount||0),0);
-let totalProfit = withdrawals.reduce((s,w)=>s+(w.profit||0),0);
-// Best/worst platform
-let platMap = {};
-investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).forEach(i=>{
-if(!platMap[i.platform]) platMap[i.platform]=0;
-platMap[i.platform]+=(i.actualProfit||0);
-});
-let platList = Object.entries(platMap).sort((a,b)=>b[1]-a[1]);
-return { prefix, startVal, endVal, change, changePct, withdrawals, totalWithdrawn, totalProfit, platList };
-}
-function openMonthlyReport() {
-let now = new Date();
-let year = now.getFullYear(), month = now.getMonth()+1;
-// Show last month if we're in first 3 days
-if(now.getDate() <= 3 && month > 1) { month--; }
-let d = getMonthlyReportData(year, month);
-let monthName = new Date(year, month-1, 1).toLocaleDateString('bn-BD',{month:'long',year:'numeric'});
-let pos = d.change >= 0;
-document.getElementById('monthlyReportContent').innerHTML = `
-<div style="background:linear-gradient(135deg,${pos?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'},transparent);border:1px solid ${pos?'rgba(74,222,128,0.2)':'rgba(248,113,113,0.2)'};border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;">
-<div style="font-size:0.7rem;color:#94a3b8;margin-bottom:4px;">${monthName}</div>
-<div style="font-size:2rem;font-weight:900;color:${pos?'#4ade80':'#f87171'};">${pos?'+':''}${d.changePct.toFixed(2)}%</div>
-<div style="font-size:0.8rem;color:#e2e8f0;">${pos?'+':''}${formatNumber(d.change)} BDT</div>
-<div style="font-size:0.62rem;color:#94a3b8;margin-top:4px;">${formatNumber(d.startVal)} → ${formatNumber(d.endVal)} BDT</div>
-</div>
-${d.platList.length ? `
-<div style="margin-bottom:10px;">
-<div style="font-size:0.65rem;color:#94a3b8;font-weight:700;margin-bottom:8px;text-transform:uppercase;">Platform Performance</div>
-${d.platList.slice(0,5).map(([p,v])=>`
-<div style="display:flex;justify-content:space-between;padding:6px 10px;margin-bottom:4px;background:rgba(255,255,255,0.03);border-radius:8px;">
-<span style="font-size:0.72rem;color:#e2e8f0;">${p}</span>
-<span style="font-size:0.72rem;font-weight:700;color:${v>=0?'#4ade80':'#f87171'};">${v>=0?'+':''}${formatNumber(v)} BDT</span>
-</div>`).join('')}
-</div>`:'' }
-${d.withdrawals.length ? `
-<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;">
-<div style="font-size:0.65rem;color:#94a3b8;font-weight:700;margin-bottom:6px;">💸 Withdrawal এই মাসে</div>
-<div style="font-size:0.78rem;color:#e2e8f0;">মোট তোলা: <b>${formatNumber(d.totalWithdrawn)} BDT</b></div>
-<div style="font-size:0.72rem;color:#4ade80;">Profit অংশ: +${formatNumber(d.totalProfit)} BDT</div>
-</div>` : '<div style="text-align:center;font-size:0.68rem;color:#6b7280;padding:8px;">এই মাসে কোনো withdrawal নেই</div>'}
-${!d.startVal && !d.endVal ? '<div style="text-align:center;color:#94a3b8;font-size:0.72rem;padding:10px;">এই মাসের কোনো net worth history নেই। আরো কিছুদিন ব্যবহার করলে data জমবে।</div>' : ''}
-`;
-document.getElementById('monthlyReportModal').style.display='flex';
-}
-function closeMonthlyReport() { document.getElementById('monthlyReportModal').style.display='none'; }
-
-// Auto show monthly report on first open of new month
-function checkAutoMonthlyReport() {
-let now = new Date();
-let key = `monthlyReportShown_${now.getFullYear()}_${now.getMonth()+1}`;
-if(!localStorage.getItem(key) && now.getDate() >= 1 && now.getDate() <= 5) {
-localStorage.setItem(key, '1');
-setTimeout(openMonthlyReport, 3000);
-}
-}
-window.openMonthlyReport = openMonthlyReport;
-window.closeMonthlyReport = closeMonthlyReport;
-
-// ====== 🔔 NOTIFICATION SYSTEM ======
+// ====== OWN CAPITAL LEDGER ======
 async function updateOwnCapitalLedger(amount, direction) {
 // direction: 'in' (invest) or 'out' (withdraw principal)
 try {
@@ -4683,7 +4155,6 @@ showToast("✅ পুরনো Islami Bank / MSSA entries → Bank / DPS তে 
 localStorage.setItem("investments_backup",JSON.stringify(investments));
 getOwnCapitalLocal(); // auto-initialize own capital from historical data if never set
 renderAll();
-setTimeout(checkExpiryNotifications, 1500);
 }
 catch(e) {
 investments=JSON.parse(localStorage.getItem("investments_backup")||"[]");
@@ -4739,17 +4210,7 @@ try {
 if(typeof firebase !== 'undefined') {
 if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
 db = firebase.firestore();
-if(navigator.onLine) {
-loadData();
-loadOwnCapital().then(()=>renderStats());
-loadReturnPool().then(()=>renderStats());
-loadEfFromCloud();
-loadPlatformGoals();
-}
-setupOfflineMode();
-requestNotificationPermission();
-// Check expiry alerts after investments load (delay to let Firebase load first)
-setTimeout(()=>{ checkExpiryNotifications(); addNotificationToggleToUI(); checkAutoMonthlyReport(); }, 3000);
+if(navigator.onLine) { loadData(); loadOwnCapital().then(()=>renderStats()); loadReturnPool().then(()=>renderStats()); loadEfFromCloud(); }
 }
 } catch(e) { console.warn("Firebase unavailable:", e); }
 }, 500);
