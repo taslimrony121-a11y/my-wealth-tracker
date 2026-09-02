@@ -21,6 +21,7 @@
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-auth-compat.js"></script>
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <!-- Font Awesome -->
@@ -799,7 +800,7 @@ body { padding: 10px; }
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
-<button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-piggy-bank"></i> Wahed Top-up</button>
+<button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-coins"></i> Wahed Top-up</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
@@ -845,6 +846,13 @@ style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);col
 <!-- Score Bar -->
 
 <div id="aiScoreBar" style="margin-bottom:14px;"></div>
+
+<!-- GOAL TARGET (editable) -->
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:rgba(250,204,21,0.06);border:1px solid rgba(250,204,21,0.2);border-radius:10px;padding:8px 10px;">
+<span style="font-size:0.68rem;color:#facc15;font-weight:700;white-space:nowrap;">🎯 Target:</span>
+<input type="number" id="aiGoalInput" value="300000" step="1000" min="0" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;color:#f1f5f9;font-size:0.7rem;padding:4px 8px;" oninput="onGoalAmountChange()">
+<span style="font-size:0.62rem;color:#94a3b8;">BDT</span>
+</div>
 
 <!-- Portfolio Category Breakdown (new) -->
 
@@ -1029,6 +1037,21 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
+<!-- MONTHLY PERFORMANCE % + INFLATION-ADJUSTED RETURN -->
+<div class="card" id="monthlyPLCard" style="padding:16px 14px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+<div style="font-size:0.6rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">📅 Monthly Performance (%)</div>
+<div style="display:flex;align-items:center;gap:6px;">
+<label style="font-size:0.58rem;color:#94a3b8;">Inflation %/yr:</label>
+<input type="number" id="inflationRateInput" value="8.3" step="0.1" min="0"
+style="width:54px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:6px;color:#f1f5f9;font-size:0.68rem;padding:3px 5px;"
+oninput="onInflationRateChange()">
+</div>
+</div>
+<div id="monthlyPLList" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;"></div>
+<div id="realReturnLine" style="margin-top:10px;font-size:0.7rem;color:#94a3b8;text-align:center;"></div>
+</div>
+
 <!-- ADD INVESTMENT FORM -->
 
 <div id="formCard" class="card" style="display:none;">
@@ -1128,11 +1151,32 @@ oninput="updateInvestSimulator()">
 <div id="platformLegend" class="platform-legend" style="flex:1; justify-content:flex-start; flex-direction:column; gap:7px;"></div>
 </div>
 </div>
+
+<!-- PLATFORM RISK OVERVIEW -->
+<div class="card">
+<h3><i class="fas fa-triangle-exclamation"></i> Platform Risk Overview</h3>
+<div style="position:relative;height:220px;">
+<canvas id="riskChart"></canvas>
+</div>
+<div style="display:flex;gap:14px;justify-content:center;margin-top:10px;font-size:0.62rem;color:var(--text-sub);flex-wrap:wrap;">
+<span>🟢 Low (Bank/MSSA/MMPDA)</span>
+<span>🟡 Medium (Farming/Business)</span>
+<span>🔴 High (Crypto/Stock)</span>
+</div>
+</div>
 </div>
 
 <!-- ACTIVE PORTFOLIO -->
 
-<div class="card"><h2><i class="fas fa-briefcase"></i> Active Portfolio by Platform</h2><div id="activePortfolio"></div></div>
+<div class="card">
+<h2 style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleActivePortfolioSection()">
+<span><i class="fas fa-briefcase"></i> Active Portfolio by Platform</span>
+<i class="fas fa-chevron-down" id="activePortfolioChevron" style="transition:transform 0.2s;font-size:0.8rem;"></i>
+</h2>
+<div id="activePortfolioWrapper" style="display:none;">
+<div id="activePortfolio"></div>
+</div>
+</div>
 
 <!-- WAIT MONEY -->
 
@@ -1190,6 +1234,18 @@ oninput="updateInvestSimulator()">
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button onclick="saveEdit()" class="btn-save" style="flex:1;">Save</button>
 <button onclick="closeEditModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- MONTHLY REPORT MODAL (Auto + Manual) -->
+<div id="monthlyReportModal" class="modal">
+<div class="modal-content" style="max-width:480px;">
+<h3><i class="fas fa-calendar-check"></i> Monthly Report</h3>
+<div id="monthlyReportContent" style="max-height:60vh;overflow-y:auto;"></div>
+<div style="display:flex;gap:10px;margin-top:16px;">
+<button onclick="sendMonthlyReportEmail(currentMonthlyReportKey)" class="btn-save" style="flex:1;background:#10b981;"><i class="fas fa-envelope"></i> Email এখনই পাঠান</button>
+<button onclick="closeMonthlyReportModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:8px;cursor:pointer;flex:0.4;">Close</button>
 </div>
 </div>
 </div>
@@ -1467,14 +1523,18 @@ let stock24hPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
 let stock7dPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
 let stockPriceSource = JSON.parse(localStorage.getItem('stock_price_source')||'{}');
 let dividends = JSON.parse(localStorage.getItem('dividends')||'[]');
+let withdrawHistory = JSON.parse(localStorage.getItem('withdraw_history')||'[]');
+let budgetAll = JSON.parse(localStorage.getItem('budget_all')||'[]');
 function getLivePrice(type) { if(cryptoPrices[type]!==undefined) return cryptoPrices[type]; if(stockPrices[type]!==undefined) return stockPrices[type]; return null; }
 let growthChart = null, platformChart = null;
 let currentTimeRange = "all", editId = null;
 let activeCurrency = "BDT";
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let deferredPrompt = null;
-const ADMIN_PASSWORD = "Tt12345";
-const STORAGE_KEY = "wealth_admin_logged_in";
+// SECURITY: real password is NEVER stored in this file. Login uses Firebase
+// Authentication (Email/Password). Create this exact admin user once in
+// Firebase Console → Authentication → Users, with whatever password you like.
+const ADMIN_EMAIL = "taslim-admin@wealthtracker.local";
 
 // Multi-currency rates vs USD — fetched live, fallback values used until API responds
 let currencyRates = { BDT: 122.5, USD: 1, EUR: 0.92, GBP: 0.79, SAR: 3.75 };
@@ -1574,7 +1634,7 @@ html.setAttribute('data-theme', next);
 localStorage.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
-setTimeout(() => { renderPlatformChart(); renderWithdrawalLogChart(); }, 100);
+setTimeout(() => { renderPlatformChart(); renderRiskChart(); renderWithdrawalLogChart(); applyActivePortfolioVisibility(); }, 100);
 }
 function loadTheme() {
 let saved = localStorage.getItem('theme') || 'dark';
@@ -1616,6 +1676,162 @@ soonEl.classList.add('show');
 } else { soonEl.classList.remove('show'); }
 }
 
+// ====== MONTHLY PERFORMANCE %, INFLATION-ADJUSTED RETURN & AUTO MONTHLY REPORT ======
+function getInflationRate() {
+let v = parseFloat(localStorage.getItem('wt_inflation_rate'));
+return isNaN(v) ? 8.3 : v;
+}
+function setInflationRate(v) { localStorage.setItem('wt_inflation_rate', v); }
+function getGoalAmount() { let v = parseFloat(localStorage.getItem('wt_goal_amount')); return (isNaN(v)||v<=0) ? 300000 : v; }
+function setGoalAmount(v) { localStorage.setItem('wt_goal_amount', v); }
+function onGoalAmountChange() {
+let el = document.getElementById('aiGoalInput');
+let v = parseFloat(el.value);
+if(isNaN(v) || v <= 0) v = 300000;
+setGoalAmount(v);
+runAIPrediction();
+}
+function onInflationRateChange() {
+let v = parseFloat(document.getElementById('inflationRateInput').value);
+if(isNaN(v) || v < 0) v = 8.3;
+setInflationRate(v);
+renderMonthlyPL();
+let card = document.getElementById('aiPredictionCard');
+if(card && card.style.display !== 'none') runAIPrediction();
+}
+function computeOverallReturnPct() {
+let p = calcPrincipal();
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0), 0);
+return p.bdt > 0 ? (totalProfit/p.bdt)*100 : 0;
+}
+function computeRealReturn(nominalPct, inflationPct) {
+return (((1+nominalPct/100)/(1+inflationPct/100)) - 1) * 100;
+}
+function computeMonthlyPL() {
+let history = getNwHistory();
+if(!history.length) return [];
+let hist = history.map(h=>({date:h.date, v:h.v}));
+let today = new Date().toISOString().slice(0,10);
+let liveVal = Math.round(computeLiveNetWorthBDT());
+if(hist.length && hist[hist.length-1].date === today) {
+if(liveVal > 0) hist[hist.length-1].v = liveVal;
+} else if(liveVal > 0) {
+hist.push({ date: today, v: liveVal });
+}
+let byMonth = {};
+hist.forEach(h => { let key = h.date.slice(0,7); (byMonth[key] = byMonth[key]||[]).push(h); });
+let keys = Object.keys(byMonth).sort();
+let result = [];
+let prevLastVal = null;
+keys.forEach(key => {
+let entries = byMonth[key];
+let startVal = prevLastVal !== null ? prevLastVal : entries[0].v;
+let endVal = entries[entries.length-1].v;
+let pct = startVal > 0 ? ((endVal-startVal)/startVal)*100 : 0;
+let label = new Date(key+'-01').toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+result.push({ key, label, pct, isPositive: pct>=0, startVal, endVal });
+prevLastVal = endVal;
+});
+return result.slice(-12);
+}
+function renderMonthlyPL() {
+let list = document.getElementById('monthlyPLList');
+let inflInput = document.getElementById('inflationRateInput');
+if(inflInput && document.activeElement !== inflInput) inflInput.value = getInflationRate();
+if(!list) return;
+let data = computeMonthlyPL();
+list.innerHTML = data.length ? data.map(m => `
+<div style="flex:0 0 auto;min-width:58px;text-align:center;background:${m.isPositive?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)'};border:1px solid ${m.isPositive?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'};border-radius:10px;padding:8px 6px;">
+<div style="font-size:0.58rem;color:#94a3b8;font-weight:600;">${m.label}</div>
+<div style="font-size:0.78rem;font-weight:800;color:${m.isPositive?'#4ade80':'#f87171'};margin-top:3px;">${m.isPositive?'+':''}${m.pct.toFixed(2)}%</div>
+</div>`).join('') : '<div style="color:var(--text-sub);font-size:0.7rem;">এখনো যথেষ্ট data নেই — কয়েকদিন app খুললে মাসিক history জমা হবে।</div>';
+let overall = computeOverallReturnPct();
+let inflation = getInflationRate();
+let real = computeRealReturn(overall, inflation);
+let realEl = document.getElementById('realReturnLine');
+if(realEl) {
+realEl.innerHTML = `<strong style="color:${real>=0?'#4ade80':'#f87171'};">Real Return: ${real>=0?'+':''}${real.toFixed(2)}%</strong> (Nominal ${overall>=0?'+':''}${overall.toFixed(2)}% − Inflation ${inflation.toFixed(1)}%)`;
+}
+}
+
+let currentMonthlyReportKey = null;
+function monthKeyToLabel(key) { return new Date(key+'-01').toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+function buildMonthlyReportHTML(monthKey) {
+let monthly = computeMonthlyPL();
+let m = monthly.find(x=>x.key===monthKey);
+let overall = computeOverallReturnPct();
+let inflation = getInflationRate();
+let real = computeRealReturn(overall, inflation);
+let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0), 0);
+let p = calcPrincipal();
+let label = monthKeyToLabel(monthKey);
+let pct = m ? m.pct : 0;
+let pctColor = pct >= 0 ? '#4ade80' : '#f87171';
+return `
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+<div style="text-align:center;margin-bottom:16px;">
+<div style="font-size:13px;color:#94a3b8;">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+<h2 style="color:#facc15;margin:8px 0;">📅 Monthly Wealth Report</h2>
+<p style="color:#94a3b8;font-size:12px;margin:0;">TASLIM RONY · ${label}</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+<div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center;">
+<div style="font-size:10px;color:#94a3b8;">${label} P&amp;L</div>
+<div style="font-size:20px;font-weight:800;color:${pctColor};">${pct>=0?'+':''}${pct.toFixed(2)}%</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:12px;text-align:center;">
+<div style="font-size:10px;color:#94a3b8;">REAL RETURN (Inflation Adj.)</div>
+<div style="font-size:20px;font-weight:800;color:${real>=0?'#4ade80':'#f87171'};">${real>=0?'+':''}${real.toFixed(2)}%</div>
+</div>
+</div>
+<div style="background:#1e293b;border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;">
+<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#94a3b8;">Total Invested</span><span>${formatNumber(p.bdt)} BDT</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#94a3b8;">Total Profit (all-time)</span><span style="color:${totalProfit>=0?'#4ade80':'#f87171'};">${totalProfit>=0?'+':''}${formatNumber(totalProfit)} BDT</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#94a3b8;">Overall Nominal Return</span><span>${overall>=0?'+':''}${overall.toFixed(2)}%</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#94a3b8;">Inflation Rate Used</span><span>${inflation.toFixed(1)}%</span></div>
+</div>
+<div style="text-align:center;font-size:10px;color:#475569;border-top:1px solid #1e293b;padding-top:12px;">
+Taslim Rony 👑 · Ajwa Jannat Dua 💍 · With Dua always 🤲
+</div>
+</div>`;
+}
+function showMonthlyReportModal(monthKey) {
+currentMonthlyReportKey = monthKey;
+document.getElementById('monthlyReportContent').innerHTML = buildMonthlyReportHTML(monthKey);
+document.getElementById('monthlyReportModal').style.display = 'flex';
+}
+function closeMonthlyReportModal() { document.getElementById('monthlyReportModal').style.display = 'none'; }
+function sendMonthlyReportEmail(monthKey) {
+if(!isAdmin) return showToast("Admin required", true);
+if(!monthKey) return;
+showToast('📧 Monthly Report email পাঠানো হচ্ছে...');
+loadEmailJS(() => {
+let label = monthKeyToLabel(monthKey);
+let templateParams = {
+to_email: REPORT_EMAIL,
+to_name: 'Taslim Rony',
+subject: `📅 Monthly Wealth Report - ${label}`,
+html_content: buildMonthlyReportHTML(monthKey),
+report_date: new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
+message: `Monthly Report for ${label} is ready.`
+};
+emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+.then(() => showToast('✅ Monthly Report Email পাঠানো হয়েছে! ' + REPORT_EMAIL))
+.catch(err => { console.error('EmailJS error:', err); showToast('⚠️ Email failed', true); });
+});
+}
+function checkAutoMonthlyReport() {
+const LAST_KEY = 'wt_auto_report_last_month';
+let now = new Date();
+let curKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+let lastRecorded = localStorage.getItem(LAST_KEY);
+if(lastRecorded && lastRecorded !== curKey) {
+showMonthlyReportModal(lastRecorded);
+if(isAdmin) sendMonthlyReportEmail(lastRecorded);
+}
+localStorage.setItem(LAST_KEY, curKey);
+}
+
 // ====== AI PROFIT PREDICTION ======
 function runAIPrediction() {
 let card = document.getElementById('aiPredictionCard');
@@ -1636,13 +1852,25 @@ const loanGiven = active.filter(i=>i.type==='LOAN_GIVEN').reduce((s,i)=>s+(i.amo
 const waitMoney = investments.filter(i=>isWaitMoney(i)&&i.status==='active').reduce((s,i)=>s+(i.amountBDT||0),0);
 const activeCount = active.length;
 
-// ── Smart Return Rate ──
+// ── Smart Return Rate (multi-factor blend: actual track-record + category-expected + recent momentum) ──
 let earliestDate = null;
 active.forEach(i=>{ if(i.start){ let d=new Date(i.start); if(!earliestDate||d<earliestDate) earliestDate=d; } });
 let monthsActive = earliestDate ? Math.max(1, Math.round((new Date()-earliestDate)/(1000*60*60*24*30))) : 6;
-let monthlyReturnRate = totalInvested>0 ? (totalActualProfit/totalInvested)/monthsActive : 0;
-if(!monthlyReturnRate||monthlyReturnRate<=0) monthlyReturnRate = 0.01;
-monthlyReturnRate = Math.min(monthlyReturnRate, 0.03);
+let historicalMonthlyRate = totalInvested>0 ? (totalActualProfit/totalInvested)/monthsActive : 0;
+
+let farmValueEarly = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
+let businessValueEarly = active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
+let safeValueEarly = active.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let categoryBlendedAnnual = currentValue>0 ? ((cryptoValue*0.11)+(stockValue*0.10)+(farmValueEarly*0.19)+(businessValueEarly*0.15)+(safeValueEarly*0.08))/currentValue : 0.08;
+let categoryBlendedMonthly = categoryBlendedAnnual/12;
+
+let recentMonthsForAI = (typeof computeMonthlyPL==='function' ? computeMonthlyPL() : []).slice(-3);
+let recentMomentumMonthly = recentMonthsForAI.length ? (recentMonthsForAI.reduce((s,m)=>s+m.pct,0)/recentMonthsForAI.length)/100 : historicalMonthlyRate;
+
+// blend: 40% actual track record, 35% category-expected return, 25% recent 3-month momentum
+let monthlyReturnRate = (historicalMonthlyRate*0.40) + (categoryBlendedMonthly*0.35) + (recentMomentumMonthly*0.25);
+if(!isFinite(monthlyReturnRate)) monthlyReturnRate = 0.01;
+monthlyReturnRate = Math.max(-0.02, Math.min(monthlyReturnRate, 0.03)); // realistic bounds — allows mild negative if trend is bad
 
 // ── Predictions ──
 const monthlyProfit = totalInvested * monthlyReturnRate;
@@ -1651,11 +1879,13 @@ const yearlyProfit = monthlyProfit * 12;
 const annualRate = monthlyReturnRate * 12 * 100;
 
 // ── Goal ──
-const GOAL = 300000;
+const GOAL = getGoalAmount();
 let rem = Math.max(0, GOAL - currentValue);
 let monthsToGoalNum = monthlyProfit > 0 ? Math.ceil(rem/monthlyProfit) : null;
-let goalText = rem <= 0 ? '✅ Reached!' : monthsToGoalNum ? `${monthsToGoalNum} months` : 'Uncertain';
+let goalText = rem <= 0 ? '✅ Reached!' : monthsToGoalNum ? `${monthsToGoalNum} মাস` : 'অনিশ্চিত';
 let goalPct = Math.min((currentValue/GOAL)*100, 100);
+let goalInputEl = document.getElementById('aiGoalInput');
+if(goalInputEl && document.activeElement !== goalInputEl) goalInputEl.value = GOAL;
 
 // ── Risk ──
 const cryptoPercent = currentValue>0 ? (cryptoValue/currentValue)*100 : 0;
@@ -1664,6 +1894,24 @@ const volatilePercent = cryptoPercent + stockPercent;
 let risk='Low', riskColor='#4ade80', riskEmoji='🟢', riskScore=20;
 if(volatilePercent>50){ risk='High'; riskColor='#f87171'; riskEmoji='🔴'; riskScore=80; }
 else if(volatilePercent>25){ risk='Medium'; riskColor='#f59e0b'; riskEmoji='🟡'; riskScore=50; }
+
+// ── Diversification Score (Herfindahl-Hirschman Index across platforms) ──
+let platformValueMap = {};
+active.forEach(inv => {
+if(isWaitMoney(inv)) return;
+let val = inv.amountBDT || 0;
+if(inv.isCrypto && cryptoPrices[inv.type]) val = inv.amount*cryptoPrices[inv.type]*usdToBdt;
+else if(inv.isStock && stockPrices[inv.type]) val = inv.amount*stockPrices[inv.type]*usdToBdt;
+platformValueMap[inv.platform] = (platformValueMap[inv.platform]||0) + val;
+});
+let totalPlatformValue = Object.values(platformValueMap).reduce((a,b)=>a+b, 0);
+let hhi = totalPlatformValue>0 ? Object.values(platformValueMap).reduce((s,v)=>s+Math.pow(v/totalPlatformValue,2), 0) : 1;
+let diversificationScore = Math.round((1-hhi)*100);
+let platformCount = Object.keys(platformValueMap).length;
+let topPlatformName = Object.keys(platformValueMap).sort((a,b)=>platformValueMap[b]-platformValueMap[a])[0] || 'N/A';
+let topPlatformShare = totalPlatformValue>0 && topPlatformName!=='N/A' ? (platformValueMap[topPlatformName]/totalPlatformValue)*100 : 0;
+let diversLabel = diversificationScore>=70 ? 'ভালো ছড়ানো 👍' : diversificationScore>=40 ? 'মাঝারি ⚠️' : 'অতিরিক্ত ঘনীভূত 🚨';
+let diversColor = diversificationScore>=70 ? '#4ade80' : diversificationScore>=40 ? '#f59e0b' : '#f87171';
 
 // ── Portfolio Health Score (0-100) ──
 let healthScore = 100;
@@ -1685,7 +1933,7 @@ active.forEach(inv=>{ if(inv.isStock&&stockPrices[inv.type]&&inv.purchasePrice) 
 let dividendTotalForAI = dividends.reduce((s,d)=>s+(d.amountBDT||0),0);
 
 // ── Best Platform ──
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 let platMap = {};
 history.forEach(h => { platMap[h.platform] = (platMap[h.platform]||0) + h.profit; });
 if(Object.keys(platMap).length === 0) {
@@ -1858,17 +2106,17 @@ scoreBar.innerHTML = `
 grid.innerHTML = `
 <div class="ai-metric">
 <div class="ai-metric-label">📅 Monthly</div>
-<div class="ai-metric-value" style="color:#4ade80;">+${formatNumber(monthlyProfit)}</div>
+<div class="ai-metric-value" style="color:${monthlyProfit>=0?'#4ade80':'#f87171'};">${monthlyProfit>=0?'+':''}${formatNumber(monthlyProfit)}</div>
 <div class="ai-metric-sub">BDT · ${annualRate.toFixed(1)}% annual</div>
 </div>
 <div class="ai-metric">
 <div class="ai-metric-label">📊 Quarterly</div>
-<div class="ai-metric-value" style="color:#34d399;">+${formatNumber(quarterlyProfit)}</div>
+<div class="ai-metric-value" style="color:${quarterlyProfit>=0?'#34d399':'#f87171'};">${quarterlyProfit>=0?'+':''}${formatNumber(quarterlyProfit)}</div>
 <div class="ai-metric-sub">BDT · 3 months</div>
 </div>
 <div class="ai-metric">
 <div class="ai-metric-label">🗓️ Yearly</div>
-<div class="ai-metric-value" style="color:#facc15;">+${formatNumber(yearlyProfit)}</div>
+<div class="ai-metric-value" style="color:${yearlyProfit>=0?'#facc15':'#f87171'};">${yearlyProfit>=0?'+':''}${formatNumber(yearlyProfit)}</div>
 <div class="ai-metric-sub">BDT · projection</div>
 </div>
 <div class="ai-metric">
@@ -1890,6 +2138,21 @@ grid.innerHTML = `
 <div class="ai-metric-label">🏆 Best Platform</div>
 <div class="ai-metric-value" style="color:#f59e0b; font-size:0.88rem;">${bestPlatform}</div>
 <div class="ai-metric-sub">${bestPlatformLabel}</div>
+</div>
+<div class="ai-metric">
+<div class="ai-metric-label">🛡️ Real Return</div>
+<div class="ai-metric-value" style="color:${computeRealReturn(computeOverallReturnPct(),getInflationRate())>=0?'#4ade80':'#f87171'};">${computeRealReturn(computeOverallReturnPct(),getInflationRate())>=0?'+':''}${computeRealReturn(computeOverallReturnPct(),getInflationRate()).toFixed(2)}%</div>
+<div class="ai-metric-sub">Inflation ${getInflationRate().toFixed(1)}% adjusted</div>
+</div>
+<div class="ai-metric">
+<div class="ai-metric-label">🧩 Diversification</div>
+<div class="ai-metric-value" style="color:${diversColor};font-size:0.88rem;">${diversificationScore}/100</div>
+<div class="ai-metric-sub">${diversLabel} · ${platformCount} platform</div>
+</div>
+<div class="ai-metric">
+<div class="ai-metric-label">🎯 Goal (${formatNumber(GOAL)})</div>
+<div class="ai-metric-value" style="color:${rem<=0?'#4ade80':'#facc15'};font-size:0.88rem;">${goalText}</div>
+<div class="ai-metric-sub">${goalPct.toFixed(1)}% complete · বাকি ${formatNumber(rem)} BDT</div>
 </div>`;
 
 let catBreakdown = document.getElementById('aiCategoryBreakdown');
@@ -1938,6 +2201,48 @@ if(cryptoPercent > 0) insightLines.push(`Crypto unrealized P&L: <b style="color:
 if(stockPercent > 0) insightLines.push(`Stock (eToro) unrealized P&L: <b style="color:${stockPL>=0?'#4ade80':'#f87171'};">${stockPL>=0?'+':''}${formatNumber(stockPL)} BDT</b>`);
 if(dividendTotalForAI > 0) insightLines.push(`মোট dividend পেয়েছেন: <b style="color:#06b6d4;">+${formatNumber(dividendTotalForAI)} BDT</b>`);
 if(bestPlatform !== 'N/A') insightLines.push(`সেরা platform: <b>${bestPlatform}</b> — ${bestPlatformLabel}`);
+
+// ── Real (inflation-adjusted) return ──
+let overallReturnPct = computeOverallReturnPct();
+let inflationRateNow = getInflationRate();
+let realReturnPct = computeRealReturn(overallReturnPct, inflationRateNow);
+insightLines.push(`Real Return (inflation ${inflationRateNow.toFixed(1)}% adjust করে): <b style="color:${realReturnPct>=0?'#4ade80':'#f87171'};">${realReturnPct>=0?'+':''}${realReturnPct.toFixed(2)}%</b> (nominal ${overallReturnPct>=0?'+':''}${overallReturnPct.toFixed(2)}%)`);
+if(realReturnPct < 0 && overallReturnPct >= 0) {
+insightLines.push(`⚠️ Nominal profit থাকলেও inflation-এর কারণে টাকার real value কমছে — বেশি return দেয় এমন জায়গায় shift করার কথা ভাবুন।`);
+}
+
+// ── Monthly trend (best/worst month + recent momentum) ──
+let monthlyDataAI = computeMonthlyPL();
+if(monthlyDataAI.length >= 2) {
+let sortedByPct = [...monthlyDataAI].sort((a,b)=>b.pct-a.pct);
+let bestM = sortedByPct[0], worstM = sortedByPct[sortedByPct.length-1];
+insightLines.push(`📅 সেরা মাস: <b>${bestM.label}</b> (${bestM.pct>=0?'+':''}${bestM.pct.toFixed(2)}%) · সবচেয়ে খারাপ মাস: <b>${worstM.label}</b> (${worstM.pct>=0?'+':''}${worstM.pct.toFixed(2)}%)`);
+let recentMonths = monthlyDataAI.slice(-3);
+let recentAvgPct = recentMonths.reduce((s,mm)=>s+mm.pct,0) / recentMonths.length;
+let trendLabel = recentAvgPct > 1 ? '📈 উর্ধ্বমুখী (improving)' : recentAvgPct < -1 ? '📉 নিম্নমুখী (declining)' : '➖ স্থিতিশীল (stable)';
+insightLines.push(`গত ${recentMonths.length} মাসের trend: <b>${trendLabel}</b> (গড় ${recentAvgPct>=0?'+':''}${recentAvgPct.toFixed(2)}%/মাস)`);
+if(recentAvgPct < -1 && volatilePercent > 25) {
+suggestionDetail = (suggestionDetail ? suggestionDetail + ' · ' : '') + 'সাম্প্রতিক নেতিবাচক trend — volatile (crypto/stock) allocation কমানোর কথা ভাবুন';
+}
+}
+
+// ── Diversification / concentration risk ──
+if(platformCount > 0) {
+insightLines.push(`🧩 Diversification Score: <b style="color:${diversColor};">${diversificationScore}/100</b> (${diversLabel}) — টাকা ছড়িয়ে আছে <b>${platformCount}টি</b> platform-এ`);
+if(topPlatformShare > 50) {
+insightLines.push(`⚠️ মোট টাকার <b>${topPlatformShare.toFixed(0)}%</b> শুধু <b>${topPlatformName}</b>-এ — একটা platform-এ সমস্যা হলে বড় ধাক্কা লাগতে পারে, ছড়িয়ে দেওয়ার কথা ভাবুন।`);
+}
+}
+
+// ── Prediction basis (transparency for the blended monthly estimate) ──
+insightLines.push(`📈 Monthly প্রেডিকশন হিসাব হয়েছে: <b>৪০%</b> আসল track-record + <b>৩৫%</b> category-expected return + <b>২৫%</b> সাম্প্রতিক momentum মিলিয়ে (আগের চেয়ে বেশি accurate)`);
+
+// ── Goal ──
+if(rem > 0) {
+insightLines.push(`🎯 Target <b>${formatNumber(GOAL)} BDT</b>-এ পৌঁছাতে বর্তমান গতিতে আনুমানিক <b>${goalText}</b> লাগবে (এখন ${goalPct.toFixed(1)}% সম্পন্ন)`);
+} else {
+insightLines.push(`🎯 অভিনন্দন! আপনার target <b>${formatNumber(GOAL)} BDT</b> ইতিমধ্যে reach হয়ে গেছে — নতুন target বসানোর কথা ভাবতে পারেন।`);
+}
 
 insightEl.innerHTML = `
 <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.2);border-radius:14px;padding:12px 14px;margin-top:2px;">
@@ -2197,7 +2502,7 @@ document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeB
 
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 let dividendTotalBDT = dividends.reduce((s,d)=>s+(d.amountBDT||0),0);
 let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0) + dividendTotalBDT;
 let cryptoUnrealized = 0;
@@ -2689,7 +2994,7 @@ let date = document.getElementById('dividendDate').value || new Date().toISOStri
 let note = document.getElementById('dividendNote').value||'';
 if(!symbol || !amountUSD) return showToast('স্টক এবং পরিমাণ দিন', true);
 dividends.push({ id:Date.now().toString(), symbol, amountUSD, amountBDT:amountUSD*usdToBdt, date, note });
-localStorage.setItem('dividends', JSON.stringify(dividends));
+localStorage.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
 closeDividendModal();
 renderStockCards(); renderDividendHistory(); renderStats();
 showToast(`✅ ${symbol} dividend added: $${formatNumber(amountUSD)}`);
@@ -2699,7 +3004,7 @@ document.getElementById('dividendNote').value='';
 function deleteDividend(id) {
 if(!confirm('Delete this dividend record?')) return;
 dividends = dividends.filter(d=>d.id!==id);
-localStorage.setItem('dividends', JSON.stringify(dividends));
+localStorage.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
 renderStockCards(); renderDividendHistory(); renderStats();
 }
 function renderDividendHistory() {
@@ -2964,7 +3269,7 @@ setTimeout(exportPDF, 1000);
 window.sendEmailReport = sendEmailReport;
 
 function renderHistory() {
-let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 document.getElementById('historyList').innerHTML=history.length?history.slice().reverse().map(h=>`<div style="border-bottom:1px solid var(--border);padding:8px 0;"><b>${h.platform}</b> - ${h.type}<br>Amount: ${formatNumber(h.amount)} BDT | Profit: ${formatNumber(h.profit)} BDT${h.note?`<div class="note-text">📝 ${h.note}</div>`:''}<br><small style="color:var(--text-sub);">${h.date}</small></div>`).join(''):'<div style="color:var(--text-sub);">No history</div>';
 }
 
@@ -3039,6 +3344,77 @@ legendEl.innerHTML = pData.map((p, i) => `
 }
 }
 
+// ====== PLATFORM RISK OVERVIEW CHART ======
+let riskChart = null;
+function classifyPlatformRisk(inv) {
+if(inv.isCrypto || inv.isStock) return { level:'high', color:'#f87171', label:'High' };
+if(['Wegro','iFarmer'].includes(inv.platform) || inv.type==='Agriculture') return { level:'medium', color:'#f59e0b', label:'Medium' };
+if(inv.platform==='Biniyog' || inv.type==='Business') return { level:'medium', color:'#f59e0b', label:'Medium' };
+if(['MMPDA','BANK_DEPOSIT','MSSA'].includes(inv.type)) return { level:'low', color:'#4ade80', label:'Low' };
+return { level:'medium', color:'#94a3b8', label:'Unclassified' };
+}
+function computePlatformRiskData() {
+let active = investments.filter(i => i.status==='active' && !isWaitMoney(i));
+let map = {};
+active.forEach(inv => {
+let val = inv.amountBDT || 0;
+if(inv.isCrypto && cryptoPrices[inv.type]) val = inv.amount*cryptoPrices[inv.type]*usdToBdt;
+else if(inv.isStock && stockPrices[inv.type]) val = inv.amount*stockPrices[inv.type]*usdToBdt;
+let risk = classifyPlatformRisk(inv);
+if(!map[inv.platform]) map[inv.platform] = { value:0, risk };
+map[inv.platform].value += val;
+});
+return Object.keys(map).map(p => ({ platform:p, value:map[p].value, risk:map[p].risk })).sort((a,b)=>b.value-a.value);
+}
+function renderRiskChart() {
+let canvas = document.getElementById('riskChart');
+if(!canvas) return;
+let data = computePlatformRiskData();
+if(riskChart) { riskChart.destroy(); riskChart = null; }
+if(!data.length) return;
+let ctx = canvas.getContext('2d');
+riskChart = new Chart(ctx, {
+type: 'bar',
+data: {
+labels: data.map(d=>d.platform),
+datasets: [{ label: 'বিনিয়োগ (BDT)', data: data.map(d=>d.value), backgroundColor: data.map(d=>d.risk.color), borderRadius: 6, maxBarThickness: 26 }]
+},
+options: {
+indexAxis: 'y',
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: { display:false },
+tooltip: {
+backgroundColor: '#1e293b', titleColor: '#facc15', bodyColor: '#e2e8f0', borderColor: 'rgba(250,204,21,0.3)', borderWidth: 1,
+callbacks: { label: (c) => { let d = data[c.dataIndex]; return ` ${formatNumber(d.value)} BDT · Risk: ${d.risk.label}`; } }
+}
+},
+scales: {
+x: { ticks: { color:'#94a3b8', font:{size:9} }, grid:{ color:'rgba(255,255,255,0.05)' } },
+y: { ticks: { color:'#e2e8f0', font:{size:10} }, grid:{ display:false } }
+}
+}
+});
+}
+
+// ====== ACTIVE PORTFOLIO SECTION TOGGLE ======
+function toggleActivePortfolioSection() {
+let wrapper = document.getElementById('activePortfolioWrapper');
+let chevron = document.getElementById('activePortfolioChevron');
+let willShow = wrapper.style.display === 'none';
+wrapper.style.display = willShow ? 'block' : 'none';
+if(chevron) chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
+localStorage.setItem('wt_show_active_portfolio', willShow ? 'true' : 'false');
+}
+function applyActivePortfolioVisibility() {
+let show = localStorage.getItem('wt_show_active_portfolio') === 'true';
+let wrapper = document.getElementById('activePortfolioWrapper');
+let chevron = document.getElementById('activePortfolioChevron');
+if(wrapper) wrapper.style.display = show ? 'block' : 'none';
+if(chevron) chevron.style.transform = show ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
 // ====== PORTFOLIO P&L TICKER ======
 function renderPLTicker() {
 let el = document.getElementById('plTickerInner');
@@ -3067,7 +3443,7 @@ nonCrypto30d += (amt * rate) / 365 * 30;
 });
 
 let oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1);
-let historyAll = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let historyAll = withdrawHistory;
 let realProfitLast1Y = historyAll.reduce((s,h) => {
 if(new Date(h.date) >= oneYearAgo) return s + (h.profit||0);
 return s;
@@ -3151,29 +3527,57 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 }
 
 // ══════════════════════════════════════════════
+// FIRESTORE META SYNC — withdraw history, dividends, budgets, net-worth history
+// (localStorage is now only an instant-load cache; Firestore is the real source
+// of truth so this data is the same across every device, not stuck in one browser)
+// ══════════════════════════════════════════════
+async function saveMetaData() {
+try {
+if(!db) return;
+await db.collection('meta').doc('appdata').set({ withdrawHistory, dividends, budgetAll, nwHistory }, { merge: true });
+} catch(e) { console.warn('Meta save failed (offline?):', e); }
+}
+let metaLoadPromise = null;
+async function loadMetaData() {
+try {
+if(!db) return;
+let doc = await db.collection('meta').doc('appdata').get();
+if(doc.exists) {
+let d = doc.data();
+if(Array.isArray(d.withdrawHistory)) { withdrawHistory = d.withdrawHistory; localStorage.setItem('withdraw_history', JSON.stringify(withdrawHistory)); }
+if(Array.isArray(d.dividends)) { dividends = d.dividends; localStorage.setItem('dividends', JSON.stringify(dividends)); }
+if(Array.isArray(d.budgetAll)) { budgetAll = d.budgetAll; localStorage.setItem('budget_all', JSON.stringify(budgetAll)); }
+if(Array.isArray(d.nwHistory)) { nwHistory = d.nwHistory; localStorage.setItem(NW_KEY, JSON.stringify(nwHistory)); }
+renderAll();
+if(typeof renderDividendHistory==='function') renderDividendHistory();
+if(typeof renderBudgetDisplay==='function') renderBudgetDisplay();
+} else {
+saveMetaData(); // first run ever — seed Firestore with whatever's local
+}
+} catch(e) { console.warn('Meta load failed (offline?):', e); }
+}
+
+// ══════════════════════════════════════════════
 // NET WORTH LIVE GRAPH
 // ══════════════════════════════════════════════
 let nwChart = null;
 let nwPeriod = 7;
 const NW_KEY = 'nw_history_v2';
+let nwHistory = JSON.parse(localStorage.getItem(NW_KEY)||'[]');
 
-function getNwHistory() {
-try { return JSON.parse(localStorage.getItem(NW_KEY)||'[]'); } catch(e) { return []; }
-}
+function getNwHistory() { return nwHistory; }
 function saveNwSnapshot(valueBDT) {
 if(!valueBDT || valueBDT <= 0) return;
-let history = getNwHistory();
 let today = new Date().toISOString().slice(0,10);
-let last = history[history.length-1];
-// update today's entry or push new
+let last = nwHistory[nwHistory.length-1];
 if(last && last.date === today) {
 last.v = Math.round(valueBDT);
 } else {
-history.push({ date: today, v: Math.round(valueBDT) });
+nwHistory.push({ date: today, v: Math.round(valueBDT) });
 }
-// keep max 400 days
-if(history.length > 400) history = history.slice(-400);
-localStorage.setItem(NW_KEY, JSON.stringify(history));
+if(nwHistory.length > 400) nwHistory = nwHistory.slice(-400);
+localStorage.setItem(NW_KEY, JSON.stringify(nwHistory)); // instant-load cache only
+saveMetaData(); // Firestore = source of truth
 }
 
 function computeLiveNetWorthBDT() {
@@ -3330,7 +3734,7 @@ saveNwSnapshot(live);
 renderNwGraph();
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderRiskChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderMonthlyPL(); }
 
 // ====== INVESTMENT ACTIONS ======
 function onTypeChange() {
@@ -3407,7 +3811,7 @@ document.getElementById('investmentNote').value='';
 document.getElementById('personName').value='';
 }
 
-async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]"); history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
+async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history = withdrawHistory; history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData(); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
 async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
 function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv){ editId=id; document.getElementById('editInfo').innerHTML=`<strong>${inv.type}</strong> (${inv.platform})<br><span style="color:var(--text-sub);">Amount: ${formatNumber(inv.amountBDT)} BDT</span>`; document.getElementById('editProfit').value=inv.actualProfit||0; document.getElementById('editNote').value=inv.note||''; document.getElementById('editModal').style.display='flex'; } }
 async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
@@ -3440,9 +3844,9 @@ let inv=investments.find(i=>i.id===id); if(!inv) return showToast("Not found", t
 let profit=parseFloat(document.getElementById('mmpdaProfit').value); let rate=parseFloat(document.getElementById('mmpdaRate').value);
 if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
 if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
-let history=JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 history.push({ platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
-localStorage.setItem("withdraw_history",JSON.stringify(history));
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 inv.actualProfit=(inv.actualProfit||0)+profit;
 if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
 localStorage.setItem("investments_backup",JSON.stringify(investments));
@@ -3481,7 +3885,7 @@ if(isNaN(amount) || amount <= 0) return showToast("Enter a valid rental amount",
 let period = document.getElementById('rentalPeriod').value.trim() || new Date().toISOString().slice(0,7);
 let note = document.getElementById('rentalNote').value.trim();
 if(!confirm(`Confirm receiving ${formatNumber(amount)} BDT rental income from ${inv.platform || inv.type}?`)) return;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 history.push({
 platform: inv.platform || inv.type,
 type: "Rental Income",
@@ -3490,7 +3894,7 @@ profit: amount,
 date: new Date().toISOString().slice(0,10),
 note: (note ? note + ' | ' : '') + 'Period: ' + period
 });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 inv.actualProfit = (inv.actualProfit||0) + amount;
 if(db && isAdmin) db.collection("investments").doc(inv.id).update({actualProfit: inv.actualProfit}).catch(console.error);
 localStorage.setItem("investments_backup", JSON.stringify(investments));
@@ -3561,7 +3965,7 @@ if(withdrawAmt > inv.amountBDT) return showToast(`সর্বোচ্চ ${for
 
 let remaining = inv.amountBDT - withdrawAmt;
 
-let history = JSON.parse(localStorage.getItem("withdraw_history") || "[]");
+let history = withdrawHistory;
 history.push({
 platform: inv.platform,
 type: `${inv.type} (Partial)`,
@@ -3570,7 +3974,7 @@ profit: withdrawProfit,
 date: new Date().toISOString().slice(0,10),
 note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT`
 });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(remaining <= 0) {
 inv.status = 'completed';
@@ -3721,15 +4125,26 @@ showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতু�
 }
 function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
 
-// ====== AUTH ======
+// ====== AUTH (Firebase Authentication — no password stored in this file) ======
 async function adminLogin(pass, isAuto=false) {
-if(pass!==ADMIN_PASSWORD){ if(!isAuto) showToast("Wrong password!", true); return false; }
-isAdmin=true; localStorage.setItem(STORAGE_KEY,"true"); updateUI();
-try { if(typeof firebase!=='undefined'){ if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); await loadData(); } } catch(e) { console.warn("Firebase not available, using localStorage"); }
+try {
+if(typeof firebase==='undefined') throw new Error('firebase unavailable');
+if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
+db = firebase.firestore();
+await firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, pass);
+// isAdmin is set by the onAuthStateChanged listener in the init block
+await loadData();
 if(!isAuto) showToast("✅ Admin logged in!");
-renderAll(); return true;
+return true;
+} catch(e) {
+if(!isAuto) showToast("Wrong password!", true);
+return false;
 }
-function adminLogout() { isAdmin=false; localStorage.removeItem(STORAGE_KEY); updateUI(); showToast("Logged out"); renderAll(); }
+}
+function adminLogout() {
+if(typeof firebase!=='undefined' && firebase.apps.length) firebase.auth().signOut();
+isAdmin=false; updateUI(); showToast("Logged out"); renderAll();
+}
 function updateUI() {
 let form=document.getElementById('formCard'), login=document.getElementById('loginWidget'), logout=document.getElementById('logoutWidget'), auth=document.getElementById('authDisplay');
 if(isAdmin){ login.style.display='none'; logout.style.display='block'; auth.innerHTML='<i class="fas fa-user-shield"></i> Admin Mode • Taslim Rony'; }
@@ -3743,7 +4158,6 @@ if(!db) return;
 try { let snap=await db.collection("investments").get(); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); }
 catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
 }
-function checkSavedLogin() { if(localStorage.getItem(STORAGE_KEY)==="true") adminLogin(ADMIN_PASSWORD, true); }
 
 // ====== EXPOSE GLOBALS ======
 window.openEdit=openEdit; window.saveEdit=saveEdit; window.closeEditModal=closeEditModal;
@@ -3768,7 +4182,23 @@ let backup = localStorage.getItem("investments_backup");
 investments = backup ? JSON.parse(backup) : [];
 renderAll();
 
-checkSavedLogin();
+// Initialize Firebase immediately — needed for guest (read-only) data AND admin auth
+try {
+if(typeof firebase !== 'undefined') {
+if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
+db = firebase.firestore();
+if(navigator.onLine) { loadData(); metaLoadPromise = loadMetaData(); }
+firebase.auth().onAuthStateChanged(async function(user) {
+if(user && user.email === ADMIN_EMAIL) {
+isAdmin = true; updateUI(); renderAll();
+if(metaLoadPromise) await metaLoadPromise; // wait for the Firestore pull to finish BEFORE pushing —
+saveMetaData(); // otherwise a stale local cache could overwrite newer remote data
+} else { isAdmin = false; updateUI(); }
+});
+}
+} catch(e) { console.warn("Firebase unavailable:", e); }
+
+setTimeout(checkAutoMonthlyReport, 2000);
 
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
@@ -3782,15 +4212,6 @@ document.getElementById('saveBtn').addEventListener('click', addInvestment);
 document.getElementById('mmpdaBtn').addEventListener('click', openMmpdaModal);
 document.getElementById('rentalBtn').addEventListener('click', openRentalModal);
 
-setTimeout(() => {
-try {
-if(typeof firebase !== 'undefined') {
-if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
-db = firebase.firestore();
-if(navigator.onLine) loadData();
-}
-} catch(e) { console.warn("Firebase unavailable:", e); }
-}, 500);
 
 (function() {
 const VISIT_KEY = 'wt_total_visits';
@@ -3824,7 +4245,7 @@ let withdrawalLogChart = null;
 function renderWithdrawalLogChart() {
 let canvas = document.getElementById('withdrawalLogChart');
 if(!canvas) return;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 if(history.length === 0) {
 document.getElementById('withdrawalLogCard').style.display = 'none';
 return;
@@ -3865,7 +4286,7 @@ let now = new Date();
 let label = now.toLocaleString('default',{month:'long',year:'numeric'});
 document.getElementById('budgetMonthLabel').textContent = `📅 ${label}`;
 let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
-let saved = JSON.parse(localStorage.getItem(key)||'{}');
+let saved = budgetAll.find(b => b.month===now.getMonth() && b.year===now.getFullYear()) || {};
 document.getElementById('budgetIncome').value = saved.income||'';
 document.getElementById('budgetExpense').value = saved.expense||'';
 document.getElementById('budgetInvested').value = saved.invested||'';
@@ -3890,7 +4311,6 @@ document.getElementById('budgetCalc').style.display = 'block';
 }
 function saveBudget() {
 let now = new Date();
-let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
 let data = {
 income: parseFloat(document.getElementById('budgetIncome').value)||0,
 expense: parseFloat(document.getElementById('budgetExpense').value)||0,
@@ -3899,19 +4319,18 @@ note: document.getElementById('budgetNote').value,
 month: now.getMonth(), year: now.getFullYear(),
 label: now.toLocaleString('default',{month:'long',year:'numeric'})
 };
-let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
-all = all.filter(b => !(b.month===data.month && b.year===data.year));
-all.push(data);
-if(all.length > 12) all = all.slice(-12);
-localStorage.setItem('budget_all', JSON.stringify(all));
-localStorage.setItem(key, JSON.stringify(data));
+budgetAll = budgetAll.filter(b => !(b.month===data.month && b.year===data.year));
+budgetAll.push(data);
+if(budgetAll.length > 12) budgetAll = budgetAll.slice(-12);
+localStorage.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
+saveMetaData(); // Firestore = source of truth
 closeBudgetModal();
 renderBudgetDisplay();
 showToast('✅ বাজেট save হয়েছে!');
 }
 function closeBudgetModal() { document.getElementById('budgetModal').style.display='none'; }
 function renderBudgetDisplay() {
-let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
+let all = budgetAll;
 let el = document.getElementById('budgetDisplay');
 if(!el) return;
 if(all.length === 0) { el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-sub);font-size:0.75rem;">এখনো বাজেট add করা হয়নি</div>'; return; }
@@ -3950,10 +4369,9 @@ ${isAdmin?`<button onclick="deleteBudget(${b.year},${b.month})" style="margin-to
 }).join('');
 }
 function deleteBudget(year, month) {
-let all = JSON.parse(localStorage.getItem('budget_all')||'[]');
-all = all.filter(b=>!(b.year===year&&b.month===month));
-localStorage.setItem('budget_all', JSON.stringify(all));
-localStorage.removeItem(`budget_${year}_${month}`);
+budgetAll = budgetAll.filter(b=>!(b.year===year&&b.month===month));
+localStorage.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
+saveMetaData(); // Firestore = source of truth
 renderBudgetDisplay();
 }
 window.openBudgetModal=openBudgetModal; window.closeBudgetModal=closeBudgetModal; window.saveBudget=saveBudget; window.deleteBudget=deleteBudget;
@@ -4090,7 +4508,7 @@ amount: inv.amount, amountBDT: inv.amountBDT, amountUSD: inv.amountUSD
 }
 let revenueBDT = sellUSD * usdToBdt;
 let profitBDT = (sellUSD - costBasis) * usdToBdt;
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 history.push({
 platform: 'Binance', type: coin,
 amount: revenueBDT, profit: profitBDT,
@@ -4098,7 +4516,7 @@ sellQty: sellQty, sellPriceUSD: sellPrice,
 date: today,
 note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
 });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 localStorage.setItem("investments_backup", JSON.stringify(investments));
 closeCryptoSellModal();
 renderAll();
@@ -4231,9 +4649,9 @@ inv.amountBDT = inv.amountBDT - costRemoved;
 inv.currentValue = curVal - amt;
 inv.actualProfit = inv.currentValue - inv.amountBDT;
 
-let history = JSON.parse(localStorage.getItem("withdraw_history")||"[]");
+let history = withdrawHistory;
 history.push({ platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
-localStorage.setItem("withdraw_history", JSON.stringify(history));
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(inv.currentValue <= 0.01 || inv.amountBDT <= 0.01) { inv.status='completed'; inv.amountBDT=0; inv.currentValue=0; }
 
