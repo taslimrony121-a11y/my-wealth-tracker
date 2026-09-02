@@ -1532,9 +1532,9 @@ let activeCurrency = "BDT";
 let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
 let deferredPrompt = null;
 // SECURITY: real password is NEVER stored in this file. Login uses Firebase
-// Authentication (Email/Password). Create this exact admin user once in
-// Firebase Console → Authentication → Users, with whatever password you like.
-const ADMIN_EMAIL = "taslim-admin@wealthtracker.local";
+// Authentication (Email/Password). This must exactly match the user created
+// in Firebase Console → Authentication → Users, and the Firestore rules.
+const ADMIN_EMAIL = "ronygp123@gmail.com";
 
 // Multi-currency rates vs USD — fetched live, fallback values used until API responds
 let currencyRates = { BDT: 122.5, USD: 1, EUR: 0.92, GBP: 0.79, SAR: 3.75 };
