@@ -4137,7 +4137,15 @@ await loadData();
 if(!isAuto) showToast("✅ Admin logged in!");
 return true;
 } catch(e) {
-if(!isAuto) showToast("Wrong password!", true);
+console.error('Admin login failed:', e.code || e.message || e);
+if(!isAuto) {
+let msg = "Login failed: " + (e.code || e.message || "unknown error");
+if(e.code === 'auth/unauthorized-domain') msg = "⚠️ এই ডোমেইন Firebase-এ authorize করা নেই (Authentication → Settings → Authorized domains-এ যোগ করুন)";
+else if(e.code === 'auth/user-not-found' || e.code === 'auth/invalid-email') msg = "⚠️ Firebase-এ এই email দিয়ে কোনো admin user নেই — Authentication → Users-এ ঠিক email দিয়ে user বানান";
+else if(e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential' || e.code === 'auth/invalid-login-credentials') msg = "⚠️ ভুল password (Firebase Console-এ যেটা set করেছেন সেটাই দিন)";
+else if(e.code === 'auth/operation-not-allowed') msg = "⚠️ Firebase-এ Email/Password sign-in enable করা নেই — Authentication → Sign-in method-এ enable করুন";
+showToast(msg, true);
+}
 return false;
 }
 }
