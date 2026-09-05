@@ -682,7 +682,21 @@ body { padding: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ====== BUSY MARKET / LIVE FEEL ====== */
+@keyframes livePulseDot { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(74,222,128,0.6); } 50% { opacity:0.5; box-shadow:0 0 0 6px rgba(74,222,128,0); } }
+.live-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80; margin-right:5px; animation: livePulseDot 1.4s infinite; }
+.live-badge { display:inline-flex; align-items:center; font-size:0.6rem; font-weight:800; letter-spacing:0.5px; color:#4ade80; background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.35); padding:2px 8px; border-radius:20px; }
+@keyframes flashGreen { 0% { background-color:rgba(74,222,128,0.55); } 100% { background-color:transparent; } }
+@keyframes flashRed { 0% { background-color:rgba(248,113,113,0.55); } 100% { background-color:transparent; } }
+.flash-up { animation: flashGreen 0.9s ease-out; border-radius:6px; }
+.flash-down { animation: flashRed 0.9s ease-out; border-radius:6px; }
+@keyframes borderGlowPulse { 0%,100% { box-shadow:0 0 0 rgba(74,222,128,0); } 50% { box-shadow:0 0 14px rgba(74,222,128,0.35); } }
+.ai-card { animation: borderGlowPulse 3.5s ease-in-out infinite; }
+@keyframes softGlowRed { 0%,100% { box-shadow:0 0 0 rgba(248,113,113,0); } 50% { box-shadow:0 0 12px rgba(248,113,113,0.3); } }
+.gantt-item.expiring-soon, .gantt-item.expiring-today, .gantt-item.expired { animation: softGlowRed 2.2s ease-in-out infinite; }
 </style>
+<!-- LIVE MARKET STYLE PATCH END -->
 
 </head>
 <body>
@@ -798,6 +812,7 @@ body { padding: 10px; }
 
 <div class="action-buttons">
 <button onclick="exportPDF()" class="action-btn" style="border-color:#ef4444;color:#ef4444;"><i class="fas fa-file-pdf"></i> Export PDF</button>
+<button onclick="exportDataCSV()" class="action-btn" style="border-color:#22c55e;color:#22c55e;"><i class="fas fa-file-csv"></i> Export CSV/Excel</button>
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
 <button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-coins"></i> Wahed Top-up</button>
@@ -996,7 +1011,7 @@ oninput="updateInvestSimulator()">
 <div class="stat-label">💰 Total Invested (Principal)</div>
 <div class="stat-value-bdt"><span id="totalPrincipal">0</span> <span id="principalCurrLabel">BDT</span></div>
 <div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div>
-<div class="stat-sub">📌 What you PAID (incl. loans given - loans taken + wait money)</div>
+<div class="stat-sub">📌 নিজের পকেট থেকে দেওয়া আসল টাকা (reinvest করা লাভ বাদ)</div>
 <div id="totalProfitSinceInception" style="margin-top:8px;"></div>
 </div>
 <div class="stat-card">
@@ -1019,7 +1034,7 @@ oninput="updateInvestSimulator()">
 <div class="card" style="padding:16px 14px 12px;">
 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
 <div>
-<div style="font-size:0.6rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Asset Net Worth</div>
+<div style="font-size:0.6rem;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Asset Net Worth &nbsp;<span class="live-badge"><span class="live-dot"></span>LIVE</span></div>
 <div id="nwGraphDate" style="font-size:0.62rem;color:#94a3b8;"></div>
 <div id="nwGraphValue" style="font-size:1.6rem;font-weight:800;color:#f1f5f9;font-family:'Sora',sans-serif;margin-top:2px;">৳0</div>
 <div id="nwGraphChange" style="font-size:0.65rem;font-weight:700;margin-top:1px;"></div>
@@ -1154,7 +1169,7 @@ oninput="onInflationRateChange()">
 
 <!-- PLATFORM RISK OVERVIEW -->
 <div class="card">
-<h3><i class="fas fa-triangle-exclamation"></i> Platform Risk Overview</h3>
+<h3><i class="fas fa-triangle-exclamation"></i> Platform Risk Overview &nbsp;<span class="live-badge"><span class="live-dot"></span>LIVE</span></h3>
 <div style="position:relative;height:220px;">
 <canvas id="riskChart"></canvas>
 </div>
@@ -1163,6 +1178,13 @@ oninput="onInflationRateChange()">
 <span>🟡 Medium (Farming/Business)</span>
 <span>🔴 High (Crypto/Stock)</span>
 </div>
+</div>
+
+<!-- CURRENCY EXPOSURE -->
+<div class="card">
+<h3><i class="fas fa-money-bill-transfer"></i> Currency Exposure</h3>
+<div style="display:flex;height:28px;border-radius:8px;overflow:hidden;margin:10px 0 8px;box-shadow:0 0 12px rgba(0,0,0,0.3);" id="currencyExposureBar"></div>
+<div id="currencyExposureText" style="font-size:0.7rem;color:var(--text-sub);text-align:center;"></div>
 </div>
 </div>
 
@@ -1239,6 +1261,17 @@ oninput="onInflationRateChange()">
 </div>
 
 <!-- MONTHLY REPORT MODAL (Auto + Manual) -->
+<!-- WITHDRAW HISTORY MODAL (per-investment partial withdraw log) -->
+<div id="withdrawHistoryModal" class="modal">
+<div class="modal-content" style="max-width:480px;">
+<h3><i class="fas fa-clock-rotate-left"></i> Withdraw History</h3>
+<div id="withdrawHistoryContent" style="max-height:60vh;overflow-y:auto;"></div>
+<div style="margin-top:16px;">
+<button onclick="closeWithdrawHistoryModal()" style="width:100%;background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:8px;cursor:pointer;">Close</button>
+</div>
+</div>
+</div>
+
 <div id="monthlyReportModal" class="modal">
 <div class="modal-content" style="max-width:480px;">
 <h3><i class="fas fa-calendar-check"></i> Monthly Report</h3>
@@ -1390,6 +1423,10 @@ oninput="onInflationRateChange()">
 <button onclick="saveBudget()" class="btn-save" style="flex:1;background:linear-gradient(135deg,#06b6d4,#0891b2);">💾 Save</button>
 <button onclick="closeBudgetModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px;border-radius:12px;cursor:pointer;flex:0.3;">Cancel</button>
 </div>
+<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+<div style="font-size:0.68rem;color:#06b6d4;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">📊 আগের মাসগুলোর বাজেট</div>
+<div id="budgetDisplay"></div>
+</div>
 </div>
 </div>
 
@@ -1513,6 +1550,7 @@ let plTickerStartTs = Date.now();
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
+let lastKlinesFetch = 0;
 
 // ====== STOCK (eToro) STATE ======
 const STOCK_SYMS = ['AAPL','NVDA','ARAMCO'];
@@ -1634,7 +1672,7 @@ html.setAttribute('data-theme', next);
 localStorage.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
-setTimeout(() => { renderPlatformChart(); renderRiskChart(); renderWithdrawalLogChart(); applyActivePortfolioVisibility(); }, 100);
+setTimeout(() => { renderPlatformChart(); renderRiskChart(); renderCurrencyExposure(); renderWithdrawalLogChart(); applyActivePortfolioVisibility(); }, 100);
 }
 function loadTheme() {
 let saved = localStorage.getItem('theme') || 'dark';
@@ -1663,15 +1701,18 @@ if(btn) btn.classList.add('active');
 function checkAlerts() {
 let today = new Date(); today.setHours(0,0,0,0);
 let expired = investments.filter(i => { if(!i.end || i.status==='completed') return false; let e=new Date(i.end); e.setHours(0,0,0,0); return e < today; });
-let expiringSoon = investments.filter(i => { if(!i.end || i.status==='completed') return false; let e=new Date(i.end); e.setHours(0,0,0,0); let diff=Math.ceil((e-today)/(1000*60*60*24)); return diff >= 0 && diff <= 7; });
+let expiringSoon = investments.filter(i => { if(!i.end || i.status==='completed') return false; let e=new Date(i.end); e.setHours(0,0,0,0); let diff=Math.ceil((e-today)/(1000*60*60*24)); return diff >= 0 && diff <= 30; });
 let expiredEl = document.getElementById('alertExpired');
 let soonEl = document.getElementById('alertExpiringSoon');
 if(expired.length > 0) {
-expiredEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <strong>🔴 ${expired.length} investment(s) EXPIRED!</strong> ${expired.map(i=>i.type+' ('+i.platform+')').join(', ')} — দ্রুত ব্যবস্থা নিন!`;
+let totalAmt = expired.reduce((s,i)=>s+(i.amountBDT||0),0);
+expiredEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> <strong>🔴 ${expired.length}টি investment MATURE হয়ে গেছে!</strong> মোট ${formatNumber(totalAmt)} BDT — ${expired.map(i=>i.type+' ('+i.platform+')').join(', ')} — দ্রুত ব্যবস্থা নিন!`;
 expiredEl.classList.add('show');
 } else { expiredEl.classList.remove('show'); }
 if(expiringSoon.length > 0) {
-soonEl.innerHTML = `<i class="fas fa-clock"></i> <strong>🟠 ${expiringSoon.length} investment(s) soon expiring!</strong> ${expiringSoon.map(i=>i.type+' → '+i.end).join(' | ')}`;
+let totalAmt2 = expiringSoon.reduce((s,i)=>s+(i.amountBDT||0),0);
+expiringSoon.sort((a,b)=>new Date(a.end)-new Date(b.end));
+soonEl.innerHTML = `<i class="fas fa-clock"></i> <strong>🟠 ${expiringSoon.length}টি investment আগামী ৩০ দিনে mature হবে!</strong> মোট ${formatNumber(totalAmt2)} BDT — ${expiringSoon.map(i=>i.type+' → '+i.end).join(' | ')}`;
 soonEl.classList.add('show');
 } else { soonEl.classList.remove('show'); }
 }
@@ -1703,6 +1744,43 @@ function computeOverallReturnPct() {
 let p = calcPrincipal();
 let totalProfit = investments.reduce((s,i)=>s+(i.actualProfit||0), 0);
 return p.bdt > 0 ? (totalProfit/p.bdt)*100 : 0;
+}
+function computeXIRR() {
+let flows = [];
+investments.forEach(inv => { if(inv.start) flows.push({ date: new Date(inv.start), amount: -(inv.amountBDT||0) }); });
+withdrawHistory.forEach(h => { if(h.date) flows.push({ date: new Date(h.date), amount: (h.amount||0) }); });
+let liveVal = computeLiveNetWorthBDT();
+if(liveVal > 0) flows.push({ date: new Date(), amount: liveVal });
+flows = flows.filter(f => !isNaN(f.date.getTime()) && f.amount !== 0);
+if(flows.length < 2) return null;
+flows.sort((a,b) => a.date - b.date);
+let t0 = flows[0].date.getTime();
+let years = flows.map(f => (f.date.getTime()-t0)/(1000*60*60*24*365));
+function npv(rate) { return flows.reduce((s,f,i) => s + f.amount/Math.pow(1+rate, years[i]), 0); }
+function dnpv(rate) { return flows.reduce((s,f,i) => s - years[i]*f.amount/Math.pow(1+rate, years[i]+1), 0); }
+let rate = 0.15;
+for(let iter=0; iter<100; iter++) {
+let f = npv(rate), df = dnpv(rate);
+if(Math.abs(df) < 1e-10) break;
+let newRate = rate - f/df;
+if(!isFinite(newRate)) break;
+if(Math.abs(newRate-rate) < 1e-7) { rate = newRate; break; }
+rate = newRate;
+}
+if(!isFinite(rate) || rate < -0.99 || rate > 10) return null;
+return rate * 100;
+}
+function computeCurrencyExposure() {
+let active = investments.filter(i => i.status==='active' && !isWaitMoney(i));
+let usdBasedValue = 0, bdtBasedValue = 0;
+active.forEach(inv => {
+let val = inv.amountBDT || 0;
+if(inv.isCrypto && cryptoPrices[inv.type]) val = inv.amount*cryptoPrices[inv.type]*usdToBdt;
+else if(inv.isStock && stockPrices[inv.type]) val = inv.amount*stockPrices[inv.type]*usdToBdt;
+if(inv.isCrypto || inv.isStock || inv.isWahed) usdBasedValue += val; else bdtBasedValue += val;
+});
+let total = usdBasedValue + bdtBasedValue;
+return { usdBasedValue, bdtBasedValue, usdPct: total>0?(usdBasedValue/total)*100:0, bdtPct: total>0?(bdtBasedValue/total)*100:0 };
 }
 function computeRealReturn(nominalPct, inflationPct) {
 return (((1+nominalPct/100)/(1+inflationPct/100)) - 1) * 100;
@@ -2153,6 +2231,11 @@ grid.innerHTML = `
 <div class="ai-metric-label">🎯 Goal (${formatNumber(GOAL)})</div>
 <div class="ai-metric-value" style="color:${rem<=0?'#4ade80':'#facc15'};font-size:0.88rem;">${goalText}</div>
 <div class="ai-metric-sub">${goalPct.toFixed(1)}% complete · বাকি ${formatNumber(rem)} BDT</div>
+</div>
+<div class="ai-metric">
+<div class="ai-metric-label">📐 XIRR (আসল return)</div>
+<div class="ai-metric-value" style="color:${(computeXIRR()||0)>=0?'#4ade80':'#f87171'};font-size:0.88rem;">${computeXIRR()!==null?(computeXIRR()>=0?'+':'')+computeXIRR().toFixed(2)+'%':'N/A'}</div>
+<div class="ai-metric-sub">সময়-ভিত্তিক cash-flow adjusted</div>
 </div>`;
 
 let catBreakdown = document.getElementById('aiCategoryBreakdown');
@@ -2207,6 +2290,10 @@ let overallReturnPct = computeOverallReturnPct();
 let inflationRateNow = getInflationRate();
 let realReturnPct = computeRealReturn(overallReturnPct, inflationRateNow);
 insightLines.push(`Real Return (inflation ${inflationRateNow.toFixed(1)}% adjust করে): <b style="color:${realReturnPct>=0?'#4ade80':'#f87171'};">${realReturnPct>=0?'+':''}${realReturnPct.toFixed(2)}%</b> (nominal ${overallReturnPct>=0?'+':''}${overallReturnPct.toFixed(2)}%)`);
+let xirrVal = computeXIRR();
+if(xirrVal !== null) {
+insightLines.push(`📐 XIRR: <b style="color:${xirrVal>=0?'#4ade80':'#f87171'};">${xirrVal>=0?'+':''}${xirrVal.toFixed(2)}%</b> — এটা টাকা কখন ঢুকেছে/বেরিয়েছে সেই সময় হিসাব করে বলে simple return-এর চেয়ে বেশি accurate`);
+}
 if(realReturnPct < 0 && overallReturnPct >= 0) {
 insightLines.push(`⚠️ Nominal profit থাকলেও inflation-এর কারণে টাকার real value কমছে — বেশি return দেয় এমন জায়গায় shift করার কথা ভাবুন।`);
 }
@@ -2481,17 +2568,55 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 
 // ====== STATS ======
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
+
+// ====== POCKET PRINCIPAL (actual own-pocket money, reinvested profit netted out) ======
+// Whenever a completed investment's PROFIT comes back, that profit becomes a "credit" —
+// the next new investment(s) draw from that credit first, and only the amount beyond
+// the available credit counts as fresh money out of your own pocket.
+function computePocketPrincipal() {
+let events = [];
+investments.forEach(inv => {
+if(!inv.start) return;
+let d = new Date(inv.start);
+if(isNaN(d.getTime())) return;
+if(inv.type === 'LOAN_TAKEN') events.push({ date:d, kind:'credit', amount: inv.amountBDT||0 }); // borrowed money isn't your own pocket
+else events.push({ date:d, kind:'outflow', amount: inv.amountBDT||0 });
+});
+withdrawHistory.forEach(h => {
+if(!h.date || !h.profit) return;
+let d = new Date(h.date);
+if(isNaN(d.getTime())) return;
+events.push({ date:d, kind:'credit', amount: h.profit });
+});
+events.sort((a,b) => {
+let dateDiff = a.date - b.date;
+if(dateDiff !== 0) return dateDiff;
+if(a.kind === b.kind) return 0;
+return a.kind === 'credit' ? -1 : 1; // same-day: credit lands before it's spent
+});
+let creditPool = 0, pocketTotal = 0;
+events.forEach(e => {
+if(e.kind === 'credit') { creditPool += e.amount; }
+else {
+let used = Math.min(e.amount, Math.max(0, creditPool));
+creditPool -= used;
+pocketTotal += (e.amount - used);
+}
+});
+return pocketTotal;
+}
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
 function renderStats() {
 let p=calcPrincipal(), c=calcCurrent(), pl=c.bdt-p.bdt, per=p.bdt>0?(pl/p.bdt*100):0;
+let pocket = computePocketPrincipal(); // actual own-pocket money (reinvested profit netted out)
 let sym = currencySymbols[activeCurrency];
 let rate = currencyRates[activeCurrency];
-let pConv = (p.usd * rate);
+let pConv = (pocket/usdToBdt * rate);
 let cConv = (c.usd * rate);
 document.getElementById('totalPrincipal').innerHTML = formatNumber(pConv);
 document.getElementById('principalCurrLabel').textContent = activeCurrency;
-document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(p.usd);
+document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(pocket/usdToBdt);
 document.getElementById('currentValue').innerHTML = formatNumber(cConv);
 document.getElementById('currentCurrLabel').textContent = activeCurrency;
 document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd);
@@ -2628,7 +2753,7 @@ let extraBtns = '';
 if(isAdmin) {
 if(isBankOrDeposit) extraBtns = `<button class="btn-icon" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.4);" onclick="openTopUpModal('${inv.id}')"><i class="fas fa-plus-circle"></i></button>`;
 }
-return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
+return `<div class="investment-item"><div class="investment-title"><div><span class="investment-name">${inv.type}</span><span class="status-badge status-active">ACTIVE</span>${isMSSA && inv.installmentCount ? `<span class="status-badge" style="background:rgba(250,204,21,0.1);color:var(--accent);border:1px solid rgba(250,204,21,0.3);margin-left:4px;">${inv.installmentCount} মাস</span>` : ''}</div><div class="investment-actions">${isAdmin?`<button class="btn-icon btn-withdraw" onclick="markComplete('${inv.id}')"><i class="fas fa-check-double"></i> Full</button><button class="btn-icon" style="background:rgba(16,185,129,0.15);color:#10b981;border-color:rgba(16,185,129,0.4);" onclick="openPartialModal('${inv.id}')"><i class="fas fa-money-bill-wave"></i> Partial</button>${extraBtns}<button class="btn-icon" style="background:rgba(56,189,248,0.15);color:#38bdf8;border-color:rgba(56,189,248,0.4);" onclick="openWithdrawHistoryModal('${inv.id}')"><i class="fas fa-clock-rotate-left"></i></button><button class="btn-icon btn-edit" onclick="openEdit('${inv.id}')"><i class="fas fa-edit"></i></button><button class="btn-icon btn-delete" onclick="deleteInv('${inv.id}')"><i class="fas fa-trash"></i></button>`:'<span class="note-text">🔒 Login</span>'}</div></div><span class="investment-details">💵 Invested: ${investedDisplay}${isMSSA && inv.monthlyInstallment ? ` <span style="color:var(--accent);">(${formatNumber(inv.monthlyInstallment)} BDT/মাস)</span>` : ''}</span>${currentDisplay}<span class="investment-details">✅ Expected: +${formatNumber(inv.expectedProfit)} BDT | Actual: +${formatNumber(inv.actualProfit)} BDT</span>${inv.person?`<div class="note-text">👤 ${inv.person}</div>`:''}${inv.note?`<div class="note-text">📝 ${inv.note}</div>`:''}<span class="investment-details">📅 ${inv.start}${inv.end?' → '+inv.end:''}</span></div>`;
 }
 
 function togglePlatformMore(platKey) {
@@ -2739,20 +2864,27 @@ restorePlatformMoreState();
 // ====== CRYPTO PRICES ======
 async function updateCryptoPrices() {
 try {
+let symbolsParam = encodeURIComponent(JSON.stringify(['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT']));
 let [priceRes, change24Res] = await Promise.all([
-fetch('https://api.binance.com/api/v3/ticker/price'),
-fetch('https://api.binance.com/api/v3/ticker/24hr')
+fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${symbolsParam}`),
+fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsParam}`)
 ]);
+if(!priceRes.ok || !change24Res.ok) throw new Error('Binance rate-limited or unavailable: ' + priceRes.status + '/' + change24Res.status);
 let priceData = await priceRes.json();
 let change24Data = await change24Res.json();
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let found = priceData.find(p=>p.symbol===coin+'USDT');
 if(found){
 let np = parseFloat(found.price);
+let prevPrice = cryptoPrices[coin];
 if(crypto7dPrices[coin]===0&&cryptoPrices[coin]) crypto7dPrices[coin]=cryptoPrices[coin];
 if(cryptoPrices[coin]&&cryptoPrices[coin]!==np) crypto24hPrices[coin]=cryptoPrices[coin];
 else if(!crypto24hPrices[coin]&&cryptoPrices[coin]) crypto24hPrices[coin]=cryptoPrices[coin];
 cryptoPrices[coin]=np;
+if(prevPrice && np !== prevPrice) {
+let priceEl = document.getElementById(coin.toLowerCase()+'Usd');
+if(priceEl) { priceEl.classList.remove('flash-up','flash-down'); void priceEl.offsetWidth; priceEl.classList.add(np>prevPrice?'flash-up':'flash-down'); }
+}
 }
 let t24 = change24Data.find(t=>t.symbol===coin+'USDT');
 if(t24&&t24.priceChangePercent){
@@ -2761,6 +2893,8 @@ let el=document.getElementById(coin.toLowerCase()+'24hPL');
 if(el) el.innerHTML=`<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% 24h</span>`;
 }
 }
+if(Date.now() - lastKlinesFetch > 10*60*1000) { // 7d price barely moves — fetch at most every 10 min, not every tick
+lastKlinesFetch = Date.now();
 for(let coin of ['BTC','ETH','BNB','SOL']){
 try{
 let now=Date.now(), ago=now-(7*24*60*60*1000);
@@ -2768,6 +2902,7 @@ let kr=await fetch(`https://api.binance.com/api/v3/klines?symbol=${coin}USDT&int
 let kd=await kr.json();
 if(kd&&kd[0]&&kd[0][4]){ let p7=parseFloat(kd[0][4]); if(p7>0) crypto7dPrices[coin]=p7; }
 }catch(e){}
+}
 }
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let qty=investments.filter(i=>i.type===coin&&i.status==='active').reduce((s,i)=>s+i.amount,0);
@@ -3286,7 +3421,7 @@ let diff=Math.ceil((end-today)/(1000*60*60*24));
 let cls='',badge='',icon='fa-calendar-day';
 if(diff<0){ cls='expired'; badge=`Expired ${Math.abs(diff)} days ago`; icon='fa-exclamation-triangle'; }
 else if(diff===0){ cls='expiring-today'; badge='Expires Today!'; icon='fa-hourglass-end'; }
-else if(diff<=7){ cls='expiring-soon'; badge=`${diff} days left`; icon='fa-hourglass-half'; }
+else if(diff<=30){ cls='expiring-soon'; badge=`${diff} days left`; icon='fa-hourglass-half'; }
 else return;
 html+=`<div class="timeline-item ${cls}"><div><i class="fas ${icon}" style="color:${diff<0?'#ef4444':diff===0?'#facc15':'#f59e0b'};"></i></div><div><div><b>${proj.type}</b> - ${proj.platform}</div><div style="font-size:0.7rem;color:var(--text-sub);">${diff<0?'🔴 EXPIRED — ':''}Ends: ${proj.end} | ${badge}${proj.note?`<br><small>📝 ${proj.note}</small>`:''}</div></div></div>`;
 });
@@ -3396,6 +3531,50 @@ y: { ticks: { color:'#e2e8f0', font:{size:10} }, grid:{ display:false } }
 }
 }
 });
+}
+
+// ====== CURRENCY EXPOSURE ======
+function renderCurrencyExposure() {
+let bar = document.getElementById('currencyExposureBar');
+let txt = document.getElementById('currencyExposureText');
+if(!bar || !txt) return;
+let ex = computeCurrencyExposure();
+if(ex.usdBasedValue + ex.bdtBasedValue <= 0) { bar.innerHTML=''; txt.innerHTML = '<span style="color:var(--text-sub);">এখনো কোনো active investment নেই</span>'; return; }
+bar.innerHTML = `
+<div style="width:${ex.bdtPct}%;background:linear-gradient(90deg,#22c55e,#4ade80);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#052e16;" title="BDT ${ex.bdtPct.toFixed(1)}%">${ex.bdtPct>=12?ex.bdtPct.toFixed(0)+'%':''}</div>
+<div style="width:${ex.usdPct}%;background:linear-gradient(90deg,#fb923c,#f87171);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#450a0a;" title="USD-linked ${ex.usdPct.toFixed(1)}%">${ex.usdPct>=12?ex.usdPct.toFixed(0)+'%':''}</div>`;
+let warn = ex.usdPct > 50 ? ' — ৫০%-এর বেশি USD-linked, টাকার dollar-rate ওঠানামায় বেশি exposed ⚠️' : '';
+txt.innerHTML = `🟢 BDT-based: <b>${formatNumber(ex.bdtBasedValue)}</b> (${ex.bdtPct.toFixed(1)}%) &nbsp;|&nbsp; 🔴 USD-linked (crypto/stock/Wahed): <b>${formatNumber(ex.usdBasedValue)}</b> (${ex.usdPct.toFixed(1)}%)${warn}`;
+}
+
+// ====== CSV DATA EXPORT ======
+function exportDataCSV() {
+if(!isAdmin) return showToast("Admin login লাগবে", true);
+function esc(v) { if(v===null||v===undefined) return ''; let s=String(v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; }
+let lines = [];
+lines.push('=== INVESTMENTS ===');
+lines.push(['ID','Platform','Type','Amount','AmountBDT','AmountUSD','Status','Start','End','ActualProfit','Note','Person'].join(','));
+investments.forEach(i => lines.push([i.id,i.platform,i.type,i.amount,i.amountBDT,i.amountUSD,i.status,i.start,i.end,i.actualProfit,esc(i.note),esc(i.person)].join(',')));
+lines.push('');
+lines.push('=== WITHDRAW / COMPLETED HISTORY ===');
+lines.push(['Date','Platform','Type','Amount','Profit','Note'].join(','));
+withdrawHistory.forEach(h => lines.push([h.date,h.platform,h.type,h.amount,h.profit,esc(h.note)].join(',')));
+lines.push('');
+lines.push('=== DIVIDENDS ===');
+lines.push(['Date','Symbol','AmountUSD','AmountBDT','Note'].join(','));
+dividends.forEach(d => lines.push([d.date,d.symbol,d.amountUSD,d.amountBDT,esc(d.note)].join(',')));
+lines.push('');
+lines.push('=== MONTHLY BUDGET ===');
+lines.push(['Label','Income','Expense','Invested','Note'].join(','));
+budgetAll.forEach(b => lines.push([b.label,b.income,b.expense,b.invested,esc(b.note)].join(',')));
+let csv = lines.join('\n');
+let blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
+let url = URL.createObjectURL(blob);
+let a = document.createElement('a');
+a.href = url; a.download = `wealth-tracker-export-${new Date().toISOString().slice(0,10)}.csv`;
+document.body.appendChild(a); a.click(); document.body.removeChild(a);
+URL.revokeObjectURL(url);
+showToast('✅ Export হয়ে গেছে — Downloads folder চেক করুন');
 }
 
 // ====== ACTIVE PORTFOLIO SECTION TOGGLE ======
@@ -3734,7 +3913,7 @@ saveNwSnapshot(live);
 renderNwGraph();
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderRiskChart(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderMonthlyPL(); }
+function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderRiskChart(); renderCurrencyExposure(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderMonthlyPL(); }
 
 // ====== INVESTMENT ACTIONS ======
 function onTypeChange() {
@@ -3811,7 +3990,26 @@ document.getElementById('investmentNote').value='';
 document.getElementById('personName').value='';
 }
 
-async function markComplete(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv&&inv.status==='active'){ inv.status='completed'; let history = withdrawHistory; history.push({ platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:inv.actualProfit||0, date:new Date().toISOString().slice(0,10), note:inv.note||'' }); localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData(); if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed'}); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast(`✅ ${inv.type} completed!`); } }
+async function markComplete(id) {
+if(!isAdmin) return showToast("Admin required", true);
+let inv = investments.find(i=>i.id===id);
+if(!inv || inv.status!=='active') return;
+let expectedTotal = inv.amountBDT + (inv.actualProfit||0);
+let totalReceivedStr = prompt(`মোট কত টাকা ফেরত পেয়েছেন (আসল + লাভ মিলিয়ে)?\n\nবিনিয়োগ: ${formatNumber(inv.amountBDT)} BDT + Actual Profit: ${formatNumber(inv.actualProfit||0)} BDT ধরে auto-fill করা হয়েছে — ঠিক থাকলে just OK চাপুন, না থাকলে বদলে দিন।`, expectedTotal);
+if(totalReceivedStr === null) return; // cancelled
+let totalReceived = parseFloat(totalReceivedStr);
+if(isNaN(totalReceived) || totalReceived < 0) return showToast("সঠিক amount দিন", true);
+let profit = totalReceived - inv.amountBDT;
+inv.status = 'completed';
+inv.actualProfit = profit;
+let history = withdrawHistory;
+history.push({ invId:inv.id, platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:profit, date:new Date().toISOString().slice(0,10), note:inv.note||'' });
+localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed', actualProfit:profit});
+localStorage.setItem("investments_backup",JSON.stringify(investments));
+renderAll();
+showToast(`✅ ${inv.type} completed! ${profit>=0?'লাভ':'লস'}: ${formatNumber(Math.abs(profit))} BDT — পরের investment-এ auto adjust হয়ে যাবে`);
+}
 async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
 function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv){ editId=id; document.getElementById('editInfo').innerHTML=`<strong>${inv.type}</strong> (${inv.platform})<br><span style="color:var(--text-sub);">Amount: ${formatNumber(inv.amountBDT)} BDT</span>`; document.getElementById('editProfit').value=inv.actualProfit||0; document.getElementById('editNote').value=inv.note||''; document.getElementById('editModal').style.display='flex'; } }
 async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
@@ -3845,7 +4043,7 @@ let profit=parseFloat(document.getElementById('mmpdaProfit').value); let rate=pa
 if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
 if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
 let history = withdrawHistory;
-history.push({ platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
+history.push({ invId:inv.id, platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
 localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 inv.actualProfit=(inv.actualProfit||0)+profit;
 if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
@@ -3887,6 +4085,7 @@ let note = document.getElementById('rentalNote').value.trim();
 if(!confirm(`Confirm receiving ${formatNumber(amount)} BDT rental income from ${inv.platform || inv.type}?`)) return;
 let history = withdrawHistory;
 history.push({
+invId: inv.id,
 platform: inv.platform || inv.type,
 type: "Rental Income",
 amount: amount,
@@ -3925,6 +4124,44 @@ btn.style.borderColor = '#a855f7';
 
 // ====== PARTIAL WITHDRAW ======
 let partialInvId = null;
+
+// ====== PER-INVESTMENT WITHDRAW HISTORY ======
+function openWithdrawHistoryModal(id) {
+let inv = investments.find(i => i.id === id);
+if(!inv) return showToast("Investment খুঁজে পাওয়া যায়নি", true);
+let entries = withdrawHistory.filter(h => h.invId === id || (!h.invId && h.platform===inv.platform && h.type === inv.type + ' (Partial)'));
+entries = entries.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+let totalWithdrawn = entries.reduce((s,e)=>s+(e.amount||0), 0);
+let listHtml = entries.length ? entries.map((e,idx) => `
+<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+<div>
+<div style="font-size:0.75rem;font-weight:600;">#${idx+1} — ${e.type}</div>
+<div style="font-size:0.65rem;color:var(--text-sub);">${e.date}${e.note?' · '+e.note:''}</div>
+</div>
+<div style="text-align:right;">
+<div style="font-size:0.8rem;font-weight:700;color:#4ade80;">${formatNumber(e.amount)} BDT</div>
+${e.profit?`<div style="font-size:0.62rem;color:#facc15;">লাভ: +${formatNumber(e.profit)}</div>`:''}
+</div>
+</div>`).join('') : '<div style="color:var(--text-sub);text-align:center;padding:20px 0;">এখনো কোনো withdraw হয়নি</div>';
+document.getElementById('withdrawHistoryContent').innerHTML = `
+<div style="margin-bottom:12px;">
+<strong>${inv.type}</strong> (${inv.platform})<br>
+<span style="color:var(--text-sub);font-size:0.75rem;">এখন সক্রিয়: ${formatNumber(inv.amountBDT)} BDT</span>
+</div>
+<div style="display:flex;gap:10px;margin-bottom:14px;">
+<div style="flex:1;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:8px;padding:8px;text-align:center;">
+<div style="font-size:0.6rem;color:var(--text-sub);">মোট বার তোলা হয়েছে</div>
+<div style="font-size:0.9rem;font-weight:800;color:#38bdf8;">${entries.length} বার</div>
+</div>
+<div style="flex:1;background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);border-radius:8px;padding:8px;text-align:center;">
+<div style="font-size:0.6rem;color:var(--text-sub);">মোট Amount</div>
+<div style="font-size:0.9rem;font-weight:800;color:#facc15;">${formatNumber(totalWithdrawn)}</div>
+</div>
+</div>
+${listHtml}`;
+document.getElementById('withdrawHistoryModal').style.display = 'flex';
+}
+function closeWithdrawHistoryModal() { document.getElementById('withdrawHistoryModal').style.display = 'none'; }
 function openPartialModal(id) {
 if(!isAdmin) return showToast("Admin required", true);
 let inv = investments.find(i => i.id === id);
@@ -3967,6 +4204,7 @@ let remaining = inv.amountBDT - withdrawAmt;
 
 let history = withdrawHistory;
 history.push({
+invId: inv.id,
 platform: inv.platform,
 type: `${inv.type} (Partial)`,
 amount: withdrawAmt,
@@ -4210,7 +4448,7 @@ setTimeout(checkAutoMonthlyReport, 2000);
 
 fetchLiveRates();
 setInterval(fetchLiveRates, 10 * 60 * 1000);
-setInterval(updateCryptoPrices, 5000);
+setInterval(updateCryptoPrices, 30000);
 setInterval(updateStockPrices, 5 * 60 * 1000);
 // renderPLTicker called inside updateCryptoPrices — no separate interval needed
 
@@ -4293,7 +4531,6 @@ if(!isAdmin) return showToast("Admin required", true);
 let now = new Date();
 let label = now.toLocaleString('default',{month:'long',year:'numeric'});
 document.getElementById('budgetMonthLabel').textContent = `📅 ${label}`;
-let key = `budget_${now.getFullYear()}_${now.getMonth()}`;
 let saved = budgetAll.find(b => b.month===now.getMonth() && b.year===now.getFullYear()) || {};
 document.getElementById('budgetIncome').value = saved.income||'';
 document.getElementById('budgetExpense').value = saved.expense||'';
@@ -4303,6 +4540,7 @@ document.getElementById('budgetCalc').style.display = 'none';
 ['budgetIncome','budgetExpense','budgetInvested'].forEach(id => {
 document.getElementById(id).oninput = updateBudgetCalc;
 });
+renderBudgetDisplay();
 document.getElementById('budgetModal').style.display = 'flex';
 }
 function updateBudgetCalc() {
@@ -4658,7 +4896,7 @@ inv.currentValue = curVal - amt;
 inv.actualProfit = inv.currentValue - inv.amountBDT;
 
 let history = withdrawHistory;
-history.push({ platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
+history.push({ invId:inv.id, platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
 localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(inv.currentValue <= 0.01 || inv.amountBDT <= 0.01) { inv.status='completed'; inv.amountBDT=0; inv.currentValue=0; }
