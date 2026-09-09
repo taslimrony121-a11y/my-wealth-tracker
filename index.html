@@ -1011,7 +1011,7 @@ oninput="updateInvestSimulator()">
 <div class="stat-label">💰 Own Pocket Investment / নিজের পকেট থেকে দেওয়া আসল টাকা</div>
 <div class="stat-value-bdt"><span id="totalPrincipal">0</span> <span id="principalCurrLabel">BDT</span></div>
 <div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div>
-<div class="stat-sub">📌 Excluding reinvested profit / reinvest করা লাভ বাদ দিয়ে হিসাব করা</div>
+<div class="stat-sub">📌 Currently invested, own money only / এখন যা সক্রিয় আছে, শুধু নিজের টাকা (লাভ বাদে)</div>
 <div id="totalProfitSinceInception" style="margin-top:8px;"></div>
 </div>
 <div class="stat-card">
@@ -2569,10 +2569,12 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 // ====== STATS ======
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
-// ====== POCKET PRINCIPAL (actual own-pocket money, reinvested profit netted out) ======
+// ====== POCKET PRINCIPAL (own-pocket money currently tied up, profit netted out) ======
 // Whenever a completed investment's PROFIT comes back, that profit becomes a "credit" —
 // the next new investment(s) draw from that credit first, and only the amount beyond
 // the available credit counts as fresh money out of your own pocket.
+// Once an investment is completed/withdrawn, its pocket-money is back in hand — it no
+// longer counts toward this total (only currently ACTIVE investments count).
 function computePocketPrincipal() {
 let events = [];
 investments.forEach(inv => {
@@ -2580,7 +2582,7 @@ if(!inv.start) return;
 let d = new Date(inv.start);
 if(isNaN(d.getTime())) return;
 if(inv.type === 'LOAN_TAKEN') events.push({ date:d, kind:'credit', amount: inv.amountBDT||0 }); // borrowed money isn't your own pocket
-else events.push({ date:d, kind:'outflow', amount: inv.amountBDT||0 });
+else events.push({ date:d, kind:'outflow', amount: inv.amountBDT||0, invId: inv.id });
 });
 withdrawHistory.forEach(h => {
 if(!h.date || !h.profit) return;
@@ -2594,16 +2596,20 @@ if(dateDiff !== 0) return dateDiff;
 if(a.kind === b.kind) return 0;
 return a.kind === 'credit' ? -1 : 1; // same-day: credit lands before it's spent
 });
-let creditPool = 0, pocketTotal = 0;
+let creditPool = 0;
+let contributionByInvId = {};
 events.forEach(e => {
 if(e.kind === 'credit') { creditPool += e.amount; }
 else {
 let used = Math.min(e.amount, Math.max(0, creditPool));
 creditPool -= used;
-pocketTotal += (e.amount - used);
+let contribution = e.amount - used;
+if(e.invId) contributionByInvId[e.invId] = (contributionByInvId[e.invId]||0) + contribution;
 }
 });
-return pocketTotal;
+let total = 0;
+investments.forEach(inv => { if(inv.status === 'active' && contributionByInvId[inv.id]) total += contributionByInvId[inv.id]; });
+return total;
 }
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
