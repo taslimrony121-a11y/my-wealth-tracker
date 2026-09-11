@@ -1012,7 +1012,29 @@ oninput="updateInvestSimulator()">
 <div class="stat-value-bdt"><span id="totalPrincipal">0</span> <span id="principalCurrLabel">BDT</span></div>
 <div class="stat-value-usd">$ <span id="totalPrincipalUsd">0.00</span> USD</div>
 <div class="stat-sub">📌 Currently invested, own money only / এখন যা সক্রিয় আছে, শুধু নিজের টাকা (লাভ বাদে)</div>
+<div style="margin-top:8px;font-size:0.68rem;color:#94a3b8;background:rgba(148,163,184,0.08);border-radius:8px;padding:6px 10px;">
+🕰️ Lifetime Personal Contribution / জীবনে মোট যা দিয়েছেন: <strong id="lifetimeContribution" style="color:#e2e8f0;">0 BDT</strong>
+</div>
 <div id="totalProfitSinceInception" style="margin-top:8px;"></div>
+</div>
+<div class="stat-card">
+<div class="realtime-badge"><i class="fas fa-coins"></i> Ledger</div>
+<div class="stat-label">💵 Profit Ledger / লাভের হিসাব</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
+<div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
+<div style="font-size:0.55rem;color:#94a3b8;">Total Earned</div>
+<div id="totalProfitEarned" style="font-size:0.8rem;font-weight:800;color:#4ade80;">0</div>
+</div>
+<div style="background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
+<div style="font-size:0.55rem;color:#94a3b8;">Available</div>
+<div id="profitAvailable" style="font-size:0.8rem;font-weight:800;color:#facc15;">0</div>
+</div>
+<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
+<div style="font-size:0.55rem;color:#94a3b8;">Reinvested</div>
+<div id="profitReinvested" style="font-size:0.8rem;font-weight:800;color:#38bdf8;">0</div>
+</div>
+</div>
+<div class="stat-sub" style="margin-top:8px;">📌 সব BDT-তে · Total = Available + Reinvested</div>
 </div>
 <div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
@@ -2570,12 +2592,14 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
 // ====== POCKET PRINCIPAL (own-pocket money currently tied up, profit netted out) ======
+// ====== OWNERSHIP LEDGER (own-pocket vs reinvested-profit accounting) ======
+// Single source of truth for all pocket/profit metrics on the dashboard.
 // Whenever a completed investment's PROFIT comes back, that profit becomes a "credit" —
 // the next new investment(s) draw from that credit first, and only the amount beyond
 // the available credit counts as fresh money out of your own pocket.
 // Once an investment is completed/withdrawn, its pocket-money is back in hand — it no
-// longer counts toward this total (only currently ACTIVE investments count).
-function computePocketPrincipal() {
+// longer counts toward CURRENT own-pocket (but still counts toward LIFETIME contribution).
+function computeOwnershipLedger() {
 let events = [];
 investments.forEach(inv => {
 if(!inv.start) return;
@@ -2596,26 +2620,42 @@ if(dateDiff !== 0) return dateDiff;
 if(a.kind === b.kind) return 0;
 return a.kind === 'credit' ? -1 : 1; // same-day: credit lands before it's spent
 });
-let creditPool = 0;
+let creditPool = 0, profitUsed = 0;
 let contributionByInvId = {};
 events.forEach(e => {
 if(e.kind === 'credit') { creditPool += e.amount; }
 else {
 let used = Math.min(e.amount, Math.max(0, creditPool));
 creditPool -= used;
+profitUsed += used;
 let contribution = e.amount - used;
 if(e.invId) contributionByInvId[e.invId] = (contributionByInvId[e.invId]||0) + contribution;
 }
 });
-let total = 0;
-investments.forEach(inv => { if(inv.status === 'active' && contributionByInvId[inv.id]) total += contributionByInvId[inv.id]; });
-return total;
+let currentOwnPocket = 0, lifetimeContribution = 0;
+investments.forEach(inv => {
+let c = contributionByInvId[inv.id];
+if(!c) return;
+lifetimeContribution += c;
+if(inv.status === 'active') currentOwnPocket += c;
+});
+let totalProfitEarned = withdrawHistory.reduce((s,h) => s + (h.profit||0), 0);
+return {
+currentOwnPocket,
+lifetimeContribution,
+totalProfitEarned,
+profitAvailable: creditPool,
+profitReinvested: profitUsed,
+contributionByInvId
+};
 }
+function computePocketPrincipal() { return computeOwnershipLedger().currentOwnPocket; }
 function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
 
 function renderStats() {
 let p=calcPrincipal(), c=calcCurrent(), pl=c.bdt-p.bdt, per=p.bdt>0?(pl/p.bdt*100):0;
-let pocket = computePocketPrincipal(); // actual own-pocket money (reinvested profit netted out)
+let ledger = computeOwnershipLedger();
+let pocket = ledger.currentOwnPocket; // actual own-pocket money currently in active investments
 let sym = currencySymbols[activeCurrency];
 let rate = currencyRates[activeCurrency];
 let pConv = (pocket/usdToBdt * rate);
@@ -2623,6 +2663,10 @@ let cConv = (c.usd * rate);
 document.getElementById('totalPrincipal').innerHTML = formatNumber(pConv);
 document.getElementById('principalCurrLabel').textContent = activeCurrency;
 document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(pocket/usdToBdt);
+document.getElementById('lifetimeContribution').textContent = formatNumber(ledger.lifetimeContribution) + ' BDT';
+document.getElementById('totalProfitEarned').textContent = formatNumber(ledger.totalProfitEarned);
+document.getElementById('profitAvailable').textContent = formatNumber(ledger.profitAvailable);
+document.getElementById('profitReinvested').textContent = formatNumber(ledger.profitReinvested);
 document.getElementById('currentValue').innerHTML = formatNumber(cConv);
 document.getElementById('currentCurrLabel').textContent = activeCurrency;
 document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd);
@@ -2871,18 +2915,15 @@ restorePlatformMoreState();
 // ====== CRYPTO PRICES ======
 async function updateCryptoPrices() {
 try {
-let symbolsParam = encodeURIComponent(JSON.stringify(['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT']));
-let [priceRes, change24Res] = await Promise.all([
-fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${symbolsParam}`),
-fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsParam}`)
-]);
-if(!priceRes.ok || !change24Res.ok) throw new Error('Binance rate-limited or unavailable: ' + priceRes.status + '/' + change24Res.status);
-let priceData = await priceRes.json();
-let change24Data = await change24Res.json();
+const idMap = { BTC:'bitcoin', ETH:'ethereum', BNB:'binancecoin', SOL:'solana' };
+let ids = Object.values(idMap).join(',');
+let res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+if(!res.ok) throw new Error('CoinGecko rate-limited or unavailable: ' + res.status);
+let data = await res.json();
 for(let coin of ['BTC','ETH','BNB','SOL']){
-let found = priceData.find(p=>p.symbol===coin+'USDT');
-if(found){
-let np = parseFloat(found.price);
+let d = data[idMap[coin]];
+if(d && d.usd){
+let np = d.usd;
 let prevPrice = cryptoPrices[coin];
 if(crypto7dPrices[coin]===0&&cryptoPrices[coin]) crypto7dPrices[coin]=cryptoPrices[coin];
 if(cryptoPrices[coin]&&cryptoPrices[coin]!==np) crypto24hPrices[coin]=cryptoPrices[coin];
@@ -2893,9 +2934,8 @@ let priceEl = document.getElementById(coin.toLowerCase()+'Usd');
 if(priceEl) { priceEl.classList.remove('flash-up','flash-down'); void priceEl.offsetWidth; priceEl.classList.add(np>prevPrice?'flash-up':'flash-down'); }
 }
 }
-let t24 = change24Data.find(t=>t.symbol===coin+'USDT');
-if(t24&&t24.priceChangePercent){
-let ch=parseFloat(t24.priceChangePercent);
+if(d && typeof d.usd_24h_change === 'number'){
+let ch = d.usd_24h_change;
 let el=document.getElementById(coin.toLowerCase()+'24hPL');
 if(el) el.innerHTML=`<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% 24h</span>`;
 }
@@ -2904,10 +2944,9 @@ if(Date.now() - lastKlinesFetch > 10*60*1000) { // 7d price barely moves — fet
 lastKlinesFetch = Date.now();
 for(let coin of ['BTC','ETH','BNB','SOL']){
 try{
-let now=Date.now(), ago=now-(7*24*60*60*1000);
-let kr=await fetch(`https://api.binance.com/api/v3/klines?symbol=${coin}USDT&interval=1d&startTime=${ago}&limit=2`);
-let kd=await kr.json();
-if(kd&&kd[0]&&kd[0][4]){ let p7=parseFloat(kd[0][4]); if(p7>0) crypto7dPrices[coin]=p7; }
+let kr = await fetch(`https://api.coingecko.com/api/v3/coins/${idMap[coin]}/market_chart?vs_currency=usd&days=7&interval=daily`);
+let kd = await kr.json();
+if(kd && kd.prices && kd.prices.length){ let p7 = kd.prices[0][1]; if(p7>0) crypto7dPrices[coin]=p7; }
 }catch(e){}
 }
 }
@@ -3558,10 +3597,19 @@ txt.innerHTML = `🟢 BDT-based: <b>${formatNumber(ex.bdtBasedValue)}</b> (${ex.
 function exportDataCSV() {
 if(!isAdmin) return showToast("Admin login লাগবে", true);
 function esc(v) { if(v===null||v===undefined) return ''; let s=String(v).replace(/"/g,'""'); return /[",\n]/.test(s) ? `"${s}"` : s; }
+let ledger = computeOwnershipLedger();
 let lines = [];
-lines.push('=== INVESTMENTS ===');
-lines.push(['ID','Platform','Type','Amount','AmountBDT','AmountUSD','Status','Start','End','ActualProfit','Note','Person'].join(','));
-investments.forEach(i => lines.push([i.id,i.platform,i.type,i.amount,i.amountBDT,i.amountUSD,i.status,i.start,i.end,i.actualProfit,esc(i.note),esc(i.person)].join(',')));
+lines.push('=== OWNERSHIP LEDGER SUMMARY ===');
+lines.push(['Current Own Pocket Invested','Total Lifetime Personal Contribution','Total Profit Earned','Profit Available','Profit Reinvested'].join(','));
+lines.push([ledger.currentOwnPocket,ledger.lifetimeContribution,ledger.totalProfitEarned,ledger.profitAvailable,ledger.profitReinvested].join(','));
+lines.push('');
+lines.push('=== INVESTMENTS (with Own Pocket / Reinvested Profit breakdown) ===');
+lines.push(['ID','Platform','Type','Amount','AmountBDT','AmountUSD','Status','Start','End','OwnPocketContribution','ReinvestedProfitPortion','ActualProfit','Note','Person'].join(','));
+investments.forEach(i => {
+let contribution = ledger.contributionByInvId[i.id] || 0;
+let reinvestedPortion = Math.max(0, (i.amountBDT||0) - contribution);
+lines.push([i.id,i.platform,i.type,i.amount,i.amountBDT,i.amountUSD,i.status,i.start,i.end,contribution.toFixed(2),reinvestedPortion.toFixed(2),i.actualProfit,esc(i.note),esc(i.person)].join(','));
+});
 lines.push('');
 lines.push('=== WITHDRAW / COMPLETED HISTORY ===');
 lines.push(['Date','Platform','Type','Amount','Profit','Note'].join(','));
