@@ -3,6 +3,9 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <meta name="theme-color" content="#0b1120">
 <!-- iOS PWA essential tags -->
@@ -1563,6 +1566,31 @@ oninput="onInflationRateChange()">
 </div>
 
 <script>
+// ====== SAFETY HELPERS (never let storage/network errors freeze the UI) ======
+const LS = {
+getItem(k){ try { return window.localStorage.getItem(k); } catch(e) { return null; } },
+setItem(k,v){ try { window.localStorage.setItem(k,v); } catch(e) { /* private mode / quota */ } },
+removeItem(k){ try { window.localStorage.removeItem(k); } catch(e) {} }
+};
+function safeParse(key, fallback) {
+try {
+let raw = LS.getItem(key);
+if(raw === null || raw === undefined || raw === '') return fallback;
+let v = JSON.parse(raw);
+if(v === null || Array.isArray(v) !== Array.isArray(fallback) || (typeof v !== typeof fallback)) { LS.removeItem(key); return fallback; }
+return v;
+} catch(e) { console.warn('Corrupted storage entry reset:', key); LS.removeItem(key); return fallback; }
+}
+async function safeFetch(url, opts, ms) {
+let ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+let t = ctrl ? setTimeout(()=>ctrl.abort(), ms || 10000) : null;
+try { return await fetch(url, Object.assign({}, opts || {}, ctrl ? {signal: ctrl.signal} : {})); }
+finally { if(t) clearTimeout(t); }
+}
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms))]); }
+window.addEventListener('unhandledrejection', e => { console.warn('Unhandled rejection:', e.reason); e.preventDefault(); });
+window.addEventListener('error', e => { console.warn('Runtime error:', e.message); });
+
 // ====== FIREBASE CONFIG ======
 const firebaseConfig = { apiKey: "AIzaSyB0Q2k9tyjJZpBDFRZSPJ3H1Sq_0ZW1MbY", authDomain: "mywealthtracker-b7f62.firebaseapp.com", projectId: "mywealthtracker-b7f62", storageBucket: "mywealthtracker-b7f62.firebasestorage.app", messagingSenderId: "575029483834", appId: "1:575029483834:web:4d9927d1c6ed653fff5803" };
 
@@ -1572,19 +1600,38 @@ let plTickerStartTs = Date.now();
 let cryptoPrices = { BTC: 84000, ETH: 1600, BNB: 580, SOL: 130 };
 let crypto24hPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
 let crypto7dPrices = { BTC: 0, ETH: 0, BNB: 0, SOL: 0 };
-let lastKlinesFetch = 0;
+let lastKlinesFetch = parseInt(LS.getItem('cg_klines_t')||'0')||0;
+try { let _cp = safeParse('crypto_prices_cache', null); if(_cp) ['BTC','ETH','BNB','SOL'].forEach(c=>{ if(_cp[c]>0) cryptoPrices[c]=_cp[c]; }); } catch(e) {}
+// CoinGecko helper: 30s shared cache + in-flight dedupe + stale fallback (avoids 429 rate-limit => $0.00 prices)
+let _cgInflight = null;
+async function cgFetchSimple(url) {
+let c = null; try { c = safeParse('cg_simple_cache', null); } catch(e) {}
+if(c && Date.now()-c.t < 30000) return c.data;
+if(_cgInflight) return _cgInflight;
+_cgInflight = (async()=>{
+try {
+let r = await safeFetch(url, {cache:'no-store'});
+if(!r.ok) throw new Error('CoinGecko ' + r.status);
+let d = await r.json();
+LS.setItem('cg_simple_cache', JSON.stringify({t:Date.now(), data:d}));
+return d;
+} catch(e) { if(c && c.data) return c.data; throw e; }
+finally { _cgInflight = null; }
+})();
+return _cgInflight;
+}
 
 // ====== STOCK (eToro) STATE ======
 const STOCK_SYMS = ['AAPL','NVDA','ARAMCO'];
 const STOCK_STOOQ_TICKER = { AAPL:'aapl.us', NVDA:'nvda.us' }; // ARAMCO: no free live source found, manual price only
-let stockPrices = JSON.parse(localStorage.getItem('stock_prices_cache')||'{}');
+let stockPrices = safeParse('stock_prices_cache', {});
 STOCK_SYMS.forEach(s=>{ if(!(s in stockPrices)) stockPrices[s]=0; });
 let stock24hPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
 let stock7dPrices = { AAPL:0, NVDA:0, ARAMCO:0 };
-let stockPriceSource = JSON.parse(localStorage.getItem('stock_price_source')||'{}');
-let dividends = JSON.parse(localStorage.getItem('dividends')||'[]');
-let withdrawHistory = JSON.parse(localStorage.getItem('withdraw_history')||'[]');
-let budgetAll = JSON.parse(localStorage.getItem('budget_all')||'[]');
+let stockPriceSource = safeParse('stock_price_source', {});
+let dividends = safeParse('dividends', []);
+let withdrawHistory = safeParse('withdraw_history', []);
+let budgetAll = safeParse('budget_all', []);
 function getLivePrice(type) { if(cryptoPrices[type]!==undefined) return cryptoPrices[type]; if(stockPrices[type]!==undefined) return stockPrices[type]; return null; }
 let growthChart = null, platformChart = null;
 let currentTimeRange = "all", editId = null;
@@ -1609,7 +1656,7 @@ let status = document.getElementById('rateStatus');
 if(spinner) spinner.className = 'fas fa-sync-alt fa-spin';
 if(status) status.textContent = 'Fetching live rates...';
 try {
-let res = await fetch('https://open.er-api.com/v6/latest/USD');
+let res = await safeFetch('https://open.er-api.com/v6/latest/USD');
 let data = await res.json();
 if(data && data.rates) {
 currencyRates.BDT = data.rates.BDT || currencyRates.BDT;
@@ -1626,7 +1673,7 @@ renderStats();
 }
 } catch(e) {
 try {
-let res2 = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=BDT,EUR,GBP,SAR');
+let res2 = await safeFetch('https://api.exchangerate.host/latest?base=USD&symbols=BDT,EUR,GBP,SAR');
 let data2 = await res2.json();
 if(data2 && data2.rates) {
 currencyRates.BDT = data2.rates.BDT || currencyRates.BDT;
@@ -1691,13 +1738,13 @@ let html = document.documentElement;
 let current = html.getAttribute('data-theme');
 let next = current === 'dark' ? 'light' : 'dark';
 html.setAttribute('data-theme', next);
-localStorage.setItem('theme', next);
+LS.setItem('theme', next);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = next === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
 setTimeout(() => { renderPlatformChart(); renderRiskChart(); renderCurrencyExposure(); renderWithdrawalLogChart(); applyActivePortfolioVisibility(); }, 100);
 }
 function loadTheme() {
-let saved = localStorage.getItem('theme') || 'dark';
+let saved = LS.getItem('theme') || 'dark';
 document.documentElement.setAttribute('data-theme', saved);
 let btn = document.getElementById('themeBtn');
 btn.innerHTML = saved === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i class="fas fa-sun"></i> Light Mode';
@@ -1706,13 +1753,13 @@ btn.innerHTML = saved === 'dark' ? '<i class="fas fa-moon"></i> Dark Mode' : '<i
 // ====== MULTI-CURRENCY ======
 function setCurrency(cur) {
 activeCurrency = cur;
-localStorage.setItem('activeCurrency', cur);
+LS.setItem('activeCurrency', cur);
 document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
 document.getElementById('cur-' + cur).classList.add('active');
 renderStats();
 }
 function loadCurrency() {
-let saved = localStorage.getItem('activeCurrency') || 'BDT';
+let saved = LS.getItem('activeCurrency') || 'BDT';
 activeCurrency = saved;
 document.querySelectorAll('.currency-btn').forEach(b => b.classList.remove('active'));
 let btn = document.getElementById('cur-' + saved);
@@ -1741,12 +1788,12 @@ soonEl.classList.add('show');
 
 // ====== MONTHLY PERFORMANCE %, INFLATION-ADJUSTED RETURN & AUTO MONTHLY REPORT ======
 function getInflationRate() {
-let v = parseFloat(localStorage.getItem('wt_inflation_rate'));
+let v = parseFloat(LS.getItem('wt_inflation_rate'));
 return isNaN(v) ? 8.3 : v;
 }
-function setInflationRate(v) { localStorage.setItem('wt_inflation_rate', v); }
-function getGoalAmount() { let v = parseFloat(localStorage.getItem('wt_goal_amount')); return (isNaN(v)||v<=0) ? 300000 : v; }
-function setGoalAmount(v) { localStorage.setItem('wt_goal_amount', v); }
+function setInflationRate(v) { LS.setItem('wt_inflation_rate', v); }
+function getGoalAmount() { let v = parseFloat(LS.getItem('wt_goal_amount')); return (isNaN(v)||v<=0) ? 300000 : v; }
+function setGoalAmount(v) { LS.setItem('wt_goal_amount', v); }
 function onGoalAmountChange() {
 let el = document.getElementById('aiGoalInput');
 let v = parseFloat(el.value);
@@ -1924,12 +1971,12 @@ function checkAutoMonthlyReport() {
 const LAST_KEY = 'wt_auto_report_last_month';
 let now = new Date();
 let curKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-let lastRecorded = localStorage.getItem(LAST_KEY);
+let lastRecorded = LS.getItem(LAST_KEY);
 if(lastRecorded && lastRecorded !== curKey) {
 showMonthlyReportModal(lastRecorded);
 if(isAdmin) sendMonthlyReportEmail(lastRecorded);
 }
-localStorage.setItem(LAST_KEY, curKey);
+LS.setItem(LAST_KEY, curKey);
 }
 
 // ====== AI PROFIT PREDICTION ======
@@ -2917,9 +2964,9 @@ async function updateCryptoPrices() {
 try {
 const idMap = { BTC:'bitcoin', ETH:'ethereum', BNB:'binancecoin', SOL:'solana' };
 let ids = Object.values(idMap).join(',');
-let res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-if(!res.ok) throw new Error('CoinGecko rate-limited or unavailable: ' + res.status);
-let data = await res.json();
+let data = {};
+try { data = (await cgFetchSimple(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`)) || {}; }
+catch(e) { console.warn('Crypto API unavailable — showing last known prices:', e); }
 for(let coin of ['BTC','ETH','BNB','SOL']){
 let d = data[idMap[coin]];
 if(d && d.usd){
@@ -2940,11 +2987,11 @@ let el=document.getElementById(coin.toLowerCase()+'24hPL');
 if(el) el.innerHTML=`<span style="color:${ch>=0?'#4ade80':'#f87171'};">${ch>=0?'+':''}${ch.toFixed(2)}% 24h</span>`;
 }
 }
-if(Date.now() - lastKlinesFetch > 10*60*1000) { // 7d price barely moves — fetch at most every 10 min, not every tick
-lastKlinesFetch = Date.now();
+if(Object.keys(data).length && Date.now() - lastKlinesFetch > 10*60*1000) { // 7d price barely moves — fetch at most every 10 min, not every tick
+lastKlinesFetch = Date.now(); LS.setItem('cg_klines_t', String(lastKlinesFetch));
 for(let coin of ['BTC','ETH','BNB','SOL']){
 try{
-let kr = await fetch(`https://api.coingecko.com/api/v3/coins/${idMap[coin]}/market_chart?vs_currency=usd&days=7&interval=daily`);
+let kr = await safeFetch(`https://api.coingecko.com/api/v3/coins/${idMap[coin]}/market_chart?vs_currency=usd&days=7&interval=daily`);
 let kd = await kr.json();
 if(kd && kd.prices && kd.prices.length){ let p7 = kd.prices[0][1]; if(p7>0) crypto7dPrices[coin]=p7; }
 }catch(e){}
@@ -2959,6 +3006,7 @@ document.getElementById(coin.toLowerCase()+'Qty').innerHTML=qty.toFixed(6);
 document.getElementById(coin.toLowerCase()+'ValueUsd').innerHTML=`$${formatNumber(cUSD)}`;
 document.getElementById(coin.toLowerCase()+'ValueBdt').innerHTML=`${formatNumber(cBDT)} BDT`;
 }
+try{ LS.setItem('crypto_prices_cache', JSON.stringify(cryptoPrices)); }catch(e){}
 updateCryptoPurchaseInfo();
 renderStats(); renderPortfolioByPlatform(); renderWaitMoney();
 updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
@@ -2972,21 +3020,21 @@ tickNwGraph();
 function saveApiKeys() {
 let td = document.getElementById('tdApiKeyInput').value.trim();
 let sahmk = document.getElementById('sahmkApiKeyInput').value.trim();
-if(td) localStorage.setItem('twelvedata_api_key', td);
-if(sahmk) localStorage.setItem('sahmk_api_key', sahmk);
+if(td) LS.setItem('twelvedata_api_key', td);
+if(sahmk) LS.setItem('sahmk_api_key', sahmk);
 showToast('✅ API key সেভ হয়েছে — দাম আপডেট হচ্ছে...');
 updateStockPrices();
 }
 async function updateStockPrices() {
-let tdKey = localStorage.getItem('twelvedata_api_key')||'';
-let sahmkKey = localStorage.getItem('sahmk_api_key')||'';
+let tdKey = LS.getItem('twelvedata_api_key')||'';
+let sahmkKey = LS.getItem('sahmk_api_key')||'';
 if(document.getElementById('tdApiKeyInput') && tdKey) document.getElementById('tdApiKeyInput').value = tdKey;
 if(document.getElementById('sahmkApiKeyInput') && sahmkKey) document.getElementById('sahmkApiKeyInput').value = sahmkKey;
 let usHandled = [];
 if(tdKey) {
 try {
 let tdSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s]);
-let res0 = await fetch(`https://api.twelvedata.com/quote?symbol=${tdSymbols.join(',')}&apikey=${tdKey}`);
+let res0 = await safeFetch(`https://api.twelvedata.com/quote?symbol=${tdSymbols.join(',')}&apikey=${tdKey}`);
 let data0 = await res0.json();
 tdSymbols.forEach(sym=>{
 let q = tdSymbols.length>1 ? data0[sym] : data0;
@@ -3006,7 +3054,7 @@ if(q.previous_close) stock24hPrices[sym] = parseFloat(q.previous_close);
 }
 if(sahmkKey) {
 try {
-let resS = await fetch('https://app.sahmk.sa/api/v1/quote/2222/', { headers: { 'X-API-Key': sahmkKey } });
+let resS = await safeFetch('https://app.sahmk.sa/api/v1/quote/2222/', { headers: { 'X-API-Key': sahmkKey } });
 let dataS = await resS.json();
 if(dataS && dataS.price) {
 let sarRate = currencyRates.SAR || 3.75;
@@ -3025,7 +3073,7 @@ try {
 let usSymbols = STOCK_SYMS.filter(s=>STOCK_STOOQ_TICKER[s] && !usHandled.includes(s));
 if(usSymbols.length) {
 let tickers = usSymbols.map(s=>STOCK_STOOQ_TICKER[s]).join(',');
-let res = await fetch(`https://stooq.com/q/l/?s=${tickers}&f=sd2t2ohlcv&h&e=csv`);
+let res = await safeFetch(`https://stooq.com/q/l/?s=${tickers}&f=sd2t2ohlcv&h&e=csv`);
 let text = await res.text();
 let lines = text.trim().split('\n');
 for(let i=1;i<lines.length;i++){
@@ -3052,7 +3100,7 @@ try {
 let t = STOCK_STOOQ_TICKER[sym];
 let d2 = new Date(), d1 = new Date(d2.getTime()-12*24*60*60*1000);
 let fmt = d=>d.toISOString().slice(0,10).replace(/-/g,'');
-let hr = await fetch(`https://stooq.com/q/d/l/?s=${t}&d1=${fmt(d1)}&d2=${fmt(d2)}&i=d`);
+let hr = await safeFetch(`https://stooq.com/q/d/l/?s=${t}&d1=${fmt(d1)}&d2=${fmt(d2)}&i=d`);
 let htxt = await hr.text();
 let hl = htxt.trim().split('\n');
 if(hl.length>1) {
@@ -3062,8 +3110,8 @@ if(p7>0) stock7dPrices[sym]=p7;
 }
 } catch(e) {}
 }
-localStorage.setItem('stock_prices_cache', JSON.stringify(stockPrices));
-localStorage.setItem('stock_price_source', JSON.stringify(stockPriceSource));
+LS.setItem('stock_prices_cache', JSON.stringify(stockPrices));
+LS.setItem('stock_price_source', JSON.stringify(stockPriceSource));
 renderStockCards();
 updateStockPurchaseInfo();
 renderStats(); updateTotalPortfolio24hUI(); updateWeeklyActiveUI();
@@ -3141,8 +3189,8 @@ let val = parseFloat(input.value);
 if(!val || val<=0) return showToast('সঠিক দাম দিন', true);
 stockPrices[sym] = val;
 stockPriceSource[sym] = 'manual';
-localStorage.setItem('stock_prices_cache', JSON.stringify(stockPrices));
-localStorage.setItem('stock_price_source', JSON.stringify(stockPriceSource));
+LS.setItem('stock_prices_cache', JSON.stringify(stockPrices));
+LS.setItem('stock_price_source', JSON.stringify(stockPriceSource));
 renderStockCards();
 updateStockPurchaseInfo();
 renderStats();
@@ -3175,7 +3223,7 @@ let date = document.getElementById('dividendDate').value || new Date().toISOStri
 let note = document.getElementById('dividendNote').value||'';
 if(!symbol || !amountUSD) return showToast('স্টক এবং পরিমাণ দিন', true);
 dividends.push({ id:Date.now().toString(), symbol, amountUSD, amountBDT:amountUSD*usdToBdt, date, note });
-localStorage.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
+LS.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
 closeDividendModal();
 renderStockCards(); renderDividendHistory(); renderStats();
 showToast(`✅ ${symbol} dividend added: $${formatNumber(amountUSD)}`);
@@ -3185,7 +3233,7 @@ document.getElementById('dividendNote').value='';
 function deleteDividend(id) {
 if(!confirm('Delete this dividend record?')) return;
 dividends = dividends.filter(d=>d.id!==id);
-localStorage.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
+LS.setItem('dividends', JSON.stringify(dividends)); saveMetaData();
 renderStockCards(); renderDividendHistory(); renderStats();
 }
 function renderDividendHistory() {
@@ -3639,10 +3687,10 @@ let chevron = document.getElementById('activePortfolioChevron');
 let willShow = wrapper.style.display === 'none';
 wrapper.style.display = willShow ? 'block' : 'none';
 if(chevron) chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
-localStorage.setItem('wt_show_active_portfolio', willShow ? 'true' : 'false');
+LS.setItem('wt_show_active_portfolio', willShow ? 'true' : 'false');
 }
 function applyActivePortfolioVisibility() {
-let show = localStorage.getItem('wt_show_active_portfolio') === 'true';
+let show = LS.getItem('wt_show_active_portfolio') === 'true';
 let wrapper = document.getElementById('activePortfolioWrapper');
 let chevron = document.getElementById('activePortfolioChevron');
 if(wrapper) wrapper.style.display = show ? 'block' : 'none';
@@ -3654,7 +3702,7 @@ function renderPLTicker() {
 let el = document.getElementById('plTickerInner');
 if(!el) return;
 let active = investments.filter(i => i.status === 'active');
-if(active.length === 0) return;
+if(active.length === 0) { el.innerHTML = '<span style="color:var(--text-sub); font-size:0.75rem; padding:10px 20px;">No active investments / P&L data unavailable</span>'; return; }
 
 let crypto24hBDT = 0, crypto7dBDT = 0;
 active.forEach(inv => {
@@ -3765,9 +3813,10 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 // (localStorage is now only an instant-load cache; Firestore is the real source
 // of truth so this data is the same across every device, not stuck in one browser)
 // ══════════════════════════════════════════════
+let metaLoadedOk = false;
 async function saveMetaData() {
 try {
-if(!db) return;
+if(!db || !metaLoadedOk) return;
 await db.collection('meta').doc('appdata').set({ withdrawHistory, dividends, budgetAll, nwHistory }, { merge: true });
 } catch(e) { console.warn('Meta save failed (offline?):', e); }
 }
@@ -3775,13 +3824,14 @@ let metaLoadPromise = null;
 async function loadMetaData() {
 try {
 if(!db) return;
-let doc = await db.collection('meta').doc('appdata').get();
+let doc = await withTimeout(db.collection('meta').doc('appdata').get(), 12000);
+metaLoadedOk = true;
 if(doc.exists) {
 let d = doc.data();
-if(Array.isArray(d.withdrawHistory)) { withdrawHistory = d.withdrawHistory; localStorage.setItem('withdraw_history', JSON.stringify(withdrawHistory)); }
-if(Array.isArray(d.dividends)) { dividends = d.dividends; localStorage.setItem('dividends', JSON.stringify(dividends)); }
-if(Array.isArray(d.budgetAll)) { budgetAll = d.budgetAll; localStorage.setItem('budget_all', JSON.stringify(budgetAll)); }
-if(Array.isArray(d.nwHistory)) { nwHistory = d.nwHistory; localStorage.setItem(NW_KEY, JSON.stringify(nwHistory)); }
+if(Array.isArray(d.withdrawHistory)) { withdrawHistory = d.withdrawHistory; LS.setItem('withdraw_history', JSON.stringify(withdrawHistory)); }
+if(Array.isArray(d.dividends)) { dividends = d.dividends; LS.setItem('dividends', JSON.stringify(dividends)); }
+if(Array.isArray(d.budgetAll)) { budgetAll = d.budgetAll; LS.setItem('budget_all', JSON.stringify(budgetAll)); }
+if(Array.isArray(d.nwHistory)) { nwHistory = d.nwHistory; LS.setItem(NW_KEY, JSON.stringify(nwHistory)); }
 renderAll();
 if(typeof renderDividendHistory==='function') renderDividendHistory();
 if(typeof renderBudgetDisplay==='function') renderBudgetDisplay();
@@ -3797,7 +3847,7 @@ saveMetaData(); // first run ever — seed Firestore with whatever's local
 let nwChart = null;
 let nwPeriod = 7;
 const NW_KEY = 'nw_history_v2';
-let nwHistory = JSON.parse(localStorage.getItem(NW_KEY)||'[]');
+let nwHistory = safeParse(NW_KEY, []);
 
 function getNwHistory() { return nwHistory; }
 function saveNwSnapshot(valueBDT) {
@@ -3810,7 +3860,7 @@ last.v = Math.round(valueBDT);
 nwHistory.push({ date: today, v: Math.round(valueBDT) });
 }
 if(nwHistory.length > 400) nwHistory = nwHistory.slice(-400);
-localStorage.setItem(NW_KEY, JSON.stringify(nwHistory)); // instant-load cache only
+LS.setItem(NW_KEY, JSON.stringify(nwHistory)); // instant-load cache only
 saveMetaData(); // Firestore = source of truth
 }
 
@@ -3968,7 +4018,12 @@ saveNwSnapshot(live);
 renderNwGraph();
 }
 
-function renderAll() { renderStats(); renderPortfolioByPlatform(); renderWaitMoney(); renderHistory(); renderProjectGantt(); renderPlatformChart(); renderRiskChart(); renderCurrencyExposure(); renderWithdrawalLogChart(); renderPLTicker(); renderStockCards(); renderDividendHistory(); updateCryptoPrices(); updateStockPrices(); tickNwGraph(); renderMonthlyPL(); }
+function renderAll() {
+[renderStats, renderPortfolioByPlatform, renderWaitMoney, renderHistory, renderProjectGantt, renderPlatformChart, renderRiskChart, renderCurrencyExposure, renderWithdrawalLogChart, renderPLTicker, renderStockCards, renderDividendHistory, updateCryptoPrices, updateStockPrices, tickNwGraph, renderMonthlyPL].forEach(fn => {
+try { let r = fn(); if(r && typeof r.catch === 'function') r.catch(e => console.warn(fn.name + ' failed:', e)); }
+catch(e) { console.warn(fn.name + ' failed:', e); }
+});
+}
 
 // ====== INVESTMENT ACTIONS ======
 function onTypeChange() {
@@ -4027,7 +4082,7 @@ person: document.getElementById('personName').value||""
 try {
 investments.push(inv);
 if(db && isAdmin) await db.collection("investments").doc(inv.id).set(inv);
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 renderAll();
 showToast(`✅ ${isWahed?'Wahed Invest':type} সফলভাবে যোগ হয়েছে!`);
 document.getElementById('amount').value='';
@@ -4059,15 +4114,15 @@ inv.status = 'completed';
 inv.actualProfit = profit;
 let history = withdrawHistory;
 history.push({ invId:inv.id, platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:profit, date:new Date().toISOString().slice(0,10), note:inv.note||'' });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed', actualProfit:profit});
-localStorage.setItem("investments_backup",JSON.stringify(investments));
+LS.setItem("investments_backup",JSON.stringify(investments));
 renderAll();
 showToast(`✅ ${inv.type} completed! ${profit>=0?'লাভ':'লস'}: ${formatNumber(Math.abs(profit))} BDT — পরের investment-এ auto adjust হয়ে যাবে`);
 }
-async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
+async function deleteInv(id) { if(!isAdmin||!confirm("Delete this investment?")) return; investments=investments.filter(i=>i.id!==id); if(db) await db.collection("investments").doc(id.toString()).delete(); LS.setItem("investments_backup",JSON.stringify(investments)); renderAll(); showToast("Deleted"); }
 function openEdit(id) { if(!isAdmin) return showToast("Admin required", true); let inv=investments.find(i=>i.id===id); if(inv){ editId=id; document.getElementById('editInfo').innerHTML=`<strong>${inv.type}</strong> (${inv.platform})<br><span style="color:var(--text-sub);">Amount: ${formatNumber(inv.amountBDT)} BDT</span>`; document.getElementById('editProfit').value=inv.actualProfit||0; document.getElementById('editNote').value=inv.note||''; document.getElementById('editModal').style.display='flex'; } }
-async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); localStorage.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
+async function saveEdit() { if(!isAdmin) return; let np=parseFloat(document.getElementById('editProfit').value); let nn=document.getElementById('editNote').value; let inv=investments.find(i=>i.id===editId); if(inv){ inv.actualProfit=np; inv.note=nn; if(db) await db.collection("investments").doc(inv.id).update({actualProfit:np,note:nn}); LS.setItem("investments_backup",JSON.stringify(investments)); closeEditModal(); renderAll(); showToast("Updated!"); } }
 function closeEditModal() { document.getElementById('editModal').style.display='none'; }
 
 // ====== MMPDA ======
@@ -4099,10 +4154,10 @@ if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
 if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
 let history = withdrawHistory;
 history.push({ invId:inv.id, platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 inv.actualProfit=(inv.actualProfit||0)+profit;
 if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
-localStorage.setItem("investments_backup",JSON.stringify(investments));
+LS.setItem("investments_backup",JSON.stringify(investments));
 renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} BDT from ${inv.platform} MMPDA`);
 }
 function closeMmpdaModal() { document.getElementById('mmpdaModal').style.display='none'; }
@@ -4148,10 +4203,10 @@ profit: amount,
 date: new Date().toISOString().slice(0,10),
 note: (note ? note + ' | ' : '') + 'Period: ' + period
 });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 inv.actualProfit = (inv.actualProfit||0) + amount;
 if(db && isAdmin) db.collection("investments").doc(inv.id).update({actualProfit: inv.actualProfit}).catch(console.error);
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 renderAll();
 closeRentalModal();
 showToast(`✅ Rental income of ${formatNumber(amount)} BDT recorded successfully!`);
@@ -4267,7 +4322,7 @@ profit: withdrawProfit,
 date: new Date().toISOString().slice(0,10),
 note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT`
 });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(remaining <= 0) {
 inv.status = 'completed';
@@ -4288,7 +4343,7 @@ actualProfit: inv.actualProfit,
 status: inv.status
 }).catch(console.error);
 }
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closePartialModal();
 renderAll();
 showToast(`✅ ${formatNumber(withdrawAmt)} BDT withdrawn — বাকি: ${formatNumber(remaining)} BDT`);
@@ -4358,7 +4413,7 @@ amountBDT: inv.amountBDT, amountUSD: inv.amountUSD,
 monthlyInstallment: monthly, installmentCount: inv.installmentCount
 }).catch(console.error);
 }
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeMssaModal();
 renderAll();
 showToast(`✅ ${months} মাস × ${formatNumber(monthly)} = ${formatNumber(addAmt)} BDT যোগ হয়েছে!`);
@@ -4411,19 +4466,37 @@ await db.collection("investments").doc(inv.id).update({
 amountBDT: inv.amountBDT, amountUSD: inv.amountUSD, note: inv.note
 }).catch(console.error);
 }
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeTopUpModal();
 renderAll();
 showToast(`✅ ${formatNumber(amt)} BDT যোগ হয়েছে! নতুন মোট: ${formatNumber(inv.amountBDT)} BDT`);
 }
 function closeTopUpModal() { document.getElementById('topUpModal').style.display = 'none'; topUpInvId = null; }
 
+// ====== FIREBASE INIT (single shared init + explicit LOCAL auth persistence) ======
+let _fbReady = null;
+function initFirebase() {
+if(_fbReady) return _fbReady;
+_fbReady = (async () => {
+if(typeof firebase === 'undefined') throw new Error('firebase unavailable');
+if(firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+db = firebase.firestore();
+const auth = firebase.auth();
+try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }
+catch(e1) {
+console.warn('LOCAL persistence unavailable, trying SESSION:', e1);
+try { await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION); } catch(e2) { console.warn('Auth persistence fallback failed:', e2); }
+}
+return auth;
+})();
+_fbReady.catch(() => { _fbReady = null; }); // allow retry after a failure
+return _fbReady;
+}
+
 // ====== AUTH (Firebase Authentication — no password stored in this file) ======
 async function adminLogin(pass, isAuto=false) {
 try {
-if(typeof firebase==='undefined') throw new Error('firebase unavailable');
-if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
-db = firebase.firestore();
+await initFirebase();
 await firebase.auth().signInWithEmailAndPassword(ADMIN_EMAIL, pass);
 // isAdmin is set by the onAuthStateChanged listener in the init block
 await loadData();
@@ -4456,8 +4529,8 @@ if(btn){ btn.innerHTML='<i class="fas fa-plus-circle"></i> Add Investment'; btn.
 }
 async function loadData() {
 if(!db) return;
-try { let snap=await db.collection("investments").get(); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); localStorage.setItem("investments_backup",JSON.stringify(investments)); renderAll(); }
-catch(e) { investments=JSON.parse(localStorage.getItem("investments_backup")||"[]"); renderAll(); }
+try { let snap=await withTimeout(db.collection("investments").get(), 12000); investments=[]; snap.forEach(doc=>investments.push({id:doc.id,...doc.data()})); LS.setItem("investments_backup",JSON.stringify(investments)); renderAll(); }
+catch(e) { investments=safeParse("investments_backup", []).filter(x=>x && typeof x==="object"); renderAll(); }
 }
 
 // ====== EXPOSE GLOBALS ======
@@ -4479,25 +4552,30 @@ loadTheme();
 loadCurrency();
 document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
 
-let backup = localStorage.getItem("investments_backup");
-investments = backup ? JSON.parse(backup) : [];
+investments = safeParse("investments_backup", []).filter(x=>x && typeof x==="object");
 renderAll();
 
-// Initialize Firebase immediately — needed for guest (read-only) data AND admin auth
+// Initialize Firebase — guest (read-only) data AND admin auth
+(async function bootFirebase() {
+let authSettled = false;
+setTimeout(() => { if(!authSettled) { try { updateUI(); renderAll(); } catch(e) {} } }, 6000); // never hang on "checking session"
 try {
-if(typeof firebase !== 'undefined') {
-if(firebase.apps.length===0) firebase.initializeApp(firebaseConfig);
-db = firebase.firestore();
+const auth = await initFirebase();
 if(navigator.onLine) { loadData(); metaLoadPromise = loadMetaData(); }
-firebase.auth().onAuthStateChanged(async function(user) {
+auth.onAuthStateChanged(async function(user) {
+authSettled = true;
+try {
 if(user && user.email === ADMIN_EMAIL) {
 isAdmin = true; updateUI(); renderAll();
-if(metaLoadPromise) await metaLoadPromise; // wait for the Firestore pull to finish BEFORE pushing —
-saveMetaData(); // otherwise a stale local cache could overwrite newer remote data
+loadData();
+if(!metaLoadedOk) metaLoadPromise = loadMetaData();
+if(metaLoadPromise) await metaLoadPromise; // finish Firestore pull BEFORE pushing, so stale cache never overwrites remote
+saveMetaData();
 } else { isAdmin = false; updateUI(); }
+} catch(e) { console.warn('Auth state handler failed:', e); }
 });
-}
 } catch(e) { console.warn("Firebase unavailable:", e); }
+})();
 
 setTimeout(checkAutoMonthlyReport, 2000);
 
@@ -4517,13 +4595,13 @@ document.getElementById('rentalBtn').addEventListener('click', openRentalModal);
 (function() {
 const VISIT_KEY = 'wt_total_visits';
 const SESSION_KEY = 'wt_last_visit_date';
-let total = parseInt(localStorage.getItem(VISIT_KEY) || '0');
+let total = parseInt(LS.getItem(VISIT_KEY) || '0');
 let today = new Date().toDateString();
-let lastVisit = localStorage.getItem(SESSION_KEY);
+let lastVisit = LS.getItem(SESSION_KEY);
 if(lastVisit !== today) {
 total += 1;
-localStorage.setItem(VISIT_KEY, total);
-localStorage.setItem(SESSION_KEY, today);
+LS.setItem(VISIT_KEY, total);
+LS.setItem(SESSION_KEY, today);
 }
 let el = document.getElementById('visitorCountText');
 if(el) el.innerHTML = `<span style="color:var(--accent);font-weight:700;">${total.toLocaleString()}</span> visits`;
@@ -4623,7 +4701,7 @@ label: now.toLocaleString('default',{month:'long',year:'numeric'})
 budgetAll = budgetAll.filter(b => !(b.month===data.month && b.year===data.year));
 budgetAll.push(data);
 if(budgetAll.length > 12) budgetAll = budgetAll.slice(-12);
-localStorage.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
+LS.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
 saveMetaData(); // Firestore = source of truth
 closeBudgetModal();
 renderBudgetDisplay();
@@ -4671,7 +4749,7 @@ ${isAdmin?`<button onclick="deleteBudget(${b.year},${b.month})" style="margin-to
 }
 function deleteBudget(year, month) {
 budgetAll = budgetAll.filter(b=>!(b.year===year&&b.month===month));
-localStorage.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
+LS.setItem('budget_all', JSON.stringify(budgetAll)); // instant-load cache only
 saveMetaData(); // Firestore = source of truth
 renderBudgetDisplay();
 }
@@ -4817,8 +4895,8 @@ sellQty: sellQty, sellPriceUSD: sellPrice,
 date: today,
 note: `Sold ${sellQty.toFixed(6)} ${coin} @ $${formatNumber(sellPrice)} | Cost: $${formatNumber(costBasis)} | Revenue: $${formatNumber(sellUSD)}`
 });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeCryptoSellModal();
 renderAll();
 showToast(
@@ -4872,7 +4950,7 @@ inv.currentValue = val;
 inv.actualProfit = pnl;
 if(note) inv.note = note + (inv.note ? ' | ' + inv.note : '');
 if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ currentValue:val, actualProfit:pnl, note:inv.note });
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeWahedModal();
 renderAll();
 showToast(`✅ Wahed updated! ${pnl>=0?'+':''}${formatNumber(pnl)} BDT`);
@@ -4935,7 +5013,7 @@ inv.amountBDT = (inv.amountBDT||0) + amt;
 inv.currentValue = oldCurVal + amt; // newly added money hasn't moved yet — stays at cost until next "Update Value"
 inv.actualProfit = inv.currentValue - inv.amountBDT;
 if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit }).catch(console.error);
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeWahedTopupModal();
 renderAll();
 showToast(`✅ ${formatNumber(amt)} BDT যুক্ত হয়েছে — মোট invested ${formatNumber(inv.amountBDT)} BDT`);
@@ -4952,12 +5030,12 @@ inv.actualProfit = inv.currentValue - inv.amountBDT;
 
 let history = withdrawHistory;
 history.push({ invId:inv.id, platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
-localStorage.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
+LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(inv.currentValue <= 0.01 || inv.amountBDT <= 0.01) { inv.status='completed'; inv.amountBDT=0; inv.currentValue=0; }
 
 if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit, status:inv.status }).catch(console.error);
-localStorage.setItem("investments_backup", JSON.stringify(investments));
+LS.setItem("investments_backup", JSON.stringify(investments));
 closeWahedTopupModal();
 renderAll();
 showToast(`✅ ${formatNumber(amt)} BDT উইথড্র হয়েছে ${realizedProfit!==0?`(${realizedProfit>=0?'+':''}${formatNumber(realizedProfit)} BDT realized profit)`:''}`);
@@ -5027,6 +5105,23 @@ URL.revokeObjectURL(url);
 showToast('✅ PDF Report downloaded!');
 }
 window.exportPDF = exportPDF;
+
+// ====== LOADER WATCHDOG — never leave "Loading..." on screen ======
+setTimeout(() => {
+try {
+let el = document.getElementById('plTickerInner');
+if(el && String(el.innerHTML).indexOf('Loading P&L') !== -1) renderPLTicker();
+} catch(e) {}
+}, 8000);
+
+// ====== SERVICE WORKER (network-first HTML, old caches purged on activate) ======
+if('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+.then(reg => { try { reg.update(); } catch(e) {} })
+.catch(e => console.warn('SW register failed:', e));
+});
+}
 </script>
 </body>
 </html>
