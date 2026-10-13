@@ -1021,25 +1021,6 @@ oninput="updateInvestSimulator()">
 <div id="totalProfitSinceInception" style="margin-top:8px;"></div>
 </div>
 <div class="stat-card">
-<div class="realtime-badge"><i class="fas fa-coins"></i> Ledger</div>
-<div class="stat-label">💵 Profit Ledger / লাভের হিসাব</div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;">
-<div style="background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
-<div style="font-size:0.55rem;color:#94a3b8;">Total Earned</div>
-<div id="totalProfitEarned" style="font-size:0.8rem;font-weight:800;color:#4ade80;">0</div>
-</div>
-<div style="background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
-<div style="font-size:0.55rem;color:#94a3b8;">Available</div>
-<div id="profitAvailable" style="font-size:0.8rem;font-weight:800;color:#facc15;">0</div>
-</div>
-<div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);border-radius:8px;padding:7px 5px;text-align:center;">
-<div style="font-size:0.55rem;color:#94a3b8;">Reinvested</div>
-<div id="profitReinvested" style="font-size:0.8rem;font-weight:800;color:#38bdf8;">0</div>
-</div>
-</div>
-<div class="stat-sub" style="margin-top:8px;">📌 সব BDT-তে · Total = Available + Reinvested</div>
-</div>
-<div class="stat-card">
 <div class="realtime-badge"><i class="fas fa-sync-alt"></i> Real-time</div>
 <div class="stat-label">📈 Current Portfolio Value</div>
 <div class="stat-value-bdt"><span id="currentValue">0</span> <span id="currentCurrLabel">BDT</span></div>
@@ -1536,24 +1517,26 @@ oninput="onInflationRateChange()">
 <i class="fas fa-calendar-alt" style="color:white;font-size:1rem;"></i>
 </div>
 <div>
-<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#06b6d4;">Investment Calendar</div>
-<div style="font-size:0.58rem;color:#6b7280;margin-top:1px;">🟢 Start · 🔴 End · 📌 Click date for details</div>
+<div style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:#06b6d4;">Returns Calendar / রিটার্ন ক্যালেন্ডার</div>
+<div style="font-size:0.58rem;color:#6b7280;margin-top:1px;">📌 মাসে ট্যাপ করলে কোথা থেকে · কত · কবে দেখাবে</div>
 </div>
 </div>
 <button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
 </div>
 <!-- Month Summary Stats -->
 <div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
-<!-- Navigation -->
+<!-- Year Navigation -->
 <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
-<button onclick="changeCalMonth(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
-<div style="text-align:center;">
-<div id="calTitle" style="font-family:'Sora',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-main);"></div>
+<button onclick="changeCalYear(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
+<div id="calTitle" style="font-family:'Sora',sans-serif;font-size:1.05rem;font-weight:800;color:var(--text-main);"></div>
+<button onclick="changeCalYear(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
 </div>
-<button onclick="changeCalMonth(1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-right"></i></button>
+<div id="calGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;"></div>
+<div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:0.68rem;">
+<span style="color:#4ade80;"><i class="fas fa-check-double"></i> Received</span>
+<span style="color:#38bdf8;"><i class="fas fa-ellipsis-h"></i> Ready</span>
+<span style="color:#94a3b8;"><i class="far fa-clock"></i> Scheduled</span>
 </div>
-<div class="calendar-grid" id="calDayHeaders"></div>
-<div class="calendar-grid" id="calGrid" style="margin-top:4px;"></div>
 <!-- Day Detail Panel -->
 <div id="calDayDetail" style="display:none;margin-top:12px;background:var(--bg-input);border:1px solid rgba(6,182,212,0.3);border-radius:14px;padding:14px;animation:fadeUp 0.2s ease;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -2422,203 +2405,116 @@ card.style.display = 'block';
 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ====== CALENDAR ======
+// ====== RETURNS CALENDAR (year view: Received / Ready / Scheduled, with source, amount & date) ======
+let _calMonths = [];
 function openCalendar() {
 calYear = new Date().getFullYear();
-calMonth = new Date().getMonth();
 renderCalendar();
 document.getElementById('calendarModal').style.display = 'flex';
 }
 function closeCalendar() { document.getElementById('calendarModal').style.display = 'none'; }
-function changeCalMonth(dir) { calMonth += dir; if(calMonth > 11) { calMonth = 0; calYear++; } if(calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function changeCalYear(dir) { calYear += dir; renderCalendar(); }
+function calShort(n) { n = Math.abs(n || 0); return n >= 1000 ? (n/1000).toFixed(1) + 'k' : String(Math.round(n)); }
+function calEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function calFmtDate(d) { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); } catch(e) { return d; } }
+function getCalYearData(year) {
+const months = Array.from({length:12}, () => ({ received:[], ready:[], scheduled:[] }));
+const todayStr = new Date().toLocaleDateString('en-CA');
+const invById = {}; (investments || []).forEach(i => { if(i && i.id) invById[i.id] = i; });
+const put = (arr, dateStr, item) => {
+if(!dateStr) return; let d = String(dateStr).slice(0,10);
+if(parseInt(d.slice(0,4)) !== year) return;
+let m = parseInt(d.slice(5,7)) - 1; if(!(m >= 0 && m <= 11)) return;
+item.date = d; months[m][arr].push(item);
+};
+// Received: every withdraw / partial return / monthly profit entry
+(withdrawHistory || []).forEach(h => {
+if(!h) return;
+let inv = h.invId ? invById[h.invId] : null;
+let name = h.type || (inv && inv.type) || 'Return';
+put('received', h.date, {
+amount: +h.amount || 0, profit: +h.profit || 0,
+source: h.platform || (inv && inv.platform) || '—', name,
+note: h.note || '', partial: /partial/i.test(name) || /partial/i.test(h.note || '')
+});
+});
+// Received: stock dividends
+(dividends || []).forEach(dv => { if(dv) put('received', dv.date, { amount: +dv.amountBDT || 0, profit: +dv.amountBDT || 0, source: 'Dividend', name: (dv.symbol || '') + ' Dividend', note: dv.note || '', partial: false }); });
+// Ready / Scheduled: active investments with an end (maturity) date
+(investments || []).forEach(inv => {
+if(!inv || inv.status !== 'active' || !inv.end || inv.type === 'LOAN_TAKEN') return;
+let amt = +inv.amountBDT || 0; if(!amt) return;
+let d = String(inv.end).slice(0,10);
+put(d <= todayStr ? 'ready' : 'scheduled', d, { amount: amt, profit: 0, source: inv.platform || '—', name: inv.type || 'Investment', note: 'Maturity / End date', partial: false });
+});
+return months;
+}
 function renderCalendar() {
-const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-document.getElementById('calTitle').textContent = monthNames[calMonth] + ' ' + calYear;
-document.getElementById('calDayHeaders').innerHTML = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-header" style="font-size:0.65rem;font-weight:700;color:var(--text-sub);text-align:center;padding:4px 0;">${d}</div>`).join('');
-document.getElementById('calDayDetail').style.display = 'none';
+const MN = ['JAN','FEB','MAR','APR','MAY','JUNE','JULY','AUG','SEP','OCT','NOV','DEC'];
+const sum = a => a.reduce((s,x) => s + (x.amount||0), 0);
+let titleEl = document.getElementById('calTitle'); if(titleEl) titleEl.textContent = calYear;
+let det = document.getElementById('calDayDetail'); if(det) det.style.display = 'none';
+_calMonths = getCalYearData(calYear);
+let now = new Date(), curM = (now.getFullYear() === calYear) ? now.getMonth() : -1;
 
-let firstDay = new Date(calYear, calMonth, 1).getDay();
-let daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-let daysInPrev = new Date(calYear, calMonth, 0).getDate();
-let today = new Date(); today.setHours(0,0,0,0);
-
-let eventsMap = {};
-investments.forEach(inv => {
-[[inv.start,'start'],[inv.end,'end']].forEach(([dateField, eType]) => {
-if(!dateField) return;
-if(eType==='end' && inv.status==='completed') return;
-let d = dateField.slice(0,10);
-eventsMap[d] = eventsMap[d] || [];
-eventsMap[d].push({ inv, eventType:eType });
-});
-});
-
-let monthInvested = 0, monthExpiring = 0, monthStarting = 0;
-Object.entries(eventsMap).forEach(([d, evs]) => {
-if(d.startsWith(`${calYear}-${String(calMonth+1).padStart(2,'0')}`)) {
-evs.forEach(e => {
-if(e.eventType==='start') { monthStarting++; monthInvested += e.inv.amountBDT||0; }
-if(e.eventType==='end') monthExpiring++;
-});
-}
-});
+let tot = { received:0, ready:0, scheduled:0 }, cnt = { received:0, ready:0, scheduled:0 };
+_calMonths.forEach(m => ['received','ready','scheduled'].forEach(k => { tot[k] += sum(m[k]); cnt[k] += m[k].length; }));
 let summaryEl = document.getElementById('calMonthSummary');
-if(summaryEl) {
-summaryEl.innerHTML = [
-{ label:'Investments Start', val:monthStarting, color:'#4ade80', icon:'🟢' },
-{ label:'Maturing / End', val:monthExpiring, color:'#f87171', icon:'🔴' },
-{ label:'Amount Starting', val:formatNumber(monthInvested)+' BDT', color:'#facc15', icon:'💵' },
-].map(s=>`<div style="background:var(--bg-input);border-radius:10px;padding:8px 10px;text-align:center;border:1px solid var(--border);">
-<div style="font-size:0.75rem;">${s.icon}</div>
-<div style="font-family:'Sora',sans-serif;font-size:0.88rem;font-weight:800;color:${s.color};">${s.val}</div>
-<div style="font-size:0.58rem;color:var(--text-sub);margin-top:1px;">${s.label}</div>
-</div>`).join('');
-}
+if(summaryEl) summaryEl.innerHTML = [
+{ label:'Received', val:tot.received, n:cnt.received, color:'#4ade80', icon:'<i class="fas fa-check-double"></i>' },
+{ label:'Ready', val:tot.ready, n:cnt.ready, color:'#38bdf8', icon:'<i class="fas fa-ellipsis-h"></i>' },
+{ label:'Scheduled', val:tot.scheduled, n:cnt.scheduled, color:'#94a3b8', icon:'<i class="far fa-clock"></i>' }
+].map(s => `<div style="background:var(--bg-input);border-radius:10px;padding:8px 6px;text-align:center;border:1px solid var(--border);">
+<div style="font-size:0.75rem;color:${s.color};">${s.icon}</div>
+<div style="font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:800;color:${s.color};">${formatNumber(s.val)}</div>
+<div style="font-size:0.56rem;color:var(--text-sub);margin-top:1px;">${s.label} · ${s.n}</div></div>`).join('');
 
-let cells = '';
-for(let i = firstDay-1; i >= 0; i--)
-cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${daysInPrev-i}</div></div>`;
-
-for(let d = 1; d <= daysInMonth; d++) {
-let dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-let dayDate = new Date(calYear, calMonth, d);
-let isToday = dayDate.getTime() === today.getTime();
-let isFri = dayDate.getDay() === 5;
-let events = eventsMap[dateStr] || [];
-let hasStart= events.some(e=>e.eventType==='start');
-let hasEnd = events.some(e=>e.eventType==='end');
-
-let dots = '';
-if(hasStart) dots += `<span style="width:6px;height:6px;background:#4ade80;border-radius:50%;display:inline-block;"></span>`;
-if(hasEnd) dots += `<span style="width:6px;height:6px;background:#f87171;border-radius:50%;display:inline-block;margin-left:2px;"></span>`;
-
-let label = '';
-if(events.length === 1) {
-let e = events[0];
-let c = e.eventType==='start'?'#4ade80':'#f87171';
-label = `<div style="font-size:0.46rem;padding:1px 3px;border-radius:3px;background:${e.eventType==='start'?'rgba(74,222,128,0.2)':'rgba(248,113,113,0.2)'};color:${c};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;">${e.inv.type}</div>`;
-} else if(events.length > 1) {
-label = `<div style="font-size:0.46rem;color:#facc15;margin-top:2px;font-weight:700;">${events.length} events</div>`;
-}
-
-let borderStyle = events.length > 0 ? 'border-color:rgba(6,182,212,0.4);' : '';
-let fridayStyle = isFri ? 'background:rgba(168,85,247,0.05);' : '';
-let clickAttr = events.length > 0 ? `onclick="showCalDayDetail('${dateStr}')" style="cursor:pointer;${borderStyle}${fridayStyle}"` : `style="${fridayStyle}"`;
-
-cells += `<div class="cal-day${isToday?' today':''}" ${clickAttr}>
-<div style="display:flex;justify-content:space-between;align-items:center;">
-<span class="day-num" style="${isFri?'color:#a78bfa;':''}">${d}</span>
-<span>${dots}</span>
-</div>
-${label}
-</div>`;
-}
-
-let remaining = 42 - (firstDay + daysInMonth);
-for(let i = 1; i <= remaining; i++)
-cells += `<div class="cal-day other-month"><div class="day-num" style="opacity:0.3;">${i}</div></div>`;
-
-document.getElementById('calGrid').innerHTML = cells;
-}
-
-function showCalDayDetail(dateStr) {
-let events = [];
-investments.forEach(inv => {
-if(inv.start && inv.start.slice(0,10)===dateStr) events.push({inv, eventType:'start'});
-if(inv.end && inv.end.slice(0,10)===dateStr && inv.status!=='completed') events.push({inv, eventType:'end'});
-});
-if(!events.length) return;
-
-let dt = new Date(dateStr+'T00:00:00');
-let label = dt.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-document.getElementById('calDetailTitle').innerHTML = `📅 ${label} <span style="font-size:0.65rem;background:rgba(6,182,212,0.15);color:#06b6d4;padding:2px 8px;border-radius:10px;margin-left:6px;">${events.length} event${events.length>1?'s':''}</span>`;
-
-let today = new Date(); today.setHours(0,0,0,0);
-let evDate = new Date(dateStr+'T00:00:00'); evDate.setHours(0,0,0,0);
-let diffDays = Math.ceil((evDate-today)/(1000*60*60*24));
-
-let html = events.map(({inv, eventType}) => {
-let isStart = eventType==='start';
-let color = isStart ? '#4ade80' : '#f87171';
-let bg = isStart ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)';
-let badge = isStart ? '🟢 Investment Start' : '🔴 Maturity / End';
-
-let cryptoInfo = '';
-if((inv.isCrypto||inv.isStock) && getLivePrice(inv.type) && inv.purchasePrice) {
-let lp = getLivePrice(inv.type);
-let curVal = inv.amount * lp * usdToBdt;
-let costVal = inv.amount * inv.purchasePrice * usdToBdt;
-let pl = curVal - costVal;
-cryptoInfo = `
-<div style="background:rgba(250,204,21,0.08);border-radius:8px;padding:6px 8px;margin-top:4px;font-size:0.62rem;">
-<span style="color:#facc15;">${inv.isStock?'📈 Live:':'₿ Live:'}</span>
-<span style="color:#e2e8f0;margin-left:4px;">${inv.amount} ${inv.type} @ $${formatNumber(lp)}</span>
-<span style="color:${pl>=0?'#4ade80':'#f87171'};font-weight:700;margin-left:6px;">${pl>=0?'+':''}${formatNumber(pl)} BDT</span>
-</div>`;
-}
-
-let duration = '';
-if(inv.start && inv.end) {
-let s = new Date(inv.start), e = new Date(inv.end);
-let days = Math.ceil((e-s)/(1000*60*60*24));
-duration = `<span style="font-size:0.6rem;color:#6b7280;"> · ${days} days total</span>`;
-}
-
-let diffLabel = diffDays===0 ? '<span style="color:#facc15;font-weight:700;">⚡ Today!</span>'
-: diffDays>0 ? `<span style="color:#06b6d4;">📆 ${diffDays} days from now</span>`
-: `<span style="color:#94a3b8;">⏳ ${Math.abs(diffDays)} days ago</span>`;
-
-let progressBar = '';
-if(inv.start && inv.end && inv.status==='active') {
-let s = new Date(inv.start).getTime(), e = new Date(inv.end).getTime(), n = Date.now();
-let pct = Math.max(0,Math.min(100,((n-s)/(e-s))*100));
-progressBar = `
-<div style="margin-top:6px;">
-<div style="display:flex;justify-content:space-between;font-size:0.58rem;color:#6b7280;margin-bottom:2px;">
-<span>Progress</span><span>${pct.toFixed(0)}% complete</span>
-</div>
-<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;overflow:hidden;">
-<div style="background:${color};width:${pct}%;height:100%;border-radius:4px;"></div>
-</div>
-</div>`;
-}
-
-return `<div style="background:${bg};border:1px solid ${color}33;border-radius:12px;padding:12px;margin-bottom:8px;">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-<div>
-<span style="font-weight:800;font-size:0.85rem;color:${color};">${inv.type}</span>
-<span style="font-size:0.7rem;color:var(--text-sub);margin-left:6px;">@ ${inv.platform}</span>
-${duration}
-</div>
-<span style="font-size:0.6rem;background:${color}22;color:${color};padding:3px 8px;border-radius:10px;white-space:nowrap;">${badge}</span>
-</div>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.65rem;margin-bottom:6px;">
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
-<div style="color:#6b7280;">💵 Invested</div>
-<div style="color:#e2e8f0;font-weight:700;">${formatNumber(inv.amountBDT)} BDT</div>
-${(inv.isCrypto||inv.isStock)?`<div style="color:#94a3b8;font-size:0.58rem;">${inv.amount} ${inv.type} @ $${formatNumber(inv.purchasePrice)}</div>`:''}
-</div>
-<div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:6px 8px;">
-<div style="color:#6b7280;">✅ Profit</div>
-<div style="color:#4ade80;font-weight:700;">+${formatNumber(inv.actualProfit||0)} BDT</div>
-<div style="color:#94a3b8;font-size:0.58rem;">Expected: +${formatNumber(inv.expectedProfit||0)}</div>
-</div>
-</div>
-${cryptoInfo}
-${progressBar}
-<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:0.62rem;">
-<span style="color:#6b7280;">📅 ${inv.start||'—'} → ${inv.end||'ongoing'}</span>
-${diffLabel}
-</div>
-${inv.note?`<div style="margin-top:4px;font-size:0.62rem;color:#a78bfa;">📝 ${inv.note}</div>`:''}
+let cells = _calMonths.map((m, i) => {
+let has = m.received.length || m.ready.length || m.scheduled.length;
+let row = (icon, color, arr) => arr.length ? `<div style="display:flex;align-items:center;gap:4px;font-size:0.74rem;font-weight:700;color:${color};margin-top:4px;white-space:nowrap;">${icon}<span>${calShort(sum(arr))}</span>${arr.length > 1 ? `<span style="font-size:0.5rem;font-weight:600;opacity:0.7;">×${arr.length}</span>` : ''}</div>` : '';
+return `<div ${has ? `onclick="showCalMonthDetail(${i})"` : ''} style="background:var(--bg-input);border-radius:8px;padding:7px 6px;min-height:84px;border:1px solid ${i === curM ? 'var(--accent)' : 'var(--border)'};${has ? 'cursor:pointer;' : 'opacity:0.75;'}">
+<div style="font-size:0.66rem;font-weight:700;color:var(--text-main);">${MN[i]}${i === curM ? ' <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#06b6d4;vertical-align:middle;"></span>' : ''}</div>
+${row('<i class="fas fa-check-double"></i>', '#4ade80', m.received)}
+${row('<i class="fas fa-ellipsis-h"></i>', '#38bdf8', m.ready)}
+${row('<i class="far fa-clock"></i>', '#94a3b8', m.scheduled)}
 </div>`;
 }).join('');
-
-document.getElementById('calDetailBody').innerHTML = html;
-document.getElementById('calDayDetail').style.display = 'block';
-document.getElementById('calDayDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+document.getElementById('calGrid').innerHTML = cells;
 }
-window.showCalDayDetail = showCalDayDetail;
+function showCalMonthDetail(mi) {
+const MFULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+let m = _calMonths[mi]; if(!m) return;
+const sum = a => a.reduce((s,x) => s + (x.amount||0), 0);
+const todayMs = new Date().setHours(0,0,0,0);
+let section = (title, color, icon, arr, kind) => {
+if(!arr.length) return '';
+arr = arr.slice().sort((a,b) => a.date < b.date ? -1 : 1);
+let rows = arr.map(e => {
+let days = Math.round((new Date(e.date + 'T00:00:00') - todayMs) / 86400000);
+let sub = kind === 'scheduled' ? `<span style="color:#06b6d4;">${days} দিন বাকি</span>` : kind === 'ready' ? `<span style="color:#38bdf8;">${Math.abs(days)} দিন আগে মেয়াদ শেষ — তুলে নিন</span>` : '';
+return `<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+<div style="min-width:0;">
+<div style="font-size:0.78rem;font-weight:700;color:var(--text-main);">${calEsc(e.source)} <span style="color:var(--text-sub);font-weight:500;">· ${calEsc(e.name)}</span>${e.partial ? ' <span style="font-size:0.55rem;background:rgba(16,185,129,0.15);color:#10b981;padding:1px 6px;border-radius:8px;">Partial</span>' : ''}</div>
+<div style="font-size:0.66rem;color:var(--text-sub);margin-top:2px;">📅 ${calFmtDate(e.date)}${e.note ? ' · ' + calEsc(e.note) : ''}</div>
+${sub ? `<div style="font-size:0.62rem;margin-top:2px;">${sub}</div>` : ''}
+</div>
+<div style="text-align:right;flex-shrink:0;">
+<div style="font-size:0.85rem;font-weight:800;color:${color};">${formatNumber(e.amount)} BDT</div>
+${e.profit > 0 && kind === 'received' ? `<div style="font-size:0.6rem;color:#facc15;">লাভ: +${formatNumber(e.profit)}</div>` : ''}
+</div></div>`;
+}).join('');
+return `<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:0.7rem;font-weight:800;color:${color};margin-bottom:2px;"><span>${icon} ${title} (${arr.length})</span><span>${formatNumber(sum(arr))} BDT</span></div>${rows}</div>`;
+};
+document.getElementById('calDetailTitle').innerHTML = `📅 ${MFULL[mi]} ${calYear}`;
+document.getElementById('calDetailBody').innerHTML =
+section('Received / পেয়েছি', '#4ade80', '<i class="fas fa-check-double"></i>', m.received, 'received') +
+section('Ready / তোলার জন্য প্রস্তুত', '#38bdf8', '<i class="fas fa-ellipsis-h"></i>', m.ready, 'ready') +
+section('Scheduled / আসবে', '#94a3b8', '<i class="far fa-clock"></i>', m.scheduled, 'scheduled');
+let d = document.getElementById('calDayDetail');
+d.style.display = 'block';
+d.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+window.showCalMonthDetail = showCalMonthDetail;
 
 // ====== PWA ======
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2711,9 +2607,6 @@ document.getElementById('totalPrincipal').innerHTML = formatNumber(pConv);
 document.getElementById('principalCurrLabel').textContent = activeCurrency;
 document.getElementById('totalPrincipalUsd').innerHTML = formatNumber(pocket/usdToBdt);
 document.getElementById('lifetimeContribution').textContent = formatNumber(ledger.lifetimeContribution) + ' BDT';
-document.getElementById('totalProfitEarned').textContent = formatNumber(ledger.totalProfitEarned);
-document.getElementById('profitAvailable').textContent = formatNumber(ledger.profitAvailable);
-document.getElementById('profitReinvested').textContent = formatNumber(ledger.profitReinvested);
 document.getElementById('currentValue').innerHTML = formatNumber(cConv);
 document.getElementById('currentCurrLabel').textContent = activeCurrency;
 document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd);
@@ -4539,7 +4432,7 @@ window.markComplete=markComplete; window.deleteInv=deleteInv;
 window.confirmMmpda=confirmMmpda; window.closeMmpdaModal=closeMmpdaModal;
 window.calculateMmpdaMonthlyProfit=calculateMmpdaMonthlyProfit;
 window.openCalendar=openCalendar; window.closeCalendar=closeCalendar;
-window.changeCalMonth=changeCalMonth; window.runAIPrediction=runAIPrediction;
+window.changeCalYear=changeCalYear; window.runAIPrediction=runAIPrediction;
 window.checkAlerts=checkAlerts; window.installPWA=installPWA;
 window.toggleTheme=toggleTheme; window.setCurrency=setCurrency;
 window.openPartialModal=openPartialModal; window.confirmPartialWithdraw=confirmPartialWithdraw; window.closePartialModal=closePartialModal;
