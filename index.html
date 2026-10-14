@@ -1524,7 +1524,7 @@ oninput="onInflationRateChange()">
 <button onclick="closeCalendar()" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.3);color:#f87171;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:0.9rem;">✕</button>
 </div>
 <!-- Month Summary Stats -->
-<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
+<div id="calMonthSummary" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;"></div>
 <!-- Year Navigation -->
 <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:6px 10px;margin-bottom:10px;">
 <button onclick="changeCalYear(-1)" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-main);width:32px;height:32px;border-radius:8px;cursor:pointer;"><i class="fas fa-chevron-left"></i></button>
@@ -1533,6 +1533,7 @@ oninput="onInflationRateChange()">
 </div>
 <div id="calGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;"></div>
 <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:0.68rem;">
+<span style="color:#a78bfa;"><i class="fas fa-plus-circle"></i> Invested</span>
 <span style="color:#4ade80;"><i class="fas fa-check-double"></i> Received</span>
 <span style="color:#38bdf8;"><i class="fas fa-ellipsis-h"></i> Ready</span>
 <span style="color:#94a3b8;"><i class="far fa-clock"></i> Scheduled</span>
@@ -1550,6 +1551,8 @@ oninput="onInflationRateChange()">
 
 <script>
 // ====== SAFETY HELPERS (never let storage/network errors freeze the UI) ======
+let withdrawalLogChart = null, _wahedEditId = null, _wahedMode = 'topup', _nwLastSave = 0, _spLast = 0;
+function localDate() { let d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); } // LOCAL date (toISOString is UTC => wrong day in Bangladesh before 6am)
 const LS = {
 getItem(k){ try { return window.localStorage.getItem(k); } catch(e) { return null; } },
 setItem(k,v){ try { window.localStorage.setItem(k,v); } catch(e) { /* private mode / quota */ } },
@@ -1707,6 +1710,7 @@ if (isNaN(n) || n === null || n === undefined) return "0.00";
 return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function isWaitMoney(inv) { return inv.platform === "WAIT_MONEY"; }
+function isWahedInv(inv) { return !!inv && (inv.isWahed || inv.type === 'WAHED'); }
 
 // Convert BDT value to active display currency
 function convertDisplay(bdtValue) {
@@ -1841,7 +1845,7 @@ function computeMonthlyPL() {
 let history = getNwHistory();
 if(!history.length) return [];
 let hist = history.map(h=>({date:h.date, v:h.v}));
-let today = new Date().toISOString().slice(0,10);
+let today = localDate();
 let liveVal = Math.round(computeLiveNetWorthBDT());
 if(hist.length && hist[hist.length-1].date === today) {
 if(liveVal > 0) hist[hist.length-1].v = liveVal;
@@ -2418,7 +2422,7 @@ function calShort(n) { n = Math.abs(n || 0); return n >= 1000 ? (n/1000).toFixed
 function calEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function calFmtDate(d) { try { return new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }); } catch(e) { return d; } }
 function getCalYearData(year) {
-const months = Array.from({length:12}, () => ({ received:[], ready:[], scheduled:[] }));
+const months = Array.from({length:12}, () => ({ invested:[], received:[], ready:[], scheduled:[] }));
 const todayStr = new Date().toLocaleDateString('en-CA');
 const invById = {}; (investments || []).forEach(i => { if(i && i.id) invById[i.id] = i; });
 const put = (arr, dateStr, item) => {
@@ -2447,6 +2451,19 @@ let amt = +inv.amountBDT || 0; if(!amt) return;
 let d = String(inv.end).slice(0,10);
 put(d <= todayStr ? 'ready' : 'scheduled', d, { amount: amt, profit: 0, source: inv.platform || '—', name: inv.type || 'Investment', note: 'Maturity / End date', partial: false });
 });
+// Invested: initial amount on the start date + every later top-up / installment
+let principalBack = {};
+(withdrawHistory || []).forEach(h => { if(h && h.invId) principalBack[h.invId] = (principalBack[h.invId] || 0) + Math.max(0, (+h.amount || 0) - (+h.profit || 0)); });
+(investments || []).forEach(inv => {
+if(!inv || inv.type === 'LOAN_TAKEN' || !inv.start) return;
+let tops = Array.isArray(inv.topups) ? inv.topups : [];
+let topSum = tops.reduce((a, t) => a + (+t.amount || 0), 0);
+let base = +inv.startAmountBDT || 0;
+if(!base) base = Math.max(0, (+inv.amountBDT || 0) + (principalBack[inv.id] || 0) - topSum); // rebuild for older entries
+if(!base) base = (+inv.amountUSD || 0) * (usdToBdt || 0);
+if(base > 0) put('invested', inv.start, { amount: base, profit: 0, source: inv.platform || '—', name: inv.type || 'Investment', note: inv.note ? String(inv.note).slice(0, 40) : '', partial: false });
+tops.forEach(t => { if(t && +t.amount > 0) put('invested', t.date, { amount: +t.amount, profit: 0, source: inv.platform || '—', name: (inv.type || 'Investment') + ' (Top-up)', note: '', partial: false }); });
+});
 return months;
 }
 function renderCalendar() {
@@ -2457,10 +2474,11 @@ let det = document.getElementById('calDayDetail'); if(det) det.style.display = '
 _calMonths = getCalYearData(calYear);
 let now = new Date(), curM = (now.getFullYear() === calYear) ? now.getMonth() : -1;
 
-let tot = { received:0, ready:0, scheduled:0 }, cnt = { received:0, ready:0, scheduled:0 };
-_calMonths.forEach(m => ['received','ready','scheduled'].forEach(k => { tot[k] += sum(m[k]); cnt[k] += m[k].length; }));
+let tot = { invested:0, received:0, ready:0, scheduled:0 }, cnt = { invested:0, received:0, ready:0, scheduled:0 };
+_calMonths.forEach(m => ['invested','received','ready','scheduled'].forEach(k => { tot[k] += sum(m[k]); cnt[k] += m[k].length; }));
 let summaryEl = document.getElementById('calMonthSummary');
 if(summaryEl) summaryEl.innerHTML = [
+{ label:'Invested', val:tot.invested, n:cnt.invested, color:'#a78bfa', icon:'<i class="fas fa-plus-circle"></i>' },
 { label:'Received', val:tot.received, n:cnt.received, color:'#4ade80', icon:'<i class="fas fa-check-double"></i>' },
 { label:'Ready', val:tot.ready, n:cnt.ready, color:'#38bdf8', icon:'<i class="fas fa-ellipsis-h"></i>' },
 { label:'Scheduled', val:tot.scheduled, n:cnt.scheduled, color:'#94a3b8', icon:'<i class="far fa-clock"></i>' }
@@ -2470,10 +2488,11 @@ if(summaryEl) summaryEl.innerHTML = [
 <div style="font-size:0.56rem;color:var(--text-sub);margin-top:1px;">${s.label} · ${s.n}</div></div>`).join('');
 
 let cells = _calMonths.map((m, i) => {
-let has = m.received.length || m.ready.length || m.scheduled.length;
+let has = m.invested.length || m.received.length || m.ready.length || m.scheduled.length;
 let row = (icon, color, arr) => arr.length ? `<div style="display:flex;align-items:center;gap:4px;font-size:0.74rem;font-weight:700;color:${color};margin-top:4px;white-space:nowrap;">${icon}<span>${calShort(sum(arr))}</span>${arr.length > 1 ? `<span style="font-size:0.5rem;font-weight:600;opacity:0.7;">×${arr.length}</span>` : ''}</div>` : '';
-return `<div ${has ? `onclick="showCalMonthDetail(${i})"` : ''} style="background:var(--bg-input);border-radius:8px;padding:7px 6px;min-height:84px;border:1px solid ${i === curM ? 'var(--accent)' : 'var(--border)'};${has ? 'cursor:pointer;' : 'opacity:0.75;'}">
+return `<div ${has ? `onclick="showCalMonthDetail(${i})"` : ''} style="background:var(--bg-input);border-radius:8px;padding:7px 6px;min-height:98px;border:1px solid ${i === curM ? 'var(--accent)' : 'var(--border)'};${has ? 'cursor:pointer;' : 'opacity:0.75;'}">
 <div style="font-size:0.66rem;font-weight:700;color:var(--text-main);">${MN[i]}${i === curM ? ' <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#06b6d4;vertical-align:middle;"></span>' : ''}</div>
+${row('<i class="fas fa-plus-circle"></i>', '#a78bfa', m.invested)}
 ${row('<i class="fas fa-check-double"></i>', '#4ade80', m.received)}
 ${row('<i class="fas fa-ellipsis-h"></i>', '#38bdf8', m.ready)}
 ${row('<i class="far fa-clock"></i>', '#94a3b8', m.scheduled)}
@@ -2507,6 +2526,7 @@ return `<div style="margin-bottom:12px;"><div style="display:flex;justify-conten
 };
 document.getElementById('calDetailTitle').innerHTML = `📅 ${MFULL[mi]} ${calYear}`;
 document.getElementById('calDetailBody').innerHTML =
+section('Invested / বিনিয়োগ করেছি', '#a78bfa', '<i class="fas fa-plus-circle"></i>', m.invested, 'invested') +
 section('Received / পেয়েছি', '#4ade80', '<i class="fas fa-check-double"></i>', m.received, 'received') +
 section('Ready / তোলার জন্য প্রস্তুত', '#38bdf8', '<i class="fas fa-ellipsis-h"></i>', m.ready, 'ready') +
 section('Scheduled / আসবে', '#94a3b8', '<i class="far fa-clock"></i>', m.scheduled, 'scheduled');
@@ -2619,7 +2639,15 @@ let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
 let history = withdrawHistory;
 let dividendTotalBDT = dividends.reduce((s,d)=>s+(d.amountBDT||0),0);
-let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0) + dividendTotalBDT;
+let realizedProfit = history.reduce((s,h) => s+(h.profit||0), 0) + dividendTotalBDT; // display only: everything actually taken out
+// Partial / MMPDA / Rental / Complete write the SAME profit into withdrawHistory AND inv.actualProfit.
+// Count those once (via actualProfit); count only the history entries that were NOT mirrored (crypto/stock sells, Wahed withdrawals, orphans).
+let _invById = {}; investments.forEach(i => { _invById[i.id] = i; });
+let unmirroredHistoryProfit = history.reduce((s,h) => {
+let inv = h.invId ? _invById[h.invId] : null;
+let mirrored = inv && !inv.isCrypto && !inv.isStock && !isWaitMoney(inv) && !isWahedInv(inv) && !/^Wahed Invest/i.test(h.type || '');
+return mirrored ? s : s + (h.profit||0);
+}, 0);
 let cryptoUnrealized = 0;
 investments.filter(i=>i.status==='active'&&i.isCrypto&&cryptoPrices[i.type]&&i.purchasePrice).forEach(inv=>{
 let curVal = inv.amount * cryptoPrices[inv.type] * usdToBdt;
@@ -2632,8 +2660,8 @@ let curVal = inv.amount * stockPrices[inv.type] * usdToBdt;
 let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
 stockUnrealized += curVal - costVal;
 });
-let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!i.isStock&&!isWaitMoney(i)).reduce((s,i)=>s+(i.actualProfit||0),0);
-let totalProfit = realizedProfit + cryptoUnrealized + stockUnrealized + nonCryptoProfit;
+let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!i.isStock&&!isWaitMoney(i)&&!(isWahedInv(i)&&i.status!=='active')).reduce((s,i)=>s+(i.actualProfit||0),0);
+let totalProfit = unmirroredHistoryProfit + dividendTotalBDT + cryptoUnrealized + stockUnrealized + nonCryptoProfit;
 let pos = totalProfit >= 0;
 let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
 profitEl.innerHTML = `
@@ -2910,15 +2938,20 @@ tickNwGraph();
 }
 
 // ====== STOCK PRICES (eToro / US Equities + Saudi Aramco) ======
+function updateStockPrices(force) {
+if(!force && Date.now() - _spLast < 60000) { try { renderStockCards(); } catch(e) {} return Promise.resolve(); }
+_spLast = Date.now();
+return updateStockPricesNow();
+}
 function saveApiKeys() {
 let td = document.getElementById('tdApiKeyInput').value.trim();
 let sahmk = document.getElementById('sahmkApiKeyInput').value.trim();
 if(td) LS.setItem('twelvedata_api_key', td);
 if(sahmk) LS.setItem('sahmk_api_key', sahmk);
 showToast('✅ API key সেভ হয়েছে — দাম আপডেট হচ্ছে...');
-updateStockPrices();
+updateStockPrices(true);
 }
-async function updateStockPrices() {
+async function updateStockPricesNow() {
 let tdKey = LS.getItem('twelvedata_api_key')||'';
 let sahmkKey = LS.getItem('sahmk_api_key')||'';
 if(document.getElementById('tdApiKeyInput') && tdKey) document.getElementById('tdApiKeyInput').value = tdKey;
@@ -3105,14 +3138,14 @@ if(div) div.innerHTML = tQty>0?`<div class="row"><span>📈 Avg Price:</span><sp
 // ====== DIVIDENDS ======
 function openDividendModal() {
 document.getElementById('dividendStockSelect').innerHTML = `<option value="">-- নির্বাচন করুন --</option>` + STOCK_SYMS.map(s=>`<option value="${s}">${s} - ${STOCK_META[s].name}</option>`).join('');
-document.getElementById('dividendDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('dividendDate').value = localDate();
 document.getElementById('dividendModal').style.display='flex';
 }
 function closeDividendModal() { document.getElementById('dividendModal').style.display='none'; }
 function addDividend() {
 let symbol = document.getElementById('dividendStockSelect').value;
 let amountUSD = parseFloat(document.getElementById('dividendAmount').value);
-let date = document.getElementById('dividendDate').value || new Date().toISOString().slice(0,10);
+let date = document.getElementById('dividendDate').value || localDate();
 let note = document.getElementById('dividendNote').value||'';
 if(!symbol || !amountUSD) return showToast('স্টক এবং পরিমাণ দিন', true);
 dividends.push({ id:Date.now().toString(), symbol, amountUSD, amountBDT:amountUSD*usdToBdt, date, note });
@@ -3567,7 +3600,7 @@ let csv = lines.join('\n');
 let blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
 let url = URL.createObjectURL(blob);
 let a = document.createElement('a');
-a.href = url; a.download = `wealth-tracker-export-${new Date().toISOString().slice(0,10)}.csv`;
+a.href = url; a.download = `wealth-tracker-export-${localDate()}.csv`;
 document.body.appendChild(a); a.click(); document.body.removeChild(a);
 URL.revokeObjectURL(url);
 showToast('✅ Export হয়ে গেছে — Downloads folder চেক করুন');
@@ -3745,7 +3778,7 @@ let nwHistory = safeParse(NW_KEY, []);
 function getNwHistory() { return nwHistory; }
 function saveNwSnapshot(valueBDT) {
 if(!valueBDT || valueBDT <= 0) return;
-let today = new Date().toISOString().slice(0,10);
+let today = localDate();
 let last = nwHistory[nwHistory.length-1];
 if(last && last.date === today) {
 last.v = Math.round(valueBDT);
@@ -3754,7 +3787,7 @@ nwHistory.push({ date: today, v: Math.round(valueBDT) });
 }
 if(nwHistory.length > 400) nwHistory = nwHistory.slice(-400);
 LS.setItem(NW_KEY, JSON.stringify(nwHistory)); // instant-load cache only
-saveMetaData(); // Firestore = source of truth
+if(Date.now() - _nwLastSave > 300000) { _nwLastSave = Date.now(); saveMetaData(); } // throttled (was a Firestore write on every redraw)
 }
 
 function computeLiveNetWorthBDT() {
@@ -3794,7 +3827,7 @@ filtered = history.filter(h=>h.date >= cutStr);
 if(!filtered.length) filtered = history.slice(-2);
 
 // ensure today's live value is always the last point
-let today = new Date().toISOString().slice(0,10);
+let today = localDate();
 let liveVal = Math.round(computeLiveNetWorthBDT());
 if(filtered.length && filtered[filtered.length-1].date === today) {
 filtered[filtered.length-1].v = liveVal;
@@ -3812,7 +3845,7 @@ let values = filtered.map(h=>h.v);
 let first = values[0], last2 = values[values.length-1];
 let change = last2 - first, changePct = first>0?(change/first*100):0;
 let pos = change >= 0;
-document.getElementById('nwGraphDate').textContent = new Date().toISOString().slice(0,10);
+document.getElementById('nwGraphDate').textContent = localDate();
 document.getElementById('nwGraphValue').textContent = '৳'+formatNumber(last2);
 document.getElementById('nwGraphChange').innerHTML = `<span style="color:${pos?'#4ade80':'#f87171'};">${pos?'▲':'▼'} ${Math.abs(changePct).toFixed(2)}% (${pos?'+':''}${formatNumber(change)} BDT)</span>`;
 
@@ -3967,6 +4000,7 @@ currentValue: isWahed ? amountBDT : null,
 expectedProfit: parseFloat(document.getElementById('expectedProfit').value)||0,
 actualProfit: parseFloat(document.getElementById('actualProfit').value)||0,
 status: document.getElementById('status').value,
+startAmountBDT: amountBDT,
 start: document.getElementById('startDate').value,
 end: document.getElementById('endDate').value,
 note: document.getElementById('investmentNote').value||"",
@@ -4006,7 +4040,7 @@ let profit = totalReceived - inv.amountBDT;
 inv.status = 'completed';
 inv.actualProfit = profit;
 let history = withdrawHistory;
-history.push({ invId:inv.id, platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:profit, date:new Date().toISOString().slice(0,10), note:inv.note||'' });
+history.push({ invId:inv.id, platform:inv.platform, type:inv.type, amount:inv.amountBDT, profit:profit, date:localDate(), note:inv.note||'' });
 LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 if(db&&isAdmin) await db.collection("investments").doc(inv.id).update({status:'completed', actualProfit:profit});
 LS.setItem("investments_backup",JSON.stringify(investments));
@@ -4046,10 +4080,10 @@ let profit=parseFloat(document.getElementById('mmpdaProfit').value); let rate=pa
 if(isNaN(profit)||profit<=0) return showToast("Invalid profit", true);
 if(!confirm(`Withdraw ${formatNumber(profit)} BDT from ${inv.platform} MMPDA?`)) return;
 let history = withdrawHistory;
-history.push({ invId:inv.id, platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:new Date().toISOString().slice(0,10), note:`Monthly at ${rate}% annual` });
+history.push({ invId:inv.id, platform:inv.platform, type:"MMPDA Monthly Profit", amount:profit, profit:profit, date:localDate(), note:`Monthly at ${rate}% annual` });
 LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
-inv.actualProfit=(inv.actualProfit||0)+profit;
-if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit}).catch(console.error);
+if(!isWahedInv(inv)) inv.actualProfit=(inv.actualProfit||0)+profit; // Wahed: realized profit lives in history only
+if(db&&isAdmin) db.collection("investments").doc(inv.id).update({actualProfit:inv.actualProfit||0}).catch(console.error);
 LS.setItem("investments_backup",JSON.stringify(investments));
 renderAll(); closeMmpdaModal(); showToast(`✅ Withdrew ${formatNumber(profit)} BDT from ${inv.platform} MMPDA`);
 }
@@ -4083,7 +4117,7 @@ let inv = investments.find(i => i.id===id);
 if(!inv) return showToast("Investment not found", true);
 let amount = parseFloat(document.getElementById('rentalAmount').value);
 if(isNaN(amount) || amount <= 0) return showToast("Enter a valid rental amount", true);
-let period = document.getElementById('rentalPeriod').value.trim() || new Date().toISOString().slice(0,7);
+let period = document.getElementById('rentalPeriod').value.trim() || localDate().slice(0,7);
 let note = document.getElementById('rentalNote').value.trim();
 if(!confirm(`Confirm receiving ${formatNumber(amount)} BDT rental income from ${inv.platform || inv.type}?`)) return;
 let history = withdrawHistory;
@@ -4093,12 +4127,12 @@ platform: inv.platform || inv.type,
 type: "Rental Income",
 amount: amount,
 profit: amount,
-date: new Date().toISOString().slice(0,10),
+date: localDate(),
 note: (note ? note + ' | ' : '') + 'Period: ' + period
 });
 LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
-inv.actualProfit = (inv.actualProfit||0) + amount;
-if(db && isAdmin) db.collection("investments").doc(inv.id).update({actualProfit: inv.actualProfit}).catch(console.error);
+if(!isWahedInv(inv)) inv.actualProfit = (inv.actualProfit||0) + amount;
+if(db && isAdmin) db.collection("investments").doc(inv.id).update({actualProfit: inv.actualProfit||0}).catch(console.error);
 LS.setItem("investments_backup", JSON.stringify(investments));
 renderAll();
 closeRentalModal();
@@ -4138,8 +4172,8 @@ let totalWithdrawn = entries.reduce((s,e)=>s+(e.amount||0), 0);
 let listHtml = entries.length ? entries.map((e,idx) => `
 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
 <div>
-<div style="font-size:0.75rem;font-weight:600;">#${idx+1} — ${e.type}</div>
-<div style="font-size:0.65rem;color:var(--text-sub);">${e.date}${e.note?' · '+e.note:''}</div>
+<div style="font-size:0.75rem;font-weight:600;">#${idx+1} — ${calEsc(e.type)}</div>
+<div style="font-size:0.65rem;color:var(--text-sub);">${calEsc(e.date)}${e.note?' · '+calEsc(e.note):''}</div>
 </div>
 <div style="text-align:right;">
 <div style="font-size:0.8rem;font-weight:700;color:#4ade80;">${formatNumber(e.amount)} BDT</div>
@@ -4212,7 +4246,7 @@ platform: inv.platform,
 type: `${inv.type} (Partial)`,
 amount: withdrawAmt,
 profit: withdrawProfit,
-date: new Date().toISOString().slice(0,10),
+date: localDate(),
 note: note || `Partial withdraw — বাকি: ${formatNumber(remaining)} BDT`
 });
 LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
@@ -4221,11 +4255,11 @@ if(remaining <= 0) {
 inv.status = 'completed';
 inv.amountBDT = 0;
 inv.amountUSD = 0;
-inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+if(!isWahedInv(inv)) inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
 } else {
 inv.amountBDT = remaining;
 inv.amountUSD = remaining / usdToBdt;
-inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
+if(!isWahedInv(inv)) inv.actualProfit = (inv.actualProfit||0) + withdrawProfit;
 }
 
 if(db && isAdmin) {
@@ -4300,10 +4334,11 @@ inv.amountBDT = (inv.amountBDT || 0) + addAmt;
 inv.amountUSD = inv.amountBDT / usdToBdt;
 inv.monthlyInstallment = monthly;
 inv.installmentCount = (inv.installmentCount || 0) + months;
+(inv.topups = inv.topups || []).push({ date: localDate(), amount: addAmt });
 if(db && isAdmin) {
 await db.collection("investments").doc(inv.id).update({
 amountBDT: inv.amountBDT, amountUSD: inv.amountUSD,
-monthlyInstallment: monthly, installmentCount: inv.installmentCount
+monthlyInstallment: monthly, installmentCount: inv.installmentCount, topups: inv.topups
 }).catch(console.error);
 }
 LS.setItem("investments_backup", JSON.stringify(investments));
@@ -4354,9 +4389,10 @@ if(!amt || amt <= 0) return showToast("পরিমাণ দিন", true);
 inv.amountBDT = (inv.amountBDT || 0) + amt;
 inv.amountUSD = inv.amountBDT / usdToBdt;
 if(note) inv.note = (inv.note ? inv.note + ' | ' : '') + note;
+(inv.topups = inv.topups || []).push({ date: localDate(), amount: amt });
 if(db && isAdmin) {
 await db.collection("investments").doc(inv.id).update({
-amountBDT: inv.amountBDT, amountUSD: inv.amountUSD, note: inv.note
+amountBDT: inv.amountBDT, amountUSD: inv.amountUSD, note: inv.note, topups: inv.topups
 }).catch(console.error);
 }
 LS.setItem("investments_backup", JSON.stringify(investments));
@@ -4443,7 +4479,7 @@ window.togglePlatformMore=togglePlatformMore;
 // ====== INIT — localStorage first for instant iOS load ======
 loadTheme();
 loadCurrency();
-document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
+document.getElementById('startDate').value = localDate();
 
 investments = safeParse("investments_backup", []).filter(x=>x && typeof x==="object");
 renderAll();
@@ -4513,7 +4549,6 @@ setTimeout(checkAlerts, 2000);
 setTimeout(renderBudgetDisplay, 500);
 
 // ====== WITHDRAWAL LOG CHART ======
-let withdrawalLogChart = null;
 function renderWithdrawalLogChart() {
 let canvas = document.getElementById('withdrawalLogChart');
 if(!canvas) return;
@@ -4747,7 +4782,7 @@ if(sellQty > totalQty + 0.000001)
 return showToast(`মাত্র ${totalQty.toFixed(6)} ${coin} আছে`, true);
 let remaining = sellQty;
 let costBasis = 0;
-let today = new Date().toISOString().slice(0,10);
+let today = localDate();
 let log = [];
 for(let inv of entries) {
 if(remaining <= 0.000001) break;
@@ -4802,7 +4837,6 @@ showToast(
 function closeCryptoSellModal() { document.getElementById('cryptoSellModal').style.display='none'; }
 window.openCryptoSellModal=openCryptoSellModal; window.closeCryptoSellModal=closeCryptoSellModal;
 window.updateSellCoinInfo=updateSellCoinInfo; window.updateSellPreview=updateSellPreview; window.executeCryptoSell=executeCryptoSell;
-let _wahedEditId = null;
 function openWahedUpdate(id) {
 if(!isAdmin) return showToast("Admin required", true);
 let inv = investments.find(i=>i.id===id);
@@ -4853,7 +4887,6 @@ function closeWahedModal() { document.getElementById('wahedModal').style.display
 window.openWahedUpdate=openWahedUpdate; window.saveWahedUpdate=saveWahedUpdate; window.closeWahedModal=closeWahedModal;
 
 // ====== WAHED TOP-UP / WITHDRAW (single ongoing account, no duplicate entries) ======
-let _wahedMode = 'topup';
 function openWahedTopupModal() {
 if(!isAdmin) return showToast("Admin required", true);
 let list = investments.filter(i=>i.type==='WAHED'&&i.status==='active');
@@ -4905,7 +4938,8 @@ let oldCurVal = inv.currentValue || inv.amountBDT;
 inv.amountBDT = (inv.amountBDT||0) + amt;
 inv.currentValue = oldCurVal + amt; // newly added money hasn't moved yet — stays at cost until next "Update Value"
 inv.actualProfit = inv.currentValue - inv.amountBDT;
-if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit }).catch(console.error);
+(inv.topups = inv.topups || []).push({ date: localDate(), amount: amt });
+if(db && isAdmin) await db.collection("investments").doc(inv.id).update({ amountBDT:inv.amountBDT, currentValue:inv.currentValue, actualProfit:inv.actualProfit, topups: inv.topups }).catch(console.error);
 LS.setItem("investments_backup", JSON.stringify(investments));
 closeWahedTopupModal();
 renderAll();
@@ -4922,7 +4956,7 @@ inv.currentValue = curVal - amt;
 inv.actualProfit = inv.currentValue - inv.amountBDT;
 
 let history = withdrawHistory;
-history.push({ invId:inv.id, platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:new Date().toISOString().slice(0,10), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
+history.push({ invId:inv.id, platform: inv.platform, type:"Wahed Invest (Withdraw)", amount:amt, profit:realizedProfit, date:localDate(), note:`Withdraw — বাকি: ${formatNumber(inv.currentValue)} BDT` });
 LS.setItem("withdraw_history",JSON.stringify(history)); saveMetaData();
 
 if(inv.currentValue <= 0.01 || inv.amountBDT <= 0.01) { inv.status='completed'; inv.amountBDT=0; inv.currentValue=0; }
