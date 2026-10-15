@@ -819,6 +819,7 @@ body { padding: 10px; }
 <button onclick="sendEmailReport()" class="action-btn" style="display:none;border-color:#10b981;color:#10b981;"><i class="fas fa-envelope"></i> Email Report</button>
 <button id="mmpdaBtn" class="action-btn" style="background:#10b981;color:#000;border-color:#10b981;"><i class="fas fa-hand-holding-usd"></i> MMPDA Monthly</button>
 <button onclick="openWahedTopupModal()" class="action-btn" style="border-color:#10b981;color:#10b981;"><i class="fas fa-coins"></i> Wahed Top-up</button>
+<button onclick="openGoldBuyModal()" class="action-btn" style="border-color:#facc15;color:#facc15;"><i class="fas fa-ring"></i> Gold Buy</button>
 <button id="rentalBtn" class="action-btn"><i class="fas fa-home"></i> Rental Income</button>
 <button id="addInvestmentBtn" class="action-btn" style="background:linear-gradient(135deg,#a855f7,#6d28d9);color:#fff;border-color:#a855f7;" onclick="scrollToAddInvestment()"><i class="fas fa-plus-circle"></i> Add Investment</button>
 <button onclick="openCryptoSellModal()" class="action-btn" style="background:linear-gradient(135deg,#f7931a,#f59e0b);color:#000;border-color:#f7931a;"><i class="fas fa-coins"></i> Crypto Sell</button>
@@ -958,6 +959,11 @@ oninput="updateInvestSimulator()">
 </div>
 </div>
 
+<!-- GOLD (সোনা) — card is in the grid above; this is the purchase history -->
+<div style="margin-top:16px;margin-bottom:6px;"><div style="font-size:0.68rem;color:#facc15;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;"><i class="fas fa-coins"></i> সোনা ক্রয়ের তালিকা</div></div>
+<div id="goldSummary" style="display:none;"></div>
+<div id="goldLotsList" style="margin-top:6px;"></div>
+
 <!-- STOCK CARDS (eToro) -->
 
 <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;margin-bottom:6px;">
@@ -1002,6 +1008,46 @@ oninput="updateInvestSimulator()">
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button onclick="addDividend()" class="btn-save" style="flex:1;">Save</button>
 <button onclick="closeDividendModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- GOLD MODALS -->
+<div id="goldBuyModal" class="modal">
+<div class="modal-content">
+<h3>🪙 সোনা ক্রয়</h3>
+<label>তারিখ</label>
+<input type="date" id="goldBuyDate">
+<label>ওজন</label>
+<div style="display:flex;gap:8px;">
+<input type="number" id="goldBuyWeight" step="any" placeholder="যেমন 0.5" style="flex:1;" oninput="goldCalcPaid()">
+<select id="goldBuyUnit" style="padding:8px;" onchange="goldCalcPaid()"><option value="vori">ভরি</option><option value="gram">গ্রাম</option></select>
+</div>
+<label>প্রতি ভরি/গ্রাম দাম (ঐচ্ছিক — দিলে মোট টাকা নিজে হিসাব হবে)</label>
+<input type="number" id="goldBuyRate" step="any" placeholder="ওজনের এককের হিসাবে দাম" oninput="goldCalcPaid()">
+<div id="goldBuyHint" style="font-size:0.62rem;color:var(--text-sub);margin:4px 0;"></div>
+<label>মোট কত টাকা দিলেন (BDT)</label>
+<input type="number" id="goldBuyPaid" step="any" placeholder="মজুরি/VAT সহ মোট পরিমাণ">
+<label>Note (optional)</label>
+<textarea id="goldBuyNote" rows="2" placeholder="যেমন 22K, দোকানের নাম"></textarea>
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="addGoldLot()" class="btn-save" style="flex:1;">Save</button>
+<button onclick="closeGoldBuyModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Cancel</button>
+</div>
+</div>
+</div>
+<div id="goldPriceModal" class="modal">
+<div class="modal-content">
+<h3>🏷️ আজকের সোনার দাম</h3>
+<label>দাম (BDT)</label>
+<div style="display:flex;gap:8px;">
+<input type="number" id="goldPriceInput" step="any" placeholder="যেমন 185000" style="flex:1;">
+<select id="goldPriceUnit" style="padding:8px;"><option value="vori">প্রতি ভরি</option><option value="gram">প্রতি গ্রাম</option></select>
+</div>
+<div style="font-size:0.62rem;color:var(--text-sub);margin-top:6px;">💡 BAJUS-এর দাম দিন। বিক্রির সময় মজুরি কাটা যায়, তাই বাস্তব হিসাব চাইলে "বিক্রয়/buyback" দাম বসান।</div>
+<div style="display:flex;gap:8px;margin-top:15px;">
+<button onclick="saveGoldPrice()" class="btn-save" style="flex:1;">Save</button>
+<button onclick="closeGoldPriceModal()" style="background:var(--border);color:var(--text-main);border:none;padding:10px 20px;border-radius:8px;cursor:pointer;">Cancel</button>
 </div>
 </div>
 </div>
@@ -1551,6 +1597,8 @@ oninput="onInflationRateChange()">
 
 <script>
 // ====== SAFETY HELPERS (never let storage/network errors freeze the UI) ======
+let goldLots = safeParse('gold_lots', []).filter(l => l && typeof l === 'object');
+let goldPrice = safeParse('gold_price', {});
 let withdrawalLogChart = null, _wahedEditId = null, _wahedMode = 'topup', _nwLastSave = 0, _spLast = 0;
 function localDate() { let d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); } // LOCAL date (toISOString is UTC => wrong day in Bangladesh before 6am)
 const LS = {
@@ -2409,6 +2457,101 @@ card.style.display = 'block';
 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// ====== GOLD (monthly buys: each lot keeps its own cost; value follows today's price you set) ======
+var VORI_G = 11.664; // grams per vori
+function goldFmtW(g) { return (g/VORI_G).toFixed(2) + ' ভরি (' + g.toFixed(2) + ' গ্রাম)'; }
+function calcGold() {
+let grams = 0, cost = 0;
+goldLots.forEach(l => { grams += +l.grams || 0; cost += +l.paid || 0; });
+let pv = +goldPrice.perVori || 0;
+let value = pv > 0 ? grams / VORI_G * pv : cost; // no price yet => value = cost (no fake profit/loss)
+return { grams, cost, value, profit: value - cost, pct: cost > 0 ? (value - cost) / cost * 100 : 0,
+perVori: pv, hasPrice: pv > 0, avgPerVori: grams > 0 ? cost / grams * VORI_G : 0, date: goldPrice.date || '' };
+}
+function saveGold() {
+LS.setItem('gold_lots', JSON.stringify(goldLots));
+LS.setItem('gold_price', JSON.stringify(goldPrice));
+saveMetaData();
+}
+function openGoldBuyModal() {
+if(!isAdmin) return showToast('Admin login required', true);
+document.getElementById('goldBuyDate').value = localDate();
+['goldBuyWeight','goldBuyRate','goldBuyPaid','goldBuyNote'].forEach(id => document.getElementById(id).value = '');
+let _h = document.getElementById('goldBuyHint'); if(_h) _h.textContent = '';
+document.getElementById('goldBuyModal').style.display = 'flex';
+}
+function closeGoldBuyModal() { document.getElementById('goldBuyModal').style.display = 'none'; }
+function addGoldLot() {
+if(!isAdmin) return showToast('Admin login required', true);
+let w = parseFloat(document.getElementById('goldBuyWeight').value);
+let unit = document.getElementById('goldBuyUnit').value;
+let paid = parseFloat(document.getElementById('goldBuyPaid').value);
+let date = document.getElementById('goldBuyDate').value;
+if(!(w > 0) || !(paid > 0) || !date) return showToast('ওজন, মোট টাকা ও তারিখ দিন', true);
+let grams = unit === 'vori' ? w * VORI_G : w;
+goldLots.push({ id: Date.now().toString(), date, grams, paid, note: document.getElementById('goldBuyNote').value || '' });
+goldLots.sort((a, b) => a.date < b.date ? -1 : 1);
+saveGold(); closeGoldBuyModal(); renderAll();
+showToast('✅ ' + goldFmtW(grams) + ' সোনা যোগ হয়েছে');
+}
+function openGoldPriceModal() {
+if(!isAdmin) return showToast('Admin login required', true);
+document.getElementById('goldPriceInput').value = goldPrice.perVori ? Math.round(goldPrice.perVori) : '';
+document.getElementById('goldPriceUnit').value = 'vori';
+document.getElementById('goldPriceModal').style.display = 'flex';
+}
+function closeGoldPriceModal() { document.getElementById('goldPriceModal').style.display = 'none'; }
+function saveGoldPrice() {
+if(!isAdmin) return showToast('Admin login required', true);
+let v = parseFloat(document.getElementById('goldPriceInput').value);
+if(!(v > 0)) return showToast('সঠিক দাম দিন', true);
+let perVori = document.getElementById('goldPriceUnit').value === 'gram' ? v * VORI_G : v;
+goldPrice = { perVori, date: localDate() };
+saveGold(); closeGoldPriceModal(); renderAll();
+showToast('✅ সোনার দাম আপডেট হয়েছে');
+}
+function deleteGoldLot(id) {
+if(!isAdmin) return showToast('Admin login required', true);
+if(!confirm('এই ক্রয়ের এন্ট্রি মুছবেন?')) return;
+goldLots = goldLots.filter(l => l.id !== id);
+saveGold(); renderAll();
+}
+function renderGold() {
+let box = document.getElementById('goldSummary'); if(!box) return;
+let g = calcGold(), pos = g.profit >= 0;
+if(!goldLots.length) {
+box.innerHTML = '<div style="text-align:center;font-size:0.72rem;color:var(--text-sub);">এখনো কোনো সোনা যোগ করা হয়নি — "সোনা ক্রয়" চাপুন</div>';
+document.getElementById('goldLotsList').innerHTML = ''; return;
+}
+let col = pos ? '#4ade80' : '#f87171';
+let stale = g.hasPrice && g.date && (Date.now() - new Date(g.date + 'T00:00:00').getTime()) > 3*86400000;
+box.innerHTML = `
+<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+<div><div style="font-size:0.6rem;color:var(--text-sub);">মোট সোনা</div><div style="font-size:0.85rem;font-weight:800;color:#facc15;">${goldFmtW(g.grams)}</div></div>
+<div style="text-align:right;"><div style="font-size:0.6rem;color:var(--text-sub);">বর্তমান মূল্য</div><div style="font-size:0.95rem;font-weight:800;color:var(--text-main);">${formatNumber(g.value)} BDT</div></div>
+</div>
+<div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:0.68rem;">
+<span style="color:var(--text-sub);">💵 মোট দিয়েছেন: <b style="color:var(--text-main);">${formatNumber(g.cost)}</b></span>
+<span style="color:${col};font-weight:800;">${g.hasPrice ? (pos?'+':'') + formatNumber(g.profit) + ' BDT (' + (pos?'+':'') + g.pct.toFixed(2) + '%)' : 'দাম বসালে লাভ-ক্ষতি দেখাবে'}</span>
+</div>
+<div style="display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:0.62rem;color:var(--text-sub);flex-wrap:wrap;">
+<span>গড় ক্রয়: ${formatNumber(g.avgPerVori)}/ভরি</span>
+<span>${g.hasPrice ? 'আজকের দাম: ' + formatNumber(g.perVori) + '/ভরি · ' + calcEsc2(g.date) : '⚠️ আজকের দাম বসানো হয়নি'}${stale ? ' <span style="color:#fb923c;">(পুরনো — আপডেট করুন)</span>' : ''}</span>
+</div>`;
+let rows = goldLots.slice().sort((a,b) => a.date < b.date ? 1 : -1).map(l => {
+let lv = g.hasPrice ? (l.grams / VORI_G * g.perVori) : l.paid, lp = lv - l.paid, lpos = lp >= 0;
+return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;margin-top:4px;background:var(--bg-input);border:1px solid var(--border);border-radius:10px;">
+<div style="min-width:0;"><div style="font-size:0.74rem;font-weight:700;color:var(--text-main);">${goldFmtW(l.grams)}</div>
+<div style="font-size:0.62rem;color:var(--text-sub);">📅 ${calFmtDate(l.date)} · ${formatNumber(l.paid / l.grams * VORI_G)}/ভরি${l.note ? ' · ' + calEsc(l.note) : ''}</div></div>
+<div style="text-align:right;flex-shrink:0;"><div style="font-size:0.76rem;font-weight:800;color:var(--text-main);">${formatNumber(l.paid)}</div>
+${g.hasPrice ? `<div style="font-size:0.6rem;color:${lpos?'#4ade80':'#f87171'};">${lpos?'+':''}${formatNumber(lp)}</div>` : ''}</div>
+${isAdmin ? `<button onclick="deleteGoldLot('${l.id}')" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:0.8rem;"><i class="fas fa-trash"></i></button>` : ''}
+</div>`;
+}).join('');
+document.getElementById('goldLotsList').innerHTML = rows;
+}
+function calcEsc2(x) { return typeof calEsc === 'function' ? calEsc(x) : String(x || ''); }
+
 // ====== RETURNS CALENDAR (year view: Received / Ready / Scheduled, with source, amount & date) ======
 let _calMonths = [];
 function openCalendar() {
@@ -2464,6 +2607,7 @@ if(!base) base = (+inv.amountUSD || 0) * (usdToBdt || 0);
 if(base > 0) put('invested', inv.start, { amount: base, profit: 0, source: inv.platform || '—', name: inv.type || 'Investment', note: inv.note ? String(inv.note).slice(0, 40) : '', partial: false });
 tops.forEach(t => { if(t && +t.amount > 0) put('invested', t.date, { amount: +t.amount, profit: 0, source: inv.platform || '—', name: (inv.type || 'Investment') + ' (Top-up)', note: '', partial: false }); });
 });
+(goldLots || []).forEach(l => { if(l && +l.paid > 0) put('invested', l.date, { amount: +l.paid, profit: 0, source: 'Gold', name: 'সোনা ' + (+l.grams / VORI_G).toFixed(2) + ' ভরি', note: l.note ? String(l.note).slice(0, 40) : '', partial: false }); });
 return months;
 }
 function renderCalendar() {
@@ -2552,7 +2696,7 @@ showToast("📱 iOS এ: Share > Add to Home Screen করুন!", false);
 }
 
 // ====== STATS ======
-function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
+function calcPrincipal() { let t=0; investments.forEach(i=>{ if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); t += calcGold().cost; return { bdt:t, usd:t/usdToBdt }; }
 
 // ====== POCKET PRINCIPAL (own-pocket money currently tied up, profit netted out) ======
 // ====== OWNERSHIP LEDGER (own-pocket vs reinvested-profit accounting) ======
@@ -2571,6 +2715,7 @@ if(isNaN(d.getTime())) return;
 if(inv.type === 'LOAN_TAKEN') events.push({ date:d, kind:'credit', amount: inv.amountBDT||0 }); // borrowed money isn't your own pocket
 else events.push({ date:d, kind:'outflow', amount: inv.amountBDT||0, invId: inv.id });
 });
+goldLots.forEach(l => { let d = new Date(l.date); if(!isNaN(d.getTime())) events.push({ date:d, kind:'outflow', amount:+l.paid||0, invId:'gold:'+l.id }); });
 withdrawHistory.forEach(h => {
 if(!h.date || !h.profit) return;
 let d = new Date(h.date);
@@ -2602,6 +2747,7 @@ if(!c) return;
 lifetimeContribution += c;
 if(inv.status === 'active') currentOwnPocket += c;
 });
+goldLots.forEach(l => { let c = contributionByInvId['gold:'+l.id]; if(c) { lifetimeContribution += c; currentOwnPocket += c; } });
 let totalProfitEarned = withdrawHistory.reduce((s,h) => s + (h.profit||0), 0);
 return {
 currentOwnPocket,
@@ -2613,7 +2759,7 @@ contributionByInvId
 };
 }
 function computePocketPrincipal() { return computeOwnershipLedger().currentOwnPocket; }
-function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); return { bdt:t, usd:t/usdToBdt }; }
+function calcCurrent() { let t=0; investments.forEach(i=>{ if(i.status!=='active') return; if(i.type==="LOAN_GIVEN") t+=i.amountBDT; else if(i.type==="LOAN_TAKEN") t-=i.amountBDT; else t+=i.amountBDT; }); t += calcGold().value; return { bdt:t, usd:t/usdToBdt }; }
 
 function renderStats() {
 let p=calcPrincipal(), c=calcCurrent(), pl=c.bdt-p.bdt, per=p.bdt>0?(pl/p.bdt*100):0;
@@ -2661,7 +2807,7 @@ let costVal = inv.amount * (inv.purchasePrice||0) * usdToBdt;
 stockUnrealized += curVal - costVal;
 });
 let nonCryptoProfit = investments.filter(i=>!i.isCrypto&&!i.isStock&&!isWaitMoney(i)&&!(isWahedInv(i)&&i.status!=='active')).reduce((s,i)=>s+(i.actualProfit||0),0);
-let totalProfit = unmirroredHistoryProfit + dividendTotalBDT + cryptoUnrealized + stockUnrealized + nonCryptoProfit;
+let totalProfit = unmirroredHistoryProfit + dividendTotalBDT + cryptoUnrealized + stockUnrealized + nonCryptoProfit + calcGold().profit;
 let pos = totalProfit >= 0;
 let pct = p.bdt > 0 ? (totalProfit/p.bdt*100) : 0;
 profitEl.innerHTML = `
@@ -3080,6 +3226,40 @@ return `
 </div>`;
 }
 
+function renderGoldCard() {
+let g = calcGold(), pos = g.profit >= 0, col = pos ? '#4ade80' : '#f87171';
+let stale = g.hasPrice && g.date && (Date.now() - new Date(g.date + 'T00:00:00').getTime()) > 3*86400000;
+let hasLots = goldLots.length > 0;
+return `
+<div class="crypto-card" style="border-top-color:#facc15;">
+<div style="color:#facc15; font-weight:bold; display:flex; align-items:center; gap:6px;"><i class="fas fa-coins"></i> Gold / সোনা</div>
+<div class="crypto-price-usd"><span>${formatNumber(g.value)} BDT</span></div>
+<div class="crypto-price-bdt">$${formatNumber(g.value / usdToBdt)} USD</div>
+<div class="crypto-details">
+<div class="row"><span>⚖️ মোট সোনা:</span><span style="color:#facc15;font-weight:700;">${goldFmtW(g.grams)}</span></div>
+<div class="row"><span>💵 মোট দিয়েছেন:</span><span class="value-bdt">${formatNumber(g.cost)} BDT</span></div>
+<div class="row"><span>📈 লাভ/ক্ষতি:</span><span style="color:${col};font-weight:700;">${g.hasPrice ? (pos?'+':'') + formatNumber(g.profit) + ' BDT (' + (pos?'+':'') + g.pct.toFixed(1) + '%)' : 'দাম বসান'}</span></div>
+<div class="row"><span>📊 গড় ক্রয়:</span><span>${hasLots ? formatNumber(g.avgPerVori) + '/ভরি' : '—'}</span></div>
+<div class="row"><span>🏷️ আজকের দাম:</span><span>${g.hasPrice ? formatNumber(g.perVori) + '/ভরি' : '⚠️ দেওয়া হয়নি'}${stale ? ' <span style="color:#fb923c;font-size:0.55rem;">(পুরনো)</span>' : ''}</span></div>
+<div style="margin-top:8px;display:flex;gap:4px;">
+<button onclick="openGoldPriceModal()" style="flex:1;background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-tag"></i> দাম আপডেট</button>
+<button onclick="openGoldBuyModal()" style="flex:1;background:rgba(250,204,21,0.14);color:#facc15;border:1px solid rgba(250,204,21,0.35);border-radius:8px;padding:6px 8px;font-size:0.62rem;font-weight:700;cursor:pointer;"><i class="fas fa-plus"></i> সোনা ক্রয়</button>
+</div>
+</div>
+</div>`;
+}
+function goldCalcPaid() {
+let w = parseFloat(document.getElementById('goldBuyWeight').value);
+let r = parseFloat(document.getElementById('goldBuyRate').value);
+let unit = document.getElementById('goldBuyUnit').value;
+let hint = document.getElementById('goldBuyHint');
+if(w > 0 && r > 0) {
+let total = Math.round(w * r); // rate is per the same unit as weight
+document.getElementById('goldBuyPaid').value = total;
+if(hint) hint.textContent = '🧮 ' + w + (unit === 'vori' ? ' ভরি' : ' গ্রাম') + ' × ' + formatNumber(r) + ' = ' + formatNumber(total) + ' BDT (মজুরি/VAT থাকলে নিচের টাকা বদলে দিন)';
+}
+}
+
 function renderStockCards() {
 let grid = document.getElementById('stockCardsGrid');
 if(!grid) return;
@@ -3106,7 +3286,7 @@ ${divTotalUsd>0?`<div class="row"><span style="color:#4ade80;">💵 Dividends:</
 </div>
 </div>
 </div>`;
-}).join('') + renderWahedCard();
+}).join('') + renderWahedCard() + (function(){ try { return renderGoldCard(); } catch(e) { console.warn('renderGoldCard failed:', e); return ''; } })();
 }
 
 function setManualStockPrice(sym) {
@@ -3743,7 +3923,7 @@ let metaLoadedOk = false;
 async function saveMetaData() {
 try {
 if(!db || !metaLoadedOk) return;
-await db.collection('meta').doc('appdata').set({ withdrawHistory, dividends, budgetAll, nwHistory }, { merge: true });
+await db.collection('meta').doc('appdata').set({ withdrawHistory, dividends, budgetAll, nwHistory, goldLots, goldPrice }, { merge: true });
 } catch(e) { console.warn('Meta save failed (offline?):', e); }
 }
 let metaLoadPromise = null;
@@ -3758,6 +3938,8 @@ if(Array.isArray(d.withdrawHistory)) { withdrawHistory = d.withdrawHistory; LS.s
 if(Array.isArray(d.dividends)) { dividends = d.dividends; LS.setItem('dividends', JSON.stringify(dividends)); }
 if(Array.isArray(d.budgetAll)) { budgetAll = d.budgetAll; LS.setItem('budget_all', JSON.stringify(budgetAll)); }
 if(Array.isArray(d.nwHistory)) { nwHistory = d.nwHistory; LS.setItem(NW_KEY, JSON.stringify(nwHistory)); }
+if(Array.isArray(d.goldLots)) { goldLots = d.goldLots; LS.setItem('gold_lots', JSON.stringify(goldLots)); }
+if(d.goldPrice && typeof d.goldPrice === 'object') { goldPrice = d.goldPrice; LS.setItem('gold_price', JSON.stringify(goldPrice)); }
 renderAll();
 if(typeof renderDividendHistory==='function') renderDividendHistory();
 if(typeof renderBudgetDisplay==='function') renderBudgetDisplay();
@@ -3945,7 +4127,7 @@ renderNwGraph();
 }
 
 function renderAll() {
-[renderStats, renderPortfolioByPlatform, renderWaitMoney, renderHistory, renderProjectGantt, renderPlatformChart, renderRiskChart, renderCurrencyExposure, renderWithdrawalLogChart, renderPLTicker, renderStockCards, renderDividendHistory, updateCryptoPrices, updateStockPrices, tickNwGraph, renderMonthlyPL].forEach(fn => {
+[renderStats, renderPortfolioByPlatform, renderWaitMoney, renderHistory, renderProjectGantt, renderPlatformChart, renderRiskChart, renderCurrencyExposure, renderWithdrawalLogChart, renderPLTicker, renderStockCards, renderDividendHistory, updateCryptoPrices, updateStockPrices, tickNwGraph, renderMonthlyPL, renderGold].forEach(fn => {
 try { let r = fn(); if(r && typeof r.catch === 'function') r.catch(e => console.warn(fn.name + ' failed:', e)); }
 catch(e) { console.warn(fn.name + ' failed:', e); }
 });
