@@ -1025,11 +1025,12 @@ oninput="updateInvestSimulator()">
 <input type="date" id="goldBuyDate">
 <label>ওজন</label>
 <div style="display:flex;gap:8px;">
-<input type="number" id="goldBuyWeight" step="any" placeholder="যেমন 0.5" style="flex:1;">
-<select id="goldBuyUnit" style="padding:8px;"><option value="vori">ভরি</option><option value="gram">গ্রাম</option></select>
+<input type="number" id="goldBuyWeight" step="any" inputmode="decimal" placeholder="যেমন 0.5" oninput="goldBuyPreview()" style="flex:1 1 auto;min-width:0;width:auto;">
+<select id="goldBuyUnit" onchange="goldBuyPreview()" style="flex:0 0 auto;width:auto;min-width:84px;padding:8px;"><option value="vori">ভরি</option><option value="gram">গ্রাম</option></select>
 </div>
 <label>মোট কত টাকা দিলেন (BDT)</label>
-<input type="number" id="goldBuyPaid" step="any" placeholder="মজুরি/VAT সহ মোট পরিমাণ">
+<input type="number" id="goldBuyPaid" step="any" inputmode="decimal" placeholder="মজুরি/VAT সহ মোট পরিমাণ" oninput="goldBuyPreview()">
+<div id="goldBuyPreview" style="font-size:0.66rem;color:#facc15;margin-top:6px;min-height:14px;"></div>
 <label>Note (optional)</label>
 <textarea id="goldBuyNote" rows="2" placeholder="যেমন 22K, দোকানের নাম"></textarea>
 <div style="display:flex;gap:8px;margin-top:15px;">
@@ -1043,9 +1044,10 @@ oninput="updateInvestSimulator()">
 <h3>🏷️ আজকের সোনার দাম</h3>
 <label>দাম (BDT)</label>
 <div style="display:flex;gap:8px;">
-<input type="number" id="goldPriceInput" step="any" placeholder="যেমন 185000" style="flex:1;">
-<select id="goldPriceUnit" style="padding:8px;"><option value="vori">প্রতি ভরি</option><option value="gram">প্রতি গ্রাম</option></select>
+<input type="number" id="goldPriceInput" step="any" inputmode="decimal" placeholder="যেমন 185000" oninput="goldPricePreview()" style="flex:1 1 auto;min-width:0;width:auto;">
+<select id="goldPriceUnit" onchange="goldPricePreview()" style="flex:0 0 auto;width:auto;min-width:110px;padding:8px;"><option value="vori">প্রতি ভরি</option><option value="gram">প্রতি গ্রাম</option></select>
 </div>
+<div id="goldPricePreview" style="font-size:0.66rem;color:#facc15;margin-top:8px;min-height:14px;line-height:1.5;"></div>
 <div style="font-size:0.62rem;color:var(--text-sub);margin-top:6px;">💡 BAJUS-এর দাম দিন। বিক্রির সময় মজুরি কাটা যায়, তাই বাস্তব হিসাব চাইলে "বিক্রয়/buyback" দাম বসান।</div>
 <div style="display:flex;gap:8px;margin-top:15px;">
 <button onclick="saveGoldPrice()" class="btn-save" style="flex:1;">Save</button>
@@ -1077,7 +1079,7 @@ oninput="updateInvestSimulator()">
 <div id="total24hPLContainer" style="margin-top:8px;"></div>
 </div>
 <div class="stat-card">
-<div class="stat-label">🎯 Active Investment (Excl. Wait Money)</div>
+<div class="stat-label">🎯 Active Investment (Excl. Wait Money · সোনা সহ)</div>
 <div class="stat-value-bdt"><span id="activeAmount">0</span> BDT</div>
 <div class="stat-value-usd" id="activeAmountUsd">$ 0.00 USD</div>
 <div id="weeklyPLContainer" style="margin-top:8px;"></div>
@@ -1885,6 +1887,7 @@ if(inv.isCrypto && cryptoPrices[inv.type]) val = inv.amount*cryptoPrices[inv.typ
 else if(inv.isStock && stockPrices[inv.type]) val = inv.amount*stockPrices[inv.type]*usdToBdt;
 if(inv.isCrypto || inv.isStock || inv.isWahed) usdBasedValue += val; else bdtBasedValue += val;
 });
+usdBasedValue += calcGold().value;
 let total = usdBasedValue + bdtBasedValue;
 return { usdBasedValue, bdtBasedValue, usdPct: total>0?(usdBasedValue/total)*100:0, bdtPct: total>0?(bdtBasedValue/total)*100:0 };
 }
@@ -2024,11 +2027,13 @@ let insightEl = document.getElementById('aiInsight');
 let suggestionBox = document.getElementById('aiSuggestionBox');
 let scoreBar = document.getElementById('aiScoreBar');
 let active = investments.filter(i => i.status === 'active');
-if(active.length === 0) { showToast("কোনো active investment নেই।", true); return; }
+const _g = calcGold();
+if(active.length === 0 && !(_g.cost > 0)) { showToast("কোনো active investment নেই।", true); return; }
 
 // ── Data Collect ──
-const totalInvested = active.reduce((s,i) => s+(i.amountBDT||0), 0);
-const totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0);
+const totalInvested = active.reduce((s,i) => s+(i.amountBDT||0), 0) + _g.cost;
+const totalActualProfit = investments.reduce((s,i) => s+(i.actualProfit||0), 0) + _g.profit;
+const goldValue = _g.value;
 const currentValue = totalInvested + totalActualProfit;
 const cryptoValue = active.filter(i=>i.isCrypto&&cryptoPrices[i.type]).reduce((s,i)=>s+i.amount*cryptoPrices[i.type]*usdToBdt,0);
 const stockValue = active.filter(i=>i.isStock&&stockPrices[i.type]).reduce((s,i)=>s+i.amount*stockPrices[i.type]*usdToBdt,0);
@@ -2039,13 +2044,14 @@ const activeCount = active.length;
 // ── Smart Return Rate (multi-factor blend: actual track-record + category-expected + recent momentum) ──
 let earliestDate = null;
 active.forEach(i=>{ if(i.start){ let d=new Date(i.start); if(!earliestDate||d<earliestDate) earliestDate=d; } });
+goldLots.forEach(l=>{ if(l.date){ let d=new Date(l.date); if(!isNaN(d.getTime()) && (!earliestDate||d<earliestDate)) earliestDate=d; } });
 let monthsActive = earliestDate ? Math.max(1, Math.round((new Date()-earliestDate)/(1000*60*60*24*30))) : 6;
 let historicalMonthlyRate = totalInvested>0 ? (totalActualProfit/totalInvested)/monthsActive : 0;
 
 let farmValueEarly = active.filter(i=>['Wegro','iFarmer'].includes(i.platform)||i.type==='Agriculture').reduce((s,i)=>s+(i.amountBDT||0),0);
 let businessValueEarly = active.filter(i=>i.platform==='Biniyog'||i.type==='Business').reduce((s,i)=>s+(i.amountBDT||0),0);
 let safeValueEarly = active.filter(i=>(i.type==='MMPDA'||i.type==='BANK_DEPOSIT'||i.type==='MSSA')&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
-let categoryBlendedAnnual = currentValue>0 ? ((cryptoValue*0.11)+(stockValue*0.10)+(farmValueEarly*0.19)+(businessValueEarly*0.15)+(safeValueEarly*0.08))/currentValue : 0.08;
+let categoryBlendedAnnual = currentValue>0 ? ((cryptoValue*0.11)+(stockValue*0.10)+(goldValue*0.08)+(farmValueEarly*0.19)+(businessValueEarly*0.15)+(safeValueEarly*0.08))/currentValue : 0.08;
 let categoryBlendedMonthly = categoryBlendedAnnual/12;
 
 let recentMonthsForAI = (typeof computeMonthlyPL==='function' ? computeMonthlyPL() : []).slice(-3);
@@ -2088,6 +2094,7 @@ if(inv.isCrypto && cryptoPrices[inv.type]) val = inv.amount*cryptoPrices[inv.typ
 else if(inv.isStock && stockPrices[inv.type]) val = inv.amount*stockPrices[inv.type]*usdToBdt;
 platformValueMap[inv.platform] = (platformValueMap[inv.platform]||0) + val;
 });
+if(goldValue > 0) platformValueMap['Gold'] = (platformValueMap['Gold']||0) + goldValue;
 let totalPlatformValue = Object.values(platformValueMap).reduce((a,b)=>a+b, 0);
 let hhi = totalPlatformValue>0 ? Object.values(platformValueMap).reduce((s,v)=>s+Math.pow(v/totalPlatformValue,2), 0) : 1;
 let diversificationScore = Math.round((1-hhi)*100);
@@ -2125,6 +2132,7 @@ active.forEach(inv => {
 if(!isWaitMoney(inv)) platMap[inv.platform] = (platMap[inv.platform]||0) + (inv.amountBDT||0);
 });
 }
+if(history.length === 0 && _g.cost > 0) platMap['Gold'] = (platMap['Gold']||0) + _g.cost;
 let bestPlatform = Object.keys(platMap).sort((a,b) => platMap[b]-platMap[a])[0] || 'N/A';
 let bestPlatformProfit = bestPlatform !== 'N/A' ? platMap[bestPlatform] : 0;
 let bestPlatformLabel = history.length > 0 ? `+${formatNumber(bestPlatformProfit)} BDT` : `${formatNumber(bestPlatformProfit)} BDT invested`;
@@ -2147,11 +2155,12 @@ totalPortfolio: total,
 currentAllocation: {
 crypto: (cryptoValue / total) * 100,
 stocks: (stockValue / total) * 100,
+gold: (goldValue / total) * 100,
 farming: (farmValue / total) * 100,
 business: (businessValue / total) * 100,
 safe: (safeValue / total) * 100,
 },
-values: { crypto:cryptoValue, stocks:stockValue, farming:farmValue, business:businessValue, safe:safeValue }
+values: { crypto:cryptoValue, stocks:stockValue, gold:goldValue, farming:farmValue, business:businessValue, safe:safeValue }
 };
 }
 
@@ -2164,12 +2173,13 @@ return gaps;
 const platformMap = {
 crypto: { names:['BTC','ETH','BNB','SOL'], color:'#f7931a', icon:'₿', returnRate:0.11 },
 stocks: { names:['AAPL','NVDA','ARAMCO'], color:'#3b82f6', icon:'📈', returnRate:0.10 },
+gold: { names:['Gold / সোনা'], color:'#facc15', icon:'🪙', returnRate:0.08 },
 farming: { names:['iFarmer','Wegro'], color:'#4ade80', icon:'🌱', returnRate:0.19 },
 business: { names:['Biniyog'], color:'#a855f7', icon:'💼', returnRate:0.15 },
 safe: { names:['MMPDA','MSSA'], color:'#10b981', icon:'🏦', returnRate:0.08 },
 };
 
-const TARGET = { crypto:15, stocks:15, farming:25, business:20, safe:25 };
+const TARGET = { crypto:15, stocks:15, gold:5, farming:25, business:20, safe:20 };
 
 function getAIPlan(data, investAmount) {
 const gaps = calculateGaps(data.currentAllocation, TARGET);
@@ -2473,13 +2483,30 @@ perVori: pv, hasPrice: pv > 0, avgPerVori: grams > 0 ? cost / grams * VORI_G : 0
 function saveGold() {
 LS.setItem('gold_lots', JSON.stringify(goldLots));
 LS.setItem('gold_price', JSON.stringify(goldPrice));
-saveMetaData();
+Promise.resolve(saveMetaData()).then(ok => { if(ok === false) showToast('⚠️ Cloud-এ সেভ হয়নি — নেট/লগইন দেখে আবার চেষ্টা করুন, নইলে রিফ্রেশে হারাতে পারে', true); });
+}
+function goldBuyPreview() {
+let box = document.getElementById('goldBuyPreview'); if(!box) return;
+let w = parseFloat(document.getElementById('goldBuyWeight').value), paid = parseFloat(document.getElementById('goldBuyPaid').value);
+let g = document.getElementById('goldBuyUnit').value === 'vori' ? w * VORI_G : w;
+box.textContent = (w > 0 && paid > 0) ? '≈ ' + formatNumber(paid / g * VORI_G) + ' ৳/ভরি · ' + formatNumber(paid / g) + ' ৳/গ্রাম · ' + goldFmtW(g) : '';
+}
+function goldPricePreview() {
+let box = document.getElementById('goldPricePreview'); if(!box) return;
+let v = parseFloat(document.getElementById('goldPriceInput').value);
+if(!(v > 0)) { box.textContent = ''; return; }
+let perVori = document.getElementById('goldPriceUnit').value === 'gram' ? v * VORI_G : v;
+let g = 0, cost = 0; goldLots.forEach(l => { g += +l.grams || 0; cost += +l.paid || 0; });
+let txt = 'প্রতি ভরি ' + formatNumber(perVori) + ' · প্রতি গ্রাম ' + formatNumber(perVori / VORI_G);
+if(g > 0) { let val = g / VORI_G * perVori; txt += '<br>আপনার ' + (g / VORI_G).toFixed(2) + ' ভরির মূল্য: <b>' + formatNumber(val) + '</b> (' + (val - cost >= 0 ? '+' : '') + formatNumber(val - cost) + ')'; }
+box.innerHTML = txt;
 }
 function openGoldBuyModal() {
 if(!isAdmin) return showToast('Admin login required', true);
 document.getElementById('goldBuyDate').value = localDate();
 ['goldBuyWeight','goldBuyPaid','goldBuyNote'].forEach(id => document.getElementById(id).value = '');
 document.getElementById('goldBuyModal').style.display = 'flex';
+goldBuyPreview();
 }
 function closeGoldBuyModal() { document.getElementById('goldBuyModal').style.display = 'none'; }
 function addGoldLot() {
@@ -2500,6 +2527,7 @@ if(!isAdmin) return showToast('Admin login required', true);
 document.getElementById('goldPriceInput').value = goldPrice.perVori ? Math.round(goldPrice.perVori) : '';
 document.getElementById('goldPriceUnit').value = 'vori';
 document.getElementById('goldPriceModal').style.display = 'flex';
+goldPricePreview();
 }
 function closeGoldPriceModal() { document.getElementById('goldPriceModal').style.display = 'none'; }
 function saveGoldPrice() {
@@ -2778,9 +2806,10 @@ document.getElementById('currentValue').innerHTML = formatNumber(cConv);
 document.getElementById('currentCurrLabel').textContent = activeCurrency;
 document.getElementById('currentValueUsd').innerHTML = formatNumber(c.usd);
 document.getElementById('plDisplay').innerHTML = `<span style="color:${pl>=0?'#4ade80':'#f87171'}">${pl>=0?'+':''}${formatNumber(pl)} BDT (${pl>=0?'+':''}${per.toFixed(2)}%)</span>`;
-let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0);
+let goldCostNow = calcGold().cost;
+let activeBDT = investments.filter(i=>i.status==='active'&&!isWaitMoney(i)).reduce((s,i)=>s+(i.amountBDT||0),0) + goldCostNow;
 document.getElementById('activeAmount').innerHTML = formatNumber(activeBDT);
-document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD`;
+document.getElementById('activeAmountUsd').innerHTML = `$ ${formatNumber(activeBDT/usdToBdt)} USD` + (goldCostNow > 0 ? `<div style="font-size:0.64rem;color:#facc15;margin-top:4px;">🪙 এর মধ্যে সোনা: ${formatNumber(goldCostNow)} BDT</div>` : '');
 
 let profitEl = document.getElementById('totalProfitSinceInception');
 if(profitEl) {
@@ -3599,6 +3628,7 @@ function renderPlatformChart() {
 let active = investments.filter(i => i.status === 'active' && !isWaitMoney(i));
 let map = {}, total = 0;
 active.forEach(inv => { let v = inv.amountBDT||0; map[inv.platform] = (map[inv.platform]||0) + v; total += v; });
+{ let _g = calcGold(); if(_g.cost > 0) { map['Gold'] = (map['Gold']||0) + _g.cost; total += _g.cost; } }
 let legendEl = document.getElementById('platformLegend');
 let totalEl = document.getElementById('platformChartTotal');
 if(!total) {
@@ -3666,6 +3696,7 @@ let risk = classifyPlatformRisk(inv);
 if(!map[inv.platform]) map[inv.platform] = { value:0, risk };
 map[inv.platform].value += val;
 });
+{ let _g = calcGold(); if(_g.value > 0) { if(!map['Gold']) map['Gold'] = { value:0, risk:{ level:'medium', color:'#facc15', label:'Medium (Gold)' } }; map['Gold'].value += _g.value; } }
 return Object.keys(map).map(p => ({ platform:p, value:map[p].value, risk:map[p].risk })).sort((a,b)=>b.value-a.value);
 }
 function renderRiskChart() {
@@ -3711,7 +3742,7 @@ bar.innerHTML = `
 <div style="width:${ex.bdtPct}%;background:linear-gradient(90deg,#22c55e,#4ade80);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#052e16;" title="BDT ${ex.bdtPct.toFixed(1)}%">${ex.bdtPct>=12?ex.bdtPct.toFixed(0)+'%':''}</div>
 <div style="width:${ex.usdPct}%;background:linear-gradient(90deg,#fb923c,#f87171);display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#450a0a;" title="USD-linked ${ex.usdPct.toFixed(1)}%">${ex.usdPct>=12?ex.usdPct.toFixed(0)+'%':''}</div>`;
 let warn = ex.usdPct > 50 ? ' — ৫০%-এর বেশি USD-linked, টাকার dollar-rate ওঠানামায় বেশি exposed ⚠️' : '';
-txt.innerHTML = `🟢 BDT-based: <b>${formatNumber(ex.bdtBasedValue)}</b> (${ex.bdtPct.toFixed(1)}%) &nbsp;|&nbsp; 🔴 USD-linked (crypto/stock/Wahed): <b>${formatNumber(ex.usdBasedValue)}</b> (${ex.usdPct.toFixed(1)}%)${warn}`;
+txt.innerHTML = `🟢 BDT-based: <b>${formatNumber(ex.bdtBasedValue)}</b> (${ex.bdtPct.toFixed(1)}%) &nbsp;|&nbsp; 🔴 USD-linked (crypto/stock/Wahed/সোনা): <b>${formatNumber(ex.usdBasedValue)}</b> (${ex.usdPct.toFixed(1)}%)${warn}`;
 }
 
 // ====== CSV DATA EXPORT ======
@@ -3889,9 +3920,10 @@ wrap.onmouseleave = ()=>el.style.animationPlayState='running';
 let metaLoadedOk = false;
 async function saveMetaData() {
 try {
-if(!db || !metaLoadedOk) return;
+if(!db || !metaLoadedOk) return false;
 await db.collection('meta').doc('appdata').set({ withdrawHistory, dividends, budgetAll, nwHistory, goldLots, goldPrice }, { merge: true });
-} catch(e) { console.warn('Meta save failed (offline?):', e); }
+return true;
+} catch(e) { console.warn('Meta save failed (offline?):', e); return false; }
 }
 let metaLoadPromise = null;
 async function loadMetaData() {
